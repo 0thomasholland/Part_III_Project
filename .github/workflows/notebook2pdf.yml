@@ -51,6 +51,7 @@ jobs:
             -V author="Thomas Holland (th675)"
             -V date="October 2025 - "
             -V documentclass=article
+            -V titlepage=true
 
       - name: Commit and push PDF
         run: |
