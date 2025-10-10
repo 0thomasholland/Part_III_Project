@@ -1,63 +1,25 @@
 % Custom LaTeX Preamble
-% Add your custom packages and settings here
+% Math and science support, graphics, and tables
 
-% Custom fonts
-\usepackage{fontspec}
-\setmainfont{Latin Modern Roman}
-
-% Better typography
-\usepackage{microtype}
-
-% Custom colors
-\usepackage{xcolor}
-\definecolor{linkblue}{RGB}{0, 102, 204}
-
-% Code highlighting
-\usepackage{fancyvrb}
-\usepackage{listings}
-\lstset{
-    basicstyle=\ttfamily\small,
-    breaklines=true,
-    frame=single,
-    backgroundcolor=\color{gray!10}
-}
-
-% Custom headers and footers
-\usepackage{fancyhdr}
-\pagestyle{fancy}
-\fancyhead[L]{\leftmark}
-\fancyhead[R]{\thepage}
-\fancyfoot[C]{}
-
-% Better tables
-\usepackage{booktabs}
-\usepackage{longtable}
+% Math support
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
 
 % Graphics and figures
 \usepackage{graphicx}
 \usepackage{float}
 
-% Hyperlinks
+% Better tables
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+
+% Hyperlinks (for clickable references in PDF)
 \usepackage{hyperref}
 \hypersetup{
     colorlinks=true,
-    linkcolor=linkblue,
+    linkcolor=blue,
     filecolor=magenta,
-    urlcolor=linkblue,
-    pdftitle={Your Document Title},
-    pdfauthor={Your Name},
+    urlcolor=blue,
 }
-
-% Line spacing
-\usepackage{setspace}
-\onehalfspacing
-
-% Custom title formatting
-\usepackage{titlesec}
-\titleformat{\section}
-  {\normalfont\Large\bfseries\color{blue!60!black}}
-  {\thesection}{1em}{}
-
-% Math support (if needed)
-\usepackage{amsmath}
-\usepackage{amssymb}
