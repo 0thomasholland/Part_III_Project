@@ -1,0 +1,135 @@
+name: notebook2pdf
+
+on:
+  push:
+    branches:
+      - main  # Change to your default branch if different
+    paths:
+      - 'notebook/*.md'  # Trigger on markdown file changes
+      - '.github/workflows/markdown-to-pdf.yml'  # Re-run if workflow changes
+
+jobs:
+  convert-to-pdf:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for proper git operations
+
+      - name: Install pandoc and LaTeX
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pandoc texlive-latex-base texlive-fonts-recommended texlive-fonts-extra texlive-latex-extra
+
+      - name: Create LaTeX preamble
+        run: |
+          cat > /tmp/preamble.tex << 'EOF'
+          % Custom LaTeX Preamble
+          % Add your custom packages and settings here
+          
+          % Custom fonts
+          \usepackage{lmodern}
+          
+          % Better typography
+          \usepackage{microtype}
+          
+          % Custom colors
+          \usepackage{xcolor}
+          \definecolor{linkblue}{RGB}{0, 102, 204}
+          
+          % Code highlighting
+          \usepackage{fancyvrb}
+          \usepackage{listings}
+          \lstset{
+              basicstyle=\ttfamily\small,
+              breaklines=true,
+              frame=single,
+              backgroundcolor=\color{gray!10}
+          }
+          
+          % Custom headers and footers
+          \usepackage{fancyhdr}
+          \pagestyle{fancy}
+          \fancyhead[L]{\leftmark}
+          \fancyhead[R]{\thepage}
+          \fancyfoot[C]{}
+          
+          % Better tables
+          \usepackage{booktabs}
+          \usepackage{longtable}
+          
+          % Graphics and figures
+          \usepackage{graphicx}
+          \usepackage{float}
+          
+          % Hyperlinks
+          \usepackage{hyperref}
+          \hypersetup{
+              colorlinks=true,
+              linkcolor=linkblue,
+              filecolor=magenta,
+              urlcolor=linkblue,
+              pdftitle={Your Document Title},
+              pdfauthor={Your Name},
+          }
+          
+          % Line spacing
+          \usepackage{setspace}
+          \onehalfspacing
+          
+          % Custom title formatting
+          \usepackage{titlesec}
+          \titleformat{\section}
+            {\normalfont\Large\bfseries\color{blue!60!black}}
+            {\thesection}{1em}{}
+          
+          % Math support (if needed)
+          \usepackage{amsmath}
+          \usepackage{amssymb}
+          EOF
+
+      - name: Convert Markdown files to PDF
+        run: |
+          # Define the markdown files in the order you want them compiled
+          # Adjust these paths to match your actual files
+          FILES=(
+            "notebook/Introduciton.md"
+            "notebook/Literature.md"
+            "notebook/Progress.md"
+            "notebook/Thoughts.md"
+          )
+          
+          # Output PDF name and location
+          OUTPUT_PDF="notebook/notebook.pdf"
+          
+          # Compile all files into a single PDF
+          echo "Compiling markdown files to PDF..."
+          pandoc "${FILES[@]}" -o "$OUTPUT_PDF" \
+            --pdf-engine=pdflatex \
+            -V geometry:margin=1in \
+            -V linkcolor:blue \
+            -V urlcolor:blue \
+            --toc \
+            --number-sections \
+            --include-in-header=/tmp/preamble.tex
+          
+          echo "PDF generated successfully: $OUTPUT_PDF"
+
+      - name: Commit and push PDF
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          
+          git add notebook/*.pdf
+          
+          # Only commit if there are changes
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Auto-generate PDF from markdown files"
+            git push
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
