@@ -1,4 +1,4 @@
-name: notebook2pdf
+name: Convert Markdown to PDF
 
 on:
   push:
@@ -7,6 +7,8 @@ on:
     paths:
       - 'notebook/*.md'  # Trigger on markdown file changes
       - '.github/workflows/markdown-to-pdf.yml'  # Re-run if workflow changes
+      - '.github/formatting/preamble.tex'  # Re-run if preamble changes
+  workflow_dispatch:  # Allow manual triggering
 
 jobs:
   convert-to-pdf:
@@ -15,107 +17,37 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Fetch all history for proper git operations
 
-      - name: Install pandoc and LaTeX
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y pandoc texlive-latex-base texlive-fonts-recommended texlive-fonts-extra texlive-latex-extra
-
-      - name: Create LaTeX preamble
-        run: |
-          cat > /tmp/preamble.tex << 'EOF'
-          % Custom LaTeX Preamble
-          % Add your custom packages and settings here
-          
-          % Custom fonts
-          \usepackage{lmodern}
-          
-          % Better typography
-          \usepackage{microtype}
-          
-          % Custom colors
-          \usepackage{xcolor}
-          \definecolor{linkblue}{RGB}{0, 102, 204}
-          
-          % Code highlighting
-          \usepackage{fancyvrb}
-          \usepackage{listings}
-          \lstset{
-              basicstyle=\ttfamily\small,
-              breaklines=true,
-              frame=single,
-              backgroundcolor=\color{gray!10}
-          }
-          
-          % Custom headers and footers
-          \usepackage{fancyhdr}
-          \pagestyle{fancy}
-          \fancyhead[L]{\leftmark}
-          \fancyhead[R]{\thepage}
-          \fancyfoot[C]{}
-          
-          % Better tables
-          \usepackage{booktabs}
-          \usepackage{longtable}
-          
-          % Graphics and figures
-          \usepackage{graphicx}
-          \usepackage{float}
-          
-          % Hyperlinks
-          \usepackage{hyperref}
-          \hypersetup{
-              colorlinks=true,
-              linkcolor=linkblue,
-              filecolor=magenta,
-              urlcolor=linkblue,
-              pdftitle={Your Document Title},
-              pdfauthor={Your Name},
-          }
-          
-          % Line spacing
-          \usepackage{setspace}
-          \onehalfspacing
-          
-          % Custom title formatting
-          \usepackage{titlesec}
-          \titleformat{\section}
-            {\normalfont\Large\bfseries\color{blue!60!black}}
-            {\thesection}{1em}{}
-          
-          % Math support (if needed)
-          \usepackage{amsmath}
-          \usepackage{amssymb}
-          EOF
-
-      - name: Convert Markdown files to PDF
+      - name: Prepare file list
+        id: files_list
         run: |
           # Define the markdown files in the order you want them compiled
-          # Adjust these paths to match your actual files
           FILES=(
-            "notebook/Introduciton.md"
+            "notebook/Introduction.md"
             "notebook/Literature.md"
             "notebook/Progress.md"
             "notebook/Thoughts.md"
           )
           
-          # Output PDF name and location
-          OUTPUT_PDF="notebook/notebook.pdf"
-          
-          # Compile all files into a single PDF
-          echo "Compiling markdown files to PDF..."
-          pandoc "${FILES[@]}" -o "$OUTPUT_PDF" \
-            --pdf-engine=pdflatex \
-            -V geometry:margin=1in \
-            -V linkcolor:blue \
-            -V urlcolor:blue \
-            --toc \
-            --number-sections \
-            --include-in-header=/tmp/preamble.tex
-          
-          echo "PDF generated successfully: $OUTPUT_PDF"
+          # Format for pandoc
+          echo "files=$(printf '"%s" ' "${FILES[@]}")" >> $GITHUB_OUTPUT
+
+      - name: Convert Markdown to PDF with Pandoc Docker
+        uses: docker://pandoc/latex:3.1
+        with:
+          args: >-
+            ${{ steps.files_list.outputs.files }}
+            --pdf-engine=xelatex
+            -H .github/formatting/preamble.tex
+            -f markdown+rebase_relative_paths
+            -o notebook/combined-document.pdf
+            --toc
+            --number-sections
+            -V geometry:margin=1in
+            -V linkcolor:blue
+            -V urlcolor:blue
+            -V toc-depth:2
+            -V secnumdepth:3
 
       - name: Commit and push PDF
         run: |
