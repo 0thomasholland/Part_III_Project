@@ -1,4 +1,4 @@
-name: Convert Markdown to PDF
+name: notebook2pdf
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main  # Change to your default branch if different
     paths:
       - 'notebook/*.md'  # Trigger on markdown file changes
-      - '.github/workflows/markdown-to-pdf.yml'  # Re-run if workflow changes
+      - '.github/workflows/notebook2pdf.yml'  # Re-run if workflow changes
       - '.github/formatting/preamble.tex'  # Re-run if preamble changes
   workflow_dispatch:  # Allow manual triggering
 
@@ -31,16 +31,15 @@ jobs:
           
           # Format for pandoc
           echo "files=$(printf '"%s" ' "${FILES[@]}")" >> $GITHUB_OUTPUT
-
       - name: Convert Markdown to PDF with Pandoc Docker
-        uses: docker://pandoc/latex:3.1
+        uses: docker://pandoc/latex:3.6
         with:
           args: >-
             ${{ steps.files_list.outputs.files }}
             --pdf-engine=xelatex
             -H .github/formatting/preamble.tex
             -f markdown+rebase_relative_paths
-            -o notebook/combined-document.pdf
+            -o notebook/Notebook.pdf
             --toc
             --number-sections
             -V geometry:margin=1in
@@ -48,6 +47,10 @@ jobs:
             -V urlcolor:blue
             -V toc-depth:2
             -V secnumdepth:3
+            -V title="Part III Project Notebook"
+            -V author="Thomas Holland (th675)"
+            -V date="October 2025 - "
+            -V documentclass=article
 
       - name: Commit and push PDF
         run: |
