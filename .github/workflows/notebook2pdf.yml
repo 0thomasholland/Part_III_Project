@@ -42,6 +42,7 @@ jobs:
             -o notebook/Notebook.pdf
             --toc
             --number-sections
+            -V geometry:a4paper
             -V geometry:margin=1in
             -V linkcolor:blue
             -V urlcolor:blue
@@ -49,7 +50,7 @@ jobs:
             -V secnumdepth:3
             -V title="Part III Project Notebook"
             -V author="Thomas Holland (th675)"
-            -V date="October 2025 - "
+            -V date="October 2025 - 2026"
             -V documentclass=article
             -V titlepage=true
 
