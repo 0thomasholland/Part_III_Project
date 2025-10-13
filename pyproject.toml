@@ -1,5 +1,5 @@
 [project]
-name = "partiii"
+name = "Part_III_Project"
 version = "0.1.0"
 description = ""
 authors = [
@@ -8,10 +8,13 @@ authors = [
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "pyslfp (>=1.0.8,<2.0.0)",
+    "matplotlib (>=3.10.7,<4.0.0)",
+    "numpy (>=2.3.3,<3.0.0)"
 ]
 
 [tool.poetry]
-packages = [{include = "partiii", from = "src"}]
+packages = [{include = "Part_III_Project", from = "src"}]
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
