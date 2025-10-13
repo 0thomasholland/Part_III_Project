@@ -5,7 +5,7 @@ on:
     branches:
       - main  # Change to your default branch if different
     paths:
-      - 'notebook/*.md'  # Trigger on markdown file changes
+      - 'work_log/*.md'  # Trigger on markdown file changes
       - '.github/workflows/notebook2pdf.yml'  # Re-run if workflow changes
       - '.github/formatting/preamble.tex'  # Re-run if preamble changes
   workflow_dispatch:  # Allow manual triggering
@@ -23,10 +23,11 @@ jobs:
         run: |
           # Define the markdown files in the order you want them compiled
           FILES=(
-            "notebook/Introduction.md"
-            "notebook/Literature.md"
-            "notebook/Progress.md"
-            "notebook/Thoughts.md"
+            "work_log/Introduction.md"
+            "work_log/Literature.md"
+            "work_log/Progress.md"
+            "work_log/Thoughts.md"
+            "work_log/Code notes.md"
           )
           
           # Format for pandoc
@@ -39,7 +40,7 @@ jobs:
             --pdf-engine=xelatex
             -H .github/formatting/preamble.tex
             -f markdown+rebase_relative_paths
-            -o notebook/Notebook.pdf
+            -o work_log/Notebook.pdf
             --toc
             --number-sections
             -V geometry:a4paper
@@ -58,9 +59,9 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          
-          git add notebook/*.pdf
-          
+
+          git add work_log/*.pdf
+
           # Only commit if there are changes
           if git diff --staged --quiet; then
             echo "No changes to commit"
