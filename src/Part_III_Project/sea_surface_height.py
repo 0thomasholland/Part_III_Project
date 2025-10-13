@@ -3,8 +3,6 @@ def dSL_to_dSSH(
     displacement,
     delta_gravity_potential):
         delta_sea_surface = (
-            delta_sea_level
-            + displacement
-            + delta_gravity_potential / 9.81
+            delta_sea_level + displacement + (delta_gravity_potential / 9.81)
         )
         return delta_sea_surface
