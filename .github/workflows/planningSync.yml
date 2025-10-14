@@ -1,0 +1,41 @@
+name: Sync Google Doc to Markdown
+
+on:
+  schedule:
+    # Runs every day at 10am, - adjust as needed
+    - cron: '0 10 * * *'
+    - cron: '0 15 * * *'
+    - cron: '0 21 * * *'
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  sync-doc:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          
+      - name: Install dependencies
+        run: |
+          pip install google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client
+          
+      - name: Fetch Google Doc and convert to Markdown
+        env:
+          GOOGLE_API_JSON: ${{ secrets.GOOGLE_API_JSON }}
+          GOOGLE_DOC_ID: ${{ secrets.GOOGLE_DOC_ID }}
+        run: |
+          python .github/sync/google_doc_sync.py
+          
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add work_log/Progress.md  # Change to your target markdown file
+          git diff --staged --quiet || git commit -m "Update markdown from Google Doc"
+          git push
