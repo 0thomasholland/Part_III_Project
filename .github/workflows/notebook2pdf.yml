@@ -24,8 +24,8 @@ jobs:
           # Define the markdown files in the order you want them compiled
           FILES=(
             "work_log/Introduction.md"
-            "work_log/Literature.md"
             "work_log/Progress.md"
+            "work_log/Literature.md"
             "work_log/Thoughts.md"
             "work_log/Code notes.md"
           )
