@@ -55,7 +55,12 @@ def extract_text_from_doc(document):
             
             full_text = ''.join(para_text)
 
+            # Skip specific unwanted lines
             if full_text.strip().startswith("Repo URL:"):
+                continue
+            if full_text.strip().startswith(
+                "Methods for estimating global and regional sea level change from satellite altimetry observations"
+            ):
                 continue
 
             # Skip empty paragraphs (but preserve intentional line breaks)
