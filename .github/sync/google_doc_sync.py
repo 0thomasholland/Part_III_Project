@@ -38,7 +38,6 @@ def get_list_item_prefix(paragraph):
     # Default to bullet point
     return f"{indent}- "
 
-
 def extract_text_from_doc(document):
     """Convert Google Doc to markdown-style text."""
     content = []
@@ -70,17 +69,17 @@ def extract_text_from_doc(document):
                 continue
 
             # Handle paragraph styles (headings)
-            style = paragraph.get('paragraphStyle', {})
+            style = paragraph.get("paragraphStyle", {})
             named_style = style.get('namedStyleType', '')
             
             if named_style == 'HEADING_1':
-                content.append(f"# {full_text}")
+                content.append(f"\n# {full_text}\n")
             elif named_style == 'HEADING_2':
-                content.append(f"## {full_text}")
+                content.append(f"\n## {full_text}\n")
             elif named_style == 'HEADING_3':
-                content.append(f"### {full_text}")
+                content.append(f"\n### {full_text}\n")
             elif named_style == 'HEADING_4':
-                content.append(f"#### {full_text}")
+                content.append(f"\n#### {full_text}\n")
             else:
                 # Regular paragraph - preserve as is
                 content.append(full_text)
