@@ -16,3 +16,11 @@
 - Created the first working notebook demonstrating the SL-to-SSH transformation using pyslfp fingerprint data.
 - Reorganised project files: moved notebooks to dedicated directory and work logs to `work_log/`.
 
+## 14 October 2025
+
+- Extended the FingerPrint class with a `SeaSurfaceFingerPrint` subclass, enabling direct SSH computation from sea level fingerprints.
+- Added SLC and SSHC comparison plots to the notebook, visualising the distinction between sea level change and sea surface height change.
+- Wrote initial error quantification code computing relative errors for Greenland, West Antarctic, and East Antarctic ice sheet loads across a range of satellite latitude coverages using the pyslfp fingerprint library.
+- This establishes the foundation of the empirical error quantification — assessing how inaccurate the traditional altimetry-as-proxy approach is as a function of ice source location and satellite coverage band.
+- Set up Google Docs synchronisation workflow for progress tracking.
+
