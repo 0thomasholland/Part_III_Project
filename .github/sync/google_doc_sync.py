@@ -55,6 +55,9 @@ def extract_text_from_doc(document):
             
             full_text = ''.join(para_text)
 
+            if full_text.strip().startswith("Repo URL:"):
+                continue
+
             # Skip empty paragraphs (but preserve intentional line breaks)
             if not full_text.strip():
                 content.append("\n")
