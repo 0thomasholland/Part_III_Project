@@ -24,3 +24,7 @@
 - This establishes the foundation of the empirical error quantification — assessing how inaccurate the traditional altimetry-as-proxy approach is as a function of ice source location and satellite coverage band.
 - Set up Google Docs synchronisation workflow for progress tracking.
 
+## 15 October 2025
+
+- Refactored the `SeaSurfaceFingerPrint` class methods and removed the original standalone conversion function in favour of the class-based approach.
+
