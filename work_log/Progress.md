@@ -1,5 +1,4 @@
 
-Methods for estimating global and regional sea level change from satellite altimetry observations
 
 # Plan for the project in outline
 
