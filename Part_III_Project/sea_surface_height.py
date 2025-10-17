@@ -3,7 +3,6 @@ from typing import Optional, Tuple
 import numpy as np
 import pyslfp as sl
 from pyshtools import SHGrid
-from pyslfp.physical_parameters import GRAVITATIONAL_ACCELERATION
 
 
 class SeaSurfaceFingerPrint(sl.FingerPrint):
@@ -50,9 +49,7 @@ class SeaSurfaceFingerPrint(sl.FingerPrint):
         )
 
         # Convert to sea surface height
-        sea_surface_height_change = sea_level_change + (
-            gravity_potential_change / GRAVITATIONAL_ACCELERATION
-        )
+        sea_surface_height_change = sea_level_change + displacement 
 
         return (
             sea_surface_height_change,
