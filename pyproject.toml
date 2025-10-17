@@ -11,7 +11,9 @@ dependencies = [
     "pyslfp (>=1.0.8,<2.0.0)",
     "matplotlib (>=3.10.7,<4.0.0)",
     "numpy (>=2.3.3,<3.0.0)",
-    "ipykernel (>=7.0.0,<8.0.0)"
+    "ipykernel (>=7.0.0,<8.0.0)",
+    "pandas (>=2.3.3,<3.0.0)",
+    "python-ternary (>=1.0.8,<2.0.0)"
 ]
 
 [tool.poetry]
