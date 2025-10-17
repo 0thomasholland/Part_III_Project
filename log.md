@@ -28,3 +28,9 @@
 
 - Refactored the `SeaSurfaceFingerPrint` class methods and removed the original standalone conversion function in favour of the class-based approach.
 
+## 17 October 2025
+
+- Refactored the per-ice-sheet error loop into a dictionary-based structure and corrected the placement of the mean sea level change computation outside the inner latitude loop (a correctness fix as well as a performance improvement).
+- Added sea level fingerprint calculation script with random surface mass load fractions for testing.
+- Implemented initial error estimation functions and added ternary error analysis with CSV output.
+
