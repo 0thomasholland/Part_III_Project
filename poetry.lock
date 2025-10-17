@@ -1978,6 +1978,21 @@ files = [
 six = ">=1.5"
 
 [[package]]
+name = "python-ternary"
+version = "1.0.8"
+description = "Make ternary plots in python with matplotlib"
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "python-ternary-1.0.8.tar.gz", hash = "sha256:41e7313db74ab2e24280797ed8073eccad4006429dfd87f6e66e7feba2aa64cd"},
+    {file = "python_ternary-1.0.8-py3-none-any.whl", hash = "sha256:80241526ee521e29bb7291fdb239c8cdf99c0e6d6471f4c67f36d5fbbfdd0485"},
+]
+
+[package.dependencies]
+matplotlib = ">=2"
+
+[[package]]
 name = "pytz"
 version = "2025.2"
 description = "World timezone definitions, modern and historical"
@@ -2621,4 +2636,4 @@ viz = ["cartopy (>=0.23)", "matplotlib", "nc-time-axis", "seaborn"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12"
-content-hash = "53be98429e944b9bf09794809a2ec1d125a9143b0e2fbbc7c09bb834f9c05683"
+content-hash = "600cb57b51690e04c3fdf93c7a65f1509bd81d32cbabe48e74d9709f02ffcf67"
