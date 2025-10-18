@@ -2,7 +2,8 @@ from pyshtools import SHGrid
 from pyslfp.physical_parameters import GRAVITATIONAL_ACCELERATION
 
 
-def sea_surface_height_change(finger_print, sea_level_change, displacement, angular_velocity_change
+def sea_surface_height_change(
+    finger_print, sea_level_change, displacement, angular_velocity_change
 ) -> SHGrid:
     """Calculate the sea surface height change from the sea level change,
     surface displacement, and angular velocity change.
@@ -15,4 +16,13 @@ def sea_surface_height_change(finger_print, sea_level_change, displacement, angu
     Returns:
         SHGrid: The change in sea surface height.
     """
-    return sea_level_change + displacement + (finger_print.centrifugal_potential_change(angular_velocity_change=angular_velocity_change)/GRAVITATIONAL_ACCELERATION)
+    return (
+        sea_level_change
+        + displacement
+        + (
+            finger_print.centrifugal_potential_change(
+                angular_velocity_change=angular_velocity_change
+            )
+            / GRAVITATIONAL_ACCELERATION
+        )
+    )
