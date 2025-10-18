@@ -1,0 +1,55 @@
+
+%TC:macro \cite [option:ignore]
+%TC:macro \citep [option:ignore]
+%TC:macro \citet [option:ignore]
+%TC:macro \ref [option:ignore]
+%TC:macro \eqref [option:ignore]
+%TC:macro \label [option:ignore]
+
+%TC:envir abstract 0 0
+%TC:envir acknowledgements 0 0
+%TC:envir acknowledgments 0 0
+%TC:envir appendix 0 0
+%TC:envir figure [ignore]
+%TC:envir table [ignore]
+%TC:envir equation [ignore]
+
+%TC:group table 0 0
+%TC:group tabular 0 0
+%TC:group figure 0 0
+
+%TC:macro \caption [option:ignore]
+%TC:macro \maketitle [option:ignore]
+%TC:macro \tableofcontents [option:ignore]
+%TC:macro \listoffigures [option:ignore]
+%TC:macro \listoftables [option:ignore]
+
+%TC:macro \begin [option:ignore]
+%TC:macro \end [option:ignore]
+
+%TC:break bibliography 0 0
+%TC:break thebibliography 0 0
+%TC:break references 0 0
+
+\usepackage{lipsum}
+
+\usepackage{csquotes}
+\usepackage{svg}
+\usepackage[english]{babel}
+\usepackage{rotating}
+\usepackage{url}
+
+\usepackage[margin=3cm, bindingoffset=0.5cm]{geometry}
+
+\usepackage[backend=bibtex, uniquename=full, maxnames=1, style=authoryear]{biblatex}
+\bibliography{../refs.bib}
+
+\usepackage{booktabs}
+\usepackage{tabularx}
+\renewcommand{\tabularxcolumn}[1]{>{\raggedright\arraybackslash}p{#1}}
+
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}\\}
+
+\let\stdsection\section
+\renewcommand\section{\newpage\stdsection}
