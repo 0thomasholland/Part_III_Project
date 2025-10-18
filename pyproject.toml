@@ -22,3 +22,7 @@ packages = [{include = "Part_III_Project", from = "src"}]
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pyright]  # Pylance uses Pyright under the hood
+typeCheckingMode = "strict"
+reportUnknownVariableType = false
