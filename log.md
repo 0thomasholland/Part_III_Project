@@ -34,3 +34,11 @@
 - Added sea level fingerprint calculation script with random surface mass load fractions for testing.
 - Implemented initial error estimation functions and added ternary error analysis with CSV output.
 
+## 18 October 2025
+
+- Introduced parallelisation with joblib for the latitude/ice-sheet error computation, necessary given the number of configurations being swept.
+- Added ternary plot functions to the plotting module and split traditional methods code into more manageable components.
+- Transferred traditional methods analysis to notebook format for better documentation.
+- Drafted initial project report structure with abstract, frontmatter, introduction, and previous methods sections in LaTeX.
+- Added unit tests for the sea surface height change module and plot methods (later removed to streamline the CI workflow).
+

@@ -77,26 +77,25 @@ for ice_sheet in ["greenland", "west_antarctic", "east_antarctic"]:
         
 error_output.to_csv("./work/traditional_method_errors.csv", index=False)
 
-# Plot error against latitude for each ice sheet on same graph
-
 plt.figure()
 plt.plot(
-    -error_output["latitude_min"],
+    error_output["latitude_max"],  # or use np.abs(error_output["latitude_min"])
     error_output["greenland_error"],
     label="Greenland",
 )
 plt.plot(
-    -error_output["latitude_min"],
+    error_output["latitude_max"],
     error_output["west_antarctic_error"],
     label="West Antarctic",
 )
 plt.plot(
-    -error_output["latitude_min"],
+    error_output["latitude_max"],
     error_output["east_antarctic_error"],
     label="East Antarctic",
 )
-plt.xlabel("Latitude (degrees)")
+plt.xlabel("Maximum Absolute Latitude of Band (degrees)")
 plt.ylabel("Relative Error (%)")
-plt.title("Relative Error in Mean Sea Level Change Estimate vs Latitude")
+plt.title("Relative Error vs Latitude Band Coverage")
 plt.legend()
+plt.grid(True, alpha=0.3)
 plt.show()
