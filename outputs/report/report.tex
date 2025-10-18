@@ -1,0 +1,48 @@
+% gjilguid2e.tex
+% V2.0 released 1998 December 18
+% V2.1 released 2003 October 7 -- Gregor Hutton, updated the web address for the style files.
+% V2.2 released 2024 April 23 - Peter Jones (OUP), updated \pubyear to print current year.
+% V2.3 released 2025 January 20 - Peter Jones (OUP), added support for inclusion of DOI in referebce list
+
+\documentclass{gji}
+\usepackage{timet,color}
+\usepackage[urlcolor=blue,citecolor=black,linkcolor=black]{hyperref}
+
+\title[Test]
+  {Test 1}
+\author[T. Holland]
+  {T. Holland$^1$\thanks{} \\
+  $^1$   }
+\date{March 2026}
+\pagerange{\pageref{firstpage}--\pageref{lastpage}}
+\volume{200}
+\pubyear{{\the\year{}}}
+
+%\def\LaTeX{L\kern-.36em\raise.3ex\hbox{{\small A}}\kern-.15em
+%    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}
+%\def\LATeX{L\kern-.36em\raise.3ex\hbox{{\Large A}}\kern-.15em
+%    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}
+% Authors with AMS fonts and mssymb.tex can comment out the following
+% line to get the correct symbol for Geophysical Journal International.
+\let\leqslant=\leq
+
+\begin{document}
+
+\label{firstpage}
+
+\maketitle
+
+
+\begin{summary}
+ This guide is for authors who are preparing papers for
+ \textit{Geophysical Journal International} using the
+\LaTeXe\ document preparation system and the GJI class file.
+\end{summary}
+
+\begin{keywords}
+ \LaTeXe\ -- class files: \verb"gji.cls"\ -- sample text -- user guide.
+\end{keywords}
+
+\section{Introduction}
+
+\end{document}
