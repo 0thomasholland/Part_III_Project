@@ -19,10 +19,22 @@
 # Weekly progress/goals
 
 
-## Week 1 (w/c 13th)
+## Meeting 1: 13/Oct
 
 - Start reading through the literature esp. focusing on:
   - Horton 2018 for general overview 
   - Lickley 2018 for sea level to surface
   - The Reciprocity Paper (TRP) §4.6 (and then the references within this)
 - Look at implementing equivalent of eq. 81 from TRP to convert the SL change from fingerprint to SSH to then average this over the ocean for GMSL change
+
+
+## Meeting 2: 17/Oct
+
+- Discussion of scientific method
+- Explore the error space for conventional methods 
+  - Error for each ice sheet over satellite availability bands
+  - Ternary space for major ice sheet contributions at satellite availability bands
+- Future explore adding:
+  - Noise based on satellite sampling
+  - Ocean dynamic signals
+- Writing useful scripts/functions that can be reused in the future
