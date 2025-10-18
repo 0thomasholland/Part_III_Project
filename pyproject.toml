@@ -13,7 +13,7 @@ dependencies = [
     "numpy (>=2.3.3,<3.0.0)",
     "ipykernel (>=7.0.0,<8.0.0)",
     "pandas (>=2.3.3,<3.0.0)",
-    "python-ternary (>=1.0.8,<2.0.0)"
+    "mpltern (>=1.0.4,<2.0.0)"
 ]
 
 [tool.poetry]
