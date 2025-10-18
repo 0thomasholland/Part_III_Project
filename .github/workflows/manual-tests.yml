@@ -7,10 +7,7 @@ on:
         description: "Python version"
         required: true
         default: "3.12"
-      use-poetry:
-        description: "Install and run with Poetry (true/false)"
-        required: false
-        default: "true"
+
 
 jobs:
   tests:
@@ -24,37 +21,13 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ inputs.python-version }}
-          cache: ${{ inputs.use-poetry == 'true' && 'poetry' || '' }}
-          cache-dependency-path: poetry.lock
 
-      - name: Install Poetry
-        if: ${{ inputs.use-poetry == 'true' }}
-        uses: snok/install-poetry@v1
-        with:
-          version: 1.8.3
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-
-      - name: Install dependencies with Poetry (no root)
-        if: ${{ inputs.use-poetry == 'true' }}
-        run: poetry install --no-interaction --no-root
-
-      - name: Install project with Poetry
-        if: ${{ inputs.use-poetry == 'true' }}
-        run: poetry install --no-interaction
 
       - name: Upgrade pip (fallback)
-        if: ${{ inputs.use-poetry != 'true' }}
         run: python -m pip install --upgrade pip
 
       - name: Install project with pip (editable)
-        if: ${{ inputs.use-poetry != 'true' }}
         run: pip install -e .
 
       - name: Run unit tests
-        if: ${{ inputs.use-poetry != 'true' }}
         run: python -m unittest -v
-
-      - name: Run unit tests (Poetry)
-        if: ${{ inputs.use-poetry == 'true' }}
-        run: poetry run python -m unittest -v
