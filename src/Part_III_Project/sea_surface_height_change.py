@@ -3,7 +3,10 @@ from pyslfp.physical_parameters import GRAVITATIONAL_ACCELERATION
 
 
 def sea_surface_height_change(
-    finger_print, sea_level_change, displacement, angular_velocity_change
+    finger_print: SHGrid,
+    sea_level_change: SHGrid,
+    displacement: SHGrid,
+    angular_velocity_change: SHGrid,
 ) -> SHGrid:
     """Calculate the sea surface height change from the sea level change,
     surface displacement, and angular velocity change.
