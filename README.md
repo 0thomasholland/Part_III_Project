@@ -11,12 +11,12 @@ This project aims to develop and compare methods for estimating global mean sea 
 
 ### Research Goals
 
-1. **Traditional Methods Implementation** (Weeks 1-4)
+1. **Traditional Methods Implementation** (Weeks 1-4 of Michaelmas Term)
    - Implement conventional methods for estimating sea level change from satellite altimetry
    - Investigate accuracy and error characteristics
    - Spatial averaging of sea surface height changes over oceans
 
-2. **Bayesian Inversion Methods** (Michaelmas Term)
+2. **Bayesian Inversion Methods** (Weeks 5-8 of Michaelmas Term)
    - Apply Bayesian inversion incorporating sea level physics
    - Single-time (~ 1 month data averages) estimates initially
    - Compare new methods against traditional approaches
