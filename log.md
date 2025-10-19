@@ -42,3 +42,8 @@
 - Drafted initial project report structure with abstract, frontmatter, introduction, and previous methods sections in LaTeX.
 - Added unit tests for the sea surface height change module and plot methods (later removed to streamline the CI workflow).
 
+## 19 October 2025
+
+- Implemented latitude band vs error analysis: computing how GMSL estimation error varies with the latitudinal extent of satellite coverage.
+- Generated updated relative error plots and exported results to CSV for further analysis.
+
