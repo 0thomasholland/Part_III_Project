@@ -28,6 +28,10 @@ import pandas as pd
 from joblib import Parallel, delayed
 from matplotlib import pyplot as plt
 
+#####################
+## HELPER FUNCTION ##
+#####################
+
 
 def _extract_segment_data(
     df: pd.DataFrame, segment_name: float, sources: list[str]
@@ -240,6 +244,11 @@ def _extract_data_for_parallel(
     """
     data = _extract_segment_data(df, segment_name, sources)
     return data, segment_name
+
+
+#####################
+## CALLED FUNCTION ##
+#####################
 
 
 def plot_ternary_heatmap(

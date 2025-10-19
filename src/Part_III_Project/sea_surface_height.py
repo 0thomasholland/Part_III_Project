@@ -1,3 +1,6 @@
+#### DEPRECATED CODE - moved to sea_surface_height.py but kept for notebooks that still use it ####
+
+
 from typing import Optional, Tuple
 
 import numpy as np
@@ -49,7 +52,7 @@ class SeaSurfaceFingerPrint(sl.FingerPrint):
         )
 
         # Convert to sea surface height
-        sea_surface_height_change = sea_level_change + displacement 
+        sea_surface_height_change = sea_level_change + displacement
 
         return (
             sea_surface_height_change,
