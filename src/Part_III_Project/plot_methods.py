@@ -306,6 +306,7 @@ def plot_ternary_heatmap_subplots(
     labels: list[str],
     ncols: int = 3,
     figsize_per_plot: tuple[float, float] = (6, 5),
+    uniform_color_scale: bool = True,
 ):
     """
     Plot multiple ternary heatmaps as subplots using mpltern.
@@ -317,6 +318,7 @@ def plot_ternary_heatmap_subplots(
     - labels: List of labels for the three contributions, in the same order as `sources`
     - ncols: Number of columns in the subplot grid
     - figsize_per_plot: (width, height) for each individual plot
+    - uniform_color_scale: If True, use the same color scale across all subplots
 
     Returns a tuple of (figure, print_statement).
     """
@@ -332,101 +334,48 @@ def plot_ternary_heatmap_subplots(
     # Create each subplot using the main helper
     for idx, segment_name in enumerate(segment_list):
         ax = fig.add_subplot(nrows, ncols, idx + 1, projection="ternary")
-        _create_single_ternary_subplot(
-            ax=ax,
-            df=df,
-            segment_name=segment_name,
-            sources=sources,
-            labels=labels,
-            global_vmin=global_vmin,
-            global_vmax=global_vmax,
-            fontsize_labels=10,
-            fontsize_title=11,
-            fontsize_colorbar=9,
-        )
-
-    plt.suptitle(
-        "Sea Level Rise Approximation Error Across Satellite Segments",
-        fontsize=16,
-        fontweight="bold",
-        y=0.98,
-    )
-    plt.tight_layout()
-
-    print_statement = "Max error across all segments: {:.2f}; Min error across all segments: {:.2f}".format(
-        global_vmax, global_vmin
-    )
-    return fig, print_statement
-
-
-def plot_ternary_heatmap_subplots_parallel(
-    df: pd.DataFrame,
-    segment_list: list[float],
-    sources: list[str],
-    labels: list[str],
-    ncols: int = 3,
-    figsize_per_plot: tuple[float, float] = (6, 5),
-    n_jobs: int = -1,
-):
-    """
-    Plot multiple ternary heatmaps as subplots using mpltern, with parallel data processing.
-
-    Parameters:
-    - df: DataFrame with columns ['segment', 'error', '<contribution columns>']
-    - segment_list: List of segment values to plot
-    - sources: List of column names for the three contributions, in order [top, left, right]
-    - labels: List of labels for the three contributions, in the same order as `sources`
-    - ncols: Number of columns in the subplot grid
-    - figsize_per_plot: (width, height) for each individual plot
-    - n_jobs: Number of parallel jobs (-1 uses all cores)
-
-    Returns a tuple of (figure, print_statement).
-    """
-    n_segments = len(segment_list)
-    nrows = int(np.ceil(n_segments / ncols))
-
-    # Get global min/max error for consistent color scale
-    global_vmin, global_vmax = _get_global_error_range(df, segment_list)
-
-    # Extract data in parallel (this is the computationally expensive part)
-    results = Parallel(n_jobs=n_jobs)(
-        delayed(_extract_data_for_parallel)(df, segment_name, sources)
-        for segment_name in segment_list
-    )
-
-    # Create figure
-    fig = plt.figure(figsize=(figsize_per_plot[0] * ncols, figsize_per_plot[1] * nrows))
-
-    # Create each subplot - plotting must be done serially due to matplotlib limitations
-    for idx, (data, segment_name) in enumerate(results):
-        ax = fig.add_subplot(nrows, ncols, idx + 1, projection="ternary")
-
-        if data is None:
-            ax.text(
-                0.5,
-                0.5,
-                f"No data for segment {segment_name}",
-                ha="center",
-                va="center",
-                transform=ax.transAxes,
+        if uniform_color_scale:
+            _create_single_ternary_subplot(
+                ax=ax,
+                df=df,
+                segment_name=segment_name,
+                sources=sources,
+                labels=labels,
+                global_vmin=global_vmin,
+                global_vmax=global_vmax,
+                fontsize_labels=10,
+                fontsize_title=11,
+                fontsize_colorbar=9,
             )
-            continue
+        else:
+            # Get local min/max for this segment
+            data = _extract_segment_data(df, segment_name, sources)
+            if data is None:
+                ax.text(
+                    0.5,
+                    0.5,
+                    f"No data for segment {segment_name}",
+                    ha="center",
+                    va="center",
+                    transform=ax.transAxes,
+                )
+                continue
+            _, _, _, errors = data
+            local_vmin = errors.min()
+            local_vmax = errors.max()
 
-        top, left, right, errors = data
-
-        # Plot tripcolor
-        cs = _plot_tripcolor(
-            ax, top, left, right, errors, vmin=global_vmin, vmax=global_vmax
-        )
-
-        # Configure axis
-        title = f"Satellite Segment ±{segment_name}°"
-        _configure_ternary_axis(
-            ax, labels, title, fontsize_labels=10, fontsize_title=11
-        )
-
-        # Add colorbar
-        _add_colorbar_to_axis(ax, cs, fontsize=9)
+            _create_single_ternary_subplot(
+                ax=ax,
+                df=df,
+                segment_name=segment_name,
+                sources=sources,
+                labels=labels,
+                global_vmin=local_vmin,
+                global_vmax=local_vmax,
+                fontsize_labels=10,
+                fontsize_title=11,
+                fontsize_colorbar=9,
+            )
 
     plt.suptitle(
         "Sea Level Rise Approximation Error Across Satellite Segments",
@@ -440,3 +389,86 @@ def plot_ternary_heatmap_subplots_parallel(
         global_vmax, global_vmin
     )
     return fig, print_statement
+
+
+# def plot_ternary_heatmap_subplots_parallel(
+#     df: pd.DataFrame,
+#     segment_list: list[float],
+#     sources: list[str],
+#     labels: list[str],
+#     ncols: int = 3,
+#     figsize_per_plot: tuple[float, float] = (6, 5),
+#     n_jobs: int = -1,
+# ):
+#     """
+#     Plot multiple ternary heatmaps as subplots using mpltern, with parallel data processing.
+
+#     Parameters:
+#     - df: DataFrame with columns ['segment', 'error', '<contribution columns>']
+#     - segment_list: List of segment values to plot
+#     - sources: List of column names for the three contributions, in order [top, left, right]
+#     - labels: List of labels for the three contributions, in the same order as `sources`
+#     - ncols: Number of columns in the subplot grid
+#     - figsize_per_plot: (width, height) for each individual plot
+#     - n_jobs: Number of parallel jobs (-1 uses all cores)
+
+#     Returns a tuple of (figure, print_statement).
+#     """
+#     n_segments = len(segment_list)
+#     nrows = int(np.ceil(n_segments / ncols))
+
+#     # Get global min/max error for consistent color scale
+#     global_vmin, global_vmax = _get_global_error_range(df, segment_list)
+
+#     # Extract data in parallel (this is the computationally expensive part)
+#     results = Parallel(n_jobs=n_jobs)(
+#         delayed(_extract_data_for_parallel)(df, segment_name, sources)
+#         for segment_name in segment_list
+#     )
+
+#     # Create figure
+#     fig = plt.figure(figsize=(figsize_per_plot[0] * ncols, figsize_per_plot[1] * nrows))
+
+#     # Create each subplot - plotting must be done serially due to matplotlib limitations
+#     for idx, (data, segment_name) in enumerate(results):
+#         ax = fig.add_subplot(nrows, ncols, idx + 1, projection="ternary")
+
+#         if data is None:
+#             ax.text(
+#                 0.5,
+#                 0.5,
+#                 f"No data for segment {segment_name}",
+#                 ha="center",
+#                 va="center",
+#                 transform=ax.transAxes,
+#             )
+#             continue
+
+#         top, left, right, errors = data
+
+#         # Plot tripcolor
+#         cs = _plot_tripcolor(
+#             ax, top, left, right, errors, vmin=global_vmin, vmax=global_vmax
+#         )
+
+#         # Configure axis
+#         title = f"Satellite Segment ±{segment_name}°"
+#         _configure_ternary_axis(
+#             ax, labels, title, fontsize_labels=10, fontsize_title=11
+#         )
+
+#         # Add colorbar
+#         _add_colorbar_to_axis(ax, cs, fontsize=9)
+
+#     plt.suptitle(
+#         "Sea Level Rise Approximation Error Across Satellite Segments",
+#         fontsize=16,
+#         fontweight="bold",
+#         y=0.98,
+#     )
+#     plt.tight_layout()
+
+#     print_statement = "Max error across all segments: {:.2f}; Min error across all segments: {:.2f}".format(
+#         global_vmax, global_vmin
+#     )
+#     return fig, print_statement
