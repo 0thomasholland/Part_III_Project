@@ -47,3 +47,9 @@
 - Implemented latitude band vs error analysis: computing how GMSL estimation error varies with the latitudinal extent of satellite coverage.
 - Generated updated relative error plots and exported results to CSV for further analysis.
 
+## 20 October 2025
+
+- Re-ran ternary error analysis at higher resolution for improved accuracy.
+- Added error distribution characterisation, including probability density function fitting for the 50–70° satellite coverage band.
+- Increased computational resolution across multiple analysis scripts for publication-quality results.
+
