@@ -53,3 +53,9 @@
 - Added error distribution characterisation, including probability density function fitting for the 50–70° satellite coverage band.
 - Increased computational resolution across multiple analysis scripts for publication-quality results.
 
+## 21 October 2025
+
+- Added p-value plots to the statistical analysis of error distributions.
+- Reorganised traditional methods work into a `best_case/` subdirectory for clearer project structure.
+- Created exploration area for random fields investigation using pygeoinf.
+
