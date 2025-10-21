@@ -38,3 +38,8 @@
   - Noise based on satellite sampling
   - Ocean dynamic signals
 - Writing useful scripts/functions that can be reused in the future
+
+## Meeting 3: 21/Oct
+
+- Went through error exploration code
+- Looked at 
