@@ -59,3 +59,8 @@
 - Reorganised traditional methods work into a `best_case/` subdirectory for clearer project structure.
 - Created exploration area for random fields investigation using pygeoinf.
 
+## 22 October 2025
+
+- Added a simple random fields example demonstrating Gaussian random field generation on the sphere.
+- Converted analysis scripts between notebook and Python file formats to find the optimal workflow.
+
