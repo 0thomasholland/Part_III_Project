@@ -64,3 +64,7 @@
 - Added a simple random fields example demonstrating Gaussian random field generation on the sphere.
 - Converted analysis scripts between notebook and Python file formats to find the optimal workflow.
 
+## 23 October 2025
+
+- Expanded random fields exploration with satellite range analysis and error field computations.
+
