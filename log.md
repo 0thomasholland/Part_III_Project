@@ -68,3 +68,9 @@
 
 - Expanded random fields exploration with satellite range analysis and error field computations.
 
+## 24 October 2025
+
+- Added second random field example exploring different covariance structures.
+- Ran random field error analysis at higher resolution.
+- Expanded report with frontmatter and previous methods content.
+
