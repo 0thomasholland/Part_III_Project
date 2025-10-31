@@ -74,3 +74,12 @@
 - Ran random field error analysis at higher resolution.
 - Expanded report with frontmatter and previous methods content.
 
+## 25 October 2025
+
+- Refined random field visualisation colour schemes for clarity.
+- Updated README with key references.
+
+## 31 October 2025
+
+- Started work on third random fields example, building towards the full forward problem formulation.
+
