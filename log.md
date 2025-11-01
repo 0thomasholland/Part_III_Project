@@ -83,3 +83,9 @@
 
 - Started work on third random fields example, building towards the full forward problem formulation.
 
+## 1 November 2025
+
+- Implemented pushforward workflow code for mapping distributions through the forward model.
+- Added mathematical notes on measure theory foundations and distribution diagrams.
+- Updated preamble formatting for improved PDF generation.
+
