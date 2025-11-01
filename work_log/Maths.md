@@ -8,4 +8,4 @@
 
 Working through of probability distributions and pushing forward through functions.
 
-![Distributions](figs/distributions.excalidraw.svg)
+![Distributions](figs/dist.excalidraw.svg)
