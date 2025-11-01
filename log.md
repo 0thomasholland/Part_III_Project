@@ -79,3 +79,13 @@
 - Refined random field visualisation colour schemes for clarity.
 - Updated README with key references.
 
+## 31 October 2025
+
+- Started work on third random fields example, building towards the full forward problem formulation.
+
+## 1 November 2025
+
+- Implemented pushforward workflow code for mapping distributions through the forward model.
+- Added mathematical notes on measure theory foundations and distribution diagrams.
+- Updated preamble formatting for improved PDF generation.
+
