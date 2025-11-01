@@ -16,4 +16,8 @@ Similarly having bands of satalite latitude ranges showing what is being sampled
 
 ## 2025-11-01 14:48
 
+Workflow for traditional methods:
+
 ![alt text](figs/traditional_methods.excalidraw.svg)
+
+... Forward problem?
