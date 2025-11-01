@@ -18,6 +18,6 @@ Similarly having bands of satalite latitude ranges showing what is being sampled
 
 Workflow for traditional methods:
 
-![alt text](figs/traditional_methods.excalidraw.svg)
+![Workflow for current methods using satellite data](figs/current_methods.excalidraw.svg)
 
 ... Forward problem?
