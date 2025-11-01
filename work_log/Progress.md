@@ -42,4 +42,24 @@
 ## Meeting 3: 21/Oct
 
 - Went through error exploration code
-- Looked at 
+- Look into how changing lengths scales can change end distributions
+- Explore forcibly pushing forward distribution
+
+## Meeting 4: 24/ Oct
+
+- Work through PyGeoInf tutorials 1→5
+- Discussed distribution mapping and pushing forward through function theory
+- Parallelise the samples function
+- Look at non-zero means
+
+## Meeting 5: 31/Oct
+
+- Spoke through random field operators and pushing forward distributions
+- Spoke through workflow of error quantification
+- Speak to Dan wrt. Ocean dynamics and ice sheet change sensible distributions
+  - Ratios of contribution to error of melt vs dynamics vs noise (... another ternary?)
+- Goal to work on implementing a workflow for estimating errors
+
+## Meeting 6: 3/Nov
+
+
