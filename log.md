@@ -89,3 +89,7 @@
 - Added mathematical notes on measure theory foundations and distribution diagrams.
 - Updated preamble formatting for improved PDF generation.
 
+## 2 November 2025
+
+- Added sampling methods to the random fields framework.
+
