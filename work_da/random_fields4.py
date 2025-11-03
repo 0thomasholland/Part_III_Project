@@ -8,6 +8,7 @@ import pyslfp as sl
 fp = sl.FingerPrint(lmax=256)
 fp.set_state_from_ice_ng()
 
+
 # --- Get the representation as a Linear operator between Sobolev spaces ---
 fingerprint_operator = fp.as_sobolev_linear_operator(2, 0.1 * fp.mean_sea_floor_radius)
 load_space = fingerprint_operator.domain
@@ -21,7 +22,7 @@ response_to_sea_surface_height_operator = sl.sea_surface_height_operator(
 
 # --- Set up a random field for the ice thickness change and associated load ---
 
-ice_thickness_length_scale = 0.05 * fp.mean_sea_floor_radius
+ice_thickness_length_scale = 0.1 * fp.mean_sea_floor_radius
 ice_thickness_gmsl_target = 0.005 / fp.length_scale
 
 # Set an intial rotationally invariant measure
@@ -46,19 +47,23 @@ GMSL_weighting_function = (
 )
 GMSL_operator = sl.averaging_operator(load_space, [GMSL_weighting_function])
 
+
 # Push foward the load measure to one for GMSL and get its standard deviation
 GMSL_measure = ice_thickness_measure.affine_mapping(operator=GMSL_operator)
 GMSL_variance = GMSL_measure.covariance.matrix(dense=True)[0, 0]
 GMSL_std = np.sqrt(GMSL_variance)
 
+
 # Normalise the ice load thickness measure and then recompute the load measure
 ice_thickness_measure *= ice_thickness_gmsl_target / GMSL_std
+
 
 # --- Set up a random field for the ocean dynamic topography ---
 
 ocean_dynamic_topography_order = 1.5
 ocean_dynamic_topography_length_scale = 0.005 * fp.mean_sea_floor_radius
-ocean_dynamic_topography_amplitude = 0.00025 / fp.length_scale
+ocean_dynamic_topography_amplitude = 0.001 / fp.length_scale
+
 
 # Start with a rotationally invariant random field
 initial_ocean_dynamic_topography_measure = (
@@ -69,6 +74,7 @@ initial_ocean_dynamic_topography_measure = (
     )
 )
 
+
 # Push forward to a measure that is non-zero only in the oceans and which averages to zero
 ocean_projection = sl.ocean_projection_operator(fp, load_space)
 remove_ocean_average_operator = sl.remove_ocean_average_operator(fp, load_space)
@@ -77,6 +83,7 @@ ocean_dynamic_topography_measure = (
         operator=remove_ocean_average_operator @ ocean_projection
     )
 )
+
 
 # --- Set up joint distribution for ice thickness change and ocean dynamic topography ---
 
@@ -99,20 +106,22 @@ direct_load_operator = inf.RowLinearOperator(
     [ice_thickness_to_load_operator, sea_level_change_to_load_operator]
 )
 
-ice_thickness_change, ocean_dynamic_topography = joint_measure.sample()
-
 
 # Push forward the joint measure under this operator
 direct_load_measure = joint_measure.affine_mapping(operator=direct_load_operator)
 
 # --- Set up the linear operator that maps to the total sea surface height change ---
-joint_space = direct_load_operator.domain
+
+
 total_sea_surface_height_operator = (
     response_to_sea_surface_height_operator
     @ fingerprint_operator
     @ direct_load_operator
-    + joint_space.subspace_projection(1)
+    + inf.RowLinearOperator(
+        [load_space.zero_operator(), load_space.identity_operator()]
+    )
 )
+
 
 ice_thickness_change, ocean_dynamic_topography = joint_measure.sample()
 
