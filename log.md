@@ -83,3 +83,18 @@
 
 - Started work on third random fields example, building towards the full forward problem formulation.
 
+## 1 November 2025
+
+- Implemented pushforward workflow code for mapping distributions through the forward model.
+- Added mathematical notes on measure theory foundations and distribution diagrams.
+- Updated preamble formatting for improved PDF generation.
+
+## 2 November 2025
+
+- Added sampling methods to the random fields framework.
+
+## 3 November 2025
+
+- Updated pyslfp dependency and added fourth random field example incorporating ocean dynamic topography (ODT) noise.
+- Began working on the full error quantification methods and forward problem data pipeline in `main.py`.
+
