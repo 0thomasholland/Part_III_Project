@@ -5,7 +5,7 @@ import pyslfp as sl
 
 
 # --- Set up a fingerprint instance ---
-fp = sl.FingerPrint(lmax=64)
+fp = sl.FingerPrint(lmax=256)
 fp.set_state_from_ice_ng()
 
 # --- Get the representation as a Linear operator between Sobolev spaces ---
@@ -16,7 +16,7 @@ response_space = fingerprint_operator.codomain
 # --- Generate random fields for the ice thickness change ---
 
 ice_thickness_length_scale = 0.2 * fp.mean_sea_floor_radius
-ice_thickness_gmsl_target = 0.001 / fp.length_scale
+ice_thickness_gmsl_target = 0.005 / fp.length_scale
 
 # Set an intial rotationally invariant measure
 initial_ice_thickness_measure = load_space.heat_kernel_gaussian_measure(
