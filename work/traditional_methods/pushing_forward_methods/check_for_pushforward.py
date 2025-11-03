@@ -16,16 +16,16 @@ from scipy.stats import norm
 from Part_III_Project import SeaSurfaceFingerPrint
 
 # %% params
-lmax = 32
+lmax = 256
 sobolev_order = 2
 sobolev_length_scaler = 0.1
 
 ice_thickness_length_scale = 200.0 * 1e3  # in metres
-ice_thickness_change_std = 20  # in metres (spatial variability std dev)
+ice_thickness_change_std = 400  # in metres (spatial variability std dev)
 
 ocean_dynamic_topography_order = 1.5
-ocean_dynamic_topography_length_scale = 0.05
-ocean_dynamic_topography_amplitude = 0.005
+ocean_dynamic_topography_length_scales = [5, 500, 500000]  # in metres
+ocean_dynamic_topography_amplitudes = [0.005, 0.1, 0.3]  # in metres
 
 fp = sl.FingerPrint(lmax=lmax)
 fp.set_state_from_ice_ng()
@@ -52,12 +52,27 @@ fig1.colorbar(im1, ax=ax1, orientation="horizontal", label="Ice Thickness (m)")
 ocean_dynamic_topography_sample = (
     X.point_value_scaled_sobolev_kernel_gaussian_measure(
         ocean_dynamic_topography_order,
-        ocean_dynamic_topography_length_scale,
-        ocean_dynamic_topography_amplitude,
+        ocean_dynamic_topography_length_scales[0],
+        ocean_dynamic_topography_amplitudes[0],
     )
     .affine_mapping(operator=sl.ocean_projection_operator(fp, X))
     .sample()
 )
+
+for ODT_LS, ODT_AMP in zip(
+    ocean_dynamic_topography_length_scales[1:],
+    ocean_dynamic_topography_amplitudes[1:],
+):
+    ocean_dynamic_topography_sample += (
+        X.point_value_scaled_sobolev_kernel_gaussian_measure(
+            ocean_dynamic_topography_order,
+            ODT_LS,
+            ODT_AMP,
+        )
+        .affine_mapping(operator=sl.ocean_projection_operator(fp, X))
+        .sample()
+    )
+
 
 fig2, ax2, im2 = sl.plot(ocean_dynamic_topography_sample, symmetric=True)
 ax2.set_title("Ocean Dynamic Topography Sample")
