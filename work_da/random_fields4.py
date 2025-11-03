@@ -1,13 +1,13 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import scipy.stats as stats
 import pygeoinf as inf
 import pyslfp as sl
 
 
 # --- Set up a fingerprint instance ---
-fp = sl.FingerPrint(lmax=256)
+fp = sl.FingerPrint(lmax=64)
 fp.set_state_from_ice_ng()
-
 
 # --- Get the representation as a Linear operator between Sobolev spaces ---
 fingerprint_operator = fp.as_sobolev_linear_operator(2, 0.1 * fp.mean_sea_floor_radius)
@@ -18,7 +18,6 @@ response_space = fingerprint_operator.codomain
 response_to_sea_surface_height_operator = sl.sea_surface_height_operator(
     fp, response_space
 )
-
 
 # --- Set up a random field for the ice thickness change and associated load ---
 
@@ -112,7 +111,6 @@ direct_load_measure = joint_measure.affine_mapping(operator=direct_load_operator
 
 # --- Set up the linear operator that maps to the total sea surface height change ---
 
-
 total_sea_surface_height_operator = (
     response_to_sea_surface_height_operator
     @ fingerprint_operator
@@ -123,12 +121,58 @@ total_sea_surface_height_operator = (
 )
 
 
+# --- Set up an altimetry operator ---
+
+sea_surface_height_space = total_sea_surface_height_operator.codomain
+
+# Set the range for the altimetry measurements
+latitude_min = -66
+latitude_max = 66
+
+altimetry_projection = fp.altimetry_projection(
+    latitude_min=latitude_min, latitude_max=latitude_max, value=0
+)
+
+altimetry_operator = sl.spatial_mutliplication_operator(
+    altimetry_projection,
+    sea_surface_height_space,
+)
+
+# Set up a observational error field for the altimetry observations
+
+altimetry_error_order = 1.5
+altimetry_error_length_scale = 0.005 * fp.mean_sea_floor_radius
+altimetry_error_order_amplitude = 0.0001 / fp.length_scale
+
+
+initial_altimetry_error_measure = (
+    sea_surface_height_space.point_value_scaled_sobolev_kernel_gaussian_measure(
+        altimetry_error_order,
+        altimetry_error_length_scale,
+        altimetry_error_order_amplitude,
+    )
+)
+
+altimetry_error_measure = initial_altimetry_error_measure.affine_mapping(
+    operator=altimetry_operator
+)
+
+
+# --- make an instance of the inputs and plot the results ---
+
+
 ice_thickness_change, ocean_dynamic_topography = joint_measure.sample()
 
 sea_surface_height_change = total_sea_surface_height_operator(
     [ice_thickness_change, ocean_dynamic_topography]
 )
 
+altimetry_error = altimetry_error_measure.sample()
+
+altimetry_observation = altimetry_operator(sea_surface_height_change) + altimetry_error
+
+
+"""
 fig1, ax1, im1 = sl.plot(
     ice_thickness_change * fp.ice_projection(),
     symmetric=True,
@@ -141,6 +185,7 @@ fig1.colorbar(
     shrink=0.7,
     label="ice thickness change (m)",
 )
+
 
 fig2, ax2, im2 = sl.plot(
     ocean_dynamic_topography * fp.ocean_projection(),
@@ -169,4 +214,79 @@ fig3.colorbar(
     label="sea surface height change (m)",
 )
 
+fig4, ax4, im4 = sl.plot(
+    altimetry_observation * fp.ocean_projection(),
+    symmetric=True,
+)
+
+fig4.colorbar(
+    im4,
+    ax=ax4,
+    orientation="horizontal",
+    pad=0.05,
+    shrink=0.7,
+    label="altimetry observation (m)",
+)
+
 plt.show()
+
+"""
+
+
+# --- Set up an operator that maps the true ice thickness change to GMSL ---
+# TBD
+
+
+# --- Set up an operator that maps the altimetry observation to an estimate of GMSL ---
+
+altimetry_normalisation = fp.integrate(altimetry_projection)
+
+altimetry_estimate_operator = sl.averaging_operator(
+    sea_surface_height_space, [altimetry_projection / altimetry_normalisation]
+)
+
+# --- Push forward the various measures to get one for the altimetry estimate ---
+
+altimetry_estimate_measure = joint_measure.affine_mapping(
+    operator=altimetry_estimate_operator @ total_sea_surface_height_operator
+) + altimetry_error_measure.affine_mapping(operator=altimetry_estimate_operator)
+
+
+# --- extract information on the final measure for plotting ---
+
+
+# 1. Get statistics for the POSTERIOR distribution
+altimetry_estimate_mean = altimetry_estimate_measure.expectation[0]
+altimetry_estimate_var = altimetry_estimate_measure.covariance.matrix(dense=True)[0, 0]
+altimetry_estimate_std = np.sqrt(altimetry_estimate_var)
+
+print(altimetry_estimate_mean)
+print(altimetry_estimate_std)
+
+# 2. Define an x-axis that covers both distributions
+x_min = altimetry_estimate_mean - 6 * altimetry_estimate_std
+
+x_max = altimetry_estimate_mean + 6 * altimetry_estimate_std
+
+x_axis = np.linspace(x_min, x_max, 1000)
+
+# 3. Calculate the PDF values manually using the mean and std
+posterior_pdf_values = stats.norm.pdf(
+    x_axis, loc=altimetry_estimate_mean, scale=altimetry_estimate_std
+)
+
+# 4. Create the plot with two y-axes
+fig5, ax5 = plt.subplots(figsize=(12, 7))
+
+# Plot the POSTERIOR on the second axis (ax2)
+ax5.plot(
+    x_axis,
+    posterior_pdf_values,
+)
+
+
+plt.show()
+
+
+# inf.plot_1d_distributions([altimetry_estimate_measure])
+# plt.show()
