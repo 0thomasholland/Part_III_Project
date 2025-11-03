@@ -5,6 +5,13 @@ A research project investigating the application of Bayesian inversion methods t
 **Author:** Thomas Holland  
 **Project Supervisor:** David Al-Attar -->
 
+## Key Bibliography
+
+- [Lickley et al., ‘Bias in Estimates of Global Mean Sea Level Change Inferred from Satellite Altimetry’](https://doi.org/10.1175/JCLI-D-18-0024.1)
+- [Al-Attar et al., ‘Reciprocity and Sensitivity Kernels for Sea Level Fingerprints’](https://doi.org/10.1093/gji/ggad434)
+- [Al-Attar and Heathcote, pygeoinf](https://github.com/da380/pygeoinf)
+- [Al-Attar and Heathcote, PySLFP](https://github.com/da380/pyslfp)
+
 ## Project Overview
 
 This project aims to develop and compare methods for estimating global mean sea level (GMSL) change from satellite altimetry data. The research progresses from implementing traditional methods to developing Bayesian inversion approaches that incorporate sea level physics.
@@ -39,32 +46,19 @@ Part_III_Project/
 ├── pyproject.toml              # Project configuration and dependencies
 ├── README.md                   # This file
 │
-├── src/                        # Source code package
+├── src/                        # Code for my project that I have written
 │   └── Part_III_Project/
-│       ├── __init__.py
-│       ├── load_generators.py           # Load generation utilities
-│       ├── plot_methods.py              # Visualization functions
-│       ├── sea_surface_height_change.py # SSH change calculations
-│       └── sea_surface_height.py        # SSH fingerprint class (deprecated)
 │
 ├── work/                       # Working notebooks and analysis
 │   ├── Sea Level to Sea Surface.ipynb
-│   └── traditional_methods/        # Traditional methods analysis
-│       ├── load_lat.ipynb               # Load-latitude analysis
-│       ├── ternary.ipynb                # Ternary diagrams for ice sheet contributions
-│       ├── traditional_methods.ipynb    # Main traditional methods implementation  
-│       └── *.csv                        
+│   └── traditional_methods/        # Traditional methods analysis                     
 │
+├── work_DA/                       # Working directory of my supervisor
 ├── outputs/                    # Report and bibliography
 │   ├── refs.bib
-│   └── report/
-│       ├── report.tex
-│       └── parts/               # Report sections
+│   ├── report/
+│   ├── poster/
+│   └── presentation/
 │
-└── work_log/                   # Project documentation and notes
-    ├── Code notes.md
-    ├── Introduction.md
-    ├── Literature.md
-    ├── Progress.md              # Weekly progress and meeting notes
-    └── Thoughts.md
+└── work_log/                   # Project documentation and notes with weekly progress
 ```
