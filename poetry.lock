@@ -89,14 +89,14 @@ typing = ["pandas-stubs (>=2.0)"]
 
 [[package]]
 name = "astropy-iers-data"
-version = "0.2025.11.3.0.38.37"
+version = "0.2025.10.27.0.39.10"
 description = "IERS Earth Rotation and Leap Second tables for the astropy core package"
 optional = false
 python-versions = ">=3.8"
 groups = ["main"]
 files = [
-    {file = "astropy_iers_data-0.2025.11.3.0.38.37-py3-none-any.whl", hash = "sha256:f7e6bf830d1c6d022abaf39739a9dc7e42ea912675113da921967fe9a87d1de4"},
-    {file = "astropy_iers_data-0.2025.11.3.0.38.37.tar.gz", hash = "sha256:e018a3efbb6a4e4ea5a5a2a73bb3575b0123f3643b415a7327ec1dbd169787dd"},
+    {file = "astropy_iers_data-0.2025.10.27.0.39.10-py3-none-any.whl", hash = "sha256:aa91d24155eec2e7dafffd9ce0f046cd1fd6bcd995a76904aba3ef3f6836c4dc"},
+    {file = "astropy_iers_data-0.2025.10.27.0.39.10.tar.gz", hash = "sha256:2a0630f810bcba7978cc5f3f92a45910b5ea95d885302b1879b0132e920302ed"},
 ]
 
 [package.extras]
@@ -1605,8 +1605,8 @@ files = [
 ]
 
 [package.extras]
-dev = ["abi3audit", "black", "check-manifest", "colorama", "coverage", "packaging", "pylint", "pyperf", "pypinfo", "pyreadline", "pytest", "pytest-cov", "pytest-instafail", "pytest-subtests", "pytest-xdist", "pywin32", "requests", "rstcheck", "ruff", "setuptools", "sphinx", "sphinx_rtd_theme", "toml-sort", "twine", "validate-pyproject[all]", "virtualenv", "vulture", "wheel", "wheel", "wmi"]
-test = ["pytest", "pytest-instafail", "pytest-subtests", "pytest-xdist", "pywin32", "setuptools", "wheel", "wmi"]
+dev = ["abi3audit", "black", "check-manifest", "colorama ; os_name == \"nt\"", "coverage", "packaging", "pylint", "pyperf", "pypinfo", "pyreadline ; os_name == \"nt\"", "pytest", "pytest-cov", "pytest-instafail", "pytest-subtests", "pytest-xdist", "pywin32 ; os_name == \"nt\" and platform_python_implementation != \"PyPy\"", "requests", "rstcheck", "ruff", "setuptools", "sphinx", "sphinx_rtd_theme", "toml-sort", "twine", "validate-pyproject[all]", "virtualenv", "vulture", "wheel", "wheel ; os_name == \"nt\" and platform_python_implementation != \"PyPy\"", "wmi ; os_name == \"nt\" and platform_python_implementation != \"PyPy\""]
+test = ["pytest", "pytest-instafail", "pytest-subtests", "pytest-xdist", "pywin32 ; os_name == \"nt\" and platform_python_implementation != \"PyPy\"", "setuptools", "wheel ; os_name == \"nt\" and platform_python_implementation != \"PyPy\"", "wmi ; os_name == \"nt\" and platform_python_implementation != \"PyPy\""]
 
 [[package]]
 name = "ptyprocess"
@@ -1982,14 +1982,14 @@ pygmt = ["pygmt (>=0.7)"]
 
 [[package]]
 name = "pyslfp"
-version = "1.1.1"
+version = "1.1.0"
 description = "Package for computing elastic sea level fingerprints"
 optional = false
 python-versions = ">=3.11"
 groups = ["main"]
 files = [
-    {file = "pyslfp-1.1.1-py3-none-any.whl", hash = "sha256:0e4c15b7bf5c1ec08e5a2edcc1e9305bb36f93a2835d805b329917a8ea9ebe0d"},
-    {file = "pyslfp-1.1.1.tar.gz", hash = "sha256:6a1ce713d6266bbd32b0cc13ffcb4c437dfb305c905d6eec850ed1a133cd92e2"},
+    {file = "pyslfp-1.1.0-py3-none-any.whl", hash = "sha256:5fda6dc43c0d88941195c38a40637ac17b3b467f5f8f597fcb4d5620f23e06ab"},
+    {file = "pyslfp-1.1.0.tar.gz", hash = "sha256:7f70a3a1769e1f152137cc3766df6aa02e0da724a8d9cfba6eddf9e547cc04a5"},
 ]
 
 [package.dependencies]
@@ -2667,5 +2667,5 @@ viz = ["cartopy (>=0.23)", "matplotlib", "nc-time-axis", "seaborn"]
 
 [metadata]
 lock-version = "2.1"
-python-versions = ">=3.12"
-content-hash = "490465dad3564b1aee956160f40282b134d8e75400219372a27c6ca02c548f6c"
+python-versions = "~=3.12"
+content-hash = "e5461c6f4469f91a059fccaa5a62e42a378d3b1e20649dc3dbddeb9995568062"
