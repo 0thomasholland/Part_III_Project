@@ -4,8 +4,12 @@
 import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
 import numpy as np
+
+# %%
 import pygeoinf as inf
 import pyslfp as sl
+
+# %%
 from pyslfp.physical_parameters import GRAVITATIONAL_ACCELERATION
 from scipy.stats import norm
 
@@ -160,3 +164,5 @@ print(f"ODT GMSL Change: {gmsl_ODT_estimated:.4f} m")
 print(f"ODT 66° GMSL Change: {gmsl_ODT_66_estimated:.4f} m")
 
 plt.show()
+
+# %%
