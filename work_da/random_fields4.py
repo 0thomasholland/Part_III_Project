@@ -14,7 +14,9 @@ load_space = fingerprint_operator.domain
 response_space = fingerprint_operator.codomain
 
 # --- form the sea surface height operator ---
-sea_surface_height_operator = sl.sea_surface_height_operator(fp, response_space)
+response_to_sea_surface_height_operator = sl.sea_surface_height_operator(
+    fp, response_space
+)
 
 
 # --- Set up a random field for the ice thickness change and associated load ---
@@ -56,7 +58,7 @@ ice_thickness_measure *= ice_thickness_gmsl_target / GMSL_std
 
 ocean_dynamic_topography_order = 1.5
 ocean_dynamic_topography_length_scale = 0.005 * fp.mean_sea_floor_radius
-ocean_dynamic_topography_amplitude = 0.0005 / fp.length_scale
+ocean_dynamic_topography_amplitude = 0.00025 / fp.length_scale
 
 # Start with a rotationally invariant random field
 initial_ocean_dynamic_topography_measure = (
@@ -67,10 +69,13 @@ initial_ocean_dynamic_topography_measure = (
     )
 )
 
-# Push forward to a measure that is non-zero only in the oceans.
+# Push forward to a measure that is non-zero only in the oceans and which averages to zero
 ocean_projection = sl.ocean_projection_operator(fp, load_space)
+remove_ocean_average_operator = sl.remove_ocean_average_operator(fp, load_space)
 ocean_dynamic_topography_measure = (
-    initial_ocean_dynamic_topography_measure.affine_mapping(operator=ocean_projection)
+    initial_ocean_dynamic_topography_measure.affine_mapping(
+        operator=remove_ocean_average_operator @ ocean_projection
+    )
 )
 
 # --- Set up joint distribution for ice thickness change and ocean dynamic topography ---
@@ -103,7 +108,9 @@ direct_load_measure = joint_measure.affine_mapping(operator=direct_load_operator
 # --- Set up the linear operator that maps to the total sea surface height change ---
 joint_space = direct_load_operator.domain
 total_sea_surface_height_operator = (
-    sea_surface_height_operator @ fingerprint_operator @ direct_load_operator
+    response_to_sea_surface_height_operator
+    @ fingerprint_operator
+    @ direct_load_operator
     + joint_space.subspace_projection(1)
 )
 
