@@ -3,10 +3,10 @@ name = "Part_III_Project"
 version = "0.1.0"
 description = ""
 authors = [
-    {name = "Thomas Holland",email = "101332229+0thomasholland@users.noreply.github.com"}
+    { name = "Thomas Holland", email = "101332229+0thomasholland@users.noreply.github.com" },
 ]
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = "~=3.12"
 dependencies = [
     "pyslfp (>=1.0.8,<2.0.0)",
     "matplotlib (>=3.10.7,<4.0.0)",
@@ -15,16 +15,16 @@ dependencies = [
     "pandas (>=2.3.3,<3.0.0)",
     "mpltern (>=1.0.4,<2.0.0)",
     "snakeviz (>=2.2.2,<3.0.0)",
-    "seaborn (>=0.13.2,<0.14.0)"
+    "seaborn (>=0.13.2,<0.14.0)",
 ]
 
 [tool.poetry]
-packages = [{include = "Part_III_Project", from = "src"}]
+packages = [{ include = "Part_III_Project", from = "src" }]
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
 
-[tool.pyright]  # Pylance uses Pyright under the hood
+[tool.pyright] # Pylance uses Pyright under the hood
 typeCheckingMode = "strict"
 reportUnknownVariableType = false
