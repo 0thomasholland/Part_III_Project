@@ -1,9 +1,8 @@
-import numpy as np
 import matplotlib.pyplot as plt
-import scipy.stats as stats
+import numpy as np
 import pygeoinf as inf
 import pyslfp as sl
-
+import scipy.stats as stats
 
 # --- Set up a fingerprint instance ---
 fp = sl.FingerPrint(lmax=64)
@@ -172,7 +171,6 @@ altimetry_error = altimetry_error_measure.sample()
 altimetry_observation = altimetry_operator(sea_surface_height_change) + altimetry_error
 
 
-"""
 fig1, ax1, im1 = sl.plot(
     ice_thickness_change * fp.ice_projection(),
     symmetric=True,
@@ -229,8 +227,6 @@ fig4.colorbar(
 )
 
 plt.show()
-
-"""
 
 
 # --- Set up an operator that maps the true ice thickness change to GMSL ---
