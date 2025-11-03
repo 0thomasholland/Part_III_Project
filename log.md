@@ -93,3 +93,8 @@
 
 - Added sampling methods to the random fields framework.
 
+## 3 November 2025
+
+- Updated pyslfp dependency and added fourth random field example incorporating ocean dynamic topography (ODT) noise.
+- Began working on the full error quantification methods and forward problem data pipeline in `main.py`.
+
