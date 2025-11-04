@@ -9,6 +9,10 @@ on:
       - '.github/workflows/notebook2pdf.yml'  # Re-run if workflow changes
       - '.github/formatting/preamble.tex'  # Re-run if preamble changes
   workflow_dispatch:  # Allow manual triggering
+  worflow_run:
+    workflows: ['Sync Google Doc to Markdown']
+    types:
+      - completed
 
 jobs:
   convert-to-pdf:
