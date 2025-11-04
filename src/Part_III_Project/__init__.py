@@ -7,8 +7,10 @@ from Part_III_Project.plot_methods import (
     plot_ternary_heatmap_subplots,
     # plot_ternary_heatmap_subplots_parallel,
 )
-from Part_III_Project.sea_surface_height import SeaSurfaceFingerPrint
-from Part_III_Project.sea_surface_height_change import sea_surface_height_change
+from Part_III_Project.sea_surface_height_change import (
+    SeaSurfaceFingerPrint,
+    sea_surface_height_change,
+)
 
 from .load_generators import create_ice_band
 
