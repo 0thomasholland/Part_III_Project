@@ -8,7 +8,7 @@ import scipy.stats as stats
 
 # %% Parameters setting
 
-lmax = 264
+lmax = 32
 
 
 standard_nondim = sl.EarthModelParameters.from_standard_non_dimensionalisation()
