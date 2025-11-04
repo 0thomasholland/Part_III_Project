@@ -5,8 +5,8 @@
 
 ### Deterministic space
 
-![alt text](../whiteboards/deterministic_workflows.excalidraw.svg)
+![alt text](../whiteboards/deterministic_method.excalidraw.svg)
 
 ### Measure space
 
-![alt text](../whiteboards/measure_workflows.excalidraw.svg)
+![alt text](../whiteboards/measure_method.excalidraw.svg)
