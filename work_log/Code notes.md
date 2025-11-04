@@ -1,3 +1,4 @@
+
 # Code notes
 
 ## 2025-10-17
@@ -16,8 +17,8 @@ Similarly having bands of satalite latitude ranges showing what is being sampled
 
 ## 2025-11-01 14:48
 
-Workflow for traditional methods:
+Workflow  traditional methods:
 
-![Workflow for current methods using satellite data](figs/current_methods.excalidraw.svg)
+![Workflow for current methods using satellite data](../whiteboards/workflow.excalidraw.svg)
 
 ... Forward problem?

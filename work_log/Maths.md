@@ -2,10 +2,10 @@
 
 ## 2025-10-20
 
-![Maths of SSHC and SLC](figs/fundamentals.excalidraw.svg)
+![Maths of SSHC and SLC](../whiteboards/sl_ssh_equations.excalidraw.svg)
 
 ## 2025-10-24
 
 Working through of probability distributions and pushing forward through functions.
 
-![Distributions](figs/dist.excalidraw.svg)
+![Distributions](../whiteboards/distribution_notes.excalidraw.svg)
