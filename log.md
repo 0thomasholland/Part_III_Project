@@ -98,3 +98,9 @@
 - Updated pyslfp dependency and added fourth random field example incorporating ocean dynamic topography (ODT) noise.
 - Began working on the full error quantification methods and forward problem data pipeline in `main.py`.
 
+## 4 November 2025
+
+- Reorganised project directory structure for better logical layout: renamed folders, moved files, and cleaned up scratch pads.
+- Implemented measure space formulation code, laying out the mathematical structure for combining ice sheet and ocean dynamic measures.
+- Updated methods documentation and whiteboard notes.
+
