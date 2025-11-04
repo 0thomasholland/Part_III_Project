@@ -11,13 +11,14 @@
   - Consider building in feed forwards mechanisms (Kalman filter-like)
 - Possible extension to consider:
   - Adding ice altimetry data and/or other data types
-  - Effect of knocking out %’s of the networks (e.g. esp tidal guages → look at their average downtime)
+  - Effect of knocking out %’s of the networks (e.g. esp tidal gauges → look at their average downtime)
   - Comparison of the data types (more data vs more types of data)
   - Consider if different data types have different abilities to resolve features (e.g. tidal gauges trade off within East and West Antarctic Ice … does this exist within altimetry data?)
   - Early Lent
 
 # Weekly progress/goals
 
+Mainly here to keep track of what was spoken about so I can (a) look through paper/written notes and (b) understand changes to code based on meetings
 
 ## Meeting 1: 13/Oct
 
@@ -61,5 +62,15 @@
 - Goal to work on implementing a workflow for estimating errors
 
 ## Meeting 6: 3/Nov
+
+-  Discussed briefly:
+  - Extracting statistics from gaussian_measure.GaussianMeasure class
+  - Linear transform for Measure: affine_mapping(*, operator: LinearOperator = None, translation: Vector = None) → GaussianMeasure
+- Direct sum
+  - Of R^n space
+  - Of gaussian measures
+- Work on extracting out script into functions and adaptable workflow 
+
+## Meeting 7: 7/Nov
 
 
