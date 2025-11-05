@@ -104,3 +104,7 @@
 - Implemented measure space formulation code, laying out the mathematical structure for combining ice sheet and ocean dynamic measures.
 - Updated methods documentation and whiteboard notes.
 
+## 5 November 2025
+
+- Continued implementing measure space functions, working towards a complete formulation of the direct sum of Gaussian measures.
+
