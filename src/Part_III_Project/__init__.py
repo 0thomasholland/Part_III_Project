@@ -12,7 +12,7 @@ from Part_III_Project.deterministic_space.sea_surface_height_change import (
     SeaSurfaceFingerPrint,
     sea_surface_height_change,
 )
-from Part_III_Project.measure_space.measure_helpers import (
+from Part_III_Project.measure_space.measure_space_helpers import (
     return_1D_variance,
     return_expectation,
 )
