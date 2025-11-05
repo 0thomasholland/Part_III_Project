@@ -1,11 +1,15 @@
 # Maths
 
-## 2025-10-20
+## Maths of SSHC and SLC
 
 ![Maths of SSHC and SLC](../whiteboards/sl_ssh_equations.excalidraw.svg)
 
-## 2025-10-24
+## Probability Distributions
 
-Working through of probability distributions and pushing forward through functions.
+Working through of probability distributions
 
 ![Distributions](../whiteboards/distribution_notes.excalidraw.svg)
+
+Working through pushing functions
+
+<!-- ![Pushing Functions](../whiteboards/pushing_functions.excalidraw.svg) -->
