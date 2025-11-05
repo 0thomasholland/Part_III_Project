@@ -1,87 +1,226 @@
-from joblib import Parallel, delayed
 import numpy as np
-from numpy.typing import NDArray, ArrayLike
-from pygeoinf import GaussianMeasure, LinearOperator 
-from pyslfp import FingerPrint, sea_level_change_to_load_operator, ice_thickness_change_to_load_operator
+from joblib import Parallel, delayed
+from numpy.typing import ArrayLike, NDArray
+from pygeoinf import GaussianMeasure, LinearOperator
+from pyslfp import (
+    FingerPrint,
+    ice_thickness_change_to_load_operator,
+    sea_level_change_to_load_operator,
+    sea_surface_height_operator,
+)
 
-from Part_III_Project.measure_space.operators import 
 
-
-
-def ice_thickness_change_measures(fingerprint: FingerPrint = None, fingerprint_operator: LinearOperator = None, length_scale: float = 60, thickness_95_range: float = 100, net_thickness_change: float = 0.) -> tuple[GaussianMeasure, GaussianMeasure]:
-    """
-    -> ice_thickness_measure, ice_thickness_load_measure
+def ice_thickness_change_measures(
+    fingerprint: FingerPrint = None,
+    fingerprint_operator: LinearOperator = None,
+    length_scale: float = 60,
+    thickness_95_range: float = 100,
+    net_thickness_change: float = 0,
+) -> tuple[GaussianMeasure, GaussianMeasure]:
+    """-> ice_thickness_measure, ice_thickness_load_measure
     Takes a length scale for the ice thickness changes and either a target GMSL std or a 95% range for the ice thickness changes to set the amplitude of the ocean dynamic topography measure.
     """
-
     ice_measure = fingerprint_operator.domain.point_value_scaled_heat_kernel_gaussian_measure(
-        scale=length_scale / fingerprint.length_scale,  # controls correlation length between nearby points
-        amplitude=thickness_95_range / 3.92 / fingerprint.length_scale  # the standard deviation of melt at each point
+        scale=length_scale
+        / fingerprint.length_scale,  # controls correlation length between nearby points
+        amplitude=thickness_95_range
+        / 3.92
+        / fingerprint.length_scale,  # the standard deviation of melt at each point
     )
-    if net_thickness_change != 0.:
+    # adjust for any net thickness change specified
+    if net_thickness_change != 0.0:
         shift_vector = np.zeros(fingerprint_operator.domain.dim)
         shift_vector[0] = net_thickness_change
-        shift_vector = fingerprint_operator.domain.from_components(shift_vector)
+        shift_vector = fingerprint_operator.domain.from_components(
+            shift_vector,
+        )
         ice_measure = ice_measure.affine_mapping(
             operator=fingerprint_operator.domain.identity_operator(),
-            translation=shift_vector
+            translation=shift_vector,
         )
     ice_load_measure = ice_measure.affine_mapping(
         operator=ice_thickness_change_to_load_operator(
-            finger_print=fingerprint, load_space=fingerprint_operator.domain
-        )
+            finger_print=fingerprint,
+            load_space=fingerprint_operator.domain,
+        ),
     )
     return ice_measure, ice_load_measure
 
+
 def ocean_dynamic_topography_measures(
-        fingerprint: FingerPrint = None, fingerprint_operator: LinearOperator = None, lengthscale: float = 60, amplitude: float = 0.001
-        ) -> tuple[GaussianMeasure, GaussianMeasure]:
-    """
-    -> ODT_measure, ODT_load_measure
-    """
-    initial_odt_measure = fingerprint_operator.domain.point_value_scaled_sobolev_kernel_gaussian_measure(
+    fingerprint: FingerPrint = None,
+    fingerprint_operator: LinearOperator = None,
+    length_scale: float = 60,
+    amplitude_95_range: float = 0.001,
+) -> tuple[GaussianMeasure, GaussianMeasure]:
+    """-> ODT_measure, ODT_load_measure"""
+    _initial_odt_measure = fingerprint_operator.domain.point_value_scaled_sobolev_kernel_gaussian_measure(
         order=1.5,
-        scale=lengthscale / fingerprint.length_scale,
-        amplitude=amplitude / fingerprint.length_scale,
+        scale=length_scale / fingerprint.length_scale,
+        amplitude=amplitude_95_range
+        / 3.92
+        / fingerprint.length_scale,
     )
-    pass
+    # set the ODT to be zero mean over oceans
+    _ocean_projection = sl.ocean_projection_operator(
+        fingerprint,
+        fingerprint_operator.domain,
+    )
+    _remove_ocean_average_operator = sl.remove_ocean_average_operator(
+        fingerprint,
+        fingerprint_operator.domain,
+    )
+    odt_measure = _initial_odt_measure.affine_mapping(
+        operator=_remove_ocean_average_operator @ _ocean_projection,
+    )
+    # calculate the corresponding load measure
+    odt_load_measure = odt_measure.affine_mapping(
+        operator=sea_level_change_to_load_operator(
+            finger_print=fingerprint,
+            load_space=fingerprint_operator.domain,
+        ),
+    )
+    return odt_measure, odt_load_measure
+
 
 def load_measure(
-    ice_thickness_load_measure: GaussianMeasure | tuple[GaussianMeasure, GaussianMeasure], odt_load_measure: GaussianMeasure | tuple[GaussianMeasure, GaussianMeasure]
+    ice_thickness_load_measure: GaussianMeasure
+    | tuple[GaussianMeasure, GaussianMeasure],
+    odt_load_measure: GaussianMeasure
+    | tuple[GaussianMeasure, GaussianMeasure],
 ) -> GaussianMeasure:
-    """
-    -> total_load_measure
-    """
+    """Returns a direct load measure"""
     if isinstance(ice_thickness_load_measure, tuple):
         ice_thickness_load_measure = ice_thickness_load_measure[1]
     if isinstance(odt_load_measure, tuple):
         odt_load_measure = odt_load_measure[1]
-    pass
 
-def sea_level_change_measure():
-    pass
+    if type(ice_thickness_load_measure) != type(odt_load_measure):
+        raise ValueError(
+            "Both inputs must be GaussianMeasures or tuples of GaussianMeasures",
+        )
+    if ice_thickness_load_measure.domain != odt_load_measure.domain:
+        raise ValueError(
+            "Both input measures must be defined on the same domain",
+        )
+    try:
+        direct_load_measure = (
+            ice_thickness_load_measure + odt_load_measure
+        )
+    except:
+        raise ValueError(
+            "Ya code broke boss tryna combine those two load measures to one",
+        )
+    return direct_load_measure
 
-def sensor_noise_measure(
-        *, noise_scale: float = 0.01, noise_lengthscale: float = 1.0
-        ) -> GaussianMeasure:
-    """
-    -> noise_measure
-    """
-    pass
 
-def sea_surface_height_measure(slc_measure: GaussianMeasure, odt_measure: GaussianMeasure | tuple[GaussianMeasure, GaussianMeasure], noise_measure: GaussianMeasure) -> tuple[GaussianMeasure, GaussianMeasure, GaussianMeasure]:
-    """
-    -> SSH, SSH+ODT, SSH+ODT+NOISE
-    takes in slc_measure and odt_measure (nb odt_measures[0] is the ODT measure)
+def sensor_error_measure(
+    *,
+    error_scale_std: float = 0.01,
+    error_lengthscale: float = 1.0,
+    fingerprint_operator: LinearOperator,
+    fingerprint: FingerPrint,
+) -> GaussianMeasure:
+    """-> error measure over entire sphere surface"""
+    try:
+        _error_measure = fingerprint_operator.codomain.point_value_scaled_sobolev_kernel_gaussian_measure(
+            order=1.5,
+            scale=error_lengthscale / fingerprint.length_scale,
+            amplitude=error_scale_std / fingerprint.length_scale,
+        )
+    except:
+        raise ValueError(
+            "Failed to create error measure",
+        )
+
+    return _error_measure
+
+
+def sea_level_change_measure(
+    fingerprint_operator: LinearOperator,
+    load_measure: GaussianMeasure,
+) -> GaussianMeasure:
+    """Returns a single sea level change measure"""
+    if load_measure.domain != fingerprint_operator.domain:
+        raise ValueError(
+            "load_measure and fingerprint_operator must be defined on the same domain",
+        )
+    slc_measure = load_measure.affine_mapping(
+        operator=fingerprint_operator,
+    )
+    try:
+        slc_measure = slc_measure[0]
+    except:
+        print("Failed to extract sea level change measure from tuple")
+    return slc_measure
+
+
+def sea_surface_height_measure(
+    fingerprint: FingerPrint,
+    fingerprint_operator: LinearOperator,
+    *,
+    odt_measure: GaussianMeasure
+    | tuple[GaussianMeasure, GaussianMeasure]
+    | None = None,
+    noise_measure: GaussianMeasure | None = None,
+) -> tuple[GaussianMeasure, GaussianMeasure, GaussianMeasure]:
+    """-> SSH, SSH+ODT, SSH+ODT+NOISE
+    takes in a load measure and optionally an ODT measure and optional noise measure to return three sea surface height measures.
+    If no ODT measure is provided, the SSH+ODT measure is just the SSH measure.
+    If no noise measure is provided, the SSH+ODT+NOISE measure is just the SSH+ODT measure.
     """
     if isinstance(odt_measure, tuple):
         odt_measure = odt_measure[0]
-    pass
+    try:
+        ssh_measure = load_measure.affine_mapping(
+            operator=sea_surface_height_operator(
+                finger_print=fingerprint,
+                load_space=fingerprint_operator.domain,
+            )
+            @ fingerprint_operator,
+        )
+    except:
+        raise ValueError(
+            "Failed to create SSH measure",
+        )
+    # Create the SSH+ODT measure
+    ssh_odt_measure = ssh_measure
+    if odt_measure is not None:
+        try:
+            ssh_odt_measure = ssh_measure + odt_measure
+        except:
+            raise ValueError(
+                "Failed to create SSH+ODT measure",
+            )
+    # Create the SSH+ODT+NOISE measure
+    ssh_odt_noise_measure = ssh_odt_measure
+    if noise_measure is not None:
+        if type(ssh_odt_measure) != type(noise_measure):
+            raise ValueError(
+                "ssh_odt_measure and noise_measure must be of the same type",
+            )
+        if ssh_odt_measure.domain != noise_measure.domain:
+            raise ValueError(
+                "ssh_odt_measure and noise_measure must be defined on the same domain",
+            )
+        try:
+            ssh_odt_noise_measure = ssh_odt_measure + noise_measure
+        except:
+            raise ValueError(
+                "Failed to create SSH+ODT+NOISE measure",
+            )
+    # extract the subspace corresponding to the sea surface height measures
+    ssh_measure = ssh_measure[0]
+
+    return ssh_measure, ssh_odt_measure, ssh_odt_noise_measure
+
 
 def altimetry_measurements_measure(
-    ssh_measure: tuple[GaussianMeasure, GaussianMeasure, GaussianMeasure], altimetry_range: float = 66
+    ssh_measure: tuple[
+        GaussianMeasure,
+        GaussianMeasure,
+        GaussianMeasure,
+    ],
+    altimetry_range: float = 66,
 ) -> tuple[GaussianMeasure, GaussianMeasure, GaussianMeasure]:
-    """
-    -> SSH_alt range, SSH+ODT_alt range, SSH+ODT+NOISE_alt range
-    """
-    pass
+    """-> SSH_alt range, SSH+ODT_alt range, SSH+ODT+NOISE_alt range"""
