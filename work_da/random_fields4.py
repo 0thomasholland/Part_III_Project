@@ -118,12 +118,31 @@ total_sea_surface_height_operator = (
         [load_space.zero_operator(), load_space.identity_operator()]
     )
 )
+try:
+    print(total_sea_surface_height_operator.codomain)
+except:
+    pass
+try:
+    print(total_sea_surface_height_operator.domain)
+except:
+    pass
+try:
+    print(type(total_sea_surface_height_operator))
+except:
+    pass
 
 
 # --- Set up an altimetry operator ---
 
 sea_surface_height_space = total_sea_surface_height_operator.codomain
-
+try:
+    print(type(sea_surface_height_space))
+except:
+    pass
+try:
+    print(sea_surface_height_space)
+except:
+    pass
 # Set the range for the altimetry measurements
 latitude_min = -66
 latitude_max = 66
