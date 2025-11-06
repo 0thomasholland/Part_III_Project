@@ -108,3 +108,7 @@
 
 - Continued implementing measure space functions, working towards a complete formulation of the direct sum of Gaussian measures.
 
+## 6 November 2025
+
+- Implemented direct sums of measures, enabling composition of ice sheet and ODT Gaussian measures in the joint model space.
+
