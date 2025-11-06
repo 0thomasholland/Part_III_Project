@@ -1,12 +1,16 @@
 import numpy as np
-from joblib import Parallel, delayed
-from numpy.typing import ArrayLike, NDArray
+import pyslfp as sl
 from pygeoinf import GaussianMeasure, LinearOperator
 from pyslfp import (
     FingerPrint,
+    ice_projection_operator,
     ice_thickness_change_to_load_operator,
     sea_level_change_to_load_operator,
     sea_surface_height_operator,
+)
+
+from Part_III_Project.measure_space.operators import (
+    gmsl_measure_condenser,
 )
 
 
@@ -27,6 +31,9 @@ def ice_thickness_change_measures(
         / 3.92
         / fingerprint.length_scale,  # the standard deviation of melt at each point
     )
+    # project over ice only
+    # remove mean shift now
+
     # adjust for any net thickness change specified
     if net_thickness_change != 0.0:
         shift_vector = np.zeros(fingerprint_operator.domain.dim)
@@ -38,6 +45,12 @@ def ice_thickness_change_measures(
             operator=fingerprint_operator.domain.identity_operator(),
             translation=shift_vector,
         )
+    ice_measure = ice_measure.affine_mapping(
+        operator=ice_projection_operator(
+            fingerprint,
+            fingerprint_operator.domain,
+        ),
+    )
     ice_load_measure = ice_measure.affine_mapping(
         operator=ice_thickness_change_to_load_operator(
             finger_print=fingerprint,
@@ -224,3 +237,14 @@ def altimetry_measurements_measure(
     altimetry_range: float = 66,
 ) -> tuple[GaussianMeasure, GaussianMeasure, GaussianMeasure]:
     """-> SSH_alt range, SSH+ODT_alt range, SSH+ODT+NOISE_alt range"""
+
+
+def gmsl_measure(
+    measure: GaussianMeasure,
+    fingerprint: FingerPrint,
+) -> GaussianMeasure:
+    gmsl_operator = gmsl_measure_condenser(measure, fingerprint)
+    gmsl_measure = measure.affine_mapping(
+        operator=gmsl_operator,
+    )
+    return gmsl_measure
