@@ -20,7 +20,11 @@ verbosity = 1
 print("Starting variable input GMSL estimation script")
 
 # --- Set up a fingerprint instance ---
-fp = sl.FingerPrint(lmax=64)
+lmax = 128
+fp = sl.FingerPrint(
+    lmax=lmax,
+    earth_model_parameters=sl.EarthModelParameters.from_standard_non_dimensionalisation(),
+)
 fp.set_state_from_ice_ng()
 
 fingerprint_operator = fp.as_sobolev_linear_operator(
@@ -193,7 +197,7 @@ def gmsl_via_slc(fingerprint, fingerprint_operator, direct_load):
     slc = sea_level_change_measure(
         fingerprint_operator=fingerprint_operator,
         fingerprint=fingerprint,
-        direct_load_measure=direct_load,
+        load_measure=direct_load,
     )
     gmsl_slc_estimate = gmsl_measure(
         measure=slc,
@@ -209,13 +213,13 @@ def gmsl_via_ssh(
     fingerprint,
     fingerprint_operator,
     direct_load,
-    ocean_dynamic_measure,
+    odt_measure,
 ):
     ssh, ssh_odt, _ = sea_surface_height_measure(
         fingerprint_operator=fingerprint_operator,
         fingerprint=fingerprint,
         load_measure=direct_load,
-        ocean_dynamic_measure=ocean_dynamic_measure,
+        odt_measure=odt_measure,
     )
     gmsl_ssh_estimate = gmsl_measure(
         measure=ssh,
@@ -249,7 +253,11 @@ gmsl_ssh_odt_std = []
 # use joblib to parallelize the computation of gmsl estimates adding ssh and slc to same joblist
 print("Number of jobs: ", len(direct_loads))
 
-results_gmsl = Parallel(n_jobs=-1, verbose=verbosity)(
+results_gmsl = Parallel(
+    n_jobs=-1,
+    verbose=verbosity,
+    idle_worker_timeout=300,
+)(
     delayed(
         lambda i: (
             *gmsl_via_slc(
@@ -261,7 +269,7 @@ results_gmsl = Parallel(n_jobs=-1, verbose=verbosity)(
                 fingerprint=fp,
                 fingerprint_operator=fingerprint_operator,
                 direct_load=direct_loads[i],
-                ocean_dynamic_measure=ocean_dynamic_measure[i],
+                odt_measure=ocean_dynamic_measure[i],
             ),
         ),
     )(i)
@@ -291,9 +299,13 @@ df = pd.DataFrame(
         "gmsl_ssh_std": gmsl_ssh_std,
         "gmsl_ssh_odt_expectation": gmsl_ssh_odt_expectation,
         "gmsl_ssh_odt_std": gmsl_ssh_odt_std,
+        "lmax": lmax * np.ones(len(gmsl_slc_expectation)),
     },
 )
 
-df.to_csv("variable_input_gmsl_estimates_low_rest.csv", index=False)
+df.to_csv(
+    "work/5-distribution_mapping/variable_input_gmsl_estimates_low_res.csv",
+    index=False,
+)
 
 print("Saved results to csv")
