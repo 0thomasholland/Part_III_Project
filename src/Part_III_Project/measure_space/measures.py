@@ -158,13 +158,19 @@ def sea_level_change_measure(
         raise ValueError(
             "load_measure and fingerprint_operator must be defined on the same domain",
         )
-    slc_measure = load_measure.affine_mapping(
+    response_measure = load_measure.affine_mapping(
         operator=fingerprint_operator,
     )
-    try:
-        slc_measure = slc_measure[0]
-    except:
-        print("Failed to extract sea level change measure from tuple")
+
+    response_space = response_measure.domain
+    projection_operator = response_space.subspace_projection_operator(
+        0,
+    )
+
+    slc_measure = response_measure.affine_mapping(
+        operator=projection_operator,
+    )
+
     return slc_measure
 
 
@@ -197,12 +203,6 @@ def sea_surface_height_measure(
             "Failed to create SSH measure",
         )
     # try to extract the subspace?
-    try:
-        ssh_odt_measure = ssh_odt_measure[0]
-    except:
-        print(
-            "Failed to extract sea surface height + ODT measure from space",
-        )
     # Create the SSH+ODT measure
     ssh_odt_measure = ssh_measure
     if odt_measure is not None:
@@ -211,12 +211,6 @@ def sea_surface_height_measure(
         except:
             raise ValueError(
                 "Failed to create SSH+ODT measure",
-            )
-        try:
-            ssh_measure = ssh_measure[0]
-        except:
-            print(
-                "Failed to extract sea surface height measure from space",
             )
     # Create the SSH+ODT+NOISE measure
     ssh_odt_noise_measure = ssh_odt_measure
@@ -234,12 +228,6 @@ def sea_surface_height_measure(
         except:
             raise ValueError(
                 "Failed to create SSH+ODT+NOISE measure",
-            )
-        try:
-            ssh_odt_noise_measure = ssh_odt_noise_measure[0]
-        except:
-            print(
-                "Failed to extract sea surface height + ODT + NOISE measure from space",
             )
     # extract the subspace corresponding to the sea surface height measures
 
