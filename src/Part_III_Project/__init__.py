@@ -14,6 +14,7 @@ from Part_III_Project.deterministic_space.sea_surface_height_change import (
 )
 from Part_III_Project.measure_space.measure_space_helpers import (
     get_stats_from_measure,
+    plot_measure,
 )
 from Part_III_Project.measure_space.measures import (
     altimetry_measurements_measure,
@@ -42,4 +43,5 @@ __all__ = [
     "sensor_error_measure",
     "get_stats_from_measure",
     "sea_surface_height_measure",
+    "plot_measure",
 ]

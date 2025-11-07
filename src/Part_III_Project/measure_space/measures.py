@@ -196,6 +196,13 @@ def sea_surface_height_measure(
         raise ValueError(
             "Failed to create SSH measure",
         )
+    # try to extract the subspace?
+    try:
+        ssh_odt_measure = ssh_odt_measure[0]
+    except:
+        print(
+            "Failed to extract sea surface height + ODT measure from space",
+        )
     # Create the SSH+ODT measure
     ssh_odt_measure = ssh_measure
     if odt_measure is not None:
@@ -204,6 +211,12 @@ def sea_surface_height_measure(
         except:
             raise ValueError(
                 "Failed to create SSH+ODT measure",
+            )
+        try:
+            ssh_measure = ssh_measure[0]
+        except:
+            print(
+                "Failed to extract sea surface height measure from space",
             )
     # Create the SSH+ODT+NOISE measure
     ssh_odt_noise_measure = ssh_odt_measure
@@ -222,8 +235,13 @@ def sea_surface_height_measure(
             raise ValueError(
                 "Failed to create SSH+ODT+NOISE measure",
             )
+        try:
+            ssh_odt_noise_measure = ssh_odt_noise_measure[0]
+        except:
+            print(
+                "Failed to extract sea surface height + ODT + NOISE measure from space",
+            )
     # extract the subspace corresponding to the sea surface height measures
-    ssh_measure = ssh_measure[0]
 
     return ssh_measure, ssh_odt_measure, ssh_odt_noise_measure
 

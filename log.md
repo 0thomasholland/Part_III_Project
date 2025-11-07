@@ -112,3 +112,10 @@
 
 - Implemented direct sums of measures, enabling composition of ice sheet and ODT Gaussian measures in the joint model space.
 
+## 7 November 2025
+
+- Fixed measure sampling implementation and got the measure space code working correctly.
+- Added parallel computation code for running multiple realisations.
+- Debugged and resolved non-dimensionalisation issues in the forward model — identified and fixed a scaling bug affecting the error quantification.
+- Updated variable inputs for optimised computation and implemented target GMSL functionality.
+
