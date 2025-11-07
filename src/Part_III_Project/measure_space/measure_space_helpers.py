@@ -1,7 +1,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from matplotlib.ticker import EngFormatter
 from pygeoinf.gaussian_measure import GaussianMeasure
+from pyslfp import FingerPrint
 from scipy.stats import norm
 
 
@@ -17,6 +19,7 @@ def plot_measure(
     measures: GaussianMeasure | list[GaussianMeasure],
     names: str | list[str] = [None],
     args: dict = {},
+    fingerprint: FingerPrint = None,
 ) -> tuple[plt.Figure, plt.Axes]:
     # returns figures, axes
     if not isinstance(measures, list):
@@ -24,25 +27,26 @@ def plot_measure(
     if not isinstance(names, list):
         names = [names]
     expectations = []
-    variances = []
+    stds = []
     for m in measures:
         expectation, variance = get_stats_from_measure(m)
-        expectations.append(expectation)
-        variances.append(variance)
+        expectations.append(expectation * fingerprint.length_scale)
+        stds.append(np.sqrt(variance) * fingerprint.length_scale)
 
     # plot the normal distributions for each case on the same axis, using the max and min of all stds to set x limits
     x_min = min(
-        expectations - 4 * np.sqrt(variances),
+        expectations - 4 * np.array(stds),
     )
     x_max = max(
-        expectations + 4 * np.sqrt(variances),
+        expectations + 4 * np.array(stds),
     )
     x = np.linspace(x_min, x_max, 1000)
     fig, ax = plt.subplots(figsize=(10, 6))
     for name, mu, sigma in zip(
         names,
         expectations,
-        np.sqrt(variances),
+        stds,
+        strict=False,
     ):
         y = norm.pdf(x, mu, sigma)
         ax.plot(
@@ -52,14 +56,13 @@ def plot_measure(
             if name is not None
             else f"μ={mu:.2e}, σ={sigma:.2e}",
         )
-    ax.set_xlabel("Value")
+    ax.ticklabel_format(axis="x", style="sci", scilimits=(0, 0))
+    # formatter = EngFormatter(unit="", places=3, useMathText=True)
+    # ax.xaxis.set_major_formatter(formatter)
+    ax.set_xlabel("Global Mean Sea Level Change (m)")
     ax.set_ylabel("Probability Density")
     ax.legend(
-        loc="upper left",
-        bbox_to_anchor=(
-            1.01,
-            1.0,
-        ),
+        loc="upper right",
     )
 
     # plotting arguments used
@@ -77,8 +80,8 @@ def plot_measure(
     arg_string = "\n".join(text_lines)
 
     fig.text(
-        x=1.01,  # Move the text box well to the right (increase this value if needed)
-        y=0.65,
+        x=0.1,
+        y=0.95,
         s="Input Parameters:\n\n" + arg_string,
         horizontalalignment="left",
         verticalalignment="top",
@@ -86,5 +89,5 @@ def plot_measure(
         # Optional: Add a bounding box for clarity
         bbox={"facecolor": "lightyellow", "alpha": 0.7, "pad": 5},
     )
-    fig.tight_layout(rect=[0, 0, 1.4, 1])
+    fig.tight_layout()
     return fig, ax
