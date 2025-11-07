@@ -30,8 +30,8 @@ def plot_measure(
     stds = []
     for m in measures:
         expectation, variance = get_stats_from_measure(m)
-        expectations.append(expectation * fingerprint.length_scale)
-        stds.append(np.sqrt(variance) * fingerprint.length_scale)
+        expectations.append(expectation)
+        stds.append(np.sqrt(variance))
 
     # plot the normal distributions for each case on the same axis, using the max and min of all stds to set x limits
     x_min = min(

@@ -35,9 +35,7 @@ fingerprint_operator = fp.as_sobolev_linear_operator(
 
 odt_length_scales = (
     # np.linspace(0.01, 0.5, 10) * fp.mean_sea_floor_radius / fp.length_scale
-    np.linspace(0.01, 0.5, 2)
-    * fp.mean_sea_floor_radius
-    / fp.length_scale
+    np.linspace(0.01, 0.5, 2) * fp.mean_sea_floor_radius
 )
 odt_amplitude_95_ranges = (
     np.array(
@@ -49,9 +47,7 @@ odt_amplitude_95_ranges = (
 
 ice_length_scales = (
     # np.linspace(0.1, 0.5, 10) * fp.mean_sea_floor_radius / fp.length_scale
-    np.linspace(0.1, 0.5, 2)
-    * fp.mean_sea_floor_radius
-    / fp.length_scale
+    np.linspace(0.1, 0.5, 2) * fp.mean_sea_floor_radius
 )
 ice_thickness_95_ranges = (
     np.array(
@@ -217,7 +213,6 @@ def gmsl_via_slc(fingerprint, fingerprint_operator, direct_load):
     )
     slc_expectation, slc_variance = get_stats_from_measure(
         gmsl_slc_estimate,
-        fingerprint=fingerprint,
     )
     return slc_expectation, np.sqrt(slc_variance)
 
@@ -244,11 +239,9 @@ def gmsl_via_ssh(
     )
     ssh_expectation, ssh_variance = get_stats_from_measure(
         gmsl_ssh_estimate,
-        fingerprint=fingerprint,
     )
     ssh_odt_expectation, ssh_odt_variance = get_stats_from_measure(
         gmsl_ssh_odt_estimate,
-        fingerprint=fingerprint,
     )
     return (
         ssh_expectation,
@@ -303,23 +296,30 @@ print("Computed all GMSL estimates, now saving results...")
 # --- Save results to a dataframe ---
 df = pd.DataFrame(
     {
-        "odt_length_scale /": odt_length_scale * fp.length_scale,
-        "odt_amplitude_95_range /": odt_amplitude_95_range
+        "odt_length_scale /": np.array(odt_length_scale)
         * fp.length_scale,
-        "ice_length_scale /": ice_length_scale * fp.length_scale,
-        "ice_thickness_95_range /": ice_thickness_95_range
+        "odt_amplitude_95_range /": np.array(odt_amplitude_95_range)
         * fp.length_scale,
-        "net_ice_thickness_change /": net_ice_thickness_change
+        "ice_length_scale /": np.array(ice_length_scale)
         * fp.length_scale,
-        "gmsl_slc_expectation /": gmsl_slc_expectation
+        "ice_thickness_95_range /": np.array(ice_thickness_95_range)
         * fp.length_scale,
-        "gmsl_slc_std /": gmsl_slc_std * fp.length_scale,
-        "gmsl_ssh_expectation /": gmsl_ssh_expectation
+        "net_ice_thickness_change /": np.array(
+            net_ice_thickness_change,
+        )
         * fp.length_scale,
-        "gmsl_ssh_std /": gmsl_ssh_std * fp.length_scale,
-        "gmsl_ssh_odt_expectation /": gmsl_ssh_odt_expectation
+        "gmsl_slc_expectation /": np.array(gmsl_slc_expectation)
         * fp.length_scale,
-        "gmsl_ssh_odt_std /": gmsl_ssh_odt_std * fp.length_scale,
+        "gmsl_slc_std /": np.array(gmsl_slc_std) * fp.length_scale,
+        "gmsl_ssh_expectation /": np.array(gmsl_ssh_expectation)
+        * fp.length_scale,
+        "gmsl_ssh_std /": np.array(gmsl_ssh_std) * fp.length_scale,
+        "gmsl_ssh_odt_expectation /": np.array(
+            gmsl_ssh_odt_expectation,
+        )
+        * fp.length_scale,
+        "gmsl_ssh_odt_std /": np.array(gmsl_ssh_odt_std)
+        * fp.length_scale,
         "lmax /": lmax * np.ones(len(gmsl_slc_expectation)),
     },
 )
