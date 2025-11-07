@@ -15,9 +15,12 @@ from Part_III_Project import (
 
 # --- Control switches ---
 projection_plots = False  # Set to False to disable projection plots
-
+lmax = 32
 # --- Set up a fingerprint instance ---
-fp = sl.FingerPrint(lmax=64)
+fp = sl.FingerPrint(
+    lmax=lmax,
+    earth_model_parameters=sl.EarthModelParameters.from_standard_non_dimensionalisation(),
+)
 fp.set_state_from_ice_ng()
 
 fingerprint_operator = fp.as_sobolev_linear_operator(
@@ -28,12 +31,12 @@ fingerprint_operator = fp.as_sobolev_linear_operator(
 
 #### VARIABLES
 
-odt_length_scale = 0.01 * fp.mean_sea_floor_radius / fp.length_scale
+odt_length_scale = 0.01 * fp.mean_sea_floor_radius
 odt_amplitude_95_range = (
     1 / fp.length_scale
 )  # in units of sea level, non-dimensionalized
 
-ice_length_scale = 0.1 * fp.mean_sea_floor_radius / fp.length_scale
+ice_length_scale = 0.1 * fp.mean_sea_floor_radius
 ice_thickness_95_range = (
     400.0 / fp.length_scale
 )  # in meters, non-dimensionalized
@@ -207,11 +210,23 @@ plot_fig, plot_ax = plot_measure(
         "ODT Amplitude 95% Range": odt_amplitude_95_range
         * fp.length_scale,
         "ODT Length Scale": odt_length_scale * fp.length_scale,
+        "Lmax": lmax,
     },
     fingerprint=fp,
 )
 # %%
-
+# save plot with fstring for parameters and in "work/5-distribution_mapping/outputs/single_value_example/"
+filename = (
+    "work/5-distribution_mapping/outputs/single_value_params/"
+    f"gmsl_comparison_"
+    # f"iceLS_{ice_length_scale * fp.length_scale:.2e}_"
+    # f"iceAR_{ice_thickness_95_range * fp.length_scale:.2e}_"
+    # f"netIce_{net_ice_thickness_change * fp.length_scale:.2e}_"
+    # f"odtLS_{odt_length_scale * fp.length_scale:.2e}_"
+    # f"odtAR_{odt_amplitude_95_range * fp.length_scale:.2e}_"
+    f"lmax_{lmax}.png"
+)
+plot_fig.savefig(filename, dpi=300)
 plt.show()
 
 # %%
