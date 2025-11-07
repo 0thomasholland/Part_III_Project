@@ -15,7 +15,7 @@ from Part_III_Project import (
 
 # --- Control switches ---
 projection_plots = False  # Set to False to disable projection plots
-lmax = 32
+lmax = 64
 # --- Set up a fingerprint instance ---
 fp = sl.FingerPrint(
     lmax=lmax,
@@ -37,7 +37,9 @@ odt_amplitude_95_range = (
 )  # in units of sea level, non-dimensionalized
 
 ice_length_scale = 0.1 * fp.mean_sea_floor_radius
-ice_gmsl_target_std = 0.04  # in meters, non-dimensionalized
+ice_gmsl_target_std = (
+    0.004 / fp.length_scale
+)  # in meters, non-dimensionalized
 net_ice_thickness_change = (
     -100.0 / fp.length_scale
 )  # in meters, non-dimensionalized
