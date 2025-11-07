@@ -82,6 +82,18 @@ def ice_thickness_change_measures(
         fingerprint,
         fingerprint_operator.domain,
     )
+    if net_thickness_change != 0.0:
+        shift_vector = np.zeros(fingerprint_operator.domain.dim)
+        shift_vector[0] = (
+            net_thickness_change  # already non-dimensionalized
+        )
+        shift_vector = fingerprint_operator.domain.from_components(
+            shift_vector,
+        )
+        initial_ice_thickness_measure = initial_ice_thickness_measure.affine_mapping(
+            operator=fingerprint_operator.domain.identity_operator(),
+            translation=shift_vector,
+        )
     ice_thickness_measure = (
         initial_ice_thickness_measure.affine_mapping(
             operator=ice_projection,
@@ -106,25 +118,12 @@ def ice_thickness_change_measures(
 
     # Normalise the ice load thickness measure and then recompute the load measure
     ice_thickness_measure *= ice_gmsl_target_std / GMSL_std
-
-    if net_thickness_change != 0.0:
-        shift_vector = np.zeros(fingerprint_operator.domain.dim)
-        shift_vector[0] = (
-            net_thickness_change  # already non-dimensionalized
-        )
-        shift_vector = fingerprint_operator.domain.from_components(
-            shift_vector,
-        )
-        ice_thickness_measure = ice_thickness_measure.affine_mapping(
-            operator=fingerprint_operator.domain.identity_operator(),
-            translation=shift_vector,
-        )
-    # ice_thickness_measure = ice_thickness_measure.affine_mapping(
-    #     operator=ice_projection_operator(
-    #         fingerprint,
-    #         fingerprint_operator.domain,
-    #     ),
-    # )
+    ice_thickness_measure = ice_thickness_measure.affine_mapping(
+        operator=ice_projection_operator(
+            fingerprint,
+            fingerprint_operator.domain,
+        ),
+    )
     ice_load_measure = ice_thickness_measure.affine_mapping(
         operator=ice_thickness_change_to_load_operator(
             finger_print=fingerprint,
