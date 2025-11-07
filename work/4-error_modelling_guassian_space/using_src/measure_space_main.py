@@ -7,11 +7,12 @@ import pyslfp as sl
 from scipy import stats
 
 from Part_III_Project import (
-    get_stats_from_measure,
     ice_thickness_change_measures,
     load_measure,
     ocean_dynamic_topography_measures,
+    plot_measure,
     sea_level_change_measure,
+    sea_surface_height_measure,
 )
 
 # --- Set up a fingerprint instance ---
@@ -89,10 +90,34 @@ sea_level_change_measure = sea_level_change_measure(
     load_measure=direct_load_measure,
 )
 
+fig4, ax4, im4 = sl.plot(
+    sea_level_change_measure.sample() * fp.length_scale,
+)
+fig3.colorbar(
+    im3,
+    ax=ax3,
+    label="SLC",
+    orientation="horizontal",
+)
+
 # %%
 
-print(sea_level_change_measure.domain.subspace_projection(1))
+ssh_measure, ssh_odt_measure, ssh_odt_noise_measure = (
+    sea_surface_height_measure(
+        fingerprint=fp,
+        fingerprint_operator=fingerprint_operator,
+        odt_measure=ocean_dynamic_measure,
+    )
+)
 
+plot_fig, plot_ax = plot_measure(
+    [
+        sea_level_change_measure,
+        ssh_measure,
+        ssh_odt_measure,
+        ssh_odt_noise_measure,
+    ],
+)
 # %%
 
 plt.show()
