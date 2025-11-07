@@ -37,9 +37,7 @@ odt_amplitude_95_range = (
 )  # in units of sea level, non-dimensionalized
 
 ice_length_scale = 0.1 * fp.mean_sea_floor_radius
-ice_thickness_95_range = (
-    400.0 / fp.length_scale
-)  # in meters, non-dimensionalized
+ice_gmsl_target_std = 0.04  # in meters, non-dimensionalized
 net_ice_thickness_change = (
     -100.0 / fp.length_scale
 )  # in meters, non-dimensionalized
@@ -85,7 +83,7 @@ ice_thickness_measure, ice_load_measure = (
         fingerprint=fp,
         fingerprint_operator=fingerprint_operator,
         length_scale=ice_length_scale,
-        thickness_95_range=ice_thickness_95_range,
+        ice_gmsl_target_std=ice_gmsl_target_std,
         net_thickness_change=net_ice_thickness_change,
     )
 )
@@ -204,8 +202,7 @@ plot_fig, plot_ax = plot_measure(
     args={
         "Ice thickness Change": net_ice_thickness_change
         * fp.length_scale,
-        "Ice Thickness 95% Range": ice_thickness_95_range
-        * fp.length_scale,
+        "GMSL Ice target": ice_gmsl_target_std * fp.length_scale,
         "Ice Length Scale": ice_length_scale * fp.length_scale,
         "ODT Amplitude 95% Range": odt_amplitude_95_range
         * fp.length_scale,
@@ -220,7 +217,7 @@ filename = (
     "work/5-distribution_mapping/outputs/single_value_params/"
     f"gmsl_comparison_"
     # f"iceLS_{ice_length_scale * fp.length_scale:.2e}_"
-    # f"iceAR_{ice_thickness_95_range * fp.length_scale:.2e}_"
+    # f"iceAR_{ice_gmsl_target_std * fp.length_scale:.2e}_"
     # f"netIce_{net_ice_thickness_change * fp.length_scale:.2e}_"
     # f"odtLS_{odt_length_scale * fp.length_scale:.2e}_"
     # f"odtAR_{odt_amplitude_95_range * fp.length_scale:.2e}_"
