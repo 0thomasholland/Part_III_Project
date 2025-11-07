@@ -10,7 +10,8 @@ fp.set_state_from_ice_ng()
 
 # --- Get the representation as a Linear operator between Sobolev spaces ---
 fingerprint_operator = fp.as_sobolev_linear_operator(
-    2, 0.1 * fp.mean_sea_floor_radius
+    2,
+    0.1 * fp.mean_sea_floor_radius,
 )
 load_space = fingerprint_operator.domain
 response_space = fingerprint_operator.codomain
@@ -51,13 +52,14 @@ GMSL_weighting_function = (
     / (fp.water_density * fp.ocean_area)
 )
 GMSL_operator = sl.averaging_operator(
-    load_space, [GMSL_weighting_function]
+    load_space,
+    [GMSL_weighting_function],
 )
 
 
 # Push foward the load measure to one for GMSL and get its standard deviation
 GMSL_measure = ice_thickness_measure.affine_mapping(
-    operator=GMSL_operator
+    operator=GMSL_operator,
 )
 GMSL_variance = GMSL_measure.covariance.matrix(dense=True)[0, 0]
 GMSL_std = np.sqrt(GMSL_variance)
@@ -89,7 +91,8 @@ initial_ocean_dynamic_topography_measure = (
 # Push forward to a measure that is non-zero only in the oceans and which averages to zero
 ocean_projection = sl.ocean_projection_operator(fp, load_space)
 remove_ocean_average_operator = sl.remove_ocean_average_operator(
-    fp, load_space
+    fp,
+    load_space,
 )
 ocean_dynamic_topography_measure = (
     initial_ocean_dynamic_topography_measure.affine_mapping(
@@ -129,7 +132,7 @@ direct_load_operator = inf.RowLinearOperator(
 
 # Push forward the joint measure under this operator
 direct_load_measure = joint_measure.affine_mapping(
-    operator=direct_load_operator
+    operator=direct_load_operator,
 )
 
 # --- Set up the linear operator that maps to the total sea surface height change ---
@@ -220,62 +223,62 @@ altimetry_observation = (
 )
 
 
-fig1, ax1, im1 = sl.plot(
-    ice_thickness_change * fp.ice_projection(),
-    symmetric=True,
-)
-fig1.colorbar(
-    im1,
-    ax=ax1,
-    orientation="horizontal",
-    pad=0.05,
-    shrink=0.7,
-    label="ice thickness change (m)",
-)
+# fig1, ax1, im1 = sl.plot(
+#     ice_thickness_change * fp.ice_projection(),
+#     symmetric=True,
+# )
+# fig1.colorbar(
+#     im1,
+#     ax=ax1,
+#     orientation="horizontal",
+#     pad=0.05,
+#     shrink=0.7,
+#     label="ice thickness change (m)",
+# )
 
 
-fig2, ax2, im2 = sl.plot(
-    ocean_dynamic_topography * fp.ocean_projection(),
-    symmetric=True,
-)
-fig2.colorbar(
-    im2,
-    ax=ax2,
-    orientation="horizontal",
-    pad=0.05,
-    shrink=0.7,
-    label="ocean dynamic topography (m)",
-)
+# fig2, ax2, im2 = sl.plot(
+#     ocean_dynamic_topography * fp.ocean_projection(),
+#     symmetric=True,
+# )
+# fig2.colorbar(
+#     im2,
+#     ax=ax2,
+#     orientation="horizontal",
+#     pad=0.05,
+#     shrink=0.7,
+#     label="ocean dynamic topography (m)",
+# )
 
 
-fig3, ax3, im3 = sl.plot(
-    sea_surface_height_change * fp.ocean_projection(),
-    symmetric=True,
-)
-fig3.colorbar(
-    im3,
-    ax=ax3,
-    orientation="horizontal",
-    pad=0.05,
-    shrink=0.7,
-    label="sea surface height change (m)",
-)
+# fig3, ax3, im3 = sl.plot(
+#     sea_surface_height_change * fp.ocean_projection(),
+#     symmetric=True,
+# )
+# fig3.colorbar(
+#     im3,
+#     ax=ax3,
+#     orientation="horizontal",
+#     pad=0.05,
+#     shrink=0.7,
+#     label="sea surface height change (m)",
+# )
 
-fig4, ax4, im4 = sl.plot(
-    altimetry_observation * fp.ocean_projection(),
-    symmetric=True,
-)
+# fig4, ax4, im4 = sl.plot(
+#     altimetry_observation * fp.ocean_projection(),
+#     symmetric=True,
+# )
 
-fig4.colorbar(
-    im4,
-    ax=ax4,
-    orientation="horizontal",
-    pad=0.05,
-    shrink=0.7,
-    label="altimetry observation (m)",
-)
+# fig4.colorbar(
+#     im4,
+#     ax=ax4,
+#     orientation="horizontal",
+#     pad=0.05,
+#     shrink=0.7,
+#     label="altimetry observation (m)",
+# )
 
-plt.show()
+# plt.show()
 
 
 # --- Set up an operator that maps the true ice thickness change to GMSL ---
@@ -297,7 +300,7 @@ altimetry_estimate_measure = joint_measure.affine_mapping(
     operator=altimetry_estimate_operator
     @ total_sea_surface_height_operator,
 ) + altimetry_error_measure.affine_mapping(
-    operator=altimetry_estimate_operator
+    operator=altimetry_estimate_operator,
 )
 
 
@@ -307,7 +310,7 @@ altimetry_estimate_measure = joint_measure.affine_mapping(
 # 1. Get statistics for the POSTERIOR distribution
 altimetry_estimate_mean = altimetry_estimate_measure.expectation[0]
 altimetry_estimate_var = altimetry_estimate_measure.covariance.matrix(
-    dense=True
+    dense=True,
 )[0, 0]
 altimetry_estimate_std = np.sqrt(altimetry_estimate_var)
 
