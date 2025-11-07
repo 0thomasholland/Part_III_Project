@@ -5,6 +5,7 @@ from pyslfp import (
     FingerPrint,
     ice_projection_operator,
     ice_thickness_change_to_load_operator,
+    ocean_projection_operator,
     sea_level_change_to_load_operator,
     sea_surface_height_operator,
 )
@@ -151,6 +152,7 @@ def sensor_error_measure(
 
 def sea_level_change_measure(
     fingerprint_operator: LinearOperator,
+    fingerprint: FingerPrint,
     load_measure: GaussianMeasure,
 ) -> GaussianMeasure:
     """Returns a single sea level change measure"""
@@ -163,12 +165,19 @@ def sea_level_change_measure(
     )
 
     response_space = response_measure.domain
-    projection_operator = response_space.subspace_projection_operator(
+    projection_operator = response_space.subspace_projection(
         0,
     )
 
     slc_measure = response_measure.affine_mapping(
         operator=projection_operator,
+    )
+
+    slc_measure = slc_measure.affine_mapping(
+        operator=ocean_projection_operator(
+            fingerprint,
+            fingerprint_operator.domain,
+        ),
     )
 
     return slc_measure
@@ -177,7 +186,7 @@ def sea_level_change_measure(
 def sea_surface_height_measure(
     fingerprint: FingerPrint,
     fingerprint_operator: LinearOperator,
-    *,
+    load_measure: GaussianMeasure,
     odt_measure: GaussianMeasure
     | tuple[GaussianMeasure, GaussianMeasure]
     | None = None,
@@ -193,8 +202,8 @@ def sea_surface_height_measure(
     try:
         ssh_measure = load_measure.affine_mapping(
             operator=sea_surface_height_operator(
-                finger_print=fingerprint,
-                load_space=fingerprint_operator.domain,
+                fingerprint,
+                fingerprint_operator.codomain,
             )
             @ fingerprint_operator,
         )
@@ -202,27 +211,44 @@ def sea_surface_height_measure(
         raise ValueError(
             "Failed to create SSH measure",
         )
-    # try to extract the subspace?
     # Create the SSH+ODT measure
     ssh_odt_measure = ssh_measure
     if odt_measure is not None:
+        # Check if odt_measure is passed as a tuple and extract the measure (the ODT signal itself)
+        if isinstance(odt_measure, tuple):
+            _odt_measure_to_add = odt_measure[0]
+        else:
+            _odt_measure_to_add = odt_measure
+
+        # Get the identity operator for the target domain (the observation space)
+        target_identity_operator = (
+            ssh_measure.domain.identity_operator()
+        )
+
         try:
-            ssh_odt_measure = ssh_measure + odt_measure
-        except:
-            raise ValueError(
-                "Failed to create SSH+ODT measure",
+            # Map the ODT measure to the target observation space (ssh_measure.domain)
+            # using the identity operator to match the domain object required for addition.
+            odt_measure_obs_space = (
+                _odt_measure_to_add.affine_mapping(
+                    operator=target_identity_operator,
+                )
             )
-    # Create the SSH+ODT+NOISE measure
+        except Exception as e:
+            # This catch is for any issue with the affine mapping itself (like domain incompatibility)
+            raise ValueError(
+                f"Failed to map ODT measure to the target observation space. Original error: {e}",
+            )
+
+        try:
+            # Now the domains should match for addition
+            ssh_odt_measure = ssh_measure + odt_measure_obs_space
+        except Exception as e:
+            raise ValueError(
+                f"Failed to create SSH+ODT measure via addition. Check domain compatibility. Original error: {e}",
+            )
+
     ssh_odt_noise_measure = ssh_odt_measure
     if noise_measure is not None:
-        if type(ssh_odt_measure) != type(noise_measure):
-            raise ValueError(
-                "ssh_odt_measure and noise_measure must be of the same type",
-            )
-        if ssh_odt_measure.domain != noise_measure.domain:
-            raise ValueError(
-                "ssh_odt_measure and noise_measure must be defined on the same domain",
-            )
         try:
             ssh_odt_noise_measure = ssh_odt_measure + noise_measure
         except:

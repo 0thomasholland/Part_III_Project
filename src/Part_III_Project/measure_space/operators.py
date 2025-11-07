@@ -1,9 +1,6 @@
-from typing import Union
-
 from pygeoinf import (
     GaussianMeasure,
     LinearOperator,
-    RowLinearOperator,
 )
 from pyslfp import (
     FingerPrint,
