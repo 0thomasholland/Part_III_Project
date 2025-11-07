@@ -34,24 +34,36 @@ fingerprint_operator = fp.as_sobolev_linear_operator(
 
 
 odt_length_scales = (
-    # np.linspace(0.01, 0.5, 10) * fp.mean_sea_floor_radius
-    np.linspace(0.01, 0.5, 2) * fp.mean_sea_floor_radius
+    # np.linspace(0.01, 0.5, 10) * fp.mean_sea_floor_radius / fp.length_scale
+    np.linspace(0.01, 0.5, 2)
+    * fp.mean_sea_floor_radius
+    / fp.length_scale
 )
-odt_amplitude_95_ranges = np.array(
-    # [0.001, 0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0, 10],
-    [0.01, 0.1, 10],
-)  # in units of sea level
+odt_amplitude_95_ranges = (
+    np.array(
+        # [0.001, 0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0, 10],
+        [0.01, 0.1, 10],
+    )
+    / fp.length_scale
+)  # in units of sea level, non-dimensionalized
 
 ice_length_scales = (
-    # np.linspace(0.1, 0.5, 10) * fp.mean_sea_floor_radius
-    np.linspace(0.1, 0.5, 2) * fp.mean_sea_floor_radius
+    # np.linspace(0.1, 0.5, 10) * fp.mean_sea_floor_radius / fp.length_scale
+    np.linspace(0.1, 0.5, 2)
+    * fp.mean_sea_floor_radius
+    / fp.length_scale
 )
-ice_thickness_95_ranges = np.array(
-    # [1, 10, 25, 50, 100, 200, 300, 400, 500],
-    [100, 500],
-)  # in meters
-# net_ice_thickness_changes = np.linspace(-200, 200, 20)  # in meters
-net_ice_thickness_changes = np.linspace(-200, 200, 2)  # in meters
+ice_thickness_95_ranges = (
+    np.array(
+        # [1, 10, 25, 50, 100, 200, 300, 400, 500],
+        [100, 500],
+    )
+    / fp.length_scale
+)  # in meters, non-dimensionalized
+# net_ice_thickness_changes = np.linspace(-200, 200, 20) / fp.length_scale  # in meters, non-dimensionalized
+net_ice_thickness_changes = (
+    np.linspace(-200, 200, 2) / fp.length_scale
+)  # in meters, non-dimensionalized
 
 
 odt_length_scale = []
@@ -205,6 +217,7 @@ def gmsl_via_slc(fingerprint, fingerprint_operator, direct_load):
     )
     slc_expectation, slc_variance = get_stats_from_measure(
         gmsl_slc_estimate,
+        fingerprint=fingerprint,
     )
     return slc_expectation, np.sqrt(slc_variance)
 
@@ -231,9 +244,11 @@ def gmsl_via_ssh(
     )
     ssh_expectation, ssh_variance = get_stats_from_measure(
         gmsl_ssh_estimate,
+        fingerprint=fingerprint,
     )
     ssh_odt_expectation, ssh_odt_variance = get_stats_from_measure(
         gmsl_ssh_odt_estimate,
+        fingerprint=fingerprint,
     )
     return (
         ssh_expectation,
@@ -288,18 +303,24 @@ print("Computed all GMSL estimates, now saving results...")
 # --- Save results to a dataframe ---
 df = pd.DataFrame(
     {
-        "odt_length_scale": odt_length_scale,
-        "odt_amplitude_95_range": odt_amplitude_95_range,
-        "ice_length_scale": ice_length_scale,
-        "ice_thickness_95_range": ice_thickness_95_range,
-        "net_ice_thickness_change": net_ice_thickness_change,
-        "gmsl_slc_expectation": gmsl_slc_expectation,
-        "gmsl_slc_std": gmsl_slc_std,
-        "gmsl_ssh_expectation": gmsl_ssh_expectation,
-        "gmsl_ssh_std": gmsl_ssh_std,
-        "gmsl_ssh_odt_expectation": gmsl_ssh_odt_expectation,
-        "gmsl_ssh_odt_std": gmsl_ssh_odt_std,
-        "lmax": lmax * np.ones(len(gmsl_slc_expectation)),
+        "odt_length_scale /": odt_length_scale * fp.length_scale,
+        "odt_amplitude_95_range /": odt_amplitude_95_range
+        * fp.length_scale,
+        "ice_length_scale /": ice_length_scale * fp.length_scale,
+        "ice_thickness_95_range /": ice_thickness_95_range
+        * fp.length_scale,
+        "net_ice_thickness_change /": net_ice_thickness_change
+        * fp.length_scale,
+        "gmsl_slc_expectation /": gmsl_slc_expectation
+        * fp.length_scale,
+        "gmsl_slc_std /": gmsl_slc_std * fp.length_scale,
+        "gmsl_ssh_expectation /": gmsl_ssh_expectation
+        * fp.length_scale,
+        "gmsl_ssh_std /": gmsl_ssh_std * fp.length_scale,
+        "gmsl_ssh_odt_expectation /": gmsl_ssh_odt_expectation
+        * fp.length_scale,
+        "gmsl_ssh_odt_std /": gmsl_ssh_odt_std * fp.length_scale,
+        "lmax /": lmax * np.ones(len(gmsl_slc_expectation)),
     },
 )
 
