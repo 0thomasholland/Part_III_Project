@@ -119,3 +119,7 @@
 - Debugged and resolved non-dimensionalisation issues in the forward model — identified and fixed a scaling bug affecting the error quantification.
 - Updated variable inputs for optimised computation and implemented target GMSL functionality.
 
+## 8 November 2025
+
+- Updated plot methods for improved visualisation of error distributions.
+

@@ -17,7 +17,7 @@ from Part_III_Project import (
 )
 
 # --- Set up a fingerprint instance ---
-fp = sl.FingerPrint(lmax=128)
+fp = sl.FingerPrint(lmax=256)
 fp.set_state_from_ice_ng()
 
 fingerprint_operator = fp.as_sobolev_linear_operator(
