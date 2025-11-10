@@ -34,16 +34,18 @@ def ice_thickness_change_measures(
     )
     # project over ice only
     # remove mean shift now
-
     # adjust for any net thickness change specified
     if net_thickness_change != 0.0:
-        shift_vector = np.zeros(fingerprint_operator.domain.dim)
-        shift_vector[0] = net_thickness_change
-        shift_vector = fingerprint_operator.domain.from_components(
-            shift_vector,
+        shift_vector = ice_measure.domain.project_function(
+            lambda point: net_thickness_change
         )
+
+        # shift_vector = np.zeros(fingerprint_operator.domain.dim)
+        # shift_vector[0] = net_thickness_change
+        # shift_vector = fingerprint_operator.domain.from_components(
+        # shift_vector,
+        # )
         ice_measure = ice_measure.affine_mapping(
-            operator=fingerprint_operator.domain.identity_operator(),
             translation=shift_vector,
         )
     ice_measure = ice_measure.affine_mapping(
