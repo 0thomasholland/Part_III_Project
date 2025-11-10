@@ -15,7 +15,7 @@ from Part_III_Project.measure_space.operators import (
 )
 
 
-def ice_thickness_change_measures(
+def old_ice_thickness_change_measures(
     fingerprint: FingerPrint = None,
     fingerprint_operator: LinearOperator = None,
     length_scale: float = 60,
@@ -24,20 +24,28 @@ def ice_thickness_change_measures(
 ) -> tuple[GaussianMeasure, GaussianMeasure]:
     """-> ice_thickness_measure, ice_thickness_load_measure
     Takes a length scale for the ice thickness changes and either a target GMSL std or a 95% range for the ice thickness changes to set the amplitude of the ocean dynamic topography measure.
+    All parameters should be passed in non-dimensionalized form (already divided by fingerprint.length_scale).
     """
     ice_measure = fingerprint_operator.domain.point_value_scaled_heat_kernel_gaussian_measure(
-        scale=length_scale
-        / fingerprint.length_scale,  # controls correlation length between nearby points
+        scale=length_scale,  # controls correlation length between nearby points
         amplitude=thickness_95_range
-        / 3.92
-        / fingerprint.length_scale,  # the standard deviation of melt at each point
+        / 3.92,  # the standard deviation of melt at each point
     )
     # project over ice only
     # remove mean shift now
     # adjust for any net thickness change specified
     if net_thickness_change != 0.0:
+<<<<<<< HEAD
         shift_vector = ice_measure.domain.project_function(
             lambda point: net_thickness_change
+=======
+        shift_vector = np.zeros(fingerprint_operator.domain.dim)
+        shift_vector[0] = (
+            net_thickness_change  # already non-dimensionalized
+        )
+        shift_vector = fingerprint_operator.domain.from_components(
+            shift_vector,
+>>>>>>> 6d02e8a7e8488a3348349073c86d96ae82f5a05c
         )
 
         # shift_vector = np.zeros(fingerprint_operator.domain.dim)
@@ -63,19 +71,90 @@ def ice_thickness_change_measures(
     return ice_measure, ice_load_measure
 
 
+def ice_thickness_change_measures(
+    fingerprint: FingerPrint,
+    fingerprint_operator: LinearOperator,
+    length_scale: float,
+    ice_gmsl_target_std: float,
+    net_thickness_change: float,
+) -> tuple[GaussianMeasure, GaussianMeasure]:
+    """-> ice_thickness_measure, ice_thickness_load_measure
+    Takes a length scale for the ice thickness changes and either a target GMSL std or a 95% range for the ice thickness changes to set the amplitude of the ocean dynamic topography measure.
+    All parameters should be passed in non-dimensionalized form (already divided by fingerprint.length_scale).
+    """
+    initial_ice_thickness_measure = (
+        fingerprint_operator.domain.heat_kernel_gaussian_measure(
+            length_scale,
+        )
+    )
+    ice_projection = sl.ice_projection_operator(
+        fingerprint,
+        fingerprint_operator.domain,
+    )
+    if net_thickness_change != 0.0:
+        shift_vector = np.zeros(fingerprint_operator.domain.dim)
+        shift_vector[0] = (
+            net_thickness_change  # already non-dimensionalized
+        )
+        shift_vector = fingerprint_operator.domain.from_components(
+            shift_vector,
+        )
+        initial_ice_thickness_measure = initial_ice_thickness_measure.affine_mapping(
+            operator=fingerprint_operator.domain.identity_operator(),
+            translation=shift_vector,
+        )
+    ice_thickness_measure = (
+        initial_ice_thickness_measure.affine_mapping(
+            operator=ice_projection,
+        )
+    )
+    GMSL_weighting_function = (
+        -fingerprint.ice_density
+        * fingerprint.one_minus_ocean_function
+        * fingerprint.ice_projection(value=0)
+        * fingerprint.length_scale
+        / (fingerprint.water_density * fingerprint.ocean_area)
+    )
+    GMSL_operator = sl.averaging_operator(
+        fingerprint_operator.domain,
+        [GMSL_weighting_function],
+    )
+    GMSL_measure = ice_thickness_measure.affine_mapping(
+        operator=GMSL_operator,
+    )
+    GMSL_variance = GMSL_measure.covariance.matrix(dense=True)[0, 0]
+    GMSL_std = np.sqrt(GMSL_variance)
+
+    # Normalise the ice load thickness measure and then recompute the load measure
+    ice_thickness_measure *= ice_gmsl_target_std / GMSL_std
+    ice_thickness_measure = ice_thickness_measure.affine_mapping(
+        operator=ice_projection_operator(
+            fingerprint,
+            fingerprint_operator.domain,
+        ),
+    )
+    ice_load_measure = ice_thickness_measure.affine_mapping(
+        operator=ice_thickness_change_to_load_operator(
+            finger_print=fingerprint,
+            load_space=fingerprint_operator.domain,
+        ),
+    )
+    return ice_thickness_measure, ice_load_measure
+
+
 def ocean_dynamic_topography_measures(
     fingerprint: FingerPrint = None,
     fingerprint_operator: LinearOperator = None,
     length_scale: float = 60,
     amplitude_95_range: float = 0.001,
 ) -> tuple[GaussianMeasure, GaussianMeasure]:
-    """-> ODT_measure, ODT_load_measure"""
+    """-> ODT_measure, ODT_load_measure
+    All parameters should be passed in non-dimensionalized form (already divided by fingerprint.length_scale).
+    """
     _initial_odt_measure = fingerprint_operator.domain.point_value_scaled_sobolev_kernel_gaussian_measure(
         order=1.5,
-        scale=length_scale / fingerprint.length_scale,
-        amplitude=amplitude_95_range
-        / 3.92
-        / fingerprint.length_scale,
+        scale=length_scale,
+        amplitude=amplitude_95_range / 3.92,
     )
     # set the ODT to be zero mean over oceans
     _ocean_projection = sl.ocean_projection_operator(
@@ -137,12 +216,14 @@ def sensor_error_measure(
     fingerprint_operator: LinearOperator,
     fingerprint: FingerPrint,
 ) -> GaussianMeasure:
-    """-> error measure over entire sphere surface"""
+    """-> error measure over entire sphere surface
+    All parameters should be passed in non-dimensionalized form (already divided by fingerprint.length_scale).
+    """
     try:
         _error_measure = fingerprint_operator.codomain.point_value_scaled_sobolev_kernel_gaussian_measure(
             order=1.5,
-            scale=error_lengthscale / fingerprint.length_scale,
-            amplitude=error_scale_std / fingerprint.length_scale,
+            scale=error_lengthscale,
+            amplitude=error_scale_std,
         )
     except:
         raise ValueError(

@@ -19,6 +19,7 @@ def plot_measure(
     measures: GaussianMeasure | list[GaussianMeasure],
     names: str | list[str] = [None],
     args: dict = {},
+    fingerprint: FingerPrint = None,
 ) -> tuple[plt.Figure, plt.Axes]:
     # returns figures, axes
     if not isinstance(measures, list):
