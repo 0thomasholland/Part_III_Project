@@ -47,27 +47,27 @@ ocean_dynamic_measure, ocean_dynamic_load_measure = (
     )
 )
 
-# fig1, ax1, im1 = sl.plot(
-#     ocean_dynamic_load_measure.sample() * fp.load_scale,
-#     symmetric=True,
-# )
-# fig1.colorbar(
-#     im1,
-#     ax=ax1,
-#     label="ODT Load",
-#     orientation="horizontal",
-# )
+fig1, ax1, im1 = sl.plot(
+    ocean_dynamic_load_measure.sample() * fp.load_scale,
+    symmetric=True,
+)
+fig1.colorbar(
+    im1,
+    ax=ax1,
+    label="ODT Load",
+    orientation="horizontal",
+)
 
-# fig1a, ax1a, im1a = sl.plot(
-#     ocean_dynamic_measure.sample() * fp.length_scale,
-#     symmetric=True,
-# )
-# fig1a.colorbar(
-#     im1a,
-#     ax=ax1a,
-#     label="ODT Height",
-#     orientation="horizontal",
-# )
+fig1a, ax1a, im1a = sl.plot(
+    ocean_dynamic_measure.sample() * fp.length_scale,
+    symmetric=True,
+)
+fig1a.colorbar(
+    im1a,
+    ax=ax1a,
+    label="ODT Height",
+    orientation="horizontal",
+)
 
 # %%
 ice_thickness_measure, ice_load_measure = (
@@ -80,16 +80,16 @@ ice_thickness_measure, ice_load_measure = (
     )
 )
 
-# fig2, ax2, im2 = sl.plot(
-#     ice_load_measure.sample() * fp.load_scale,
-#     symmetric=True,
-# )
-# fig2.colorbar(
-#     im2,
-#     ax=ax2,
-#     label="Ice Load",
-#     orientation="horizontal",
-# )
+fig2, ax2, im2 = sl.plot(
+    ice_load_measure.sample() * fp.load_scale,
+    symmetric=True,
+)
+fig2.colorbar(
+    im2,
+    ax=ax2,
+    label="Ice Load",
+    orientation="horizontal",
+)
 
 # %%
 direct_load_measure = load_measure(
@@ -97,17 +97,17 @@ direct_load_measure = load_measure(
     odt_load_measure=ocean_dynamic_load_measure,
 )
 
-# fig3, ax3, im3 = sl.plot(
-#     direct_load_measure.sample() * fp.load_scale,
-#     # * fp.ocean_projection(), # option to check that there is ocean load,
-#     symmetric=True,
-# )
-# fig3.colorbar(
-#     im3,
-#     ax=ax3,
-#     label="Total Load",
-#     orientation="horizontal",
-# )
+fig3, ax3, im3 = sl.plot(
+    direct_load_measure.sample() * fp.load_scale,
+    # * fp.ocean_projection(), # option to check that there is ocean load,
+    symmetric=True,
+)
+fig3.colorbar(
+    im3,
+    ax=ax3,
+    label="Total Load",
+    orientation="horizontal",
+)
 
 # %%
 
@@ -117,16 +117,16 @@ sea_level_change_measure = sea_level_change_measure(
     load_measure=direct_load_measure,
 )
 
-# fig4, ax4, im4 = sl.plot(
-#     sea_level_change_measure.sample() * fp.length_scale,
-#     symmetric=True,
-# )
-# fig4.colorbar(
-#     im4,
-#     ax=ax4,
-#     label="SLC",
-#     orientation="horizontal",
-# )
+fig4, ax4, im4 = sl.plot(
+    sea_level_change_measure.sample() * fp.length_scale,
+    symmetric=True,
+)
+fig4.colorbar(
+    im4,
+    ax=ax4,
+    label="SLC",
+    orientation="horizontal",
+)
 
 # %%
 
@@ -139,27 +139,27 @@ ssh_measure, ssh_odt_measure, _ = sea_surface_height_measure(
 
 # %% Plot SSH
 
-# fig5, ax5, im5 = sl.plot(
-#     ssh_measure.sample() * fp.length_scale,
-#     symmetric=False,
-# )
-# fig5.colorbar(
-#     im5,
-#     ax=ax5,
-#     label="SSH",
-#     orientation="horizontal",
-# )
+fig5, ax5, im5 = sl.plot(
+    ssh_measure.sample() * fp.length_scale,
+    symmetric=False,
+)
+fig5.colorbar(
+    im5,
+    ax=ax5,
+    label="SSH",
+    orientation="horizontal",
+)
 
-# fig6, ax6, im6 = sl.plot(
-#     ssh_odt_measure.sample() * fp.length_scale,
-#     symmetric=False,
-# )
-# fig6.colorbar(
-#     im6,
-#     ax=ax6,
-#     label="SSH + ODT",
-#     orientation="horizontal",
-# )
+fig6, ax6, im6 = sl.plot(
+    ssh_odt_measure.sample() * fp.length_scale,
+    symmetric=False,
+)
+fig6.colorbar(
+    im6,
+    ax=ax6,
+    label="SSH + ODT",
+    orientation="horizontal",
+)
 
 # %%
 
