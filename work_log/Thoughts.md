@@ -21,3 +21,12 @@ Using ternary plots works well but it is important to provide contextual side pl
 For example for melt contribution plots show a side plot of what each ternary space plot looks like on a map.
 
 Similarly having bands of satalite latitude ranges showing what is being sampled by different plots can help contextualise the differences seen in distribution ternary plots.
+
+## 2025-11-10 - Error exploration notes
+
+- Variance shift, seems to decrease with increasing lmax till a point ~ =300
+- This is reporducable with minimal code (ie just load field and solve SLQ)
+- Mean values seem to form linear trend with lmax in log log space
+- Similar is seen with mean movement error
+- Variance shift seems to be sensible with trend towards a sensible number
+- However dimensionalisation is causing issues with values being plotted
