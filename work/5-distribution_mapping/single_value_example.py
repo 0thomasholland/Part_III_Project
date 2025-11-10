@@ -17,14 +17,10 @@ from Part_III_Project import (
 projection_plots = False  # Set to False to disable projection plots
 lmax = 64
 # --- Set up a fingerprint instance ---
-<<<<<<< HEAD
-fp = sl.FingerPrint(lmax=256)
-=======
 fp = sl.FingerPrint(
     lmax=lmax,
     earth_model_parameters=sl.EarthModelParameters.from_standard_non_dimensionalisation(),
 )
->>>>>>> 6d02e8a7e8488a3348349073c86d96ae82f5a05c
 fp.set_state_from_ice_ng()
 
 fingerprint_operator = fp.as_sobolev_linear_operator(

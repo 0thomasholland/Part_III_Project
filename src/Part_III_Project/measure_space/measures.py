@@ -10,10 +10,6 @@ from pyslfp import (
     sea_surface_height_operator,
 )
 
-from Part_III_Project.measure_space.operators import (
-    gmsl_measure_condenser,
-)
-
 
 def old_ice_thickness_change_measures(
     fingerprint: FingerPrint = None,
@@ -35,17 +31,8 @@ def old_ice_thickness_change_measures(
     # remove mean shift now
     # adjust for any net thickness change specified
     if net_thickness_change != 0.0:
-<<<<<<< HEAD
         shift_vector = ice_measure.domain.project_function(
-            lambda point: net_thickness_change
-=======
-        shift_vector = np.zeros(fingerprint_operator.domain.dim)
-        shift_vector[0] = (
-            net_thickness_change  # already non-dimensionalized
-        )
-        shift_vector = fingerprint_operator.domain.from_components(
-            shift_vector,
->>>>>>> 6d02e8a7e8488a3348349073c86d96ae82f5a05c
+            lambda point: net_thickness_change,
         )
 
         # shift_vector = np.zeros(fingerprint_operator.domain.dim)
@@ -91,18 +78,6 @@ def ice_thickness_change_measures(
         fingerprint,
         fingerprint_operator.domain,
     )
-    if net_thickness_change != 0.0:
-        shift_vector = np.zeros(fingerprint_operator.domain.dim)
-        shift_vector[0] = (
-            net_thickness_change  # already non-dimensionalized
-        )
-        shift_vector = fingerprint_operator.domain.from_components(
-            shift_vector,
-        )
-        initial_ice_thickness_measure = initial_ice_thickness_measure.affine_mapping(
-            operator=fingerprint_operator.domain.identity_operator(),
-            translation=shift_vector,
-        )
     ice_thickness_measure = (
         initial_ice_thickness_measure.affine_mapping(
             operator=ice_projection,
@@ -127,6 +102,13 @@ def ice_thickness_change_measures(
 
     # Normalise the ice load thickness measure and then recompute the load measure
     ice_thickness_measure *= ice_gmsl_target_std / GMSL_std
+    if net_thickness_change != 0.0:
+        shift_vector = ice_thickness_measure.domain.project_function(
+            lambda point: net_thickness_change,
+        )
+        ice_thickness_measure = ice_thickness_measure.affine_mapping(
+            translation=shift_vector,
+        )
     ice_thickness_measure = ice_thickness_measure.affine_mapping(
         operator=ice_projection_operator(
             fingerprint,
@@ -358,7 +340,17 @@ def gmsl_measure(
     measure: GaussianMeasure,
     fingerprint: FingerPrint,
 ) -> GaussianMeasure:
-    gmsl_operator = gmsl_measure_condenser(measure, fingerprint)
+    weighting_function = (
+        -fingerprint.ice_density
+        * fingerprint.one_minus_ocean_function
+        * fingerprint.ice_projection(value=0)
+        * fingerprint.length_scale
+        / (fingerprint.water_density * fingerprint.ocean_area)
+    )
+    gmsl_operator = averaging_operator(
+        measure.domain,
+        [weighting_function],
+    )
     gmsl_measure = measure.affine_mapping(
         operator=gmsl_operator,
     )
