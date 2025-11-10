@@ -123,3 +123,8 @@
 
 - Updated plot methods for improved visualisation of error distributions.
 
+## 10 November 2025
+
+- Added error space exploration analysis, investigating the structure of errors across the parameter space.
+- Merged parallel distribution runs branch into main.
+
