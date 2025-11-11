@@ -128,3 +128,7 @@
 - Added error space exploration analysis, investigating the structure of errors across the parameter space.
 - Merged parallel distribution runs branch into main.
 
+## 11 November 2025
+
+- Continued refining the parallel error computation framework.
+
