@@ -132,3 +132,10 @@
 
 - Continued refining the parallel error computation framework.
 
+## 13 November 2025
+
+- Fixed computational issues in the error quantification pipeline that had been producing incorrect results.
+- Added metrics computation script for systematic evaluation of estimation performance.
+- Implemented altimetry estimate methods and integrated them into the parallel workflow.
+- Set up plotting infrastructure for visualising overnight computation results.
+

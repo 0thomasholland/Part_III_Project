@@ -6,8 +6,8 @@ import pyslfp as sl
 from joblib import Parallel, delayed, dump, load
 
 from Part_III_Project import (
+    get_gmsl_measure,
     get_stats_from_measure,
-    gmsl_measure,
     ice_thickness_change_measures,
     load_measure,
     ocean_dynamic_topography_measures,
@@ -34,39 +34,52 @@ fingerprint_operator = fp.as_sobolev_linear_operator(
 
 
 odt_length_scales = (
-    # np.linspace(0.01, 0.5, 10) * fp.mean_sea_floor_radius / fp.length_scale
-    np.linspace(0.01, 0.5, 2) * fp.mean_sea_floor_radius
+    np.linspace(0.01, 0.5, 10)
+    * fp.mean_sea_floor_radius
+    / fp.length_scale
+    # np.linspace(0.01, 0.5, 2) * fp.mean_sea_floor_radius
 )
 odt_amplitude_95_ranges = (
     np.array(
-        # [0.001, 0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0, 10],
-        [0.01, 0.1, 10],
+        [
+            0.001,
+            0.002,
+            0.005,
+            0.01,
+            0.02,
+            0.05,
+            0.1,
+            0.2,
+            0.5,
+            1.0,
+            10,
+        ],
+        # [0.01, 0.1, 10],
     )
     / fp.length_scale
 )  # in units of sea level, non-dimensionalized
 
 ice_length_scales = (
-    # np.linspace(0.1, 0.5, 10) * fp.mean_sea_floor_radius / fp.length_scale
-    np.linspace(0.1, 0.5, 2) * fp.mean_sea_floor_radius
-)
-ice_thickness_95_ranges = (
-    np.array(
-        # [1, 10, 25, 50, 100, 200, 300, 400, 500],
-        [100, 500],
-    )
+    np.linspace(0.1, 0.5, 10)
+    * fp.mean_sea_floor_radius
     / fp.length_scale
+    # np.linspace(0.1, 0.5, 2) * fp.mean_sea_floor_radius
+)
+ice_gmsl_target_stds = (
+    np.linspace(-2, 2, 20) / fp.length_scale
 )  # in meters, non-dimensionalized
-# net_ice_thickness_changes = np.linspace(-200, 200, 20) / fp.length_scale  # in meters, non-dimensionalized
-net_ice_thickness_changes = (
-    np.linspace(-200, 200, 2) / fp.length_scale
+# ice_gmsl_target_stds = (
+# np.linspace(-2, 2, 20) / fp.length_scale
+# )  # in meters, non-dimensionalized
+ice_shifts = (
+    np.linspace(-200, 200, 20) / fp.length_scale
 )  # in meters, non-dimensionalized
-
 
 odt_length_scale = []
 odt_amplitude_95_range = []
 ice_length_scale = []
-ice_thickness_95_range = []
-net_ice_thickness_change = []
+ice_gmsl_target_std = []
+ice_shift = []
 ice_load_measure = []
 ocean_dynamic_load_measure = []
 ocean_dynamic_measure = []
@@ -99,19 +112,19 @@ def return_ice_measure(
     fingerprint,
     fingerprint_operator,
     length_scale,
-    thickness_95_range,
+    ice_gmsl_target_std,
     net_thickness_change,
 ):
     _, ice_load_measure = ice_thickness_change_measures(
         fingerprint=fingerprint,
         fingerprint_operator=fingerprint_operator,
         length_scale=length_scale,
-        thickness_95_range=thickness_95_range,
+        ice_gmsl_target_std=ice_gmsl_target_std,
         net_thickness_change=net_thickness_change,
     )
     return (
         length_scale,
-        thickness_95_range,
+        ice_gmsl_target_std,
         net_thickness_change,
         ice_load_measure,
     )
@@ -121,8 +134,8 @@ print(
     "number of combinations:",
     len(odt_length_scales) * len(odt_amplitude_95_ranges)
     + len(ice_length_scales)
-    * len(ice_thickness_95_ranges)
-    * len(net_ice_thickness_changes),
+    * len(ice_shifts)
+    * len(ice_gmsl_target_stds),
 )
 # %%
 ice_results = Parallel(n_jobs=-1, verbose=verbosity)(
@@ -130,12 +143,12 @@ ice_results = Parallel(n_jobs=-1, verbose=verbosity)(
         fingerprint=fp,
         fingerprint_operator=fingerprint_operator,
         length_scale=ice_length_scale,
-        thickness_95_range=ice_thickness_95_range,
-        net_thickness_change=net_ice_thickness_change,
+        ice_gmsl_target_std=ice_gmsl_target_std,
+        net_thickness_change=ice_shift,
     )
     for ice_length_scale in ice_length_scales
-    for ice_thickness_95_range in ice_thickness_95_ranges
-    for net_ice_thickness_change in net_ice_thickness_changes
+    for ice_shift in ice_shifts
+    for ice_gmsl_target_std in ice_gmsl_target_stds
 )
 odt_results = Parallel(n_jobs=-1, verbose=verbosity)(
     delayed(return_odt_measure)(
@@ -150,8 +163,8 @@ odt_results = Parallel(n_jobs=-1, verbose=verbosity)(
 for res in ice_results:
     (
         ice_length_scale_out,
-        ice_thickness_95_range_out,
-        ice_net_thickness_change_out,
+        ice_gmsl_target_std_out,
+        ice_shift_out,
         ice_load_measure_out,
     ) = res
     for odt_res in odt_results:
@@ -164,8 +177,8 @@ for res in ice_results:
         odt_length_scale.append(odt_length_scale_out)
         odt_amplitude_95_range.append(odt_amplitude_95_range_out)
         ice_length_scale.append(ice_length_scale_out)
-        ice_thickness_95_range.append(ice_thickness_95_range_out)
-        net_ice_thickness_change.append(ice_net_thickness_change_out)
+        ice_shift.append(ice_shift_out)
+        ice_gmsl_target_std.append(ice_gmsl_target_std_out)
         ice_load_measure.append(ice_load_measure_out)
         ocean_dynamic_load_measure.append(odt_load_measure_out)
         ocean_dynamic_measure.append(odt_measure_out)
@@ -207,7 +220,7 @@ def gmsl_via_slc(fingerprint, fingerprint_operator, direct_load):
         fingerprint=fingerprint,
         load_measure=direct_load,
     )
-    gmsl_slc_estimate = gmsl_measure(
+    gmsl_slc_estimate = get_gmsl_measure(
         measure=slc,
         fingerprint=fingerprint,
     )
@@ -229,11 +242,11 @@ def gmsl_via_ssh(
         load_measure=direct_load,
         odt_measure=odt_measure,
     )
-    gmsl_ssh_estimate = gmsl_measure(
+    gmsl_ssh_estimate = get_gmsl_measure(
         measure=ssh,
         fingerprint=fingerprint,
     )
-    gmsl_ssh_odt_estimate = gmsl_measure(
+    gmsl_ssh_odt_estimate = get_gmsl_measure(
         measure=ssh_odt,
         fingerprint=fingerprint,
     )
@@ -302,10 +315,9 @@ df = pd.DataFrame(
         * fp.length_scale,
         "ice_length_scale /": np.array(ice_length_scale)
         * fp.length_scale,
-        "ice_thickness_95_range /": np.array(ice_thickness_95_range)
-        * fp.length_scale,
-        "net_ice_thickness_change /": np.array(
-            net_ice_thickness_change,
+        "ice_shift /": np.array(ice_shifts) * fp.length_scale,
+        "ice_gmsl_target_std /": np.array(
+            ice_gmsl_target_std,
         )
         * fp.length_scale,
         "gmsl_slc_expectation /": np.array(gmsl_slc_expectation)
@@ -325,7 +337,7 @@ df = pd.DataFrame(
 )
 
 df.to_csv(
-    "work/5-distribution_mapping/variable_input_gmsl_estimates_low_res.csv",
+    "work/5-distribution_mapping/variable_input_gmsl_estimates_highres.csv",
     index=False,
 )
 
