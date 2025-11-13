@@ -29,6 +29,25 @@ measure = fingerprint_operator.domain.point_value_scaled_sobolev_kernel_gaussian
     order=2,
     amplitude=sd,
 )
+
+
+shift = 100 / fp.length_scale
+shift_vector = measure.domain.project_function(
+    lambda point: shift,
+)
+measure = measure.affine_mapping(
+    translation=shift_vector,
+)
+# %%
+measure = measure.affine_mapping(
+    operator=fingerprint_operator,
+)
+measure = measure.affine_mapping(
+    operator=measure.domain.subspace_projection(
+        0,
+    ),
+)
+
 # %%
 
 (
@@ -88,8 +107,10 @@ print(
 print("Ice thickness variance (m):", variance)
 
 # print("Expected ice thicknesss expecatation:" shift)
-expectation = average_measure.expectation[0] * fp.length_scale
-print("Ice thickness expectation (m):", expectation)
+expectation_whole_256 = (
+    average_measure.expectation[0] * fp.length_scale
+)
+print("Ice thickness expectation (m):", expectation_whole_256)
 
 # %%
 average_measure_operator = averaging_operator(
@@ -132,8 +153,8 @@ print(
 print("Ice thickness variance (m):", variance)
 
 # print("Expected ice thicknesss expecatation:" shift)
-expectation = average_measure.expectation[0] * fp.length_scale
-print("Ice thickness expectation (m):", expectation)
+expectation_ice_256 = average_measure.expectation[0] * fp.length_scale
+print("Ice thickness expectation (m):", expectation_ice_256)
 
 print("FOR LMAX = 128")
 
@@ -157,6 +178,25 @@ measure = fingerprint_operator.domain.point_value_scaled_sobolev_kernel_gaussian
     order=2,
     amplitude=sd,
 )
+# %%
+
+
+shift = 100 / fp.length_scale
+shift_vector = measure.domain.project_function(
+    lambda point: shift,
+)
+measure = measure.affine_mapping(
+    translation=shift_vector,
+)
+measure = measure.affine_mapping(
+    operator=fingerprint_operator,
+)
+measure = measure.affine_mapping(
+    operator=measure.domain.subspace_projection(
+        0,
+    ),
+)
+
 # %%
 
 (
@@ -216,8 +256,10 @@ print(
 print("Ice thickness variance (m):", variance)
 
 # print("Expected ice thicknesss expecatation:" shift)
-expectation = average_measure.expectation[0] * fp.length_scale
-print("Ice thickness expectation (m):", expectation)
+expectation_whole_128 = (
+    average_measure.expectation[0] * fp.length_scale
+)
+print("Ice thickness expectation (m):", expectation_whole_128)
 
 # %%
 average_measure_operator = averaging_operator(
@@ -260,8 +302,8 @@ print(
 print("Ice thickness variance (m):", variance)
 
 # print("Expected ice thicknesss expecatation:" shift)
-expectation = average_measure.expectation[0] * fp.length_scale
-print("Ice thickness expectation (m):", expectation)
+expectation_ice_128 = average_measure.expectation[0] * fp.length_scale
+print("Ice thickness expectation (m):", expectation_ice_128)
 
 
 # %%
@@ -287,6 +329,23 @@ measure = fingerprint_operator.domain.point_value_scaled_sobolev_kernel_gaussian
     scale=length_scale,
     order=2,
     amplitude=sd,
+)
+
+shift = 100 / fp.length_scale
+shift_vector = measure.domain.project_function(
+    lambda point: shift,
+)
+measure = measure.affine_mapping(
+    translation=shift_vector,
+)
+# %%
+measure = measure.affine_mapping(
+    operator=fingerprint_operator,
+)
+measure = measure.affine_mapping(
+    operator=measure.domain.subspace_projection(
+        0,
+    ),
 )
 # %%
 
@@ -347,8 +406,10 @@ print(
 print("Ice thickness variance (m):", variance)
 
 # print("Expected ice thicknesss expecatation:" shift)
-expectation = average_measure.expectation[0] * fp.length_scale
-print("Ice thickness expectation (m):", expectation)
+expectation_whole_512 = (
+    average_measure.expectation[0] * fp.length_scale
+)
+print("Ice thickness expectation (m):", expectation_whole_512)
 
 # %%
 average_measure_operator = averaging_operator(
@@ -391,8 +452,8 @@ print(
 print("Ice thickness variance (m):", variance)
 
 # print("Expected ice thicknesss expecatation:" shift)
-expectation = average_measure.expectation[0] * fp.length_scale
-print("Ice thickness expectation (m):", expectation)
+expectation_ice_512 = average_measure.expectation[0] * fp.length_scale
+print("Ice thickness expectation (m):", expectation_ice_512)
 
 # %%
 
@@ -401,9 +462,7 @@ print("Summary:")
 
 # as table format of lmax vs standard deviations
 print("lmax\t\tStd whole (m)\tStd ice (m)")
-print(
-    f"input\t\t{sd * fp.length_scale:.4f}\t\t{sd * fp.length_scale:.4f}",
-)
+
 print(
     f"128\t\t{standard_deviation_whole_128:.4f}\t\t{standard_deviation_ice_128:.4f}",
 )
@@ -414,4 +473,14 @@ print(
     f"512\t\t{standard_deviation_whole_512:.4f}\t\t{standard_deviation_ice_512:.4f}",
 )
 
-# %%
+print("lmax\t\tExp whole (m)\tExp ice (m)")
+
+print(
+    f"128\t\t{expectation_whole_128:.4f}\t{expectation_ice_128:.4f}",
+)
+print(
+    f"256\t\t{expectation_whole_256:.4f}\t{expectation_ice_256:.4f}",
+)
+print(
+    f"512\t\t{expectation_whole_512:.4f}\t{expectation_ice_512:.4f}",
+)
