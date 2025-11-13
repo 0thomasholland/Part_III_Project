@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import pyslfp as sl
 
 from Part_III_Project import (
-    gmsl_measure,
+    get_gmsl_measure,
     ice_thickness_change_measures,
     load_measure,
     ocean_dynamic_topography_measures,
@@ -15,11 +15,11 @@ from Part_III_Project import (
 
 # --- Control switches ---
 projection_plots = False  # Set to False to disable projection plots
-lmax = 64
+lmax = 256
 # --- Set up a fingerprint instance ---
 fp = sl.FingerPrint(
     lmax=lmax,
-    earth_model_parameters=sl.EarthModelParameters.from_standard_non_dimensionalisation(),
+    # earth_model_parameters=sl.EarthModelParameters.from_standard_non_dimensionalisation(),
 )
 fp.set_state_from_ice_ng()
 
@@ -41,7 +41,7 @@ ice_gmsl_target_std = (
     0.004 / fp.length_scale
 )  # in meters, non-dimensionalized
 net_ice_thickness_change = (
-    -100.0 / fp.length_scale
+    -10.0 / fp.length_scale
 )  # in meters, non-dimensionalized
 
 
@@ -59,7 +59,7 @@ ocean_dynamic_measure, ocean_dynamic_load_measure = (
 if projection_plots:
     fig1, ax1, im1 = sl.plot(
         ocean_dynamic_load_measure.sample() * fp.load_scale,
-        symmetric=True,
+        symmetric=False,
     )
     fig1.colorbar(
         im1,
@@ -70,7 +70,7 @@ if projection_plots:
 
     fig1a, ax1a, im1a = sl.plot(
         ocean_dynamic_measure.sample() * fp.length_scale,
-        symmetric=True,
+        symmetric=False,
     )
     fig1a.colorbar(
         im1a,
@@ -92,13 +92,27 @@ ice_thickness_measure, ice_load_measure = (
 
 if projection_plots:
     fig2, ax2, im2 = sl.plot(
-        ice_load_measure.sample() * fp.load_scale,
-        symmetric=True,
+        ice_load_measure.sample()
+        * fp.load_scale
+        * fp.ice_projection(),
+        symmetric=False,
     )
     fig2.colorbar(
         im2,
         ax=ax2,
         label="Ice Load",
+        orientation="horizontal",
+    )
+    fig2a, ax2a, im2a = sl.plot(
+        ice_thickness_measure.sample()
+        * fp.length_scale
+        * fp.ice_projection(),
+        symmetric=False,
+    )
+    fig2a.colorbar(
+        im2a,
+        ax=ax2a,
+        label="Ice Thickness Change",
         orientation="horizontal",
     )
 
@@ -122,8 +136,7 @@ if projection_plots:
     )
 
 # %%
-
-sea_level_change_measure = sea_level_change_measure(
+slc = sea_level_change_measure(
     fingerprint_operator=fingerprint_operator,
     fingerprint=fp,
     load_measure=direct_load_measure,
@@ -131,7 +144,7 @@ sea_level_change_measure = sea_level_change_measure(
 
 if projection_plots:
     fig4, ax4, im4 = sl.plot(
-        sea_level_change_measure.sample() * fp.length_scale,
+        slc.sample() * fp.length_scale,
         symmetric=True,
     )
     fig4.colorbar(
@@ -152,40 +165,40 @@ ssh_measure, ssh_odt_measure, _ = sea_surface_height_measure(
 
 # %% Plot SSH
 
-if projection_plots:
-    fig5, ax5, im5 = sl.plot(
-        ssh_measure.sample() * fp.length_scale,
-        symmetric=False,
-    )
-    fig5.colorbar(
-        im5,
-        ax=ax5,
-        label="SSH",
-        orientation="horizontal",
-    )
+# if projection_plots:
+fig5, ax5, im5 = sl.plot(
+    ssh_measure.sample() * fp.length_scale,
+    symmetric=False,
+)
+fig5.colorbar(
+    im5,
+    ax=ax5,
+    label="SSH",
+    orientation="horizontal",
+)
 
-    fig6, ax6, im6 = sl.plot(
-        ssh_odt_measure.sample() * fp.length_scale,
-        symmetric=False,
-    )
-    fig6.colorbar(
-        im6,
-        ax=ax6,
-        label="SSH + ODT",
-        orientation="horizontal",
-    )
+fig6, ax6, im6 = sl.plot(
+    ssh_odt_measure.sample() * fp.length_scale,
+    symmetric=False,
+)
+fig6.colorbar(
+    im6,
+    ax=ax6,
+    label="SSH + ODT",
+    orientation="horizontal",
+)
 
 # %%
 
-gmsl_true = gmsl_measure(
-    measure=sea_level_change_measure,
+gmsl_true = get_gmsl_measure(
+    measure=slc,
     fingerprint=fp,
 )
-gmsl_ssh_estimate = gmsl_measure(
+gmsl_ssh_estimate = get_gmsl_measure(
     measure=ssh_measure,
     fingerprint=fp,
 )
-gmsl_ssh_odt_estimate = gmsl_measure(
+gmsl_ssh_odt_estimate = get_gmsl_measure(
     measure=ssh_odt_measure,
     fingerprint=fp,
 )
