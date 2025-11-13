@@ -68,7 +68,7 @@ ice_gmsl_target_stds = (
 ice_shifts = (
     np.linspace(-200, 200, 6) / fp.length_scale
 )  # in meters, non-dimensionalized
-altimetry_range = (80, 70, 65, 60, 50, 40)
+altimetry_ranges = (77, 66, 55)
 
 output_data = pd.DataFrame({})
 
