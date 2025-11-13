@@ -34,45 +34,42 @@ fingerprint_operator = fp.as_sobolev_linear_operator(
 
 
 odt_length_scales = (
-    np.linspace(0.01, 0.5, 10)
-    * fp.mean_sea_floor_radius
-    / fp.length_scale
-    # np.linspace(0.01, 0.5, 2) * fp.mean_sea_floor_radius
+    # np.linspace(0.01, 0.5, 10)
+    # * fp.mean_sea_floor_radius
+    np.linspace(0.01, 0.5, 2) * fp.mean_sea_floor_radius
 )
 odt_amplitude_95_ranges = (
     np.array(
-        [
-            0.001,
-            0.002,
-            0.005,
-            0.01,
-            0.02,
-            0.05,
-            0.1,
-            0.2,
-            0.5,
-            1.0,
-            10,
-        ],
-        # [0.01, 0.1, 10],
+        #     [
+        #         0.001,
+        #         0.002,
+        #         0.005,
+        #         0.01,
+        #         0.02,
+        #         0.05,
+        #         0.1,
+        #         0.2,
+        #         0.5,
+        #         1.0,
+        #         10,
+        #     ],
+        [0.01, 0.1, 10],
     )
     / fp.length_scale
 )  # in units of sea level, non-dimensionalized
 
 ice_length_scales = (
-    np.linspace(0.1, 0.5, 10)
-    * fp.mean_sea_floor_radius
-    / fp.length_scale
-    # np.linspace(0.1, 0.5, 2) * fp.mean_sea_floor_radius
+    # np.linspace(0.1, 0.5, 10)
+    # * fp.mean_sea_floor_radius
+    # / fp.length_scale
+    np.linspace(0.1, 0.5, 2) * fp.mean_sea_floor_radius
 )
 ice_gmsl_target_stds = (
-    np.linspace(-2, 2, 20) / fp.length_scale
+    np.linspace(0.01, 1, 2) / fp.length_scale
 )  # in meters, non-dimensionalized
-# ice_gmsl_target_stds = (
-# np.linspace(-2, 2, 20) / fp.length_scale
-# )  # in meters, non-dimensionalized
+# in meters, non-dimensionalized
 ice_shifts = (
-    np.linspace(-200, 200, 20) / fp.length_scale
+    np.linspace(-200, 200, 4) / fp.length_scale
 )  # in meters, non-dimensionalized
 
 odt_length_scale = []
