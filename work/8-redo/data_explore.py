@@ -124,6 +124,7 @@ odt_amplitude = output_data["odt_amplitude_95_range"]
 
 # make a subplot grid, so that columns is the key inputs, and rows is the error metrics, with seaborn scatterplots and regression lines if applicable for each subplot, plotting ssh and ssh_odt in different colors on the same axes
 
+# %%
 fig, axes = plt.subplots(4, 5, figsize=(30, 20))
 for i, (error_metric, error_label) in enumerate(
     [
@@ -208,4 +209,200 @@ print(mean_diff)
 print(std_diff)
 # %%
 
+odt_range_to_ice_gmsl_target_std = (
+    output_data["odt_amplitude_95_range"]
+    / output_data["ice_gmsl_target_std"]
+)
+
+odt_range_to_ice_net_ice_thickness_change = (
+    100
+    * output_data["odt_amplitude_95_range"]
+    / output_data["net_ice_thickness_change"].replace(0, np.nan)
+)
+
+
+# %%
+# plot scatterplot of odt_range_to_ice_gmsl_target_std vs kl, cohens d, and w2
+
+fig, axes = plt.subplots(2, 3, figsize=(18, 6))
+for i, (error_metric, error_label) in enumerate(
+    [
+        (ssh_kl, "KL Divergence"),
+        (ssh_cohens_d, "Cohen's d"),
+        (ssh_w2, "Wasserstein Distance"),
+    ],
+):
+    ax = axes[0, i]
+
+    sns.scatterplot(
+        x=odt_range_to_ice_gmsl_target_std,
+        y=error_metric,
+        label="SSH GMSL",
+        color="blue",
+        ax=ax,
+    )
+
+    sns.scatterplot(
+        x=odt_range_to_ice_gmsl_target_std,
+        y=[
+            ssh_odt_kl,
+            ssh_odt_cohens_d,
+            ssh_odt_w2,
+        ][i],
+        label="SSH ODT GMSL",
+        color="orange",
+        ax=ax,
+    )
+
+    ax.set_xlabel("ODT Amplitude 95% Range / Ice GMSL Target Std")
+    ax.set_ylabel(error_label)
+    ax.legend()
+for i, (error_metric, error_label) in enumerate(
+    [
+        (ssh_kl, "KL Divergence"),
+        (ssh_cohens_d, "Cohen's d"),
+        (ssh_w2, "Wasserstein Distance"),
+    ],
+):
+    ax = axes[1, i]
+
+    sns.scatterplot(
+        x=odt_range_to_ice_net_ice_thickness_change,
+        y=error_metric,
+        label="SSH GMSL",
+        color="blue",
+        ax=ax,
+    )
+
+    sns.scatterplot(
+        x=odt_range_to_ice_net_ice_thickness_change,
+        y=[
+            ssh_odt_kl,
+            ssh_odt_cohens_d,
+            ssh_odt_w2,
+        ][i],
+        label="SSH ODT GMSL",
+        color="orange",
+        ax=ax,
+    )
+
+    ax.set_xlabel(
+        "ODT Amplitude 95% Range / Net Ice Thickness Change (*100)",
+    )
+    ax.set_ylabel(error_label)
+    ax.legend()
+
+
+# %%
+
 plt.show()
+
+
+# %%
+
+# CORNER PLOT TIMEEEEE
+
+sns.pairplot(
+    output_data,
+    diag_kind="kde",
+    plot_kws={"alpha": 0.5},
+    x_vars=[
+        "ice_length_scale",
+        "ice_gmsl_target_std",
+        "net_ice_thickness_change",
+        "odt_length_scale",
+        "odt_amplitude_95_range",
+    ],
+    y_vars=[
+        "ssh_gmsl_kl",
+        "ssh_gmsl_cohens_d",
+        "ssh_gmsl_wasserstein_distance",
+        # "ssh_odt_gmsl_kl",
+        # "ssh_odt_gmsl_cohens_d",
+        # "ssh_odt_gmsl_wasserstein_distance",
+        "slc_gmsl_expectation",
+        "ssh_gmsl_expectation",
+        # "ssh_odt_gmsl_expectation",
+        "slc_gmsl_std",
+        "ssh_gmsl_std",
+        # "ssh_odt_gmsl_std",
+    ],
+)
+plt.savefig("corner_plot.pdf")
+
+
+# %%
+# reform the dataset so that slc, ssh, and ssh_odt are a column called type, and there are columns for the expectation and std, and the metrics (e.g. kl, cohens d, wasserstein distance) are columns as well, nans for slc where not applicable
+melted_data = pd.melt(
+    output_data,
+    id_vars=[
+        "ice_length_scale",
+        "ice_gmsl_target_std",
+        "net_ice_thickness_change",
+        "odt_length_scale",
+        "odt_amplitude_95_range",
+    ],
+    value_vars=[
+        "slc_gmsl_expectation",
+        "ssh_gmsl_expectation",
+        "ssh_odt_gmsl_expectation",
+        "slc_gmsl_std",
+        "ssh_gmsl_std",
+        "ssh_odt_gmsl_std",
+        "ssh_gmsl_kl",
+        "ssh_odt_gmsl_kl",
+        "ssh_gmsl_cohens_d",
+        "ssh_odt_gmsl_cohens_d",
+        "ssh_gmsl_wasserstein_distance",
+        "ssh_odt_gmsl_wasserstein_distance",
+    ],
+    var_name="type_stat",
+    value_name="value",
+)
+melted_data["type"] = melted_data["type_stat"].apply(
+    lambda x: x.split("_gmsl_")[0],
+)
+melted_data["stat"] = melted_data["type_stat"].apply(
+    lambda x: x.split("_gmsl_")[1],
+)
+melted_data = melted_data.pivot_table(
+    index=[
+        "ice_length_scale",
+        "ice_gmsl_target_std",
+        "net_ice_thickness_change",
+        "odt_length_scale",
+        "odt_amplitude_95_range",
+        "type",
+    ],
+    columns="stat",
+    values="value",
+).reset_index()
+
+
+# %%
+print(melted_data.head())
+
+# %%
+# redo pairplot with melted data, using hue=type to differentiate between slc, ssh, and ssh_odt
+
+sns.pairplot(
+    melted_data,
+    diag_kind="kde",
+    plot_kws={"alpha": 0.5},
+    hue="type",
+    x_vars=[
+        "ice_length_scale",
+        "ice_gmsl_target_std",
+        "net_ice_thickness_change",
+        "odt_length_scale",
+        "odt_amplitude_95_range",
+    ],
+    y_vars=[
+        "expectation",
+        "std",
+        "kl",
+        "cohens_d",
+        "wasserstein_distance",
+    ],
+)
+plt.savefig("corner_plot_melted.pdf")
