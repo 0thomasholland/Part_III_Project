@@ -18,6 +18,7 @@ from Part_III_Project.measure_space.measure_space_helpers import (
 )
 from Part_III_Project.measure_space.measures import (
     altimetry_measurements_measure,
+    get_altimetry_gmsl_measure,
     get_gmsl_measure,
     ice_thickness_change_measures,
     load_measure,
@@ -44,4 +45,5 @@ __all__ = [
     "get_stats_from_measure",
     "sea_surface_height_measure",
     "plot_measure",
+    "get_altimetry_gmsl_measure",
 ]
