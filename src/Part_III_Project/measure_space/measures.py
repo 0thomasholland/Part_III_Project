@@ -352,3 +352,31 @@ def get_gmsl_measure(
         operator=altimetry_estimate_operator,
     )
     return gmsl_measure
+
+
+def get_altimetry_gmsl_measure(
+    measure: GaussianMeasure,
+    fingerprint: FingerPrint,
+    altimetry_range: float,
+) -> GaussianMeasure:
+    ocea_projection = fingerprint.ocean_projection(
+        value=0,
+    )
+    projection = fingerprint.altimetry_projection(
+        latitude_min=-altimetry_range,
+        latitude_max=altimetry_range,
+        value=0,
+    )
+    combined_projection_function = ocea_projection * projection
+    weighting_function = (
+        combined_projection_function
+        / fingerprint.integrate(combined_projection_function)
+    )
+    altimetry_estimate_operator = sl.averaging_operator(
+        measure.domain,
+        [weighting_function],
+    )
+    altimetry_gmsl_measure = measure.affine_mapping(
+        operator=altimetry_estimate_operator,
+    )
+    return altimetry_gmsl_measure
