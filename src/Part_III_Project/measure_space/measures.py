@@ -336,22 +336,19 @@ def altimetry_measurements_measure(
     """-> SSH_alt range, SSH+ODT_alt range, SSH+ODT+NOISE_alt range"""
 
 
-def gmsl_measure(
+def get_gmsl_measure(
     measure: GaussianMeasure,
     fingerprint: FingerPrint,
 ) -> GaussianMeasure:
     weighting_function = (
-        -fingerprint.ice_density
-        * fingerprint.one_minus_ocean_function
-        * fingerprint.ice_projection(value=0)
-        * fingerprint.length_scale
-        / (fingerprint.water_density * fingerprint.ocean_area)
+        fingerprint.ocean_function / fingerprint.ocean_area
     )
-    gmsl_operator = averaging_operator(
+
+    altimetry_estimate_operator = sl.averaging_operator(
         measure.domain,
         [weighting_function],
     )
     gmsl_measure = measure.affine_mapping(
-        operator=gmsl_operator,
+        operator=altimetry_estimate_operator,
     )
     return gmsl_measure
