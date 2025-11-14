@@ -1,0 +1,1 @@
+/home/th/Developer/Part_III_Project/.venv/bin/python /home/th/Developer/Part_III_Project/work/8-redo/metrics.py --input ./work/8-redo/output/variable_input_data_initial.pkl --output ./work/8-redo/output/metrics_initial.pkl --true slc_gmsl --approx ssh_gmsl ssh_odt_gmsl --std_appreviation _std --expectation_abbreviation _expectation
