@@ -139,3 +139,9 @@
 - Implemented altimetry estimate methods and integrated them into the parallel workflow.
 - Set up plotting infrastructure for visualising overnight computation results.
 
+## 14 November 2025
+
+- Processed overnight parallel computation data and generated updated plots.
+- Added ODT-to-SSH conversion in the forward model.
+- Refactored single-value example and reorganised analysis files.
+
