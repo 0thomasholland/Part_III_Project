@@ -122,10 +122,11 @@ def main(
         fingerprint=fp,
         load_measure=_direct_load_measure,
     )
-    _ssh, _ssh_odc, _ = sea_surface_height_measure(
+    _ssh, _ssh_odt, _ = sea_surface_height_measure(
         fingerprint=fp,
         fingerprint_operator=fingerprint_operator,
         load_measure=_direct_load_measure,
+        odt_measure=_ocean_dynamic_measure,
     )
     _slc_gmsl = get_altimetry_gmsl_measure(
         _slc,
@@ -138,7 +139,7 @@ def main(
         altimetry_range=altimetry_range,
     )
     _ssh_odt_gmsl = get_altimetry_gmsl_measure(
-        _ssh_odc,
+        _ssh_odt,
         fp,
         altimetry_range=altimetry_range,
     )
