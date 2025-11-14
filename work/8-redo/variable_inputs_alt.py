@@ -80,7 +80,7 @@ number_of_jobs = (
     )
     * len(ice_gmsl_target_stds)
     * len(ice_shifts)
-    * len(altimetry_range)
+    * len(altimetry_ranges)
 )
 print(f"Total number of jobs to run: {number_of_jobs}")
 
