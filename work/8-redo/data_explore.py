@@ -17,7 +17,7 @@ output_data = pd.DataFrame(
         path.join(
             path.dirname(path.abspath(__file__)),
             "output",
-            "metrics_initial.pkl",
+            "metrics_big.pkl",
         ),
     ),
 )
@@ -209,22 +209,22 @@ print(mean_diff)
 print(std_diff)
 # %%
 
-odt_range_to_ice_gmsl_target_std = (
+odt_range_to_ice_gmsl_target_std = np.abs(
     output_data["odt_amplitude_95_range"]
-    / output_data["ice_gmsl_target_std"]
+    / output_data["ice_gmsl_target_std"],
 )
 
-odt_range_to_ice_net_ice_thickness_change = (
+odt_range_to_ice_net_ice_thickness_change = np.abs(
     100
     * output_data["odt_amplitude_95_range"]
-    / output_data["net_ice_thickness_change"].replace(0, np.nan)
+    / output_data["net_ice_thickness_change"].replace(0, np.nan),
 )
 
 
 # %%
 # plot scatterplot of odt_range_to_ice_gmsl_target_std vs kl, cohens d, and w2
 
-fig, axes = plt.subplots(2, 3, figsize=(18, 6))
+fig, axes = plt.subplots(3, 2, figsize=(20, 15))
 for i, (error_metric, error_label) in enumerate(
     [
         (ssh_kl, "KL Divergence"),
@@ -232,7 +232,7 @@ for i, (error_metric, error_label) in enumerate(
         (ssh_w2, "Wasserstein Distance"),
     ],
 ):
-    ax = axes[0, i]
+    ax = axes[i, 0]
 
     sns.scatterplot(
         x=odt_range_to_ice_gmsl_target_std,
@@ -254,17 +254,11 @@ for i, (error_metric, error_label) in enumerate(
         ax=ax,
     )
 
-    ax.set_xlabel("ODT Amplitude 95% Range / Ice GMSL Target Std")
+    ax.set_xlabel("ODT Amplitude to Ice GMSL Target Std Ratio")
     ax.set_ylabel(error_label)
     ax.legend()
-for i, (error_metric, error_label) in enumerate(
-    [
-        (ssh_kl, "KL Divergence"),
-        (ssh_cohens_d, "Cohen's d"),
-        (ssh_w2, "Wasserstein Distance"),
-    ],
-):
-    ax = axes[1, i]
+
+    ax = axes[i, 1]
 
     sns.scatterplot(
         x=odt_range_to_ice_net_ice_thickness_change,
@@ -287,11 +281,11 @@ for i, (error_metric, error_label) in enumerate(
     )
 
     ax.set_xlabel(
-        "ODT Amplitude 95% Range / Net Ice Thickness Change (*100)",
+        "ODT Amplitude to Net Ice Thickness Change Ratio (x100)",
     )
     ax.set_ylabel(error_label)
     ax.legend()
-
+plt.savefig("error_metrics_vs_odt_ratios.pdf")
 
 # %%
 
@@ -406,3 +400,50 @@ sns.pairplot(
     ],
 )
 plt.savefig("corner_plot_melted.pdf")
+
+# %%
+
+# pick a random line from the original data frame, and plot the corresponding gausses
+random_index = np.random.randint(0, len(output_data))
+slc_gauss = slc_gausses[random_index]
+ssh_gauss = ssh_gausses[random_index]
+ssh_odt_gauss = ssh_odt_gausses[random_index]
+
+fig, ax = plt.subplots(figsize=(10, 6))
+x = np.linspace(
+    min(
+        slc_gauss.ppf(0.001),
+        ssh_gauss.ppf(0.001),
+        ssh_odt_gauss.ppf(0.001),
+    ),
+    max(
+        slc_gauss.ppf(0.999),
+        ssh_gauss.ppf(0.999),
+        ssh_odt_gauss.ppf(0.999),
+    ),
+    1000,
+)
+ax.plot(
+    x,
+    slc_gauss.pdf(x),
+    label=f"SLC GMSL (μ {slc_mean[random_index]:.2f}, σ {slc_std[random_index]:.2e})",
+    color="blue",
+)
+ax.plot(
+    x,
+    ssh_gauss.pdf(x),
+    label=f"SSH GMSL (μ {ssh_mean[random_index]:.2f}, σ {ssh_std[random_index]:.2e})",
+    color="orange",
+)
+ax.plot(
+    x,
+    ssh_odt_gauss.pdf(x),
+    label=f"SSH ODT GMSL (μ {ssh_odt_mean[random_index]:.2f}, σ {ssh_odt_std[random_index]:.2e})",
+    color="green",
+)
+ax.set_title(
+    f"Ice thickness change: {ice_mean[random_index]:.2f}m, Target GMSL std: {ice_std[random_index]:.2e}",
+)
+ax.set_xlabel("GMSL Change (mm)")
+ax.set_ylabel("Probability Density")
+ax.legend()
