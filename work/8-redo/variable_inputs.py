@@ -122,6 +122,7 @@ def main(
         fingerprint=fp,
         fingerprint_operator=fingerprint_operator,
         load_measure=_direct_load_measure,
+        odt_measure=_ocean_dynamic_measure,
     )
     _slc_gmsl = get_gmsl_measure(_slc, fp)
     _ssh_gmsl = get_gmsl_measure(_ssh, fp)
