@@ -1,3 +1,5 @@
+from math import isnan, nan
+
 import numpy as np
 import pyslfp as sl
 from pygeoinf import GaussianMeasure, LinearOperator
@@ -128,15 +130,23 @@ def ocean_dynamic_topography_measures(
     fingerprint: FingerPrint = None,
     fingerprint_operator: LinearOperator = None,
     length_scale: float = 60,
-    amplitude_95_range: float = 0.001,
+    amplitude_95_range: float = nan,
+    standard_deviation: float = nan,
 ) -> tuple[GaussianMeasure, GaussianMeasure]:
     """-> ODT_measure, ODT_load_measure
     All parameters should be passed in non-dimensionalized form (already divided by fingerprint.length_scale).
     """
+    if not isnan(amplitude_95_range):
+        standard_deviation = amplitude_95_range / 3.92
+    elif isnan(standard_deviation):
+        raise ValueError(
+            "Either amplitude_95_range or standard_deviation must be provided",
+        )
+
     _initial_odt_measure = fingerprint_operator.domain.point_value_scaled_sobolev_kernel_gaussian_measure(
         order=1.5,
         scale=length_scale,
-        amplitude=amplitude_95_range / 3.92,
+        amplitude=standard_deviation,
     )
     # set the ODT to be zero mean over oceans
     _ocean_projection = sl.ocean_projection_operator(
