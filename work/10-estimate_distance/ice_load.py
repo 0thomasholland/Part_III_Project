@@ -21,20 +21,19 @@ fingerprint_operator = fp.as_sobolev_linear_operator(
     0.1 * fp.mean_sea_floor_radius,
 )
 
+# %%
 
 ###### VARIABLES
 ice_length_scale = 0.1 * fp.mean_sea_floor_radius
 ice_gmsl_target_std = 0.004 / fp.length_scale  # in meters
-net_ice_thickness_change = -1.0 / fp.length_scale  # in meters
+net_ice_thickness_change = -10.0 / fp.length_scale  # in meters
 
 odt_length_scale = 0.01 * fp.mean_sea_floor_radius
-odt_amplitude_95_range = 0.001 / fp.length_scale  # in
-
-
-altimetry_range = 66  # in meters
+odt_amplitude_95_range = 0.01 / fp.length_scale  # in
+altimetry_range = 70  # in meters
 
 altimetry_error_legth_scale = 0.005 * fp.mean_sea_floor_radius
-altimetry_error_amplitude = 0.0001 / fp.length_scale  # in meters
+altimetry_error_amplitude = 0.001 / fp.length_scale  # in meters
 
 ######
 
@@ -113,7 +112,7 @@ estimated_gmsl_operator = (
     @ sl.ice_thickness_change_to_load_operator(
         fp,
         fingerprint_operator.domain,
-    ),
+    )
 )
 
 # %%
@@ -127,7 +126,6 @@ error_covariance = (
     + altimetry_averaging_operator
     @ measuremeant_error.covariance
     @ altimetry_averaging_operator.adjoint
-    + altimetry_averaging_operator
 ).matrix(dense=True)[0, 0]
 
 error_expectation = combined_operator(
@@ -189,5 +187,10 @@ ax.plot(
 ax.ticklabel_format(axis="x", style="sci", scilimits=(0, 0))
 ax.set_xlabel("GMSL (m)")
 ax.set_ylabel("Probability Density")
+ax.set_title(
+    f"GMSL Estimation Error vs True GMSL Distribution\nIce thickness change: {net_ice_thickness_change:.2e} m, ODT range: {odt_amplitude_95_range:.2e} m, \nAltimetry error std: {altimetry_error_amplitude:.2e} m, Altimetry lat range: {altimetry_range}°",
+)
 ax.legend()
 plt.show()
+
+fig.savefig("/home/th/Downloads/fig.png")
