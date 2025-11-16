@@ -145,3 +145,11 @@
 - Added ODT-to-SSH conversion in the forward model.
 - Refactored single-value example and reorganised analysis files.
 
+## 15 November 2025
+
+- Major code refactoring session: built the `setup_altimetry_inversion_components` function, resolving variable naming conventions (`_op` and `_measure` suffixes) and formalising the physics of the RowLinearOperator structure with ODT entering the data error model.
+- Developed the preconditioner approach — the key insight being that calling the same setup function at two different lmax values resolves the data space dimension mismatch that would otherwise make a naïve lower-resolution preconditioner unworkable.
+- Added CG solver callbacks to monitor convergence iteration by iteration and worked out serialisation of pygeoinf objects (pickle vs dill). Integrated the preconditioner into the posterior solve call.
+- Generated initial tutorial-style plotting code adapted for the altimetry setup rather than tide gauges.
+- Renamed folders for clarity and restructured the inversion code.
+
