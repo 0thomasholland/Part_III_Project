@@ -1,4 +1,5 @@
 # %%
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 from pyslfp import (
@@ -14,6 +15,8 @@ from Part_III_Project import (
     ice_thickness_change_measures,
     ocean_dynamic_topography_measures,
 )
+
+mpl.rcParams["figure.dpi"] = 600
 
 # %%
 # Setup
@@ -36,14 +39,14 @@ measurement_space = sea_surface_height_op.codomain
 # Parameters
 ice_length_scale = 0.1 * fp.mean_sea_floor_radius
 ice_gmsl_target_std = 0.004 / fp.length_scale
-net_ice_thickness_change = -10.0 / fp.length_scale
+net_ice_thickness_change = -5.0 / fp.length_scale
 
 odt_length_scale = 0.01 * fp.mean_sea_floor_radius
-odt_standard_deviation = 0.005 / fp.length_scale
+odt_standard_deviation = 0.08 / fp.length_scale
 
 altimetry_range = 66
 altimetry_error_length_scale = 0.005 * fp.mean_sea_floor_radius
-altimetry_error_amplitude = 0.001 / fp.length_scale
+altimetry_error_amplitude = 0.003 / fp.length_scale
 # %%
 # Measures
 ice_thickness_change, _ = ice_thickness_change_measures(
@@ -136,7 +139,7 @@ print(f"Error expectation: {error_mean:.6f} m")
 print(f"Error std dev: {error_std:.6f} m")
 # %%
 # Plotting
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5), sharey=True)
 
 # GMSL distributions
 x_range = 4
@@ -185,13 +188,23 @@ ax2.axvline(
     color="k",
     linestyle="--",
     alpha=0.3,
-    label="Zero error",
+    # label="Zero error",
 )
 ax2.set_xlabel("Error (m)")
-ax2.set_ylabel("Probability Density")
+# ax2.set_ylabel("Probability Density")
 ax2.set_title("Error Distribution")
-ax2.legend()
+# ax2.legend()
 ax2.grid(alpha=0.3)
+fig.suptitle("GMSL Estimation Errors")
+fig.text(
+    0.5,
+    0.01,
+    f"Ice Thickness Change: {net_ice_thickness_change * fp.length_scale:.1f} m; Ocean Dynamic Topography Std Dev: {odt_standard_deviation * fp.length_scale:.3f} m\nAltimetry Error Amplitude Standard Deviation: {altimetry_error_amplitude * fp.length_scale:.3f} m; Calculated for Altimetry over +/- {altimetry_range:.0f} deg\nValues are approximate for monthly binned measurements.",
+    fontsize=10,
+    ha="center",
+    va="bottom",
+)
+fig.subplots_adjust(bottom=0.25)  # Increase bottom margin
 
 # plt.tight_layout()
 # %%

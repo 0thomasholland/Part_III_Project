@@ -30,7 +30,7 @@ from Part_III_Project import (
 # %%
 # CONFIGURATION VARIABLES
 
-lmax = 64
+lmax = 128
 
 # Model space parameters
 model_sobolev_order = 2
