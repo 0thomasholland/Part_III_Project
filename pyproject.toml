@@ -16,12 +16,8 @@ dependencies = [
     "mpltern (>=1.0.4,<2.0.0)",
     "snakeviz (>=2.2.2,<3.0.0)",
     "seaborn (>=0.13.2,<0.14.0)",
-]
-
-[project.optional-dependencies]
-dev = [
-    "ruff",
     "ty",
+    "ruff"
 ]
 
 [tool.poetry]
