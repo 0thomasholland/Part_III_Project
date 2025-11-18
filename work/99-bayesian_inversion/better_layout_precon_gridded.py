@@ -102,15 +102,13 @@ def generate_grid_cell_weighting_functions(
             # Create longitude mask
             if lon_min_cell < lon_max_cell:
                 lon_mask_data = np.where(
-                    (lons_grid >= lon_min_cell)
-                    & (lons_grid < lon_max_cell),
+                    (lons_grid >= lon_min_cell) & (lons_grid < lon_max_cell),
                     1.0,
                     0.0,
                 )
             else:  # Wrapping around 180/-180
                 lon_mask_data = np.where(
-                    (lons_grid >= lon_min_cell)
-                    | (lons_grid < lon_max_cell),
+                    (lons_grid >= lon_min_cell) | (lons_grid < lon_max_cell),
                     1.0,
                     0.0,
                 )
@@ -175,30 +173,20 @@ def setup_gridded_altimetry_inversion(
     fp.set_state_from_ice_ng()
 
     # Convert to non-dimensional units
-    model_length_scale = (
-        model_length_scale_km * 1000 / fp.length_scale
-    )
+    model_length_scale = model_length_scale_km * 1000 / fp.length_scale
     ice_pointwise_std = ice_pointwise_std_m / fp.length_scale
-    meso_scale_lengthscale = (
-        meso_scale_lengthscale_m / fp.length_scale
-    )
-    sub_meso_scale_lengthscale = (
-        sub_meso_scale_lengthscale_m / fp.length_scale
-    )
+    meso_scale_lengthscale = meso_scale_lengthscale_m / fp.length_scale
+    sub_meso_scale_lengthscale = sub_meso_scale_lengthscale_m / fp.length_scale
     meso_scale_std = meso_scale_std_m / fp.length_scale
     sub_meso_scale_std = sub_meso_scale_std_m / fp.length_scale
-    measurement_noise_std = (
-        along_track_error_m / np.sqrt(passes)
-    ) / fp.length_scale
+    measurement_noise_std = (along_track_error_m / np.sqrt(passes)) / fp.length_scale
 
     # Generate grid cell weighting functions
-    weighting_functions, grid_centers = (
-        generate_grid_cell_weighting_functions(
-            fp,
-            grid_spacing_deg=grid_spacing_deg,
-            latitude_max=altimetry_latitude_max,
-            latitude_min=altimetry_latitude_min,
-        )
+    weighting_functions, grid_centers = generate_grid_cell_weighting_functions(
+        fp,
+        grid_spacing_deg=grid_spacing_deg,
+        latitude_max=altimetry_latitude_max,
+        latitude_min=altimetry_latitude_min,
     )
 
     # Define model space
@@ -236,13 +224,7 @@ def setup_gridded_altimetry_inversion(
     data_space = op_average.codomain
 
     # Compose full forward operator
-    forward_op = (
-        op_average
-        @ op_ssh
-        @ op_fingerprint
-        @ op_ice_to_load
-        @ op_ice_proj
-    )
+    forward_op = op_average @ op_ssh @ op_fingerprint @ op_ice_to_load @ op_ice_proj
 
     # Also create operator for sea level field (for visualization)
     sea_level_field_op = (
@@ -277,18 +259,14 @@ def setup_gridded_altimetry_inversion(
 
     # ODT error operator components (now with averaging)
     # Gravitational effect: ODT -> load -> fingerprint -> SSH -> average
-    odt_grav_op = (
-        op_average @ op_ssh @ op_fingerprint @ op_water_to_load
-    )
+    odt_grav_op = op_average @ op_ssh @ op_fingerprint @ op_water_to_load
     # Direct effect: ODT -> SSH -> average
     odt_direct_op = op_average @ ssh_space.identity_operator()
 
     # Measurement noise (independent at each grid cell)
-    measurement_noise_measure = (
-        GaussianMeasure.from_standard_deviation(
-            data_space,
-            measurement_noise_std,
-        )
+    measurement_noise_measure = GaussianMeasure.from_standard_deviation(
+        data_space,
+        measurement_noise_std,
     )
 
     # Combined error model
@@ -314,11 +292,9 @@ def setup_gridded_altimetry_inversion(
     )
 
     # Ice thickness change prior
-    initial_prior = (
-        model_space.point_value_scaled_heat_kernel_gaussian_measure(
-            model_length_scale,
-            ice_pointwise_std,
-        )
+    initial_prior = model_space.point_value_scaled_heat_kernel_gaussian_measure(
+        model_length_scale,
+        ice_pointwise_std,
     )
     ice_thickness_change_measure = initial_prior.affine_mapping(
         operator=op_ice_proj,
@@ -364,13 +340,9 @@ def build_low_degree_preconditioner(
     fp_precon.set_state_from_ice_ng()
 
     # Convert units
-    model_length_scale = (
-        model_length_scale_km * 1000 / fp_precon.length_scale
-    )
+    model_length_scale = model_length_scale_km * 1000 / fp_precon.length_scale
     ice_pointwise_std = ice_pointwise_std_m / fp_precon.length_scale
-    measurement_noise_std = (
-        measurement_noise_std_m / fp_precon.length_scale
-    )
+    measurement_noise_std = measurement_noise_std_m / fp_precon.length_scale
 
     # Build operators at reduced degree
     model_space_precon = Sobolev(
@@ -401,17 +373,17 @@ def build_low_degree_preconditioner(
     data_space = forward_op_precon.codomain
 
     # Simple error model for preconditioner (just measurement noise)
-    data_error_measure_precon = (
-        GaussianMeasure.from_standard_deviation(
-            data_space,
-            measurement_noise_std,
-        )
+    data_error_measure_precon = GaussianMeasure.from_standard_deviation(
+        data_space,
+        measurement_noise_std,
     )
 
     # Prior at reduced degree
-    initial_prior_precon = model_space_precon.point_value_scaled_heat_kernel_gaussian_measure(
-        model_length_scale,
-        ice_pointwise_std,
+    initial_prior_precon = (
+        model_space_precon.point_value_scaled_heat_kernel_gaussian_measure(
+            model_length_scale,
+            ice_pointwise_std,
+        )
     )
     ice_measure_precon = initial_prior_precon.affine_mapping(
         operator=op1,
@@ -458,9 +430,7 @@ class ConvergenceMonitor:
 
         if self.prev_x is not None:
             change = np.linalg.norm(xk - self.prev_x)
-            relative_change = (
-                change / x_norm if x_norm > 0 else change
-            )
+            relative_change = change / x_norm if x_norm > 0 else change
             self.x_changes.append(relative_change)
 
             if self.iteration % 10 == 0:
@@ -526,9 +496,7 @@ fp = components["fp"]
 grid_centers = components["grid_centers"]
 weighting_functions = components["weighting_functions"]
 forward_problem = components["forward_problem"]
-ice_thickness_change_measure = components[
-    "ice_thickness_change_measure"
-]
+ice_thickness_change_measure = components["ice_thickness_change_measure"]
 sea_level_field_op = components["sea_level_field_op"]
 
 # Build preconditioner
@@ -631,9 +599,7 @@ fig2.colorbar(
 
 # Difference
 fig3, ax3, im3 = plot(
-    1000
-    * (model_posterior_expectation - model_true)
-    * fp.length_scale,
+    1000 * (model_posterior_expectation - model_true) * fp.length_scale,
     coasts=True,
     cmap="seismic",
     symmetric=True,

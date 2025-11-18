@@ -59,30 +59,18 @@ def setup_altimetry_inversion_components(
     fp.set_state_from_ice_ng()
 
     # Convert physical units to non-dimensional
-    model_length_scale = (
-        model_length_scale_factor * fp.mean_sea_floor_radius
-    )
-    ice_length_scale = (
-        ice_length_scale_factor * fp.mean_sea_floor_radius
-    )
+    model_length_scale = model_length_scale_factor * fp.mean_sea_floor_radius
+    ice_length_scale = ice_length_scale_factor * fp.mean_sea_floor_radius
     ice_gmsl_target_std = ice_gmsl_target_std_m / fp.length_scale
-    ice_net_thickness_change = (
-        ice_net_thickness_change_m / fp.length_scale
-    )
-    meso_scale_lengthscale = (
-        meso_scale_lengthscale_m / fp.length_scale
-    )
-    sub_meso_scale_lengthscale = (
-        sub_meso_scale_lengthscale_m / fp.length_scale
-    )
+    ice_net_thickness_change = ice_net_thickness_change_m / fp.length_scale
+    meso_scale_lengthscale = meso_scale_lengthscale_m / fp.length_scale
+    sub_meso_scale_lengthscale = sub_meso_scale_lengthscale_m / fp.length_scale
     meso_scale_std = meso_scale_std_m / fp.length_scale
     sub_meso_scale_std = sub_meso_scale_std_m / fp.length_scale
     altimetry_noise_length_scale = (
         altimetry_noise_length_scale_factor * fp.mean_sea_floor_radius
     )
-    altimetry_noise_std = (
-        along_track_error_m / np.sqrt(passes)
-    ) / fp.length_scale
+    altimetry_noise_std = (along_track_error_m / np.sqrt(passes)) / fp.length_scale
 
     # Define model space
     model_space = Sobolev(
@@ -169,10 +157,12 @@ def setup_altimetry_inversion_components(
     )
     odt_change_measure = meso_scale_measure + sub_meso_scale_measure
 
-    measurement_noise_measure = measurement_space.point_value_scaled_sobolev_kernel_gaussian_measure(
-        altimetry_noise_sobolev_order,
-        altimetry_noise_length_scale,
-        altimetry_noise_std,
+    measurement_noise_measure = (
+        measurement_space.point_value_scaled_sobolev_kernel_gaussian_measure(
+            altimetry_noise_sobolev_order,
+            altimetry_noise_length_scale,
+            altimetry_noise_std,
+        )
     )
 
     # Combine error sources
@@ -218,7 +208,8 @@ def build_preconditioner(
     and uses simple scaling for high degrees.
     returns preconditioner operator on the data space.
     """
-    ???????
+    pass
+
 
 class ConvergenceMonitor:
     """Monitor convergence of iterative solver with detailed tracking."""
@@ -236,9 +227,7 @@ class ConvergenceMonitor:
 
         if self.prev_x is not None:
             change = np.linalg.norm(xk - self.prev_x)
-            relative_change = (
-                change / x_norm if x_norm > 0 else change
-            )
+            relative_change = change / x_norm if x_norm > 0 else change
             self.x_changes.append(relative_change)
 
             if self.iteration % 5 == 0:
@@ -319,9 +308,7 @@ components = setup_altimetry_inversion_components(
 
 fp = components["fp"]
 forward_problem = components["forward_problem"]
-ice_thickness_change_measure = components[
-    "ice_thickness_change_measure"
-]
+ice_thickness_change_measure = components["ice_thickness_change_measure"]
 
 # Build truncated spectral preconditioner
 print("\nBuilding truncated spectral preconditioner...")
@@ -371,9 +358,7 @@ model_posterior_expectation = model_posterior_measure.expectation
 
 # Visualize results
 fig, ax, im = plot(
-    model_posterior_expectation
-    * fp.length_scale
-    * fp.ice_projection(),
+    model_posterior_expectation * fp.length_scale * fp.ice_projection(),
     symmetric=True,
 )
 fig.colorbar(
