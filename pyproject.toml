@@ -17,7 +17,8 @@ dependencies = [
     "snakeviz (>=2.2.2,<3.0.0)",
     "seaborn (>=0.13.2,<0.14.0)",
     "ty",
-    "ruff"
+    "ruff",
+    "jupytext",
 ]
 
 [tool.poetry]
@@ -38,10 +39,10 @@ line-length = 88
 [tool.ruff.lint]
 # Core rule groups
 select = [
-    "F",   # Pyflakes (general errors)
-    "E",   # Pycodestyle Errors
-    "W",   # Pycodestyle Warnings
-    "I",   # isort (import sorting)
+    "F", # Pyflakes (general errors)
+    "E", # Pycodestyle Errors
+    "W", # Pycodestyle Warnings
+    "I", # isort (import sorting)
     # ... other core groups
 ]
 
