@@ -30,7 +30,7 @@ from Part_III_Project import (
 # %%
 # CONFIGURATION VARIABLES
 
-lmax = 128
+lmax = 64
 
 # Model space parameters
 model_sobolev_order = 2
@@ -55,12 +55,14 @@ passes = 3  # typically ~ 3 passes every 30 days
 altimetry_latitude_max = 66  # degrees
 altimetry_latitude_min = -66  # degrees
 altimetry_noise_sobolev_order = 1.5
-altimetry_noise_length_scale_factor = 0.001  # fraction of mean sea floor radius
+altimetry_noise_length_scale_factor = (
+    0.001  # fraction of mean sea floor radius
+)
 altimetry_noise_std_m = along_track_error / np.sqrt(passes)  # metres
 
 # Solver parameters
-solver_rtol = 1e-4
-solver_maxiter = 5000
+solver_rtol = 1e-6
+solver_maxiter = 1000
 
 # %%
 # FINGERPRINT MODEL INITIALISATION
@@ -74,12 +76,18 @@ fp.set_state_from_ice_ng()
 # %%
 # UNIT CONVERSIONS (physical to non-dimensional)
 
-model_length_scale = model_length_scale_factor * fp.mean_sea_floor_radius
+model_length_scale = (
+    model_length_scale_factor * fp.mean_sea_floor_radius
+)
 ice_length_scale = ice_length_scale_factor * fp.mean_sea_floor_radius
 ice_gmsl_target_std = ice_gmsl_target_std_m / fp.length_scale
-ice_net_thickness_change = ice_net_thickness_change_m / fp.length_scale
+ice_net_thickness_change = (
+    ice_net_thickness_change_m / fp.length_scale
+)
 meso_scale_lengthscale = meso_scale_lengthscale / fp.length_scale
-sub_meso_scale_lengthscale = sub_meso_scale_lengthscale / fp.length_scale
+sub_meso_scale_lengthscale = (
+    sub_meso_scale_lengthscale / fp.length_scale
+)
 meso_scale_std = meso_scale_std / fp.length_scale
 sub_meso_scale_std = sub_meso_scale_std / fp.length_scale
 altimetry_noise_length_scale = (
@@ -118,7 +126,9 @@ water_to_load_op: LinearOperator = sea_level_change_to_load_operator(
     fp,
     load_space,
 )
-ice_to_load_op: LinearOperator = ice_thickness_change_to_load_operator(fp, load_space)
+ice_to_load_op: LinearOperator = (
+    ice_thickness_change_to_load_operator(fp, load_space)
+)
 
 # Altimetry spatial mask operator
 altimetry_mask_op: LinearOperator = spatial_mutliplication_operator(
@@ -134,10 +144,15 @@ altimetry_mask_op: LinearOperator = spatial_mutliplication_operator(
 # Error/noise model operator
 # Maps [odt_gravitational, odt_direct, instrument_noise] → observed error
 altimetry_noise_op = altimetry_mask_op @ RowLinearOperator(
+    # [
+    #     sea_surface_height_op @ fingerprint_op @ water_to_load_op,
+    #     measurement_space.identity_operator(),
+    #     measurement_space.identity_operator(),
+    # ],
     [
-        sea_surface_height_op @ fingerprint_op @ water_to_load_op,
-        measurement_space.identity_operator(),
-        measurement_space.identity_operator(),
+        measurement_space.zero_operator(),
+        measurement_space.zero_operator(),
+        measurement_space.zero_operator(),
     ],
 )
 
@@ -178,12 +193,10 @@ sub_meso, _ = ocean_dynamic_topography_measures(
 odt_change_measure = meso + sub_meso
 
 # Measurement noise
-measurement_noise_measure = (
-    measurement_space.point_value_scaled_sobolev_kernel_gaussian_measure(
-        altimetry_noise_sobolev_order,
-        altimetry_noise_length_scale,
-        altimetry_noise_std,
-    )
+measurement_noise_measure = measurement_space.point_value_scaled_sobolev_kernel_gaussian_measure(
+    altimetry_noise_sobolev_order,
+    altimetry_noise_length_scale,
+    altimetry_noise_std,
 )
 
 # Combined data error measure
@@ -245,7 +258,9 @@ class ConvergenceMonitor:
 
         if self.prev_x is not None:
             change = np.linalg.norm(xk - self.prev_x)
-            relative_change = change / x_norm if x_norm > 0 else change
+            relative_change = (
+                change / x_norm if x_norm > 0 else change
+            )
             self.x_changes.append(relative_change)
 
             if self.iteration % 5 == 0:
@@ -261,7 +276,7 @@ class ConvergenceMonitor:
 
 monitor = ConvergenceMonitor()
 solver = CGMatrixSolver(
-    callback=monitor,
+    # callback=monitor,
     rtol=solver_rtol,
     maxiter=solver_maxiter,
 )
@@ -309,7 +324,9 @@ fig1.colorbar(
 
 # Posterior expectation (recovered)
 fig2, ax2, im2 = plot(
-    model_posterior_expectation * fp.length_scale * fp.ice_projection(),
+    model_posterior_expectation
+    * fp.length_scale
+    * fp.ice_projection(),
     symmetric=True,
 )
 fig2.colorbar(
@@ -321,7 +338,9 @@ fig2.colorbar(
 # %%
 # Difference (error in recovery)
 fig3, ax3, im3 = plot(
-    (model_posterior_expectation - model_true) * fp.length_scale * fp.ice_projection(),
+    (model_posterior_expectation - model_true)
+    * fp.length_scale
+    * fp.ice_projection(),
 )
 fig3.colorbar(
     im3,
@@ -417,101 +436,3 @@ fig7.colorbar(
 # %%
 
 plt.show()
-
-
-# %%
-
-# Your existing setup
-lat_greenland, lon_greenland = 65.0, -45.0
-radius_deg = 5.0
-thickness_change_meters = -100.0  # Negative = ice LOSS
-
-ice_thickness_change = fp.disk_load(
-    delta=radius_deg,
-    latitude=lat_greenland,
-    longitude=lon_greenland,
-    amplitude=thickness_change_meters,
-)
-
-# Plot the input
-# fig1, ax1, im1 = plot(ice_thickness_change, symmetric=True)
-# fig1.colorbar(
-#     im1,
-#     ax=ax1,
-#     label="Ice thickness change (m)",
-#     orientation="horizontal",
-# )
-
-# ax1.set_title("Input: -100m ice loss in Greenland")
-
-# Convert to Sobolev space element
-ice_sh_coeffs = fp.expand_field(ice_thickness_change)
-coeffs_flat = ice_sh_coeffs.coeffs[0].flatten()  # Use real coefficients
-test_in_load_space = load_space.from_components(coeffs_flat)
-
-# Push through your forward operator
-test_ssh = ice_to_altimetry_op(test_in_load_space)
-
-# Convert output back to grid
-test_ssh_components = measurement_space.to_components(test_ssh)
-print(f"Output components shape: {test_ssh_components.shape}")
-print(f"measurement_space dimension: {measurement_space.dim}")
-
-# Reshape back to SHCoeffs format
-test_ssh_coeffs_array = test_ssh_components.reshape(
-    (lmax + 1, lmax + 1),
-)
-
-# Create an SHCoeffs object to use expand_coefficient
-# We need to put it back in the (2, lmax+1, lmax+1) format
-full_coeffs = np.zeros((2, lmax + 1, lmax + 1))
-full_coeffs[0] = test_ssh_coeffs_array
-test_ssh_coeffs = fp.zero_coefficients()
-test_ssh_coeffs.coeffs = full_coeffs
-
-# Convert back to grid
-test_ssh_grid = fp.expand_coefficient(test_ssh_coeffs)
-
-# Plot the output
-fig2, ax2, im2 = plot(test_ssh_grid * fp.length_scale, symmetric=True)
-fig2.colorbar(
-    im2,
-    ax=ax2,
-    label="Sea surface height change (m)",
-    orientation="horizontal",
-)
-ax2.set_title("Output: SSH from -100m ice loss in Greenland")
-# %%
-
-a, b, c, d = fp(
-    direct_load=fp.direct_load_from_ice_thickness_change(
-        ice_thickness_change,
-    ),
-)
-ssh_change_true = fp.sea_surface_height_change(
-    a,
-    b,
-    d,
-)
-fig3, ax3, im3 = plot(
-    ssh_change_true * fp.length_scale * fp.ocean_projection(),
-    symmetric=True,
-)
-fig3.colorbar(
-    im3,
-    ax=ax3,
-    label="Sea surface height change (m)",
-    orientation="horizontal",
-)
-# Check the pattern:
-# Ice LOSS should cause:
-# - Negative SSH near Greenland (less gravity, water flows away)
-# - Positive SSH in far field (global sea level rise)
-print(
-    f"\nMax SSH: {np.nanmax(test_ssh_grid.data * fp.length_scale):.4f} m",
-)
-print(
-    f"Min SSH: {np.nanmin(test_ssh_grid.data * fp.length_scale):.4f} m",
-)
-
-# %%
