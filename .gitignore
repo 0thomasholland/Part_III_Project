@@ -589,3 +589,4 @@ rsconnect/
 poetry.lock
 
 .vscode/
+uv.lock
