@@ -24,7 +24,6 @@ fields = mu.samples(2)
 
 
 for field in fields:
-
     direct_load = field * fp.ice_projection(value=0)
 
     fig1, ax1, im1 = plot(

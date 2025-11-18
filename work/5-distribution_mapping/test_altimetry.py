@@ -39,33 +39,25 @@ odt_amplitude_95_range = (
 )  # in units of sea level, non-dimensionalized
 
 ice_length_scale = 0.1 * fp.mean_sea_floor_radius
-ice_gmsl_target_std = (
-    0.004 / fp.length_scale
-)  # in meters, non-dimensionalized
-net_ice_thickness_change = (
-    -10.0 / fp.length_scale
-)  # in meters, non-dimensionalized
+ice_gmsl_target_std = 0.004 / fp.length_scale  # in meters, non-dimensionalized
+net_ice_thickness_change = -10.0 / fp.length_scale  # in meters, non-dimensionalized
 
 
 # %%
 
-ocean_dynamic_measure, ocean_dynamic_load_measure = (
-    ocean_dynamic_topography_measures(
-        fingerprint=fp,
-        fingerprint_operator=fingerprint_operator,
-        length_scale=odt_length_scale,
-        amplitude_95_range=odt_amplitude_95_range,
-    )
+ocean_dynamic_measure, ocean_dynamic_load_measure = ocean_dynamic_topography_measures(
+    fingerprint=fp,
+    fingerprint_operator=fingerprint_operator,
+    length_scale=odt_length_scale,
+    amplitude_95_range=odt_amplitude_95_range,
 )
 
-ice_thickness_measure, ice_load_measure = (
-    ice_thickness_change_measures(
-        fingerprint=fp,
-        fingerprint_operator=fingerprint_operator,
-        length_scale=ice_length_scale,
-        ice_gmsl_target_std=ice_gmsl_target_std,
-        net_thickness_change=net_ice_thickness_change,
-    )
+ice_thickness_measure, ice_load_measure = ice_thickness_change_measures(
+    fingerprint=fp,
+    fingerprint_operator=fingerprint_operator,
+    length_scale=ice_length_scale,
+    ice_gmsl_target_std=ice_gmsl_target_std,
+    net_thickness_change=net_ice_thickness_change,
 )
 
 direct_load_measure = load_measure(

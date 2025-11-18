@@ -18,10 +18,7 @@ def kl(
     KL: float = (
         np.log(standard_deviation_approx / standard_deviation_true)
         + (
-            (
-                standard_deviation_true**2
-                + (expectation_true - expectation_approx) ** 2
-            )
+            (standard_deviation_true**2 + (expectation_true - expectation_approx) ** 2)
             / (2 * standard_deviation_approx**2)
         )
         - 0.5
@@ -46,8 +43,7 @@ def cohens_d(
 ) -> float:
     """Cohen's d between two univariate normal distributions."""
     pooled_std: float = np.sqrt(
-        (standard_deviation_true**2 + standard_deviation_approx**2)
-        / 2,
+        (standard_deviation_true**2 + standard_deviation_approx**2) / 2,
     )
     d: float = (expectation_true - expectation_approx) / pooled_std
     return d
@@ -169,18 +165,10 @@ if __name__ == "__main__":
         for approx in args.approx:
             metric_values: list[float] = []
             for _, row in data.iterrows():
-                expectation_true = row[
-                    f"{args.true}{args.expectation_abbreviation}"
-                ]
-                standard_deviation_true = row[
-                    f"{args.true}{args.std_abbreviation}"
-                ]
-                expectation_approx = row[
-                    f"{approx}{args.expectation_abbreviation}"
-                ]
-                standard_deviation_approx = row[
-                    f"{approx}{args.std_abbreviation}"
-                ]
+                expectation_true = row[f"{args.true}{args.expectation_abbreviation}"]
+                standard_deviation_true = row[f"{args.true}{args.std_abbreviation}"]
+                expectation_approx = row[f"{approx}{args.expectation_abbreviation}"]
+                standard_deviation_approx = row[f"{approx}{args.std_abbreviation}"]
 
                 if metric == "kl":
                     value = kl(

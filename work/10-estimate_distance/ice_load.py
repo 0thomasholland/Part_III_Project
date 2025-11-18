@@ -75,31 +75,29 @@ true_gmsl_operator: inf.LinearOperator = sl.averaging_operator(
     ],
 )
 
-altimetry_averaging_operator: inf.LinearOperator = (
-    sl.averaging_operator(
-        sl.sea_surface_height_operator(
-            fp,
-            fingerprint_operator.codomain,
-        ).codomain,
-        [
-            (
-                fp.ocean_projection(value=0)
-                * fp.altimetry_projection(
-                    latitude_min=-altimetry_range,
-                    latitude_max=altimetry_range,
-                    value=0,
-                )
+altimetry_averaging_operator: inf.LinearOperator = sl.averaging_operator(
+    sl.sea_surface_height_operator(
+        fp,
+        fingerprint_operator.codomain,
+    ).codomain,
+    [
+        (
+            fp.ocean_projection(value=0)
+            * fp.altimetry_projection(
+                latitude_min=-altimetry_range,
+                latitude_max=altimetry_range,
+                value=0,
             )
-            / fp.integrate(
-                fp.ocean_projection(value=0)
-                * fp.altimetry_projection(
-                    latitude_min=-altimetry_range,
-                    latitude_max=altimetry_range,
-                    value=0,
-                ),
+        )
+        / fp.integrate(
+            fp.ocean_projection(value=0)
+            * fp.altimetry_projection(
+                latitude_min=-altimetry_range,
+                latitude_max=altimetry_range,
+                value=0,
             ),
-        ],
-    )
+        ),
+    ],
 )
 
 estimated_gmsl_operator = (
@@ -120,9 +118,7 @@ combined_operator = estimated_gmsl_operator - true_gmsl_operator
 
 # %%
 error_covariance = (
-    combined_operator
-    @ ice_thickness_change.covariance
-    @ combined_operator.adjoint
+    combined_operator @ ice_thickness_change.covariance @ combined_operator.adjoint
     + altimetry_averaging_operator
     @ measuremeant_error.covariance
     @ altimetry_averaging_operator.adjoint
@@ -138,9 +134,7 @@ print(error_covariance)
 # %%
 
 true_gmsl_covariance = (
-    true_gmsl_operator
-    @ ice_thickness_change.covariance
-    @ true_gmsl_operator.adjoint
+    true_gmsl_operator @ ice_thickness_change.covariance @ true_gmsl_operator.adjoint
 ).matrix(dense=True)[0, 0]
 
 true_gmsl_expectation = true_gmsl_operator(
