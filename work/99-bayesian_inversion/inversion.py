@@ -88,15 +88,12 @@ altimetry_operator: LinearOperator = spatial_mutliplication_operator(
     measurement_space,
 )
 
-error_altimetry_operator: LinearOperator = (
-    altimetry_operator
-    @ RowLinearOperator(
-        [
-            sea_surface_height_op @ fingerprint_operator @ Load_w_op,
-            measurement_space.identity_operator(),
-            measurement_space.identity_operator(),
-        ],
-    )
+error_altimetry_operator: LinearOperator = altimetry_operator @ RowLinearOperator(
+    [
+        sea_surface_height_op @ fingerprint_operator @ Load_w_op,
+        measurement_space.identity_operator(),
+        measurement_space.identity_operator(),
+    ],
 )
 
 forward_operator = (
@@ -136,10 +133,12 @@ odt_change, _ = ocean_dynamic_topography_measures(
     length_scale=odt_length_scale,
     standard_deviation=odt_standard_deviation,
 )
-measurement_error: GaussianMeasure = measurement_space.point_value_scaled_sobolev_kernel_gaussian_measure(
-    1.5,
-    altimetry_error_length_scale,
-    altimetry_error_amplitude,
+measurement_error: GaussianMeasure = (
+    measurement_space.point_value_scaled_sobolev_kernel_gaussian_measure(
+        1.5,
+        altimetry_error_length_scale,
+        altimetry_error_amplitude,
+    )
 )
 
 error_input_measures = GaussianMeasure.from_direct_sum(

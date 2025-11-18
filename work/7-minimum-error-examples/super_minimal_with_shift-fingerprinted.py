@@ -24,10 +24,12 @@ fingerprint_operator = fp.as_sobolev_linear_operator(
 length_scale = 0.1 * fp.mean_sea_floor_radius
 sd = 50.0 / fp.length_scale  # in meters, non-dimensionalized
 
-measure = fingerprint_operator.domain.point_value_scaled_sobolev_kernel_gaussian_measure(
-    scale=length_scale,
-    order=2,
-    amplitude=sd,
+measure = (
+    fingerprint_operator.domain.point_value_scaled_sobolev_kernel_gaussian_measure(
+        scale=length_scale,
+        order=2,
+        amplitude=sd,
+    )
 )
 
 
@@ -107,9 +109,7 @@ print(
 print("Ice thickness variance (m):", variance)
 
 # print("Expected ice thicknesss expecatation:" shift)
-expectation_whole_256 = (
-    average_measure.expectation[0] * fp.length_scale
-)
+expectation_whole_256 = average_measure.expectation[0] * fp.length_scale
 print("Ice thickness expectation (m):", expectation_whole_256)
 
 # %%
@@ -173,10 +173,12 @@ fingerprint_operator = fp.as_sobolev_linear_operator(
 length_scale = 0.1 * fp.mean_sea_floor_radius
 sd = 50.0 / fp.length_scale  # in meters, non-dimensionalized
 
-measure = fingerprint_operator.domain.point_value_scaled_sobolev_kernel_gaussian_measure(
-    scale=length_scale,
-    order=2,
-    amplitude=sd,
+measure = (
+    fingerprint_operator.domain.point_value_scaled_sobolev_kernel_gaussian_measure(
+        scale=length_scale,
+        order=2,
+        amplitude=sd,
+    )
 )
 # %%
 
@@ -256,9 +258,7 @@ print(
 print("Ice thickness variance (m):", variance)
 
 # print("Expected ice thicknesss expecatation:" shift)
-expectation_whole_128 = (
-    average_measure.expectation[0] * fp.length_scale
-)
+expectation_whole_128 = average_measure.expectation[0] * fp.length_scale
 print("Ice thickness expectation (m):", expectation_whole_128)
 
 # %%
@@ -325,10 +325,12 @@ fingerprint_operator = fp.as_sobolev_linear_operator(
 length_scale = 0.1 * fp.mean_sea_floor_radius
 sd = 50.0 / fp.length_scale  # in meters, non-dimensionalized
 
-measure = fingerprint_operator.domain.point_value_scaled_sobolev_kernel_gaussian_measure(
-    scale=length_scale,
-    order=2,
-    amplitude=sd,
+measure = (
+    fingerprint_operator.domain.point_value_scaled_sobolev_kernel_gaussian_measure(
+        scale=length_scale,
+        order=2,
+        amplitude=sd,
+    )
 )
 
 shift = 100 / fp.length_scale
@@ -406,9 +408,7 @@ print(
 print("Ice thickness variance (m):", variance)
 
 # print("Expected ice thicknesss expecatation:" shift)
-expectation_whole_512 = (
-    average_measure.expectation[0] * fp.length_scale
-)
+expectation_whole_512 = average_measure.expectation[0] * fp.length_scale
 print("Ice thickness expectation (m):", expectation_whole_512)
 
 # %%

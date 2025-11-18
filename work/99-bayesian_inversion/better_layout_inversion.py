@@ -1,6 +1,4 @@
 # %%
-from re import sub
-
 import matplotlib.pyplot as plt
 import numpy as np
 from pygeoinf import (
@@ -57,9 +55,7 @@ passes = 3  # typically ~ 3 passes every 30 days
 altimetry_latitude_max = 66  # degrees
 altimetry_latitude_min = -66  # degrees
 altimetry_noise_sobolev_order = 1.5
-altimetry_noise_length_scale_factor = (
-    0.001  # fraction of mean sea floor radius
-)
+altimetry_noise_length_scale_factor = 0.001  # fraction of mean sea floor radius
 altimetry_noise_std_m = along_track_error / np.sqrt(passes)  # metres
 
 # Solver parameters
@@ -78,18 +74,12 @@ fp.set_state_from_ice_ng()
 # %%
 # UNIT CONVERSIONS (physical to non-dimensional)
 
-model_length_scale = (
-    model_length_scale_factor * fp.mean_sea_floor_radius
-)
+model_length_scale = model_length_scale_factor * fp.mean_sea_floor_radius
 ice_length_scale = ice_length_scale_factor * fp.mean_sea_floor_radius
 ice_gmsl_target_std = ice_gmsl_target_std_m / fp.length_scale
-ice_net_thickness_change = (
-    ice_net_thickness_change_m / fp.length_scale
-)
+ice_net_thickness_change = ice_net_thickness_change_m / fp.length_scale
 meso_scale_lengthscale = meso_scale_lengthscale / fp.length_scale
-sub_meso_scale_lengthscale = (
-    sub_meso_scale_lengthscale / fp.length_scale
-)
+sub_meso_scale_lengthscale = sub_meso_scale_lengthscale / fp.length_scale
 meso_scale_std = meso_scale_std / fp.length_scale
 sub_meso_scale_std = sub_meso_scale_std / fp.length_scale
 altimetry_noise_length_scale = (
@@ -128,9 +118,7 @@ water_to_load_op: LinearOperator = sea_level_change_to_load_operator(
     fp,
     load_space,
 )
-ice_to_load_op: LinearOperator = (
-    ice_thickness_change_to_load_operator(fp, load_space)
-)
+ice_to_load_op: LinearOperator = ice_thickness_change_to_load_operator(fp, load_space)
 
 # Altimetry spatial mask operator
 altimetry_mask_op: LinearOperator = spatial_mutliplication_operator(
@@ -190,10 +178,12 @@ sub_meso, _ = ocean_dynamic_topography_measures(
 odt_change_measure = meso + sub_meso
 
 # Measurement noise
-measurement_noise_measure = measurement_space.point_value_scaled_sobolev_kernel_gaussian_measure(
-    altimetry_noise_sobolev_order,
-    altimetry_noise_length_scale,
-    altimetry_noise_std,
+measurement_noise_measure = (
+    measurement_space.point_value_scaled_sobolev_kernel_gaussian_measure(
+        altimetry_noise_sobolev_order,
+        altimetry_noise_length_scale,
+        altimetry_noise_std,
+    )
 )
 
 # Combined data error measure
@@ -255,9 +245,7 @@ class ConvergenceMonitor:
 
         if self.prev_x is not None:
             change = np.linalg.norm(xk - self.prev_x)
-            relative_change = (
-                change / x_norm if x_norm > 0 else change
-            )
+            relative_change = change / x_norm if x_norm > 0 else change
             self.x_changes.append(relative_change)
 
             if self.iteration % 5 == 0:
@@ -321,9 +309,7 @@ fig1.colorbar(
 
 # Posterior expectation (recovered)
 fig2, ax2, im2 = plot(
-    model_posterior_expectation
-    * fp.length_scale
-    * fp.ice_projection(),
+    model_posterior_expectation * fp.length_scale * fp.ice_projection(),
     symmetric=True,
 )
 fig2.colorbar(
@@ -335,9 +321,7 @@ fig2.colorbar(
 # %%
 # Difference (error in recovery)
 fig3, ax3, im3 = plot(
-    (model_posterior_expectation - model_true)
-    * fp.length_scale
-    * fp.ice_projection(),
+    (model_posterior_expectation - model_true) * fp.length_scale * fp.ice_projection(),
 )
 fig3.colorbar(
     im3,
@@ -462,9 +446,7 @@ ice_thickness_change = fp.disk_load(
 
 # Convert to Sobolev space element
 ice_sh_coeffs = fp.expand_field(ice_thickness_change)
-coeffs_flat = ice_sh_coeffs.coeffs[
-    0
-].flatten()  # Use real coefficients
+coeffs_flat = ice_sh_coeffs.coeffs[0].flatten()  # Use real coefficients
 test_in_load_space = load_space.from_components(coeffs_flat)
 
 # Push through your forward operator

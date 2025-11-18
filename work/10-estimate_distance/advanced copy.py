@@ -71,10 +71,12 @@ odt_change, _ = ocean_dynamic_topography_measures(
     length_scale=odt_length_scale,
     standard_deviation=odt_standard_deviation,
 )
-measurement_error: GaussianMeasure = measurement_space.point_value_scaled_sobolev_kernel_gaussian_measure(
-    1.5,
-    altimetry_error_length_scale,
-    altimetry_error_amplitude,
+measurement_error: GaussianMeasure = (
+    measurement_space.point_value_scaled_sobolev_kernel_gaussian_measure(
+        1.5,
+        altimetry_error_length_scale,
+        altimetry_error_amplitude,
+    )
 )
 
 # %%
@@ -129,9 +131,7 @@ combined_load_operator: LinearOperator = RowLinearOperator(
     [Load_i_op, Load_w_op, load_space.zero_operator()],
 )
 
-Fingerprint_ssh_op: LinearOperator = (
-    sea_surface_height_op @ fingerprint_operator
-)
+Fingerprint_ssh_op: LinearOperator = sea_surface_height_op @ fingerprint_operator
 
 altimetry_error_operator: LinearOperator = RowLinearOperator(
     [
@@ -152,8 +152,7 @@ total_measure = GaussianMeasure.from_direct_sum(
 
 
 estimation_operator: LinearOperator = Altimetry_op @ (
-    (Fingerprint_ssh_op @ combined_load_operator)
-    + altimetry_error_operator
+    (Fingerprint_ssh_op @ combined_load_operator) + altimetry_error_operator
 )
 
 estimation_measure = total_measure.affine_mapping(
