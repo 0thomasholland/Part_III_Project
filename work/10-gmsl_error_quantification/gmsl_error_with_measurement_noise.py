@@ -209,3 +209,9 @@ fig.subplots_adjust(bottom=0.25)  # Increase bottom margin
 # plt.tight_layout()
 # %%
 plt.show()
+
+# %%
+
+iteration = 1
+fig.savefig(f"output_{iteration}.pdf")
+fig.savefig(f"output_{iteration}.png")
