@@ -43,10 +43,8 @@ def ice_thickness_change_measures(
         fingerprint,
         fingerprint_operator.domain,
     )
-    ice_thickness_measure = (
-        initial_ice_thickness_measure.affine_mapping(
-            operator=ice_projection,
-        )
+    ice_thickness_measure = initial_ice_thickness_measure.affine_mapping(
+        operator=ice_projection,
     )
     GMSL_weighting_function = (
         -fingerprint.ice_density
@@ -145,9 +143,7 @@ def get_gmsl_measure(
     measure: GaussianMeasure,
     fingerprint: FingerPrint,
 ) -> GaussianMeasure:
-    weighting_function = (
-        fingerprint.ocean_function / fingerprint.ocean_area
-    )
+    weighting_function = fingerprint.ocean_function / fingerprint.ocean_area
 
     altimetry_estimate_operator = sl.averaging_operator(
         measure.domain,
@@ -171,9 +167,7 @@ for lmax in tqdm(lmaxes):
         earth_model_parameters=sl.EarthModelParameters.from_standard_non_dimensionalisation(),
     )
     ice_length_scale = 0.1 * fp.mean_sea_floor_radius
-    ice_gmsl_target_std = (
-        0.004 / fp.length_scale
-    )  # in meters, non-dimensionalized
+    ice_gmsl_target_std = 0.004 / fp.length_scale  # in meters, non-dimensionalized
     net_ice_thickness_change = (
         -100.0 / fp.length_scale
     )  # in meters, non-dimensionalized
@@ -243,10 +237,7 @@ df["w2_distances"] = np.sqrt(
 df["kl_divergences"] = (
     (
         np.log(df["ssh_stds"] / df["slc_stds"])
-        + (
-            df["slc_stds"] ** 2
-            + (df["slc_means"] - df["ssh_means"]) ** 2
-        )
+        + (df["slc_stds"] ** 2 + (df["slc_means"] - df["ssh_means"]) ** 2)
         / (2 * df["ssh_stds"] ** 2)
         - 0.5
     )

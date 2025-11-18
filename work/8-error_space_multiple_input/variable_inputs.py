@@ -57,9 +57,7 @@ odt_amplitude_95_ranges = (
     / fp.length_scale
 )  # in units of sea level, non-dimensionalized
 
-ice_length_scales = (
-    np.linspace(0.1, 0.3, 6) * fp.mean_sea_floor_radius
-)
+ice_length_scales = np.linspace(0.1, 0.3, 6) * fp.mean_sea_floor_radius
 ice_gmsl_target_stds = (
     np.linspace(0.001, 0.1, 6) / fp.length_scale
 )  # in meters, non-dimensionalized
@@ -99,14 +97,12 @@ def main(
             amplitude_95_range=odt_amplitude_95_range,
         )
     )
-    _ice_thickness_measure, _ice_load_measure = (
-        ice_thickness_change_measures(
-            fingerprint=fp,
-            fingerprint_operator=fingerprint_operator,
-            length_scale=ice_length_scale,
-            ice_gmsl_target_std=ice_gmsl_target_std,
-            net_thickness_change=net_ice_thickness_change,
-        )
+    _ice_thickness_measure, _ice_load_measure = ice_thickness_change_measures(
+        fingerprint=fp,
+        fingerprint_operator=fingerprint_operator,
+        length_scale=ice_length_scale,
+        ice_gmsl_target_std=ice_gmsl_target_std,
+        net_thickness_change=net_ice_thickness_change,
     )
     _direct_load_measure = load_measure(
         ice_thickness_load_measure=_ice_load_measure,
@@ -140,9 +136,7 @@ def main(
         )
         * fp.length_scale
     )
-    _ssh_odt_gmsl_expectation = (
-        _ssh_odt_gmsl.expectation[0] * fp.length_scale
-    )
+    _ssh_odt_gmsl_expectation = _ssh_odt_gmsl.expectation[0] * fp.length_scale
     _ssh_odt_gmsl_std = (
         np.sqrt(
             _ssh_odt_gmsl.covariance.matrix(dense=True)[0, 0],

@@ -24,10 +24,12 @@ fingerprint_operator = fp.as_sobolev_linear_operator(
 length_scale = 0.1 * fp.mean_sea_floor_radius
 sd = 50.0 / fp.length_scale  # in meters, non-dimensionalized
 
-measure = fingerprint_operator.domain.point_value_scaled_sobolev_kernel_gaussian_measure(
-    scale=length_scale,
-    order=2,
-    amplitude=sd,
+measure = (
+    fingerprint_operator.domain.point_value_scaled_sobolev_kernel_gaussian_measure(
+        scale=length_scale,
+        order=2,
+        amplitude=sd,
+    )
 )
 # %%
 
@@ -163,10 +165,12 @@ fingerprint_operator = fp.as_sobolev_linear_operator(
 length_scale = 0.1 * fp.mean_sea_floor_radius
 sd = 50.0 / fp.length_scale  # in meters, non-dimensionalized
 
-measure = fingerprint_operator.domain.point_value_scaled_sobolev_kernel_gaussian_measure(
-    scale=length_scale,
-    order=2,
-    amplitude=sd,
+measure = (
+    fingerprint_operator.domain.point_value_scaled_sobolev_kernel_gaussian_measure(
+        scale=length_scale,
+        order=2,
+        amplitude=sd,
+    )
 )
 # %%
 
@@ -305,10 +309,12 @@ fingerprint_operator = fp.as_sobolev_linear_operator(
 length_scale = 0.1 * fp.mean_sea_floor_radius
 sd = 50.0 / fp.length_scale  # in meters, non-dimensionalized
 
-measure = fingerprint_operator.domain.point_value_scaled_sobolev_kernel_gaussian_measure(
-    scale=length_scale,
-    order=2,
-    amplitude=sd,
+measure = (
+    fingerprint_operator.domain.point_value_scaled_sobolev_kernel_gaussian_measure(
+        scale=length_scale,
+        order=2,
+        amplitude=sd,
+    )
 )
 # %%
 

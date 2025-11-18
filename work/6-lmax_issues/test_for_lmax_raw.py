@@ -43,10 +43,8 @@ def ice_thickness_change_measures(
         fingerprint,
         fingerprint_operator.domain,
     )
-    ice_thickness_measure = (
-        initial_ice_thickness_measure.affine_mapping(
-            operator=ice_projection,
-        )
+    ice_thickness_measure = initial_ice_thickness_measure.affine_mapping(
+        operator=ice_projection,
     )
     GMSL_weighting_function = (
         -fingerprint.ice_density
@@ -242,10 +240,7 @@ df["w2_distances"] = np.sqrt(
 df["kl_divergences"] = (
     (
         np.log(df["ssh_stds"] / df["slc_stds"])
-        + (
-            df["slc_stds"] ** 2
-            + (df["slc_means"] - df["ssh_means"]) ** 2
-        )
+        + (df["slc_stds"] ** 2 + (df["slc_means"] - df["ssh_means"]) ** 2)
         / (2 * df["ssh_stds"] ** 2)
         - 0.5
     )

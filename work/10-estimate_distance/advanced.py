@@ -66,10 +66,12 @@ odt_change, _ = ocean_dynamic_topography_measures(
     length_scale=odt_length_scale,
     standard_deviation=odt_standard_deviation,
 )
-measurement_error: GaussianMeasure = measurement_space.point_value_scaled_sobolev_kernel_gaussian_measure(
-    1.5,
-    altimetry_error_length_scale,
-    altimetry_error_amplitude,
+measurement_error: GaussianMeasure = (
+    measurement_space.point_value_scaled_sobolev_kernel_gaussian_measure(
+        1.5,
+        altimetry_error_length_scale,
+        altimetry_error_amplitude,
+    )
 )
 
 # %%
@@ -114,9 +116,7 @@ Load_i_op: LinearOperator = ice_thickness_change_to_load_operator(
     load_space,
 )
 
-Fingerprint_ssh_op: LinearOperator = (
-    sea_surface_height_op @ fingerprint_operator
-)
+Fingerprint_ssh_op: LinearOperator = sea_surface_height_op @ fingerprint_operator
 
 # %%
 
@@ -145,18 +145,13 @@ error_covariance = (
     @ Fingerprint_ssh_op.adjoint
     @ Altimetry_op.adjoint
     + Altimetry_op @ odt_change.covariance @ Altimetry_op.adjoint
-    + Altimetry_op
-    @ measurement_error.covariance
-    @ Altimetry_op.adjoint
-    - GMSL_from_ice_op
-    @ ice_thickness_change.covariance
-    @ GMSL_from_ice_op.adjoint
+    + Altimetry_op @ measurement_error.covariance @ Altimetry_op.adjoint
+    - GMSL_from_ice_op @ ice_thickness_change.covariance @ GMSL_from_ice_op.adjoint
 )
 
 error_measure = (
     ice_thickness_change.affine_mapping(
-        operator=Altimetry_op @ Fingerprint_ssh_op @ Load_i_op
-        - GMSL_from_ice_op,
+        operator=Altimetry_op @ Fingerprint_ssh_op @ Load_i_op - GMSL_from_ice_op,
     )
     + odt_change.affine_mapping(
         operator=Altimetry_op @ Fingerprint_ssh_op @ Load_w_op,
@@ -175,9 +170,7 @@ print(error_measure.covariance.matrix(dense=True))
 print(error_covariance.matrix(dense=True))
 # %%
 
-error_covariance = (error_covariance.matrix(dense=True)[0, 0]) * (
-    fp.length_scale**2
-)
+error_covariance = (error_covariance.matrix(dense=True)[0, 0]) * (fp.length_scale**2)
 print(error_covariance)
 
 # %%
@@ -193,8 +186,7 @@ print("Error expectation:", error_expectation)
 # %%
 
 true_gmsl_expectation: float = (
-    GMSL_from_ice_op(ice_thickness_change.expectation)[0]
-    * fp.length_scale
+    GMSL_from_ice_op(ice_thickness_change.expectation)[0] * fp.length_scale
 )
 true_gmsl_std: float = (
     np.sqrt(

@@ -37,34 +37,26 @@ odt_amplitude_95_range = (
 )  # in units of sea level, non-dimensionalized
 
 ice_length_scale = 0.1 * fp.mean_sea_floor_radius
-ice_gmsl_target_std = (
-    0.004 / fp.length_scale
-)  # in meters, non-dimensionalized
-net_ice_thickness_change = (
-    -10.0 / fp.length_scale
-)  # in meters, non-dimensionalized
+ice_gmsl_target_std = 0.004 / fp.length_scale  # in meters, non-dimensionalized
+net_ice_thickness_change = -10.0 / fp.length_scale  # in meters, non-dimensionalized
 
 
 # %%
 
-ocean_dynamic_measure, ocean_dynamic_load_measure = (
-    ocean_dynamic_topography_measures(
-        fingerprint=fp,
-        fingerprint_operator=fingerprint_operator,
-        length_scale=odt_length_scale,
-        amplitude_95_range=odt_amplitude_95_range,
-    )
+ocean_dynamic_measure, ocean_dynamic_load_measure = ocean_dynamic_topography_measures(
+    fingerprint=fp,
+    fingerprint_operator=fingerprint_operator,
+    length_scale=odt_length_scale,
+    amplitude_95_range=odt_amplitude_95_range,
 )
 
 # %%
-ice_thickness_measure, ice_load_measure = (
-    ice_thickness_change_measures(
-        fingerprint=fp,
-        fingerprint_operator=fingerprint_operator,
-        length_scale=ice_length_scale,
-        ice_gmsl_target_std=ice_gmsl_target_std,
-        net_thickness_change=net_ice_thickness_change,
-    )
+ice_thickness_measure, ice_load_measure = ice_thickness_change_measures(
+    fingerprint=fp,
+    fingerprint_operator=fingerprint_operator,
+    length_scale=ice_length_scale,
+    ice_gmsl_target_std=ice_gmsl_target_std,
+    net_thickness_change=net_ice_thickness_change,
 )
 
 # %%
@@ -131,9 +123,7 @@ if projection_plots:
 
 if projection_plots:
     fig2, ax2, im2 = sl.plot(
-        ice_load_measure.sample()
-        * fp.load_scale
-        * fp.ice_projection(),
+        ice_load_measure.sample() * fp.load_scale * fp.ice_projection(),
         symmetric=False,
     )
     fig2.colorbar(
@@ -143,9 +133,7 @@ if projection_plots:
         orientation="horizontal",
     )
     fig2a, ax2a, im2a = sl.plot(
-        ice_thickness_measure.sample()
-        * fp.length_scale
-        * fp.ice_projection(),
+        ice_thickness_measure.sample() * fp.length_scale * fp.ice_projection(),
         symmetric=False,
     )
     fig2a.colorbar(
@@ -217,12 +205,10 @@ plot_fig, plot_ax = plot_measure(
         "SSH+ODT Estimated GMSL",
     ],
     args={
-        "Ice thickness Change": net_ice_thickness_change
-        * fp.length_scale,
+        "Ice thickness Change": net_ice_thickness_change * fp.length_scale,
         "GMSL Ice target": ice_gmsl_target_std * fp.length_scale,
         "Ice Length Scale": ice_length_scale * fp.length_scale,
-        "ODT Amplitude 95% Range": odt_amplitude_95_range
-        * fp.length_scale,
+        "ODT Amplitude 95% Range": odt_amplitude_95_range * fp.length_scale,
         "ODT Length Scale": odt_length_scale * fp.length_scale,
         "Lmax": lmax,
     },
