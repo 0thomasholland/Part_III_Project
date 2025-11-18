@@ -1,6 +1,10 @@
 # %%
+import cartopy.crs as ccrs
+import cartopy.feature as cfeature
 import matplotlib.pyplot as plt
+import matplotlib.ticker as mticker
 import numpy as np
+from cartopy.mpl.ticker import LatitudeFormatter, LongitudeFormatter
 from pygeoinf import (
     CGMatrixSolver,
     GaussianMeasure,
@@ -30,22 +34,20 @@ from Part_III_Project import (
 # %%
 # CONFIGURATION VARIABLES
 
-lmax = 128
+lmax = 64
 
 # Model space parameters
 model_sobolev_order = 2
-model_length_scale_factor = 0.1  # fraction of mean sea floor radius
+model_length_scale = 0.1  # fraction of mean sea floor radius
 
 # Ice thickness change prior parameters
-ice_length_scale_factor = 0.1  # fraction of mean sea floor radius
-ice_gmsl_target_std_m = 0.01  # metres
-ice_net_thickness_change_m = 0.0  # metres
+ice_length_scale = 0.1  # fraction of mean sea floor radius
+ice_gmsl_target_std = 0.1  # metres
+ice_net_thickness_change = -1.0  # metres
 
 # Ocean dynamic topography prior parameters
-meso_scale_lengthscale = 250e3
-meso_scale_std = 0.001
-sub_meso_scale_lengthscale = 2e3
-sub_meso_scale_std = 0.001
+odt_lengthscale = 250e3
+odt_std = 0.001
 
 # Altimetry observation parameters
 along_track_error = 0.002  # metres
@@ -54,46 +56,23 @@ passes = 3  # typically ~ 3 passes every 30 days
 
 altimetry_latitude_max = 66  # degrees
 altimetry_latitude_min = -66  # degrees
+
 altimetry_noise_sobolev_order = 1.5
-altimetry_noise_length_scale_factor = (
-    0.001  # fraction of mean sea floor radius
-)
-altimetry_noise_std_m = along_track_error / np.sqrt(passes)  # metres
+altimetry_noise_length_scale = 2e4  # fraction of mean sea floor radius
+altimetry_noise_std = along_track_error / np.sqrt(passes)  # metres
 
 # Solver parameters
-solver_rtol = 1e-6
-solver_maxiter = 1000
+solver_rtol = 1e-8
+solver_maxiter = 100
 
 # %%
 # FINGERPRINT MODEL INITIALISATION
 
 fp = FingerPrint(
     lmax=lmax,
-    earth_model_parameters=FingerPrint.from_standard_non_dimensionalisation(),
+    # earth_model_parameters=FingerPrint.from_standard_non_dimensionalisation(),
 )
 fp.set_state_from_ice_ng()
-
-# %%
-# UNIT CONVERSIONS (physical to non-dimensional)
-
-model_length_scale = (
-    model_length_scale_factor * fp.mean_sea_floor_radius
-)
-ice_length_scale = ice_length_scale_factor * fp.mean_sea_floor_radius
-ice_gmsl_target_std = ice_gmsl_target_std_m / fp.length_scale
-ice_net_thickness_change = (
-    ice_net_thickness_change_m / fp.length_scale
-)
-meso_scale_lengthscale = meso_scale_lengthscale / fp.length_scale
-sub_meso_scale_lengthscale = (
-    sub_meso_scale_lengthscale / fp.length_scale
-)
-meso_scale_std = meso_scale_std / fp.length_scale
-sub_meso_scale_std = sub_meso_scale_std / fp.length_scale
-altimetry_noise_length_scale = (
-    altimetry_noise_length_scale_factor * fp.mean_sea_floor_radius
-)
-altimetry_noise_std = altimetry_noise_std_m / fp.length_scale
 
 # %%
 # HILBERT SPACES
@@ -126,9 +105,7 @@ water_to_load_op: LinearOperator = sea_level_change_to_load_operator(
     fp,
     load_space,
 )
-ice_to_load_op: LinearOperator = (
-    ice_thickness_change_to_load_operator(fp, load_space)
-)
+ice_to_load_op: LinearOperator = ice_thickness_change_to_load_operator(fp, load_space)
 
 # Altimetry spatial mask operator
 altimetry_mask_op: LinearOperator = spatial_mutliplication_operator(
@@ -152,7 +129,7 @@ altimetry_noise_op = altimetry_mask_op @ RowLinearOperator(
     [
         measurement_space.zero_operator(),
         measurement_space.zero_operator(),
-        measurement_space.zero_operator(),
+        measurement_space.identity_operator(),
     ],
 )
 
@@ -172,31 +149,26 @@ ice_to_altimetry_op = (
 ice_thickness_change_measure, _ = ice_thickness_change_measures(
     fingerprint=fp,
     fingerprint_operator=fingerprint_op,
-    length_scale=ice_length_scale,
+    length_scale=ice_length_scale * fp.mean_sea_floor_radius,
     ice_gmsl_target_std=ice_gmsl_target_std,
     net_thickness_change=ice_net_thickness_change,
 )
 
 # Ocean dynamic topography prior
-meso, _ = ocean_dynamic_topography_measures(
+odt_change_measure, _ = ocean_dynamic_topography_measures(
     fingerprint=fp,
     fingerprint_operator=fingerprint_op,
-    length_scale=meso_scale_lengthscale,
-    standard_deviation=meso_scale_std,
+    length_scale=odt_lengthscale,
+    standard_deviation=odt_std,
 )
-sub_meso, _ = ocean_dynamic_topography_measures(
-    fingerprint=fp,
-    fingerprint_operator=fingerprint_op,
-    length_scale=sub_meso_scale_lengthscale,
-    standard_deviation=sub_meso_scale_std,
-)
-odt_change_measure = meso + sub_meso
 
 # Measurement noise
-measurement_noise_measure = measurement_space.point_value_scaled_sobolev_kernel_gaussian_measure(
-    altimetry_noise_sobolev_order,
-    altimetry_noise_length_scale,
-    altimetry_noise_std,
+measurement_noise_measure = (
+    measurement_space.point_value_scaled_sobolev_kernel_gaussian_measure(
+        altimetry_noise_sobolev_order,
+        altimetry_noise_length_scale,
+        altimetry_noise_std,
+    )
 )
 
 # Combined data error measure
@@ -212,11 +184,16 @@ data_error_measure = error_input_measure.affine_mapping(
 )
 
 # Visualise a sample from the data error measure
-fig, ax, im = plot(odt_change_measure.sample() * fp.length_scale)
+fig, ax, im = plot(
+    data_error_measure.sample()
+    * fp.length_scale
+    * fp.ocean_projection()
+    * fp.altimetry_projection(latitude_max=66, latitude_min=-66)
+)
 fig.colorbar(
     im,
     ax=ax,
-    label="ODT change measure sample (m)",
+    label="Noise",
     orientation="horizontal",
 )
 
@@ -258,9 +235,7 @@ class ConvergenceMonitor:
 
         if self.prev_x is not None:
             change = np.linalg.norm(xk - self.prev_x)
-            relative_change = (
-                change / x_norm if x_norm > 0 else change
-            )
+            relative_change = change / x_norm if x_norm > 0 else change
             self.x_changes.append(relative_change)
 
             if self.iteration % 5 == 0:
@@ -276,7 +251,7 @@ class ConvergenceMonitor:
 
 monitor = ConvergenceMonitor()
 solver = CGMatrixSolver(
-    # callback=monitor,
+    callback=monitor,
     rtol=solver_rtol,
     maxiter=solver_maxiter,
 )
@@ -302,64 +277,30 @@ ax1.set_title("Convergence of Solution Norm")
 # RESULTS
 
 model_posterior_expectation = model_posterior_measure.expectation
-
-
 # %%
 # VISUALISATION
-
-# Ice thickness change recovery
-# ------------------------------------------
-
-# True ice thickness change
-fig1, ax1, im1 = plot(
-    model_true * fp.length_scale * fp.ice_projection(),
-    symmetric=True,
-)
-fig1.colorbar(
-    im1,
-    ax=ax1,
-    label="True ice thickness change (m)",
-    orientation="horizontal",
-)
-
-# Posterior expectation (recovered)
-fig2, ax2, im2 = plot(
-    model_posterior_expectation
-    * fp.length_scale
-    * fp.ice_projection(),
-    symmetric=True,
-)
-fig2.colorbar(
-    im2,
-    ax=ax2,
-    label="Posterior ice thickness change (m)",
-    orientation="horizontal",
-)
+# Combined subplot grid: Ice and Sea Level (True, Posterior, Residual)
+# ---------------------------------------------------------------------
 # %%
-# Difference (error in recovery)
-fig3, ax3, im3 = plot(
-    (model_posterior_expectation - model_true)
-    * fp.length_scale
-    * fp.ice_projection(),
-)
-fig3.colorbar(
-    im3,
-    ax=ax3,
-    label="Difference in ice thickness change (m)",
-    orientation="horizontal",
+# VISUALISATION
+# Combined subplot grid: Ice and Sea Level (True, Posterior, Residual)
+# ---------------------------------------------------------------------
+
+# Calculate all quantities first
+# Ice thickness change
+ice_true = model_true * fp.length_scale * fp.ice_projection()
+ice_posterior = model_posterior_expectation * fp.length_scale * fp.ice_projection()
+ice_residual = (
+    (model_posterior_expectation - model_true) * fp.length_scale * fp.ice_projection()
 )
 
-
-# 2. Sea level change recovery
-# --------------------------------------
-# Map ice thickness to sea surface height
+# Sea level change
 sea_level_true = (
     sea_surface_height_op
     @ fingerprint_op
     @ ice_to_load_op
     @ ice_projection_operator(fp, load_space)
 )(model_true)
-
 sea_level_posterior = (
     sea_surface_height_op
     @ fingerprint_op
@@ -369,70 +310,95 @@ sea_level_posterior = (
 
 # Mask to ocean only
 ocean_mask = fp.ocean_projection()
-
-# True sea level fingerprint
-fig4, ax4, im4 = plot(
-    sea_level_true * ocean_mask * fp.length_scale * 1000,
-)
-fig4.colorbar(
-    im4,
-    ax=ax4,
-    label="True sea level change (mm)",
-    orientation="horizontal",
-)
-
-# Predicted sea level fingerprint
-fig5, ax5, im5 = plot(
-    sea_level_posterior * ocean_mask * fp.length_scale * 1000,
-)
-fig5.colorbar(
-    im5,
-    ax=ax5,
-    label="Posterior sea level change (mm)",
-    orientation="horizontal",
+sea_level_true_masked = sea_level_true * ocean_mask * fp.length_scale
+sea_level_posterior_masked = sea_level_posterior * ocean_mask * fp.length_scale
+sea_level_residual = (
+    (sea_level_true - sea_level_posterior) * fp.length_scale * ocean_mask
 )
 
 
-# 3. OBSERVED DATA (what the altimeter actually "sees")
-# -----------------------------------------------------
-# The data includes the altimetry mask and noise
-fig6, ax6, im6 = plot(
-    data
-    * fp.length_scale
-    * 1000
-    * fp.ocean_projection()
-    * fp.altimetry_projection(latitude_min=-66, latitude_max=66),
-)
+# Create subplot grid with Robinson projection
+projection = ccrs.Robinson()
+fig, axes = plt.subplots(3, 2, figsize=(16, 20), subplot_kw={"projection": projection})
+axes = axes.flatten()
 
+# Data and parameters for each subplot
+data_list = [
+    ice_true,
+    sea_level_true_masked,
+    ice_posterior,
+    sea_level_posterior_masked,
+    ice_residual,
+    sea_level_residual,
+]
 
-fig6.colorbar(
-    im6,
-    ax=ax6,
-    label="Observed sea surface height change (mm)",
-    orientation="horizontal",
-)
+titles = [
+    "True Ice Thickness Change",
+    "True Sea Level Change",
+    "Posterior Ice Thickness Change",
+    "Posterior Sea Level Change",
+    "Residual Ice Thickness Change",
+    "Residual Sea Level Change",
+]
 
+labels = [
+    "True ice thickness change (m)",
+    "True sea level change (mm)",
+    "Posterior ice thickness change (m)",
+    "Posterior sea level change (mm)",
+    "Residual ice thickness change (m)",
+    "Residual sea level (mm)",
+]
 
-# 4. DATA RESIDUAL
-# -----------------
-# How well does the posterior prediction fit the data?
-predicted_data = ice_to_altimetry_op(model_posterior_expectation)
-data_residual = data - predicted_data
+symmetric_flags = [False, False, False, False, False, False]
 
-fig7, ax7, im7 = plot(
-    data_residual
-    * fp.length_scale
-    * 1000
-    * fp.ocean_projection()
-    * fp.altimetry_projection(latitude_min=-66, latitude_max=66),
-)
-fig7.colorbar(
-    im7,
-    ax=ax7,
-    label="Residual (mm)",
-    orientation="horizontal",
-)
+# Plot each subplot
+for idx, (data, title, label, symmetric) in enumerate(
+    zip(data_list, titles, labels, symmetric_flags)
+):
+    ax = axes[idx]
 
-# %%
+    # Get lons and lats
+    lons = data.lons()
+    lats = data.lats()
 
+    # Set up plot parameters
+    cmap = "RdBu"
+    kwargs = {}
+
+    if symmetric:
+        data_max = 1.2 * np.nanmax(np.abs(data.data))
+        kwargs["vmin"] = -data_max
+        kwargs["vmax"] = data_max
+
+    # Create pcolormesh plot
+    im = ax.pcolormesh(
+        lons, lats, data.data, transform=ccrs.PlateCarree(), cmap=cmap, **kwargs
+    )
+
+    # Add coastlines
+    ax.coastlines(linewidth=0.5)
+
+    # Add gridlines
+    gl = ax.gridlines(
+        linestyle="--",
+        draw_labels=True,
+        dms=True,
+        x_inline=False,
+        y_inline=False,
+    )
+    gl.xlocator = mticker.MultipleLocator(30)
+    gl.ylocator = mticker.MultipleLocator(30)
+    gl.xformatter = LongitudeFormatter()
+    gl.yformatter = LatitudeFormatter()
+
+    # Set title
+    ax.set_title(title, fontsize=12, pad=10)
+
+    # Add colorbar
+    cbar = fig.colorbar(im, ax=ax, orientation="horizontal", pad=0.05, shrink=0.8)
+    cbar.set_label(label, fontsize=10)
+
+plt.tight_layout()
 plt.show()
+plt.savefig("bayesian_inversion_results.png", dpi=600)

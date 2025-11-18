@@ -39,22 +39,14 @@ sea_surface_height_op = sea_surface_height_operator(
 measurement_space = sea_surface_height_op.codomain
 # %%
 # Parameters
-ice_length_scale = (
-    np.array([0.05, 0.1, 0.2]) * fp.mean_sea_floor_radius
-)
-ice_gmsl_target_std = (
-    np.array([0.0005, 0.005, 0.05, 0.5]) / fp.length_scale
-)
-net_ice_thickness_change = (
-    np.array([-15, -5.0, 0, 5, 15]) / fp.length_scale
-)
+ice_length_scale = np.array([0.05, 0.1, 0.2]) * fp.mean_sea_floor_radius
+ice_gmsl_target_std = np.array([0.0005, 0.005, 0.05, 0.5]) / fp.length_scale
+net_ice_thickness_change = np.array([-70, -30.0, 0, 30, 70]) / fp.length_scale
 
 odt_length_scale = np.array([0.01, 0.001]) * fp.mean_sea_floor_radius
-odt_standard_deviation = (
-    np.array([0.16, 0.08, 0.008]) / fp.length_scale
-)
+odt_standard_deviation = np.array([0.16, 0.08, 0.008]) / fp.length_scale
 
-altimetry_range = np.array([77, 66, 55])
+altimetry_range = np.array([88, 44, 72, 52, 77, 66, 55])
 altimetry_error_length_scale = (
     np.array(
         [
@@ -65,9 +57,7 @@ altimetry_error_length_scale = (
     )
     * fp.mean_sea_floor_radius
 )
-altimetry_error_amplitude = (
-    np.array([0.03, 0.003, 0.0015]) / fp.length_scale
-)
+altimetry_error_amplitude = np.array([0.03, 0.003, 0.0015]) / fp.length_scale
 # %%
 
 
@@ -97,10 +87,12 @@ def get_data(
         standard_deviation=odt_standard_deviation,
     )
 
-    measurement_error = measurement_space.point_value_scaled_sobolev_kernel_gaussian_measure(
-        1.5,
-        altimetry_error_length_scale,
-        altimetry_error_amplitude,
+    measurement_error = (
+        measurement_space.point_value_scaled_sobolev_kernel_gaussian_measure(
+            1.5,
+            altimetry_error_length_scale,
+            altimetry_error_amplitude,
+        )
     )
 
     # Operators
@@ -151,22 +143,15 @@ def get_data(
 
     # Extract statistics (convert to meters)
     true_mean = true_gmsl.expectation[0] * fp.length_scale
-    true_std = (
-        np.sqrt(true_gmsl.covariance.matrix(dense=True)[0, 0])
-        * fp.length_scale
-    )
+    true_std = np.sqrt(true_gmsl.covariance.matrix(dense=True)[0, 0]) * fp.length_scale
 
     est_mean = estimated_gmsl.expectation[0] * fp.length_scale
     est_std = (
-        np.sqrt(estimated_gmsl.covariance.matrix(dense=True)[0, 0])
-        * fp.length_scale
+        np.sqrt(estimated_gmsl.covariance.matrix(dense=True)[0, 0]) * fp.length_scale
     )
 
     error_mean = error.expectation[0] * fp.length_scale
-    error_std = (
-        np.sqrt(error.covariance.matrix(dense=True)[0, 0])
-        * fp.length_scale
-    )
+    error_std = np.sqrt(error.covariance.matrix(dense=True)[0, 0]) * fp.length_scale
 
     # return results and then input parameters
     return {
@@ -201,7 +186,9 @@ print(
     * len(altimetry_range),
 )
 
-results = Parallel(verbose=11)(
+# %%
+
+results = Parallel(n_jobs=-1, verbose=11)(
     delayed(get_data)(
         # ice_length_scale=ils,
         ice_gmsl_target_std=igts,
@@ -222,12 +209,16 @@ results = Parallel(verbose=11)(
     for ar in altimetry_range
 )
 
-
+# %%
 # reshape results into a dataframe and save as csv
-
+old_dataframe = pd.read_csv(
+    "gmsl_error_with_measurement_noise_results_lmax64.csv",
+)
 dataframe = pd.DataFrame(results)
+dataframe = pd.concat([old_dataframe, dataframe], ignore_index=True)
+# save dataframe to csv
 dataframe.to_csv(
-    "gmsl_error_with_measurement_noise_results.csv",
+    "gmsl_error_with_measurement_noise_results_lmax64.csv",
     index=False,
 )
 
