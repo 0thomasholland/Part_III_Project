@@ -153,3 +153,10 @@
 - Generated initial tutorial-style plotting code adapted for the altimetry setup rather than tide gauges.
 - Renamed folders for clarity and restructured the inversion code.
 
+## 18 November 2025
+
+- Updated project dependencies and .gitignore configuration.
+- Reorganised analysis code: renamed functions for clarity, converted notebooks to Python scripts, and added plot output generation.
+- Added detailed data analysis scripts and additional error plots.
+- Fixed forward model implementation and generated updated figures.
+
