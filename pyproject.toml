@@ -19,6 +19,7 @@ dependencies = [
     "ty",
     "ruff",
     "jupytext",
+    "colorcet"
 ]
 
 [tool.poetry]
