@@ -20,8 +20,8 @@ from Part_III_Project import (
 )
 
 # %%
-greenland = np.linspace(0, 1, 6)
-west_antarctica = np.linspace(0, 1, 6)
+greenland = np.linspace(0, 1, 30)
+west_antarctica = np.linspace(0, 1, 30)
 
 # ternary grid of load fractions
 load_tuples = []
