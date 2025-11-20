@@ -53,7 +53,7 @@ measurement_space = sea_surface_height_op.codomain
 # %%
 ice_length_scale = 0.2 * fp.mean_sea_floor_radius
 ice_gmsl_target_std = 0.01 / fp.length_scale
-net_ice_thickness_change = -10.0
+net_ice_thickness_change = 0.0
 
 odt_length_scale = 0.1 * fp.mean_sea_floor_radius
 odt_std = 0.05 / fp.length_scale
