@@ -11,7 +11,7 @@ print(os.getcwd())
 
 # %%
 
-data = pd.read_csv("ternary/ternary_error_analysis_w_shift.csv")
+data = pd.read_csv("ternary_error_analysis_w_shift_hr.csv")
 
 # remove any rows with negative fractions (these are invalid)
 data = data[
@@ -50,7 +50,7 @@ ax.set_title(
 colorbar = fig.colorbar(cs, ax=ax, orientation="horizontal", pad=0.1)
 
 fig.savefig(
-    "ternary/gmsl_error_std_vs_ice_sheet_fractions.png", dpi=600
+    "gmsl_error_std_vs_ice_sheet_fractions_hr.png", dpi=600
 )
 
 fig = plt.figure(figsize=(8, 7))
