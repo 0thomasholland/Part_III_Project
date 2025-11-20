@@ -20,17 +20,20 @@ from Part_III_Project import (
 )
 
 # %%
-greenland = np.linspace(0, 1, 30)
-west_antarctica = np.linspace(0, 1, 30)
+greenland = np.linspace(0, 1, 12)
+west_antarctica = np.linspace(0, 1, 12)
 
-# ternary grid of load fractions
-load_tuples = []
-for g in greenland:
-    for w in west_antarctica:
-        e = 1.0 - g - w
-        if e < 0.0:
-            continue
-        load_tuples.append((g, w, e))
+G, W = np.meshgrid(greenland, west_antarctica)
+
+E = 1 - G - W
+
+mask = E >= 0
+G_valid = G[mask]
+W_valid = W[mask]
+E_valid = E[mask]
+
+# Create load_tuples from valid ternary coordinates
+load_tuples = list(zip(G_valid, W_valid, E_valid))
 
 # %%
 lmax = 128
@@ -228,7 +231,7 @@ dataframe[["G", "W", "E"]] = pd.DataFrame(
 )
 dataframe = dataframe.drop(columns=["load_tuple"])
 dataframe.to_csv(
-    "ternary_error_analysis_w_shift.csv",
+    "ternary_error_analysis_w_shift_hr.csv",
     index=False,
 )
 
