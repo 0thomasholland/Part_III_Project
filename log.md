@@ -160,3 +160,8 @@
 - Added detailed data analysis scripts and additional error plots.
 - Fixed forward model implementation and generated updated figures.
 
+## 20 November 2025
+
+- Added ternary error analysis plots for the Gaussian error model.
+- Generated high-resolution ternary plots and explored different visualisation approaches.
+
