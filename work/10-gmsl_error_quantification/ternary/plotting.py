@@ -50,7 +50,7 @@ ax.set_title(
 colorbar = fig.colorbar(cs, ax=ax, orientation="horizontal", pad=0.1)
 
 fig.savefig(
-    "gmsl_error_std_vs_ice_sheet_fractions_hr.png", dpi=600
+    "gmsl_error_std_vs_ice_sheet_fractions_hr_aternary.png", dpi=600
 )
 
 fig = plt.figure(figsize=(8, 7))
