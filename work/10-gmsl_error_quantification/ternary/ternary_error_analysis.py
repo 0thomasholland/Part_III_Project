@@ -53,7 +53,7 @@ measurement_space = sea_surface_height_op.codomain
 # %%
 ice_length_scale = 0.2 * fp.mean_sea_floor_radius
 ice_gmsl_target_std = 0.01 / fp.length_scale
-net_ice_thickness_change = 0.0
+net_ice_thickness_change = -10.0
 
 odt_length_scale = 0.1 * fp.mean_sea_floor_radius
 odt_std = 0.05 / fp.length_scale
@@ -136,7 +136,7 @@ def compute_error(load_tuple: tuple):
         fingerprint_operator,
         ice_length_scale,
         ice_gmsl_target_std * _G,
-        net_ice_thickness_change * _G,
+        net_ice_thickness_change,
     )
     G_ice_thickness_change.affine_mapping(operator=greenland_operator)
 
@@ -145,7 +145,7 @@ def compute_error(load_tuple: tuple):
         fingerprint_operator,
         ice_length_scale,
         ice_gmsl_target_std * _W,
-        net_ice_thickness_change * _W,
+        net_ice_thickness_change,
     )
     W_ice_thickness_change.affine_mapping(
         operator=west_antarctica_operator,
@@ -156,7 +156,7 @@ def compute_error(load_tuple: tuple):
         fingerprint_operator,
         ice_length_scale,
         ice_gmsl_target_std * _E,
-        net_ice_thickness_change * _E,
+        net_ice_thickness_change,
     )
     E_ice_thickness_change.affine_mapping(
         operator=east_antarctica_operator,
@@ -231,7 +231,7 @@ dataframe[["G", "W", "E"]] = pd.DataFrame(
 )
 dataframe = dataframe.drop(columns=["load_tuple"])
 dataframe.to_csv(
-    "ternary_error_analysis_w_shift_hr.csv",
+    "ternary_error_analysis_w_shift_hr_alt.csv",
     index=False,
 )
 

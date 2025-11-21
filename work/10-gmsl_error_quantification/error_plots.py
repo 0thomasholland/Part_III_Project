@@ -24,8 +24,11 @@ sns.pairplot(
     data,
     x_vars=[
         "ice_gmsl_target_std",
+        "ice_length_scale",
         "net_ice_thickness_change",
+        "odt_length_scale",
         "odt_standard_deviation",
+        "altimetry_error_length_scale",
         "altimetry_error_amplitude",
         "altimetry_range",
     ],
@@ -148,13 +151,14 @@ plt.title(
     "Interpolated GMSL Error over Net Ice Thickness Change and Altimetry Range",
 )
 plt.savefig(
-    "gmsl_error_over_ice_change_and_altimetry_range.pdf",
+    "gmsl_error_over_ice_change_and_altimetry_range_contour.pdf",
     dpi=600,
 )
 plt.savefig(
-    "gmsl_error_over_ice_change_and_altimetry_range.png",
+    "gmsl_error_over_ice_change_and_altimetry_range_contour.png",
     dpi=600,
 )
+plt.show()
 
 # %%
 # generate a 3D plot of net_ice_thickness_change vs altimetry_range vs error_mean with height being error_mean
