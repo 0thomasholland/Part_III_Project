@@ -17,6 +17,7 @@ I varied:
 Testing for just linear interactions resulted in:
 
 ![alt text](figs/observed_vs_predicted_error_mean.png)
+
 ![alt text](figs/observed_vs_predicted_error_std.png)
 
 With the following models:
@@ -95,6 +96,7 @@ $$
 $$
 
 while the model for error_mean is mostly described by (R²=0.606):
+
 $$
 \mu_{error} \propto \overline{\Delta ice\_thickness} + range\_altimetry
 $$
@@ -132,6 +134,7 @@ Kurtosis:                       6.133   Cond. No.                     3.82e+05
 ```
 
 These show that including the interaction term between net_ice_thickness_change and altimetry_range results in a much better model (R²=0.968):
+
 $$
 \mu_{error} \propto \overline{\Delta ice\_thickness} \times range\_altimetry + \overline{\Delta ice\_thickness}
 $$
