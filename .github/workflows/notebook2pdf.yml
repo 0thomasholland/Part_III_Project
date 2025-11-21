@@ -36,6 +36,7 @@ jobs:
             "work_log/Code notes.md"
             "work_log/Maths.md"
             "work_log/Extra maths.md"
+            "work_log/Output-1.md"
           )
           
           # Format for pandoc
