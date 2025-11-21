@@ -32,47 +32,49 @@ from Part_III_Project import (
 )
 
 # %%
-# CONFIGURATION VARIABLES
+# MODEL INITIALISATION
 
-lmax = 64
-
-# Model space parameters
-model_sobolev_order = 2
-model_length_scale = 0.1  # fraction of mean sea floor radius
-
-# Ice thickness change prior parameters
-ice_length_scale = 0.1  # fraction of mean sea floor radius
-ice_gmsl_target_std = 0.1  # metres
-ice_net_thickness_change = -1.0  # metres
-
-# Ocean dynamic topography prior parameters
-odt_lengthscale = 250e3
-odt_std = 0.001
-
-# Altimetry observation parameters
-along_track_error = 0.002  # metres
-passes = 3  # typically ~ 3 passes every 30 days
-
-
-altimetry_latitude_max = 66  # degrees
-altimetry_latitude_min = -66  # degrees
-
-altimetry_noise_sobolev_order = 1.5
-altimetry_noise_length_scale = 2e4  # fraction of mean sea floor radius
-altimetry_noise_std = along_track_error / np.sqrt(passes)  # metres
+lmax = 128
 
 # Solver parameters
-solver_rtol = 1e-8
-solver_maxiter = 100
-
-# %%
-# FINGERPRINT MODEL INITIALISATION
+solver_rtol = 1e-9
+solver_maxiter = 50
 
 fp = FingerPrint(
     lmax=lmax,
     # earth_model_parameters=FingerPrint.from_standard_non_dimensionalisation(),
 )
 fp.set_state_from_ice_ng()
+
+
+# %%
+# CONFIGURATION VARIABLES
+
+
+# Model space parameters
+model_sobolev_order = 2
+model_length_scale = (
+    0.1 * fp.mean_sea_floor_radius
+)  # fraction of mean sea floor radius
+
+# Ice thickness change prior parameters
+ice_length_scale = (
+    0.1 * fp.mean_sea_floor_radius
+)  # fraction of mean sea floor radius
+ice_gmsl_target_std = 0.1  # metres
+ice_net_thickness_change = -1.0  # metres
+
+# Ocean dynamic topography prior parameters
+odt_lengthscale = 0.1 * fp.mean_sea_floor_radius
+odt_std = 0.01
+
+
+altimetry_latitude_max = 80  # degrees
+altimetry_latitude_min = -80  # degrees
+
+altimetry_noise_sobolev_order = 1.5
+altimetry_noise_length_scale = 0.001 * fp.mean_sea_floor_radius
+altimetry_noise_std = 0.001
 
 # %%
 # HILBERT SPACES
@@ -105,7 +107,9 @@ water_to_load_op: LinearOperator = sea_level_change_to_load_operator(
     fp,
     load_space,
 )
-ice_to_load_op: LinearOperator = ice_thickness_change_to_load_operator(fp, load_space)
+ice_to_load_op: LinearOperator = (
+    ice_thickness_change_to_load_operator(fp, load_space)
+)
 
 # Altimetry spatial mask operator
 altimetry_mask_op: LinearOperator = spatial_mutliplication_operator(
@@ -121,16 +125,16 @@ altimetry_mask_op: LinearOperator = spatial_mutliplication_operator(
 # Error/noise model operator
 # Maps [odt_gravitational, odt_direct, instrument_noise] → observed error
 altimetry_noise_op = altimetry_mask_op @ RowLinearOperator(
-    # [
-    #     sea_surface_height_op @ fingerprint_op @ water_to_load_op,
-    #     measurement_space.identity_operator(),
-    #     measurement_space.identity_operator(),
-    # ],
     [
-        measurement_space.zero_operator(),
-        measurement_space.zero_operator(),
+        sea_surface_height_op @ fingerprint_op @ water_to_load_op,
+        measurement_space.identity_operator(),
         measurement_space.identity_operator(),
     ],
+    # [
+    #     measurement_space.zero_operator(),
+    #     measurement_space.zero_operator(),
+    #     measurement_space.identity_operator(),
+    # ],
 )
 
 # Signal forward operator: ice thickness change → altimetry observations
@@ -149,7 +153,7 @@ ice_to_altimetry_op = (
 ice_thickness_change_measure, _ = ice_thickness_change_measures(
     fingerprint=fp,
     fingerprint_operator=fingerprint_op,
-    length_scale=ice_length_scale * fp.mean_sea_floor_radius,
+    length_scale=ice_length_scale,
     ice_gmsl_target_std=ice_gmsl_target_std,
     net_thickness_change=ice_net_thickness_change,
 )
@@ -163,12 +167,10 @@ odt_change_measure, _ = ocean_dynamic_topography_measures(
 )
 
 # Measurement noise
-measurement_noise_measure = (
-    measurement_space.point_value_scaled_sobolev_kernel_gaussian_measure(
-        altimetry_noise_sobolev_order,
-        altimetry_noise_length_scale,
-        altimetry_noise_std,
-    )
+measurement_noise_measure = measurement_space.point_value_scaled_sobolev_kernel_gaussian_measure(
+    altimetry_noise_sobolev_order,
+    altimetry_noise_length_scale,
+    altimetry_noise_std,
 )
 
 # Combined data error measure
@@ -185,10 +187,7 @@ data_error_measure = error_input_measure.affine_mapping(
 
 # Visualise a sample from the data error measure
 fig, ax, im = plot(
-    data_error_measure.sample()
-    * fp.length_scale
-    * fp.ocean_projection()
-    * fp.altimetry_projection(latitude_max=66, latitude_min=-66)
+    data_error_measure.sample() * fp.length_scale,
 )
 fig.colorbar(
     im,
@@ -197,6 +196,54 @@ fig.colorbar(
     orientation="horizontal",
 )
 
+figa, axa, ima = plot(
+    ice_thickness_change_measure.sample()
+    * fp.length_scale
+    * fp.ice_projection(),
+)
+figa.colorbar(
+    ima,
+    ax=axa,
+    label="Ice thickness change sample",
+    orientation="horizontal",
+)
+figb, axb, imb = plot(
+    ice_thickness_change_measure.affine_mapping(
+        operator=ice_to_altimetry_op,
+    ).sample()
+    * fp.length_scale
+    * fp.ocean_projection()
+    * fp.altimetry_projection(
+        latitude_max=altimetry_latitude_max,
+        latitude_min=altimetry_latitude_min,
+    ),
+)
+figb.colorbar(
+    imb,
+    ax=axb,
+    label="SSH from Ice Change data sample",
+    orientation="horizontal",
+)
+figc, axc, imc = plot(
+    (
+        ice_thickness_change_measure.affine_mapping(
+            operator=ice_to_altimetry_op,
+        ).sample()
+        + data_error_measure.sample()
+    )
+    * fp.length_scale
+    * fp.ocean_projection()
+    * fp.altimetry_projection(
+        latitude_max=altimetry_latitude_max,
+        latitude_min=altimetry_latitude_min,
+    ),
+)
+figc.colorbar(
+    imc,
+    ax=axc,
+    label="SSH altimetry sample",
+    orientation="horizontal",
+)
 # %%
 # FORWARD PROBLEM AND SYNTHETIC DATA
 
@@ -235,7 +282,9 @@ class ConvergenceMonitor:
 
         if self.prev_x is not None:
             change = np.linalg.norm(xk - self.prev_x)
-            relative_change = change / x_norm if x_norm > 0 else change
+            relative_change = (
+                change / x_norm if x_norm > 0 else change
+            )
             self.x_changes.append(relative_change)
 
             if self.iteration % 5 == 0:
@@ -277,10 +326,7 @@ ax1.set_title("Convergence of Solution Norm")
 # RESULTS
 
 model_posterior_expectation = model_posterior_measure.expectation
-# %%
-# VISUALISATION
-# Combined subplot grid: Ice and Sea Level (True, Posterior, Residual)
-# ---------------------------------------------------------------------
+model_posterior_covariance = model_posterior_measure.covariance
 # %%
 # VISUALISATION
 # Combined subplot grid: Ice and Sea Level (True, Posterior, Residual)
@@ -289,9 +335,15 @@ model_posterior_expectation = model_posterior_measure.expectation
 # Calculate all quantities first
 # Ice thickness change
 ice_true = model_true * fp.length_scale * fp.ice_projection()
-ice_posterior = model_posterior_expectation * fp.length_scale * fp.ice_projection()
+ice_posterior = (
+    model_posterior_expectation
+    * fp.length_scale
+    * fp.ice_projection()
+)
 ice_residual = (
-    (model_posterior_expectation - model_true) * fp.length_scale * fp.ice_projection()
+    (model_posterior_expectation - model_true)
+    * fp.length_scale
+    * fp.ice_projection()
 )
 
 # Sea level change
@@ -311,15 +363,24 @@ sea_level_posterior = (
 # Mask to ocean only
 ocean_mask = fp.ocean_projection()
 sea_level_true_masked = sea_level_true * ocean_mask * fp.length_scale
-sea_level_posterior_masked = sea_level_posterior * ocean_mask * fp.length_scale
+sea_level_posterior_masked = (
+    sea_level_posterior * ocean_mask * fp.length_scale
+)
 sea_level_residual = (
-    (sea_level_true - sea_level_posterior) * fp.length_scale * ocean_mask
+    (sea_level_true - sea_level_posterior)
+    * fp.length_scale
+    * ocean_mask
 )
 
 
 # Create subplot grid with Robinson projection
 projection = ccrs.Robinson()
-fig, axes = plt.subplots(3, 2, figsize=(16, 20), subplot_kw={"projection": projection})
+fig, axes = plt.subplots(
+    3,
+    2,
+    figsize=(16, 20),
+    subplot_kw={"projection": projection},
+)
 axes = axes.flatten()
 
 # Data and parameters for each subplot
@@ -354,7 +415,7 @@ symmetric_flags = [False, False, False, False, False, False]
 
 # Plot each subplot
 for idx, (data, title, label, symmetric) in enumerate(
-    zip(data_list, titles, labels, symmetric_flags)
+    zip(data_list, titles, labels, symmetric_flags),
 ):
     ax = axes[idx]
 
@@ -373,7 +434,12 @@ for idx, (data, title, label, symmetric) in enumerate(
 
     # Create pcolormesh plot
     im = ax.pcolormesh(
-        lons, lats, data.data, transform=ccrs.PlateCarree(), cmap=cmap, **kwargs
+        lons,
+        lats,
+        data.data,
+        transform=ccrs.PlateCarree(),
+        cmap=cmap,
+        **kwargs,
     )
 
     # Add coastlines
@@ -396,9 +462,18 @@ for idx, (data, title, label, symmetric) in enumerate(
     ax.set_title(title, fontsize=12, pad=10)
 
     # Add colorbar
-    cbar = fig.colorbar(im, ax=ax, orientation="horizontal", pad=0.05, shrink=0.8)
+    cbar = fig.colorbar(
+        im,
+        ax=ax,
+        orientation="horizontal",
+        pad=0.05,
+        shrink=0.8,
+    )
     cbar.set_label(label, fontsize=10)
 
 plt.tight_layout()
 plt.show()
 plt.savefig("bayesian_inversion_results.png", dpi=600)
+
+
+# %%
