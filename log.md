@@ -165,3 +165,10 @@
 - Added ternary error analysis plots for the Gaussian error model.
 - Generated high-resolution ternary plots and explored different visualisation approaches.
 
+## 21 November 2025
+
+- Conducted parameter sweep regression analysis across seven parameters (ice GMSL std, ice length scale, net ice thickness change, ODT length scale, ODT std, altimetry error length scale, altimetry error amplitude) producing nearly 250,000 configurations.
+- Linear regression showed that net_ice_thickness_change and altimetry_range dominate the error mean, whilst most other parameters become significant only through interaction terms. The error standard deviation is almost perfectly predicted by linear terms alone — a substantial quantitative result for the error quantification section.
+- Added GMSL error calculations and generated associated analysis plots.
+- Enhanced output documentation with new figures and model descriptions.
+
