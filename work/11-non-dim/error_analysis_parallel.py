@@ -216,9 +216,9 @@ results = Parallel(n_jobs=-1, verbose=4)(
         ice_gmsl_target_std=igts,
         net_ice_thickness_change=nitc,
         odt_length_scale=odt_length_scale,
-        odt_standard_deviation=ods,
+        odt_standard_deviation_factor=ods,
         altimetry_error_length_scale=altimetry_error_length_scale,
-        altimetry_error_amplitude=aea,
+        altimetry_error_amplitude_factor=aea,
         altimetry_range=ar,
     )
     for igts in ice_gmsl_target_std
