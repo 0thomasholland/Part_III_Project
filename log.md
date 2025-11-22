@@ -172,3 +172,7 @@
 - Added GMSL error calculations and generated associated analysis plots.
 - Enhanced output documentation with new figures and model descriptions.
 
+## 22 November 2025
+
+- Implemented scaled version of the error analysis and added new dataset files.
+
