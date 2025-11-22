@@ -70,7 +70,9 @@ def plot_measure(
     for key, value in args.items():
         # Format the value to be a string, using scientific notation for small numbers
         formatted_value = (
-            f"{value:.2e}" if abs(value) < 0.01 and value != 0 else str(value)
+            f"{value:.2e}"
+            if abs(value) < 0.01 and value != 0
+            else str(value)
         )
         text_lines.append(f"{key}: {formatted_value} m")
 
