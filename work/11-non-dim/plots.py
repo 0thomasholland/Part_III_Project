@@ -33,11 +33,15 @@ print(model.summary())
 
 # %%
 
+data["error_mean_mm"] = data["error_mean"] * 1000
+
+# %%
+
 # plot a field of error_mean as a smooth color grid over net_ice_thickness_change and altimetry_range, and show a cross section for altimetry range = 66 and net_ice_thickness_change = 10m, showing dotted lines on the grid for the cross section values, and plots of error vs the other variable on the side panels using subplot mosaic
 
 x = data["net_ice_thickness_change"]
 y = data["altimetry_range"]
-z = data["error_mean"]
+z = data["error_mean_mm"]
 xi = np.linspace(x.min(), x.max(), 100)
 yi = np.linspace(y.min(), y.max(), 100)
 xi, yi = np.meshgrid(xi, yi)
@@ -45,11 +49,16 @@ zi = griddata((x, y), z, (xi, yi), method="cubic")
 
 fig, axs = plt.subplot_mosaic(
     [["net_ice", "grid"], [".", "altimetry"]],
-    figsize=(7, 6),
+    figsize=(10, 8),
     width_ratios=(1, 4),
     height_ratios=(4, 1),
     layout="constrained",
 )
+
+axs["grid"].sharex(axs["altimetry"])
+
+# 2. Main Grid and Left Cross-Section share the Y-axis
+axs["grid"].sharey(axs["net_ice"])
 
 c = axs["grid"].pcolormesh(
     xi,
@@ -59,12 +68,17 @@ c = axs["grid"].pcolormesh(
     cmap="bwr",
     norm=mpl.colors.TwoSlopeNorm(
         vcenter=0,
-        vmin=-data["error_mean"].max(),
-        vmax=data["error_mean"].max(),
+        vmin=-data["error_mean_mm"].max(),
+        vmax=data["error_mean_mm"].max(),
     ),
 )
 # colourbar plotted to the right of the entire mosaic
-fig.colorbar(c, ax=axs["grid"], label="GMSL Error Mean (m)", pad=0.01)
+fig.colorbar(
+    c,
+    ax=axs["grid"],
+    label="GMSL Error (mm)",
+    pad=0.01,
+)
 axs["grid"].set_xlabel("Net Ice Thickness Change (m)")
 axs["grid"].set_ylabel("Altimetry Range (deg)")
 axs["grid"].set_title(
@@ -91,21 +105,32 @@ altimetry_data = data[
 ].sort_values(by="net_ice_thickness_change")
 axs["altimetry"].plot(
     altimetry_data["net_ice_thickness_change"],
-    altimetry_data["error_mean"],
+    altimetry_data["error_mean_mm"],
     "-o",
+    color="k",
 )
-axs["altimetry"].set_xlabel("Net Ice Thickness Change (m)")
-axs["altimetry"].set_ylabel("GMSL Error (m)")
-
+# axs["altimetry"].set_xlabel("Net Ice Thickness Change (m)")
+axs["altimetry"].set_ylabel("GMSL Error (mm)")
 # net ice cross section
 net_ice_data = data[
     data["net_ice_thickness_change"] == net_ice_cs
 ].sort_values(by="altimetry_range")
 axs["net_ice"].plot(
-    net_ice_data["error_mean"],
+    net_ice_data["error_mean_mm"],
     net_ice_data["altimetry_range"],
     "-o",
+    color="k",
 )
 axs["net_ice"].invert_xaxis()
-axs["net_ice"].set_ylabel("Altimetry Range (deg)")
-axs["net_ice"].set_xlabel("GMSL Error (m)")
+# axs["net_ice"].set_ylabel("Altimetry Range (deg)")
+axs["net_ice"].set_xlabel("GMSL Error (mm)")
+# location of suptitle at bottom center
+plt.suptitle(
+    "\nGMSL Error Mean Cross Sections at Altimetry Range = 66° and Net Ice Thickness Change = 10 m\nIncludes contributions from Ice Change, Ocean Dynamic Topography, and Altimetry Error",
+    y=0.0,
+)
+plt.savefig(
+    "gmsl_error_over_ice_change_and_altimetry_range_mosaic.png",
+    dpi=600,
+    bbox_inches="tight",
+)
