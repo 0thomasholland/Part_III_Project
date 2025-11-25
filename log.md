@@ -176,3 +176,8 @@
 
 - Implemented scaled version of the error analysis and added new dataset files.
 
+## 25 November 2025
+
+- Updated error quantification code and added new analysis plots.
+- Started work on error distribution visualisation for the poster.
+
