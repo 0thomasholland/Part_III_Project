@@ -60,7 +60,13 @@ net_ice_thickness_change = (
     )
     / fp.length_scale
 )
-net_ice_thickness_change *= -1
+
+net_ice_thickness_change = np.unique(
+    np.concatenate(
+        ((net_ice_thickness_change, net_ice_thickness_change * -1),)
+    )
+)
+
 
 odt_length_scale = 0.01 * fp.mean_sea_floor_radius
 odt_standard_deviation_factor = np.logspace(-2, 2, 9)
