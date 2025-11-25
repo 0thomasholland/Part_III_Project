@@ -19,6 +19,8 @@ data = pd.read_csv(
 )
 
 print(data.head())
+data["error_mean_mm"] = data["error_mean"] * 1000
+data["error_std_mm"] = data["error_std"] * 1000
 
 
 # %%
@@ -32,7 +34,7 @@ input_parameters = [
     "altimetry_range",
 ]
 
-target = ["error_mean", "error_std"]
+target = ["error_mean_mm", "error_std_mm"]
 
 for t in target:
     formula = f"{t} ~ " + " + ".join(input_parameters)
@@ -111,8 +113,8 @@ factor_variables = [
 ]
 
 target = [
-    "error_mean",
-    "error_std",
+    "error_mean_mm",
+    "error_std_mm",
 ]
 
 ndata = data.copy()

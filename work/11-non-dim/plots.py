@@ -21,6 +21,7 @@ print(data.columns)
 # %%
 # print unique net_ice_thickness_change values
 print(data["net_ice_thickness_change"].unique())
+print(data["altimetry_range"].unique())
 
 # %%
 
@@ -35,7 +36,7 @@ print(model.summary())
 
 data["error_mean_mm"] = data["error_mean"] * 1000
 
-# %%
+# %% error mean plot
 
 # plot a field of error_mean as a smooth color grid over net_ice_thickness_change and altimetry_range, and show a cross section for altimetry range = 66 and net_ice_thickness_change = 10m, showing dotted lines on the grid for the cross section values, and plots of error vs the other variable on the side panels using subplot mosaic
 
@@ -49,7 +50,7 @@ zi = griddata((x, y), z, (xi, yi), method="cubic")
 
 fig, axs = plt.subplot_mosaic(
     [["net_ice", "grid"], [".", "altimetry"]],
-    figsize=(10, 8),
+    figsize=(10, 9),
     width_ratios=(1, 4),
     height_ratios=(4, 1),
     layout="constrained",
@@ -65,7 +66,7 @@ c = axs["grid"].pcolormesh(
     yi,
     zi,
     shading="gouraud",
-    cmap="bwr",
+    cmap="seismic",
     norm=mpl.colors.TwoSlopeNorm(
         vcenter=0,
         vmin=-data["error_mean_mm"].max(),
@@ -85,41 +86,74 @@ axs["grid"].set_title(
     "GMSL Error over Net Ice Thickness Change and Altimetry Range",
 )
 # cross section lines
-altimetry_cs = 66
-net_ice_cs = 10
+altimetry_cs_1 = 75
+altimetry_cs_0 = 66
+net_ice_cs_0 = -10
+net_ice_cs_1 = 10
 axs["grid"].axhline(
-    altimetry_cs,
-    color="k",
+    altimetry_cs_0,
+    color="purple",
+    linestyle="--",
+    linewidth=1,
+)
+axs["grid"].axhline(
+    altimetry_cs_1,
+    color="purple",
+    linestyle="-.",
+    linewidth=1,
+)
+axs["grid"].axvline(
+    net_ice_cs_0,
+    color="g",
     linestyle="--",
     linewidth=1,
 )
 axs["grid"].axvline(
-    net_ice_cs,
-    color="k",
-    linestyle="--",
+    net_ice_cs_1,
+    color="g",
+    linestyle="-.",
     linewidth=1,
 )
 # altimetry cross section, there is data at 66 deg, i want to have a smooth line through the data, i want the x axis to be flipped so negative is to the right
-altimetry_data = data[
-    data["altimetry_range"] == altimetry_cs
+altimetry_data_0 = data[
+    data["altimetry_range"] == altimetry_cs_0
 ].sort_values(by="net_ice_thickness_change")
 axs["altimetry"].plot(
-    altimetry_data["net_ice_thickness_change"],
-    altimetry_data["error_mean_mm"],
-    "-o",
-    color="k",
+    altimetry_data_0["net_ice_thickness_change"],
+    altimetry_data_0["error_mean_mm"],
+    "--",
+    color="purple",
+)
+altimetry_data_1 = data[
+    data["altimetry_range"] == altimetry_cs_1
+].sort_values(by="net_ice_thickness_change")
+axs["altimetry"].plot(
+    altimetry_data_1["net_ice_thickness_change"],
+    altimetry_data_1["error_mean_mm"],
+    "-.",
+    color="purple",
 )
 # axs["altimetry"].set_xlabel("Net Ice Thickness Change (m)")
 axs["altimetry"].set_ylabel("GMSL Error (mm)")
+
 # net ice cross section
-net_ice_data = data[
-    data["net_ice_thickness_change"] == net_ice_cs
+net_ice_data_0 = data[
+    data["net_ice_thickness_change"] == net_ice_cs_0
 ].sort_values(by="altimetry_range")
 axs["net_ice"].plot(
-    net_ice_data["error_mean_mm"],
-    net_ice_data["altimetry_range"],
-    "-o",
-    color="k",
+    net_ice_data_0["error_mean_mm"],
+    net_ice_data_0["altimetry_range"],
+    "--",
+    color="g",
+)
+net_ice_data_1 = data[
+    data["net_ice_thickness_change"] == net_ice_cs_1
+].sort_values(by="altimetry_range")
+axs["net_ice"].plot(
+    net_ice_data_1["error_mean_mm"],
+    net_ice_data_1["altimetry_range"],
+    "-.",
+    color="g",
 )
 axs["net_ice"].invert_xaxis()
 # axs["net_ice"].set_ylabel("Altimetry Range (deg)")
@@ -134,3 +168,5 @@ plt.savefig(
     dpi=600,
     bbox_inches="tight",
 )
+
+# %%
