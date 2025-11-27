@@ -181,3 +181,9 @@
 - Updated error quantification code and added new analysis plots.
 - Started work on error distribution visualisation for the poster.
 
+## 27 November 2025
+
+- Tidied project structure: renamed files for clarity, improved function naming, and removed Bayesian inversion and poster figures from main branch (moved to separate branches).
+- Configured Git LFS for tracking large PNG files.
+- Began conference poster preparation with initial layout and figures.
+
