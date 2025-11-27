@@ -1,0 +1,1 @@
+Body text 48 pt (16 mm), fine print can be 32 pt (12 mm). Headings 96 (34 mm) or 72 (24 mm). Title about 150 (54 mm).
