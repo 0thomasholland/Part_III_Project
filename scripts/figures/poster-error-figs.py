@@ -2,7 +2,6 @@
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.pylab import f
 from pyslfp import (
     FingerPrint,
     averaging_operator,
@@ -141,8 +140,9 @@ for x in plots:
     cbar.set_label(x[2])
     ax.set_title(x[1])
     plt.savefig(
-        f"../../outputs/poster/AutomatedFigures/{x[1].lower().replace(' ', '_')}.tiff",
+        f"../../outputs/poster/AutomatedFigures/{x[1].lower().replace(' ', '_')}.png",
         dpi=600,
+        bbox_inches="tight",
     )
     plt.show()
 
@@ -216,8 +216,9 @@ for data in plots:
     )
     ax2.set_xlabel("Relative to Ice GMSL (stds)")
     plt.savefig(
-        f"../../outputs/poster/AutomatedFigures/{data[0].lower().replace(' ', '_')}_distribution.tiff",
+        f"../../outputs/poster/AutomatedFigures/{data[0].lower().replace(' ', '_')}_distribution.png",
         dpi=600,
+        bbox_inches="tight",
     )
     plt.show()
 
