@@ -68,70 +68,30 @@ from Part_III_Project.visualization import (
     plot_gmsl_comparison,
 )
 
-# Backward compatibility aliases (new names for clarity)
-SeaSurfaceFingerPrint = SeaSurfaceHeightFingerPrint
-sea_surface_height_change = compute_sea_surface_height_change
-create_ice_band = create_ice_load_latitude_band
-create_ice_thickness_measures = ice_thickness_change_measures
-create_ocean_dynamic_topography_measures = (
-    ocean_dynamic_topography_measures
-)
-create_combined_load_measure = load_measure
-create_gmsl_measure = get_gmsl_measure
-create_altimetry_gmsl_measure = get_altimetry_gmsl_measure
-create_sea_level_change_measure = sea_level_change_measure
-create_sea_surface_height_measures = sea_surface_height_measure
-create_sensor_error_measure = sensor_error_measure
-extract_measure_statistics = get_stats_from_measure
-plot_gaussian_measures = plot_measure
-
 __all__ = [
-    # Core operators
     "SeaSurfaceHeightFingerPrint",
-    "compute_sea_surface_height_change",
-    # Ice loads
-    "create_ice_load_latitude_band",
-    # Plotting
-    "plot_ternary_heatmap",
-    "plot_ternary_heatmap_subplots",
-    # Gaussian measures (original names)
-    "ice_thickness_change_measures",
-    "ocean_dynamic_topography_measures",
-    "load_measure",
-    "get_gmsl_measure",
-    "get_altimetry_gmsl_measure",
-    "sea_level_change_measure",
-    "sea_surface_height_measure",
-    "sensor_error_measure",
-    # Measure utilities
-    "get_stats_from_measure",
-    "plot_measure",
-    # Visualization
-    "plot_gaussian_measure_distribution",
-    "plot_gmsl_comparison",
-    # Analysis
-    "kullback_leibler_divergence",
-    "mean_squared_error",
     "cohens_d_effect_size",
-    "wasserstein_distance",
-    # Utilities
     "compute_altimetry_weighting_function",
     "compute_ocean_altimetry_weighting_function",
     "compute_relative_error",
+    "compute_sea_surface_height_change",
+    "create_ice_load_latitude_band",
     "extract_gmsl_statistics",
-    # New clearer names (aliases)
-    "create_ice_band",
-    "create_ice_thickness_measures",
-    "create_ocean_dynamic_topography_measures",
-    "create_combined_load_measure",
-    "create_gmsl_measure",
-    "create_altimetry_gmsl_measure",
-    "create_sea_level_change_measure",
-    "create_sea_surface_height_measures",
-    "create_sensor_error_measure",
-    "extract_measure_statistics",
-    "plot_gaussian_measures",
-    # Backward compatibility
-    "SeaSurfaceFingerPrint",
-    "sea_surface_height_change",
+    "get_altimetry_gmsl_measure",
+    "get_gmsl_measure",
+    "get_stats_from_measure",
+    "ice_thickness_change_measures",
+    "kullback_leibler_divergence",
+    "load_measure",
+    "mean_squared_error",
+    "ocean_dynamic_topography_measures",
+    "plot_gaussian_measure_distribution",
+    "plot_gmsl_comparison",
+    "plot_measure",
+    "plot_ternary_heatmap",
+    "plot_ternary_heatmap_subplots",
+    "sea_level_change_measure",
+    "sea_surface_height_measure",
+    "sensor_error_measure",
+    "wasserstein_distance",
 ]
