@@ -46,19 +46,43 @@ Part_III_Project/
 ├── pyproject.toml              # Project configuration and dependencies
 ├── README.md                   # This file
 │
-├── src/                        # Code for my project that I have written
-│   └── Part_III_Project/
+├── src/Part_III_Project/       # Core library code
+│   ├── analysis.py             # Analysis utilities
+│   ├── gaussian_measures.py    # Gaussian measure implementations
+│   ├── ice_loads.py            # Ice load models
+│   ├── measure_utilities.py    # Measure utility functions
+│   ├── plotting.py             # Plotting functions
+│   ├── ssh_operators.py        # Sea surface height operators
+│   ├── utilities.py            # General utilities
+│   └── visualization.py        # Visualization tools
 │
-├── work/                       # Working notebooks and analysis
-│   ├── Sea Level to Sea Surface.ipynb
-│   └── traditional_methods/        # Traditional methods analysis                     
+├── scripts/                    # Analysis scripts
+│   ├── bayesian_inversion/     # Bayesian inversion methods
+│   │   ├── bayesian_inversion_initial.py
+│   │   ├── bayesian_inversion_nicer.py
+│   │   └── bayesian_inversion_lmax64_1000runs.ipynb
+│   ├── gmsl_error/             # GMSL error analysis
+│   │   ├── deterministic_latitude_sweep/   # Latitude coverage analysis
+│   │   ├── deterministic_ternary/          # Ternary ice sheet mixture analysis
+│   │   └── gaussian_operator_composition/  # Error via operator composition
+│   ├── gmsl_estimation/        # GMSL estimation methods
+│   │   ├── lmax_convergence/   # L_max convergence studies
+│   │   ├── parameter_sweep/    # Parameter sweep analysis
+│   │   └── single_case/        # Single case examples
+│   └── figures/                # Figure generation scripts
+│       └── poster/
 │
-├── work_DA/                       # Working directory of my supervisor
 ├── outputs/                    # Report and bibliography
-│   ├── refs.bib
-│   ├── report/
-│   ├── poster/
-│   └── presentation/
+│   ├── refs.bib                # Bibliography
+│   ├── report/                 # Project report (LaTeX)
+│   └── poster/                 # Poster materials
 │
-└── work_log/                   # Project documentation and notes with weekly progress
+├── work_da/                    # Working directory from supervisor
+│   └── random_fields*.py       # Random field examples
+│
+└── work_log/                   # Project documentation and notes
+    ├── Progress.md             # Weekly progress tracking
+    ├── Maths.md                # Mathematical notes
+    ├── Literature.md           # Literature review
+    └── Code notes.md           # Code documentation
 ```
