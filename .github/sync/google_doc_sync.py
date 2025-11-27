@@ -7,15 +7,18 @@ from googleapiclient.discovery import build
 # Configuration
 SCOPES = ["https://www.googleapis.com/auth/documents.readonly"]
 DOC_ID = os.environ["GOOGLE_DOC_ID"]
-OUTPUT_FILE = "work_log/Progress.md"
+OUTPUT_FILE = "log/Progress.md"
 
 
 def get_credentials():
     """Load credentials from environment variable."""
     creds_json = os.environ["GOOGLE_API_JSON"]
     creds_dict = json.loads(creds_json)
-    credentials = service_account.Credentials.from_service_account_info(
-        creds_dict, scopes=SCOPES
+    credentials = (
+        service_account.Credentials.from_service_account_info(
+            creds_dict,
+            scopes=SCOPES,
+        )
     )
     return credentials
 
@@ -54,7 +57,10 @@ def extract_text_from_doc(document):
             # Extract text content
             for text_run in paragraph.get("elements", []):
                 if "textRun" in text_run:
-                    text_content = text_run["textRun"].get("content", "")
+                    text_content = text_run["textRun"].get(
+                        "content",
+                        "",
+                    )
                     para_text.append(text_content)
 
             full_text = "".join(para_text)
@@ -63,7 +69,7 @@ def extract_text_from_doc(document):
             if full_text.strip().startswith("Repo URL:"):
                 continue
             if full_text.strip().startswith(
-                "Methods for estimating global and regional sea level change from satellite altimetry observations"
+                "Methods for estimating global and regional sea level change from satellite altimetry observations",
             ):
                 continue
 
