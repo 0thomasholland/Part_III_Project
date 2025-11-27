@@ -4,11 +4,11 @@
 # %%
 import numpy as np
 import pandas as pd
+from joblib import Parallel, delayed
 from matplotlib import pyplot as plt
 from pyslfp import FingerPrint, IceModel
-from joblib import Parallel, delayed
 
-from Part_III_Project import sea_surface_height_change
+from Part_III_Project import compute_sea_surface_height_change
 
 # %% [markdown]
 # Set up latitude range:
@@ -31,12 +31,15 @@ error_output = pd.DataFrame(
         "greenland_error": np.zeros_like(latitude_min),
         "west_antarctic_error": np.zeros_like(latitude_min),
         "east_antarctic_error": np.zeros_like(latitude_min),
-    }
+    },
 )
 
 # Define ice sheet configurations
 ice_sheets = {
-    "greenland": {"load_func": fp.greenland_load, "error_col": "greenland_error"},
+    "greenland": {
+        "load_func": fp.greenland_load,
+        "error_col": "greenland_error",
+    },
     "west_antarctic": {
         "load_func": fp.west_antarctic_load,
         "error_col": "west_antarctic_error",
@@ -65,8 +68,13 @@ for ice_sheet_name, config in ice_sheets.items():
         angular_velocity_change,
     ) = fp(direct_load=direct_load)
 
-    sea_surface_height_change_result = sea_surface_height_change(
-        fp, sea_level_change, displacement, angular_velocity_change
+    sea_surface_height_change_result = (
+        compute_sea_surface_height_change(
+            fp,
+            sea_level_change,
+            displacement,
+            angular_velocity_change,
+        )
     )
 
     # Calculate mean sea level change once per ice sheet
@@ -76,22 +84,29 @@ for ice_sheet_name, config in ice_sheets.items():
     for i in range(len(latitude_min)):
         ##### EXTRACT THIS HERE TO FUNCTION #####
         altimetry_projection = fp.altimetry_projection(
-            latitude_min=latitude_min[i], latitude_max=latitude_max[i], value=0
+            latitude_min=latitude_min[i],
+            latitude_max=latitude_max[i],
+            value=0,
         )
 
-        altimetry_projection_integral = fp.integrate(altimetry_projection)
+        altimetry_projection_integral = fp.integrate(
+            altimetry_projection
+        )
         altimetry_weighting_function = (
             altimetry_projection / altimetry_projection_integral
         )
 
         mean_sea_level_change_estimate = fp.integrate(
-            altimetry_weighting_function * sea_surface_height_change_result
+            altimetry_weighting_function
+            * sea_surface_height_change_result,
         )
 
         # Calculate relative error
         error = (
             100
-            * np.abs(mean_sea_level_change_estimate - mean_sea_level_change)
+            * np.abs(
+                mean_sea_level_change_estimate - mean_sea_level_change
+            )
             / np.abs(mean_sea_level_change)
         )
 
@@ -101,8 +116,11 @@ for ice_sheet_name, config in ice_sheets.items():
 # %% [markdown]
 # Parallel version:
 
+
 # %%
-def process_ice_sheet(ice_sheet_name, config, latitude_min, latitude_max, fp):
+def process_ice_sheet(
+    ice_sheet_name, config, latitude_min, latitude_max, fp
+):
     """Process a single ice sheet and return errors for all latitude bands."""
     # Get the direct load for this ice sheet
     direct_load = config["load_func"]()
@@ -115,8 +133,13 @@ def process_ice_sheet(ice_sheet_name, config, latitude_min, latitude_max, fp):
         angular_velocity_change,
     ) = fp(direct_load=direct_load)
 
-    sea_surface_height_change_result = sea_surface_height_change(
-        fp, sea_level_change, displacement, angular_velocity_change
+    sea_surface_height_change_result = (
+        compute_sea_surface_height_change(
+            fp,
+            sea_level_change,
+            displacement,
+            angular_velocity_change,
+        )
     )
 
     # Calculate mean sea level change once per ice sheet
@@ -126,22 +149,29 @@ def process_ice_sheet(ice_sheet_name, config, latitude_min, latitude_max, fp):
     errors = []
     for i in range(len(latitude_min)):
         altimetry_projection = fp.altimetry_projection(
-            latitude_min=latitude_min[i], latitude_max=latitude_max[i], value=0
+            latitude_min=latitude_min[i],
+            latitude_max=latitude_max[i],
+            value=0,
         )
 
-        altimetry_projection_integral = fp.integrate(altimetry_projection)
+        altimetry_projection_integral = fp.integrate(
+            altimetry_projection
+        )
         altimetry_weighting_function = (
             altimetry_projection / altimetry_projection_integral
         )
 
         mean_sea_level_change_estimate = fp.integrate(
-            altimetry_weighting_function * sea_surface_height_change_result
+            altimetry_weighting_function
+            * sea_surface_height_change_result,
         )
 
         # Calculate relative error
         error = (
             100
-            * np.abs(mean_sea_level_change_estimate - mean_sea_level_change)
+            * np.abs(
+                mean_sea_level_change_estimate - mean_sea_level_change
+            )
             / np.abs(mean_sea_level_change)
         )
 
@@ -152,7 +182,9 @@ def process_ice_sheet(ice_sheet_name, config, latitude_min, latitude_max, fp):
 
 # Parallel execution
 results = Parallel(n_jobs=-1, verbose=5)(
-    delayed(process_ice_sheet)(ice_sheet_name, config, latitude_min, latitude_max, fp)
+    delayed(process_ice_sheet)(
+        ice_sheet_name, config, latitude_min, latitude_max, fp
+    )
     for ice_sheet_name, config in ice_sheets.items()
 )
 
@@ -184,6 +216,8 @@ plt.plot(
 )
 plt.xlabel("Latitude of satellite data (±degrees)")
 plt.ylabel("Relative Error (%)")
-plt.title("Relative Error in Mean Sea Level Change Estimate vs Satellite Latitude")
+plt.title(
+    "Relative Error in Mean Sea Level Change Estimate vs Satellite Latitude"
+)
 plt.legend()
 plt.show()

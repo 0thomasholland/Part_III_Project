@@ -7,13 +7,15 @@
 # %%
 import numpy as np
 import pandas as pd
+import pyshtools as pysh
+from joblib import Parallel, delayed
 from matplotlib import pyplot as plt
 from pyslfp import FingerPrint, IceModel, plot
-from joblib import Parallel, delayed
-import pyshtools as pysh
-import numpy as np
 
-from Part_III_Project import sea_surface_height_change, create_ice_band
+from Part_III_Project import (
+    compute_sea_surface_height_change,
+    create_ice_load_latitude_band,
+)
 
 # %% [markdown]
 # ## Variable setting
@@ -35,7 +37,7 @@ latitude = np.round(np.linspace(-90, 90, resolution), 2)
 fp = FingerPrint(lmax=lmax)
 fp.set_state_from_ice_ng()
 
-ice_thickness_change = create_ice_band(
+ice_thickness_change = create_ice_load_latitude_band(
     lat_center=-20,
     lat_width=5,
     ice_thickness=load_thickness_change,
@@ -49,8 +51,11 @@ ice_thickness_change = create_ice_band(
     angular_velocity_change,
 ) = fp(direct_load=ice_thickness_change)
 
-sea_surface_height_change_result = sea_surface_height_change(
-    fp, sea_level_change, displacement, angular_velocity_change
+sea_surface_height_change_result = compute_sea_surface_height_change(
+    fp,
+    sea_level_change,
+    displacement,
+    angular_velocity_change,
 )
 
 # Create individual plots
@@ -58,12 +63,15 @@ fig1, ax1, im1 = plot(ice_thickness_change, coasts=True)
 ax1.set_title("Ice Thickness Change")
 plt.show()
 
-fig2, ax2, im2 = plot(sea_level_change * fp.ocean_projection(), coasts=True)
+fig2, ax2, im2 = plot(
+    sea_level_change * fp.ocean_projection(), coasts=True
+)
 ax2.set_title("Sea Level Change")
 plt.show()
 
 fig3, ax3, im3 = plot(
-    sea_surface_height_change_result * fp.ocean_projection(), coasts=True
+    sea_surface_height_change_result * fp.ocean_projection(),
+    coasts=True,
 )
 ax3.set_title("Sea Surface Height Change")
 plt.show()
@@ -77,7 +85,7 @@ plt.show()
 # %%
 for load_rad in load_radius:  # Added outer loop for load_radius
     for load_lat in latitude:
-        ice_thickness_change = create_ice_band(
+        ice_thickness_change = create_ice_load_latitude_band(
             lat_center=load_lat,
             lat_width=load_rad,  # Changed from load_radius to load_rad
             ice_thickness=load_thickness_change,
@@ -91,31 +99,46 @@ for load_rad in load_radius:  # Added outer loop for load_radius
             angular_velocity_change,
         ) = fp(direct_load=ice_thickness_change)
 
-        sea_surface_height_change_result = sea_surface_height_change(
-            fp, sea_level_change, displacement, angular_velocity_change
+        sea_surface_height_change_result = (
+            compute_sea_surface_height_change(
+                fp,
+                sea_level_change,
+                displacement,
+                angular_velocity_change,
+            )
         )
 
-        mean_sea_level_change = fp.mean_sea_level_change(ice_thickness_change)
+        mean_sea_level_change = fp.mean_sea_level_change(
+            ice_thickness_change
+        )
 
         for satellite_lat in satellite_range:
             altimetry_projection = fp.altimetry_projection(
-                latitude_min=-satellite_lat, latitude_max=satellite_lat, value=0
+                latitude_min=-satellite_lat,
+                latitude_max=satellite_lat,
+                value=0,
             )
 
-            altimetry_projection_integral = fp.integrate(altimetry_projection)
+            altimetry_projection_integral = fp.integrate(
+                altimetry_projection
+            )
             altimetry_weighting_function = (
                 altimetry_projection / altimetry_projection_integral
             )
 
             mean_sea_level_change_estimate = fp.integrate(
-                altimetry_weighting_function * sea_surface_height_change_result
+                altimetry_weighting_function
+                * sea_surface_height_change_result,
             )
 
             # Calculate relative error
             if np.abs(mean_sea_level_change) > 1e-10:
                 error = (
                     100
-                    * np.abs(mean_sea_level_change_estimate - mean_sea_level_change)
+                    * np.abs(
+                        mean_sea_level_change_estimate
+                        - mean_sea_level_change
+                    )
                     / np.abs(mean_sea_level_change)
                 )
             else:
@@ -127,7 +150,7 @@ for load_rad in load_radius:  # Added outer loop for load_radius
                     "satellite_range": satellite_lat,
                     "latitude": load_lat,
                     "error": error,
-                }
+                },
             )
 
 error_output = pd.DataFrame(results)
@@ -138,16 +161,21 @@ error_output = pd.DataFrame(results)
 #
 # It parallelizes over load latitudes and load range, but not over satellite latitudes.
 
+
 # %%
 def process_load_latitude_radius(
-    load_lat, load_rad, satellite_range, load_thickness_change, lmax
+    load_lat,
+    load_rad,
+    satellite_range,
+    load_thickness_change,
+    lmax,
 ):
     """Process a single load latitude and radius combination with all satellite ranges"""
     # Create a new FingerPrint instance for this process
     fp = FingerPrint(lmax=lmax)
     fp.set_state_from_ice_ng()
 
-    ice_thickness_change = create_ice_band(
+    ice_thickness_change = create_ice_load_latitude_band(
         lat_center=load_lat,
         lat_width=load_rad,  # Changed from load_radius to load_rad
         ice_thickness=load_thickness_change,
@@ -161,34 +189,49 @@ def process_load_latitude_radius(
         angular_velocity_change,
     ) = fp(direct_load=ice_thickness_change)
 
-    sea_surface_height_change_result = sea_surface_height_change(
-        fp, sea_level_change, displacement, angular_velocity_change
+    sea_surface_height_change_result = (
+        compute_sea_surface_height_change(
+            fp,
+            sea_level_change,
+            displacement,
+            angular_velocity_change,
+        )
     )
 
-    mean_sea_level_change = fp.mean_sea_level_change(ice_thickness_change)
+    mean_sea_level_change = fp.mean_sea_level_change(
+        ice_thickness_change
+    )
 
     # Store results for this load_lat and load_rad combination
     local_results = []
 
     for satellite_lat in satellite_range:
         altimetry_projection = fp.altimetry_projection(
-            latitude_min=-satellite_lat, latitude_max=satellite_lat, value=0
+            latitude_min=-satellite_lat,
+            latitude_max=satellite_lat,
+            value=0,
         )
 
-        altimetry_projection_integral = fp.integrate(altimetry_projection)
+        altimetry_projection_integral = fp.integrate(
+            altimetry_projection
+        )
         altimetry_weighting_function = (
             altimetry_projection / altimetry_projection_integral
         )
 
         mean_sea_level_change_estimate = fp.integrate(
-            altimetry_weighting_function * sea_surface_height_change_result
+            altimetry_weighting_function
+            * sea_surface_height_change_result,
         )
 
         # Calculate relative error
         if np.abs(mean_sea_level_change) > 1e-10:
             error = (
                 100
-                * np.abs(mean_sea_level_change_estimate - mean_sea_level_change)
+                * np.abs(
+                    mean_sea_level_change_estimate
+                    - mean_sea_level_change
+                )
                 / np.abs(mean_sea_level_change)
             )
         else:
@@ -200,7 +243,7 @@ def process_load_latitude_radius(
                 "satellite_range": satellite_lat,
                 "latitude": load_lat,
                 "error": error,
-            }
+            },
         )
 
     return local_results
@@ -209,7 +252,11 @@ def process_load_latitude_radius(
 # Parallel execution over both latitude and load_radius
 results_nested = Parallel(n_jobs=-1, verbose=5)(
     delayed(process_load_latitude_radius)(
-        load_lat, load_rad, satellite_range, load_thickness_change, lmax
+        load_lat,
+        load_rad,
+        satellite_range,
+        load_thickness_change,
+        lmax,
     )
     for load_rad in load_radius  # Added outer loop for load_radius
     for load_lat in latitude
@@ -243,14 +290,20 @@ n_rows = int(np.ceil(n_subplots / n_cols))
 vmin = float("inf")
 vmax = float("-inf")
 for load_rad in unique_load_radii:
-    data_subset = error_output[error_output["load_radius"] == load_rad]
+    data_subset = error_output[
+        error_output["load_radius"] == load_rad
+    ]
     pivot_table = data_subset.pivot(
-        index="latitude", columns="satellite_range", values="error"
+        index="latitude",
+        columns="satellite_range",
+        values="error",
     )
     vmin = min(vmin, pivot_table.min().min())
     vmax = max(vmax, pivot_table.max().max())
 
-fig, axes = plt.subplots(n_rows, n_cols, figsize=(10 * n_cols, 6 * n_rows))
+fig, axes = plt.subplots(
+    n_rows, n_cols, figsize=(10 * n_cols, 6 * n_rows)
+)
 
 # Flatten axes array for easier iteration
 if n_subplots == 1:
@@ -263,10 +316,14 @@ for idx, load_rad in enumerate(sorted(unique_load_radii)):
     ax = axes[idx]
 
     # Filter data for this load radius
-    data_subset = error_output[error_output["load_radius"] == load_rad]
+    data_subset = error_output[
+        error_output["load_radius"] == load_rad
+    ]
 
     pivot_table = data_subset.pivot(
-        index="latitude", columns="satellite_range", values="error"
+        index="latitude",
+        columns="satellite_range",
+        values="error",
     )
 
     im = ax.imshow(
@@ -328,7 +385,9 @@ plt.show()
 # %%
 # plot of error for 1 degree error minus 10 degrees error
 
-difference_data = error_output[error_output["load_radius"].isin([1, 10])]
+difference_data = error_output[
+    error_output["load_radius"].isin([1, 10])
+]
 difference_pivot = difference_data.pivot_table(
     index="latitude",
     columns=["satellite_range", "load_radius"],
@@ -350,10 +409,14 @@ im = ax.imshow(
     vmin=-vmax,
     vmax=vmax,
 )
-plt.colorbar(im, ax=ax, label="Relative Error Difference [(R1-R10) as %]")
+plt.colorbar(
+    im, ax=ax, label="Relative Error Difference [(R1-R10) as %]"
+)
 ax.set_xlabel("Satellite Coverage Latitude (±degrees)")
 ax.set_ylabel("Load Latitude (degrees)")
-ax.set_title("Relative Error Difference: 1° Load Band - 10° Load Band")
+ax.set_title(
+    "Relative Error Difference: 1° Load Band - 10° Load Band"
+)
 
 # Show all ticks and label them with the respective list entries
 max_ticks = 7
@@ -397,7 +460,9 @@ plt.show()
 # %%
 # plot of error for 1 degree error minus 10 degrees error
 
-difference_data = error_output[error_output["load_radius"].isin([1, 10])]
+difference_data = error_output[
+    error_output["load_radius"].isin([1, 10])
+]
 difference_pivot = difference_data.pivot_table(
     index="latitude",
     columns=["satellite_range", "load_radius"],
@@ -420,10 +485,14 @@ im = ax.imshow(
     vmin=-vmax,
     vmax=vmax,
 )
-plt.colorbar(im, ax=ax, label="Log Quotient Relative Error [log(R1 / R10)]")
+plt.colorbar(
+    im, ax=ax, label="Log Quotient Relative Error [log(R1 / R10)]"
+)
 ax.set_xlabel("Satellite Coverage Latitude (±degrees)")
 ax.set_ylabel("Load Latitude (degrees)")
-ax.set_title("Log Quotient Relative Error: 1° Load Band - 10° Load Band")
+ax.set_title(
+    "Log Quotient Relative Error: 1° Load Band - 10° Load Band"
+)
 
 # Show all ticks and label them with the respective list entries
 max_ticks = 7
