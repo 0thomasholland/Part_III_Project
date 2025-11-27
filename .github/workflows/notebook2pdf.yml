@@ -1,82 +1,82 @@
 name: notebook2pdf
 
 on:
-  push:
-    branches:
-      - main  # Change to your default branch if different
-    paths:
-      - 'work_log/*.md'  # Trigger on markdown file changes
-      - '.github/workflows/notebook2pdf.yml'  # Re-run if workflow changes
-      - '.github/formatting/preamble.tex'  # Re-run if preamble changes
-  workflow_dispatch:  # Allow manual triggering
-  workflow_run:
-    workflows: ['Sync Google Doc to Markdown']
-    types:
-      - completed
+    push:
+        branches:
+            - main # Change to your default branch if different
+        paths:
+            - "log/*.md" # Trigger on markdown file changes
+            - ".github/workflows/notebook2pdf.yml" # Re-run if workflow changes
+            - ".github/formatting/preamble.tex" # Re-run if preamble changes
+    workflow_dispatch: # Allow manual triggering
+    workflow_run:
+        workflows: ["Sync Google Doc to Markdown"]
+        types:
+            - completed
 
 jobs:
-  convert-to-pdf:
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
+    convert-to-pdf:
+        runs-on: ubuntu-latest
 
-      - name: Prepare file list
-        id: files_list
-        run: |
-          # Define the markdown files in the order you want them compiled
-          FILES=(
-            "work_log/Introduction.md"
-            "work_log/Progress.md"
-            "work_log/Literature.md"
-            "work_log/Thoughts.md"
-            "work_log/Code notes.md"
-            "work_log/Maths.md"
-            "work_log/Extra maths.md"
-            "work_log/Output-1.md"
-          )
-          
-          # Format for pandoc
-          echo "files=$(printf '"%s" ' "${FILES[@]}")" >> $GITHUB_OUTPUT
-      - name: Convert Markdown to PDF with Pandoc Docker
-        uses: docker://pandoc/latex:3.6
-        with:
-          args: >-
-            ${{ steps.files_list.outputs.files }}
-            --pdf-engine=xelatex
-            -H .github/formatting/preamble.tex
-            -f markdown+rebase_relative_paths
-            -o work_log/Notebook.pdf
-            --toc
-            --number-sections
-            -V geometry:a4paper
-            -V geometry:margin=1in
-            -V linkcolor:blue
-            -V urlcolor:blue
-            -V toc-depth:2
-            -V secnumdepth:3
-            -V title="Part III Project Notebook"
-            -V author="Thomas Holland (th675)"
-            -V date="October 2025 - 2026"
-            -V documentclass=article
-            -V titlepage=true
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+              with:
+                  submodules: recursive
 
-      - name: Commit and push PDF
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
+            - name: Prepare file list
+              id: files_list
+              run: |
+                  # Define the markdown files in the order you want them compiled
+                  FILES=(
+                    "log/Introduction.md"
+                    "log/Progress.md"
+                    "log/Literature.md"
+                    "log/Thoughts.md"
+                    "log/Code notes.md"
+                    "log/Maths.md"
+                    "log/Extra maths.md"
+                    "log/Output-1.md"
+                  )
 
-          git add work_log/*.pdf
+                  # Format for pandoc
+                  echo "files=$(printf '"%s" ' "${FILES[@]}")" >> $GITHUB_OUTPUT
+            - name: Convert Markdown to PDF with Pandoc Docker
+              uses: docker://pandoc/latex:3.6
+              with:
+                  args: >-
+                      ${{ steps.files_list.outputs.files }}
+                      --pdf-engine=xelatex
+                      -H .github/formatting/preamble.tex
+                      -f markdown+rebase_relative_paths
+                      -o log/Notebook.pdf
+                      --toc
+                      --number-sections
+                      -V geometry:a4paper
+                      -V geometry:margin=1in
+                      -V linkcolor:blue
+                      -V urlcolor:blue
+                      -V toc-depth:2
+                      -V secnumdepth:3
+                      -V title="Part III Project Notebook"
+                      -V author="Thomas Holland (th675)"
+                      -V date="October 2025 - 2026"
+                      -V documentclass=article
+                      -V titlepage=true
 
-          # Only commit if there are changes
-          if git diff --staged --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "Auto-generate PDF from markdown files"
-            git push
-          fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            - name: Commit and push PDF
+              run: |
+                  git config --local user.email "github-actions[bot]@users.noreply.github.com"
+                  git config --local user.name "github-actions[bot]"
+
+                  git add log/*.pdf
+
+                  # Only commit if there are changes
+                  if git diff --staged --quiet; then
+                    echo "No changes to commit"
+                  else
+                    git commit -m "Auto-generate PDF from markdown files"
+                    git push
+                  fi
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

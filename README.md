@@ -80,7 +80,7 @@ Part_III_Project/
 ├── work_da/                    # Working directory from supervisor
 │   └── random_fields*.py       # Random field examples
 │
-└── work_log/                   # Project documentation and notes
+└── log/                        # Project documentation and notes
     ├── Progress.md             # Weekly progress tracking
     ├── Maths.md                # Mathematical notes
     ├── Literature.md           # Literature review
