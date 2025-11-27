@@ -590,3 +590,8 @@ poetry.lock
 
 .vscode/
 uv.lock
+renv/library/
+renv/staging/
+renv/cellar/
+
+### Project-specific ###
