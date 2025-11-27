@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   version="1.1"
+   viewBox="0 0 3370.39 2383.94"
+   id="svg8"
+   sodipodi:docname="poster.svg"
+   inkscape:version="1.4.2 (ebf0e940, 2025-05-08)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview8"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="0.21301325"
+     inkscape:cx="2349.6191"
+     inkscape:cy="833.2815"
+     inkscape:window-width="1512"
+     inkscape:window-height="920"
+     inkscape:window-x="0"
+     inkscape:window-y="34"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg8" />
+  <!-- Generator: Adobe Illustrator 30.0.0, SVG Export Plug-In . SVG Version: 2.1.1 Build 123)  -->
+  <defs
+     id="defs1">
+    <style
+       id="style1">
+      .st0 {
+        fill: none;
+        stroke: #ed1c24;
+        stroke-miterlimit: 10;
+        stroke-width: 3px;
+      }
+
+      .st1 {
+        opacity: .5;
+      }
+
+      .st2 {
+        font-size: 200px;
+      }
+
+      .st2, .st3, .st4, .st5, .st6 {
+        fill: #231f20;
+        font-family: MyriadPro-Regular, 'Myriad Pro';
+      }
+
+      .st3 {
+        font-size: 176.25px;
+      }
+
+      .st4 {
+        font-size: 198.08px;
+      }
+
+      .st5 {
+        font-size: 176.84px;
+      }
+
+      .st6 {
+        font-size: 384px;
+      }
+
+      .st7 {
+        fill: #e3f3f1;
+      }
+    </style>
+  </defs>
+  <g
+     id="Layout"
+     class="st1">
+    <rect
+       id="Boundary"
+       class="st0"
+       x="56.69"
+       y="56.69"
+       width="3257.01"
+       height="2270.55"
+       inkscape:label="Boundary" />
+    <rect
+       class="st7"
+       x="56.69"
+       y="56.69"
+       width="3257.01"
+       height="283.46"
+       id="rect1" />
+    <g
+       id="g2">
+      <rect
+         class="st7"
+         x="56.69"
+         y="412.67"
+         width="1130.5"
+         height="997.17"
+         id="rect2" />
+      <text
+         class="st2"
+         transform="translate(122.83 970.8)"
+         id="text2"><tspan
+           x="0"
+           y="0"
+           id="tspan2">Motivation</tspan></text>
+    </g>
+    <g
+       id="g3">
+      <rect
+         class="st7"
+         x="55.01"
+         y="1449.03"
+         width="1133.86"
+         height="878.74"
+         id="rect3" />
+      <text
+         class="st3"
+         transform="translate(66.77 1932.41) scale(1.14 1)"
+         id="text3"><tspan
+           x="0"
+           y="0"
+           id="tspan3">Background</tspan></text>
+    </g>
+    <g
+       id="g4">
+      <rect
+         class="st7"
+         x="2183.2"
+         y="412.67"
+         width="1130.5"
+         height="881.68"
+         id="rect4" />
+      <text
+         class="st5"
+         transform="translate(2194.92 897.67) scale(1.13 1)"
+         id="text4"><tspan
+           x="0"
+           y="0"
+           id="tspan4">Inversion</tspan></text>
+    </g>
+    <g
+       id="g5">
+      <rect
+         class="st7"
+         x="2183.2"
+         y="1339.66"
+         width="1130.5"
+         height="987.58"
+         id="rect5" />
+      <text
+         class="st4"
+         transform="translate(2194.92 1882.91)"
+         id="text5"><tspan
+           x="0"
+           y="0"
+           id="tspan5">Extensions</tspan></text>
+    </g>
+    <g
+       id="g6">
+      <rect
+         class="st7"
+         x="1216.13"
+         y="412.67"
+         width="941.78"
+         height="1914.57"
+         id="rect6" />
+      <text
+         class="st6"
+         transform="translate(1225.9 1465.83) scale(.43 1)"
+         id="text6"><tspan
+           x="0"
+           y="0"
+           id="tspan6">Error plots</tspan></text>
+    </g>
+    <text
+       class="st5"
+       transform="translate(109.07 281.91) scale(1.13 1)"
+       id="text7"><tspan
+         x="0"
+         y="0"
+         id="tspan7">Title</tspan></text>
+    <text
+       class="st5"
+       transform="translate(1450.9 236.01) scale(1.13 1)"
+       id="text8"><tspan
+         x="0"
+         y="0"
+         id="tspan8">Authors</tspan></text>
+  </g>
+</svg>
