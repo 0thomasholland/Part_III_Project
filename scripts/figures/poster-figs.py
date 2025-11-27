@@ -140,6 +140,10 @@ for x in plots:
     )
     cbar.set_label(x[2])
     ax.set_title(x[1])
+    plt.savefig(
+        f"../../outputs/poster/AutomatedFigures/{x[1].lower().replace(' ', '_')}.tiff",
+        dpi=600,
+    )
     plt.show()
 
 # %% measure plots
@@ -211,6 +215,10 @@ for data in plots:
         ),
     )
     ax2.set_xlabel("Relative to Ice GMSL (stds)")
+    plt.savefig(
+        f"../../outputs/poster/AutomatedFigures/{data[0].lower().replace(' ', '_')}_distribution.tiff",
+        dpi=600,
+    )
     plt.show()
 
 # %%
