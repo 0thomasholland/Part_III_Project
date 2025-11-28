@@ -74,3 +74,22 @@ Mainly here to keep track of what was spoken about so I can (a) look through pap
 ## Meeting 7: 7/Nov
 
 
+## Meeting 8: 10/Nov
+
+
+## Meeting 9: 14/Nov
+
+
+## Meeting 10: 18/Nov
+
+- gaussian distribution/statistical background as foundation for inversions
+
+## Meeting 11: 21/Nov
+
+- Discussion of error plots, look at making them relative to std_gmsl
+- Finished looking at gaussian distribution/statistical background as foundation for inversions
+
+## Meeting 12: 27/Nov
+
+- Discussion of error plots
+- Spoke through poster layout and content and plan for week ahead before holidays
