@@ -187,3 +187,7 @@
 - Configured Git LFS for tracking large PNG files.
 - Began conference poster preparation with initial layout and figures.
 
+## 29 November 2025
+
+- Added additional figures for the poster and refined whitespace in plots.
+
