@@ -177,15 +177,39 @@ cbar_error.set_label("Error (m) [SSHC - SLC]")
 # %%
 # save all the figures at 600 dpi in ../../outputs/posters/AutomatedFigures/
 output_path = "../../outputs/poster/AutomatedFigures/Simple/"
-fig_ice.savefig(output_path + "1-ice_change.png", dpi=600)
-fig_load.savefig(output_path + "2-direct_load.png", dpi=600)
+fig_ice.savefig(
+    output_path + "1-ice_change.png",
+    dpi=600,
+    bbox_inches="tight",
+    pad_inches=0,
+)
+fig_load.savefig(
+    output_path + "2-direct_load.png",
+    dpi=600,
+    bbox_inches="tight",
+    pad_inches=0,
+)
 fig_displacement.savefig(
     output_path + "3-vertical_displacement.png",
     dpi=600,
+    bbox_inches="tight",
+    pad_inches=0,
 )
-fig_slc.savefig(output_path + "4-sea_level_change.png", dpi=600)
+fig_slc.savefig(
+    output_path + "4-sea_level_change.png",
+    dpi=600,
+    bbox_inches="tight",
+    pad_inches=0,
+)
 fig_sshc.savefig(
     output_path + "5-sea_surface_height_change.png",
     dpi=600,
+    bbox_inches="tight",
+    pad_inches=0,
 )
-fig_error.savefig(output_path + "6-error_sshc_slc.png", dpi=600)
+fig_error.savefig(
+    output_path + "6-error_sshc_slc.png",
+    dpi=600,
+    bbox_inches="tight",
+    pad_inches=0,
+)
