@@ -11,6 +11,7 @@ from pyslfp import (
 from scipy.stats import norm
 
 mpl.rcParams["figure.dpi"] = 600
+plt.rcParams.update({"font.size": 14})
 
 # %%
 # Setup
@@ -93,39 +94,42 @@ norm = mcolors.TwoSlopeNorm(vmin=-2.5, vcenter=0, vmax=0.3)
 fig_ice, ax_ice, im_ice = plot(
     ice_change * fp.ice_projection(),
     symmetric=True,
+    gridlines=False,
 )
 cbar_ice = fig_ice.colorbar(
     im_ice,
     ax=ax_ice,
     orientation="horizontal",
     pad=0.05,
-    shrink=0.7,
+    shrink=0.8,
 )
 cbar_ice.set_label("Ice Thickness Change (m)")
 
 fig_load, ax_load, im_load = plot(
     direct_load * 1e-6 * fp.ice_projection(),
     symmetric=True,
+    gridlines=False,
 )
 cbar_load = fig_load.colorbar(
     im_load,
     ax=ax_load,
     orientation="horizontal",
     pad=0.05,
-    shrink=0.7,
+    shrink=0.8,
 )
 cbar_load.set_label("Load Change (MPa)")
 
 fig_displacement, ax_displacement, im_displacement = plot(
     displacement,
     symmetric=True,
+    gridlines=False,
 )
 cbar_displacement = fig_displacement.colorbar(
     im_displacement,
     ax=ax_displacement,
     orientation="horizontal",
     pad=0.05,
-    shrink=0.7,
+    shrink=0.8,
 )
 cbar_displacement.set_label("Vertical Displacement (m)")
 
@@ -133,13 +137,14 @@ cbar_displacement.set_label("Vertical Displacement (m)")
 fig_slc, ax_slc, im_slc = plot(
     sea_level_change * fp.ocean_projection(),
     norm=norm,
+    gridlines=False,
 )
 cbar_slc = fig_slc.colorbar(
     im_slc,
     ax=ax_slc,
     orientation="horizontal",
     pad=0.05,
-    shrink=0.7,
+    shrink=0.8,
 )
 cbar_slc.set_ticks([-2.5, -1.25, 0, 0.3])
 cbar_slc.set_label("Sea Level Change (m)")
@@ -147,32 +152,68 @@ cbar_slc.set_label("Sea Level Change (m)")
 fig_sshc, ax_sshc, im_sshc = plot(
     sea_surface_height_change * fp.ocean_projection(),
     norm=norm,
+    gridlines=False,
 )
 cbar_sshc = fig_sshc.colorbar(
     im_sshc,
     ax=ax_sshc,
     orientation="horizontal",
     pad=0.05,
-    shrink=0.7,
+    shrink=0.8,
 )
 cbar_sshc.set_ticks([-2.5, -1.25, 0, 0.3])
 cbar_sshc.set_label("Sea Surface Height Change (m)")
-
 # %%
 fig_error, ax_error, im_error = plot(
     error * fp.ocean_projection(),
     symmetric=True,
     vmax=1.5,
     vmin=-1.5,
+    gridlines=False,
 )
 cbar_error = fig_error.colorbar(
     im_error,
     ax=ax_error,
     orientation="horizontal",
     pad=0.05,
-    shrink=0.7,
+    shrink=0.8,
 )
 cbar_error.set_label("Error (m) [SSHC - SLC]")
+
+fig_abs_error, ax_abs_error, im_abs_error = plot(
+    np.abs(error) * fp.ocean_projection(),
+    gridlines=False,
+    cmap="plasma",
+    vmax=1.5,
+)
+cbar_abs_error = fig_abs_error.colorbar(
+    im_abs_error,
+    ax=ax_abs_error,
+    orientation="horizontal",
+    pad=0.05,
+    shrink=0.8,
+)
+mean = fp.integrate(np.abs(error) * fp.ocean_function)
+cbar_abs_error.set_label(
+    f"Absolute Error (m) |SSHC - SLC|, mean ={mean:.2e} m",
+)
+
+fig_log_abs_error, ax_log_abs_error, im_log_abs_error = plot(
+    np.abs(error) * fp.ocean_projection(),
+    gridlines=False,
+    cmap="plasma",
+    norm=mcolors.SymLogNorm(linthresh=1e-3, vmin=0, vmax=1.5),
+)
+cbar_log_abs_error = fig_log_abs_error.colorbar(
+    im_log_abs_error,
+    ax=ax_log_abs_error,
+    orientation="horizontal",
+    pad=0.05,
+    shrink=0.8,
+)
+cbar_log_abs_error.set_label(
+    "Absolute Error (m) |SSHC - SLC|",
+)
 
 # %%
 # save all the figures at 600 dpi in ../../outputs/posters/AutomatedFigures/
