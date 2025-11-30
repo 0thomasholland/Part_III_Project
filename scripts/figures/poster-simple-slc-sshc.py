@@ -11,7 +11,7 @@ from pyslfp import (
 from scipy.stats import norm
 
 mpl.rcParams["figure.dpi"] = 600
-plt.rcParams.update({"font.size": 14})
+plt.rcParams.update({"font.size": 16})
 
 # %%
 # Setup
