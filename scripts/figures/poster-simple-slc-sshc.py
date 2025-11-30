@@ -26,7 +26,7 @@ ice_change = fp.disk_load(
     7.0,
     65.0,
     -45.0,
-    -100.0,
+    -10.0,
 ) * fp.ice_projection(value=0)
 direct_load = fp.direct_load_from_ice_thickness_change(ice_change)
 
@@ -79,7 +79,7 @@ data_max = max(
     sea_level_change.max(),
     sea_surface_height_change.max(),
 )
-data_abs = 2.5
+data_abs = 0.25 * 1000
 
 print(f"SLC min: {(sea_level_change).min():.2e} m")
 print(f"SLC max: {sea_level_change.max():.2e} m")
@@ -89,7 +89,11 @@ print(f"Universal colorbar range: ±{data_abs:.2e} m")
 
 # %%
 
-norm = mcolors.TwoSlopeNorm(vmin=-2.5, vcenter=0, vmax=0.3)
+norm = mcolors.TwoSlopeNorm(
+    vmin=-0.25 * 1000,
+    vcenter=0,
+    vmax=0.03 * 1000,
+)
 
 # %%
 # Plotting
@@ -139,7 +143,7 @@ cbar_displacement.set_label("Vertical Displacement (m)")
 
 
 fig_slc, ax_slc, im_slc = plot(
-    sea_level_change * fp.ocean_projection(),
+    sea_level_change * fp.ocean_projection() * 1000,
     norm=norm,
     gridlines=False,
 )
@@ -150,13 +154,13 @@ cbar_slc = fig_slc.colorbar(
     pad=0.05,
     shrink=0.8,
 )
-cbar_slc.set_ticks([-2.5, -1.25, 0, 0.3])
+cbar_slc.set_ticks([-0.25 * 1000, -0.125 * 1000, 0, 0.03 * 1000])
 cbar_slc.set_label(
-    f"Sea Level Change (m)\nGMSL Change = {gmsl * 1000:.1f} mm",
+    f"Sea Level Change (mm)\nGMSL Change = {gmsl * 1000:.1f} mm",
 )
 
 fig_sshc, ax_sshc, im_sshc = plot(
-    sea_surface_height_change * fp.ocean_projection(),
+    sea_surface_height_change * fp.ocean_projection() * 1000,
     norm=norm,
     gridlines=False,
 )
@@ -167,16 +171,16 @@ cbar_sshc = fig_sshc.colorbar(
     pad=0.05,
     shrink=0.8,
 )
-cbar_sshc.set_ticks([-2.5, -1.25, 0, 0.3])
+cbar_sshc.set_ticks([-0.25 * 1000, -0.125 * 1000, 0, 0.03 * 1000])
 cbar_sshc.set_label(
-    f"Sea Surface Height Change (m)\nGMSL Estimated Change = {gmsl_estimate * 1000:.1f} mm",
+    f"Sea Surface Height Change (mm)\nGMSL Estimated Change = {gmsl_estimate * 1000:.1f} mm",
 )
 # %%
 fig_error, ax_error, im_error = plot(
-    error * fp.ocean_projection(),
+    error * fp.ocean_projection() * 1000,
     symmetric=True,
-    vmax=1.5,
-    vmin=-1.5,
+    vmax=150,
+    vmin=-150,
     gridlines=False,
 )
 cbar_error = fig_error.colorbar(
@@ -187,11 +191,11 @@ cbar_error = fig_error.colorbar(
     shrink=0.8,
 )
 cbar_error.set_label(
-    f"Error (m) [SSHC - SLC]\nGMSL Error = {error_calc * 1000:.1f} mm\nMean Abs Error = {absolute_error_mean * 1000:.1f} mm",
+    f"Error (mm) [SSHC - SLC]\nGMSL Error = {error_calc * 1000:.1f} mm\nMean Abs Error = {absolute_error_mean * 1000:.1f} mm",
 )
 
 fig_abs_error, ax_abs_error, im_abs_error = plot(
-    np.abs(error) * fp.ocean_projection(),
+    np.abs(error) * fp.ocean_projection() * 1000,
     gridlines=False,
     cmap="plasma",
     vmax=1.5,
@@ -205,11 +209,11 @@ cbar_abs_error = fig_abs_error.colorbar(
 )
 mean = fp.integrate(np.abs(error) * fp.ocean_function)
 cbar_abs_error.set_label(
-    f"Absolute Error (m) |SSHC - SLC|, mean ={mean:.2e} m",
+    f"Absolute Error (mm) |SSHC - SLC|, mean ={mean * 1000:.2e} mm",
 )
 
 fig_log_abs_error, ax_log_abs_error, im_log_abs_error = plot(
-    np.abs(error) * fp.ocean_projection(),
+    np.abs(error) * fp.ocean_projection() * 1000,
     gridlines=False,
     cmap="plasma",
     norm=mcolors.SymLogNorm(linthresh=1e-3, vmin=0, vmax=1.5),
@@ -222,7 +226,7 @@ cbar_log_abs_error = fig_log_abs_error.colorbar(
     shrink=0.8,
 )
 cbar_log_abs_error.set_label(
-    "Absolute Error (m) |SSHC - SLC|",
+    "Absolute Error (mm) |SSHC - SLC|",
 )
 
 # %%
