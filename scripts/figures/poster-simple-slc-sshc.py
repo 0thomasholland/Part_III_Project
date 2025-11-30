@@ -11,7 +11,7 @@ from pyslfp import (
 from scipy.stats import norm
 
 mpl.rcParams["figure.dpi"] = 600
-plt.rcParams.update({"font.size": 16})
+mpl.rcParams["font.size"] = 24
 
 # %%
 # Setup
@@ -58,11 +58,15 @@ gmsl_estimate = (
 error_calc = fp.integrate(error) / fp.ocean_area
 alt_error = gmsl_estimate - gmsl
 
-print(f"GMSL: {gmsl:.6f} m")
-print(f"GMSL Estimate: {gmsl_estimate:.6f} m")
-print(f"Error: {error_calc:.6f} m")
-print(f"Alternative Error: {alt_error:.6f} m")
+print(f"GMSL: {gmsl:.4f} m")
+print(f"GMSL Estimate: {gmsl_estimate:.4f} m")
+print(f"Error: {error_calc:.4f} m")
 
+absolute_error_mean = (
+    fp.integrate(np.abs(error) * fp.ocean_function) / fp.ocean_area
+)
+
+print(f"Mean Absolute Error: {absolute_error_mean:.4f} m")
 
 # %%
 
@@ -147,7 +151,9 @@ cbar_slc = fig_slc.colorbar(
     shrink=0.8,
 )
 cbar_slc.set_ticks([-2.5, -1.25, 0, 0.3])
-cbar_slc.set_label("Sea Level Change (m)")
+cbar_slc.set_label(
+    f"Sea Level Change (m)\nGMSL Change = {gmsl * 1000:.1f} mm",
+)
 
 fig_sshc, ax_sshc, im_sshc = plot(
     sea_surface_height_change * fp.ocean_projection(),
@@ -162,7 +168,9 @@ cbar_sshc = fig_sshc.colorbar(
     shrink=0.8,
 )
 cbar_sshc.set_ticks([-2.5, -1.25, 0, 0.3])
-cbar_sshc.set_label("Sea Surface Height Change (m)")
+cbar_sshc.set_label(
+    f"Sea Surface Height Change (m)\nGMSL Estimated Change = {gmsl_estimate * 1000:.1f} mm",
+)
 # %%
 fig_error, ax_error, im_error = plot(
     error * fp.ocean_projection(),
@@ -178,7 +186,9 @@ cbar_error = fig_error.colorbar(
     pad=0.05,
     shrink=0.8,
 )
-cbar_error.set_label("Error (m) [SSHC - SLC]")
+cbar_error.set_label(
+    f"Error (m) [SSHC - SLC]\nGMSL Error = {error_calc * 1000:.1f} mm\nMean Abs Error = {absolute_error_mean * 1000:.1f} mm",
+)
 
 fig_abs_error, ax_abs_error, im_abs_error = plot(
     np.abs(error) * fp.ocean_projection(),
