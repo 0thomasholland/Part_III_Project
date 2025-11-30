@@ -191,3 +191,11 @@
 
 - Added additional figures for the poster and refined whitespace in plots.
 
+## 30 November 2025
+
+- Built plots comparing SSH and SLC sensitivity kernels — a physically important distinction since SSH is what altimetry actually measures, whilst SLC is what matters for coastal communities.
+- Resolved the SSH/SLC sign discrepancy: the source was identified as originating from the SLC = N − U decomposition and which component of the fingerprint output was being projected onto.
+- Prepared explainer figures showing the physical distinction between sea level change and sea surface height change.
+- Converted units to millimetres and adjusted to more physically sensible ice loss scenarios.
+- Added distribution plots and updated poster layout.
+
