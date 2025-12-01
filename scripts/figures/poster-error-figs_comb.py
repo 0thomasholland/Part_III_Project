@@ -92,10 +92,10 @@ ice_ssh_measure = ice_direct_load_change_measure.affine_mapping(
 )
 
 odt_measure, odt_load_measure = ocean_dynamic_topography_measures(
-    fp,
-    fingerprint_operator,
-    odt_length_scale,
-    odt_standard_deviation_factor,
+    fingerprint=fp,
+    fingerprint_operator=fingerprint_operator,
+    length_scale=odt_length_scale,
+    standard_deviation=odt_standard_deviation_factor,
 )
 
 odt_measure_sample = odt_measure.sample()
@@ -613,7 +613,7 @@ error_ax1_sec = error_ax1.secondary_xaxis(
 error_ax1_sec.set_xlabel("Relative to True GMSL (σ)")
 error_ax1.legend(
     loc="lower center",
-    bbox_to_anchor=(0.5, -0.7),
+    bbox_to_anchor=(0.5, -0.6),  # (x, y)
     ncol=2,
 )
 
