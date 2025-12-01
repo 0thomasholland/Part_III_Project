@@ -157,13 +157,13 @@ altimetry_projection = fp.altimetry_projection(
     latitude_min=-altimetry_range,
     latitude_max=altimetry_range,
     value=0,
-)
+) * fp.ocean_projection(value=0)
 
 altimetry_projection_for_plotting = fp.altimetry_projection(
     latitude_min=-altimetry_range,
     latitude_max=altimetry_range,
     value=np.nan,
-)
+) * fp.ocean_projection(value=np.nan)
 
 altimetry_operator = spatial_mutliplication_operator(
     altimetry_projection,
@@ -239,6 +239,13 @@ for x in plots:
     )
     cbar.set_label(x[2])
     ax.set_title(x[1])
+    # if ice driven sea level change plot with tab:blue title color, if total observed plot with tab:orange title color else black
+    if x[1] == "Sea Level Change from Ice Load":
+        ax.title.set_color("tab:blue")
+    elif x[1] == "Total Observed Sea Surface Height Change":
+        ax.title.set_color("tab:orange")
+    else:
+        ax.title.set_color("black")
     try:
         plt.savefig(
             f"{output_dir}/{x[1].lower().replace(' ', '_')}.png",
@@ -303,12 +310,7 @@ plots = [
     (
         "Total Observed Sea Surface Height Change Measure",
         total_observed_measure,
-        fp.altimetry_projection(
-            latitude_min=-altimetry_range,
-            latitude_max=altimetry_range,
-            value=0,
-        )
-        * fp.ocean_projection(value=0),
+        altimetry_projection,
         "mm",
         1000.0,
     ),
@@ -364,7 +366,20 @@ for data in plots:
 
     # Get current axes
     ax = plt.gca()
-    ax.plot(x_space * fp.length_scale, pdf * fp.length_scale)
+    if data[0] == "Ice Change Driven Sea Level Change":
+        color = "tab:blue"
+    elif (
+        data[0] == "Total Observed Sea Surface Height Change Measure"
+    ):
+        color = "tab:orange"
+    else:
+        color = "black"
+    ax.plot(
+        x_space * fp.length_scale,
+        pdf * fp.length_scale,
+        color=color,
+        linewidth=3,
+    )
     # ax.set_title(f"{data[0]} Distribution")
     ax.set_xlabel(f"{data[3]}")
     ax.set_ylabel("Probability Density")
@@ -387,6 +402,11 @@ for data in plots:
     try:
         plt.savefig(
             f"{output_dir}/{data[0].lower().replace(' ', '_')}_distribution.png",
+            dpi=600,
+            bbox_inches="tight",
+        )
+        plt.savefig(
+            f"{output_dir}/{data[0].lower().replace(' ', '_')}_distribution.svg",
             dpi=600,
             bbox_inches="tight",
         )
@@ -467,14 +487,16 @@ x = np.linspace(x_min, x_max, 1000)
 ax1.plot(
     x,
     norm.pdf(x, gmsl_true_expectation, gmsl_true_std),
+    "tab:blue",
     label="True GMSL",
-    linewidth=2,
+    linewidth=3,
 )
 ax1.plot(
     x,
     norm.pdf(x, gmsl_estimated_expectation, gmsl_estimated_std),
+    "tab:orange",
     label="Estimated GMSL",
-    linewidth=2,
+    linewidth=3,
 )
 ax1.set_xlabel("GMSL (mm)")
 ax1.set_ylabel("Probability Density")
@@ -504,8 +526,8 @@ error_x = np.linspace(
 ax2.plot(
     error_x,
     norm.pdf(error_x, error_mean, error_std),
-    "r",
-    linewidth=2,
+    "tab:red",
+    linewidth=3,
 )
 ax2.axvline(
     0,
@@ -530,6 +552,11 @@ ax2_sec.set_xlabel("Relative to Error Mean (σ)")
 try:
     plt.savefig(
         f"{output_dir}/gmsl_and_error_distributions.png",
+        dpi=600,
+        bbox_inches="tight",
+    )
+    plt.savefig(
+        f"{output_dir}/gmsl_and_error_distributions.svg",
         dpi=600,
         bbox_inches="tight",
     )
