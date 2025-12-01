@@ -86,3 +86,6 @@ Part_III_Project/
     ├── Literature.md           # Literature review
     └── Code notes.md           # Code documentation
 ```
+
+## Poster
+![Poster](outputs/poster/Poster-page001.svg)
