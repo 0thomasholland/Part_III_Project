@@ -191,9 +191,10 @@ def create_composite_figure(
     dist_color="black",
     projection=ccrs.Robinson(),
     cmap="RdBu",
-    symmetric=True,
+    symmetric=False,
     coasts=True,
     show_secondary_axis=True,
+    projection_for_avg=None,
 ):
     """Create a square composite figure with map and inset distribution."""
     # Create square figure
@@ -239,19 +240,46 @@ def create_composite_figure(
     ax_map.set_global()
 
     # Add title
-    ax_map.set_title(map_title, fontsize=24)
+    ax_map.set_title(map_title, fontsize=36, pad=20)
 
-    # Create inset axes for distribution - overlapping bottom left of map
-    # [left, bottom, width, height]
-    ax_inset = fig.add_axes([0.06, 0.1, 0.28, 0.22])
-    ax_inset.set_facecolor(mcolors.to_rgba("white", alpha=0.6))
+    # Background for inset (slightly larger than inset)
+    ax_inset_bg = fig.add_axes(
+        # [left, bottom, width, height]
+        [-0.02, 0.05, 0.38, 0.35],  # previous 0.37
+    )
+    ax_inset_bg.set_facecolor((1, 1, 1, 0.6))
+    ax_inset_bg.set_xticks([])
+    ax_inset_bg.set_yticks([])
+    for spine in ax_inset_bg.spines.values():
+        spine.set_visible(False)
+    ax_inset_bg.set_zorder(ax_map.get_zorder() + 1)
+
+    # Then create the actual inset on top
+    ax_inset = fig.add_axes([0.06, 0.15, 0.28, 0.22])
+    ax_inset.set_facecolor((1, 1, 1, 0.5))  # 50% white for plot area
+    ax_inset.set_zorder(ax_map.get_zorder() + 2)
+
+    clean_data = shgrid_data.copy()
+    clean_data.data = np.nan_to_num(shgrid_data.data, nan=0.0)
+
+    map_mean_value = fp.integrate(
+        clean_data * projection_for_avg,
+    ) / fp.integrate(projection_for_avg)
 
     # Add horizontal colorbar next to inset plot
     # [left, bottom, width, height]
     cbar_ax = fig.add_axes([0.45, 0.15, 0.45, 0.025])
     cbar = fig.colorbar(im, cax=cbar_ax, orientation="horizontal")
-    cbar.set_label(map_units)
-
+    if map_mean_value != 0.0:
+        cbar.set_label(
+            f"Example Sample [{map_units}]\nAverage Value: {map_mean_value:.2f} {map_units}",
+            fontsize=12,
+        )
+    else:
+        cbar.set_label(
+            f"Example Sample [{map_units}]",
+            fontsize=12,
+        )
     # Plot distribution
     x_space = np.linspace(
         dist_expectation - 4 * dist_std,
@@ -261,13 +289,15 @@ def create_composite_figure(
     pdf = norm.pdf(x_space, loc=dist_expectation, scale=dist_std)
 
     ax_inset.plot(x_space, pdf, color=dist_color, linewidth=2)
-    ax_inset.set_xlabel(map_units, fontsize=12)
+    ax_inset.set_xlabel(f"Global Average [{map_units}]", fontsize=12)
     ax_inset.set_ylabel("Probability Density", fontsize=10)
+    ax_inset.set_title("Distribution of Global Average", fontsize=12)
+    # inset figure background 20% white
 
     # Add secondary x-axis if requested and units are mm
     if show_secondary_axis and map_units == "mm":
         ax_inset_sec = ax_inset.secondary_xaxis(
-            -0.15,
+            -0.25,
             functions=(
                 lambda x, e=dist_expectation, s=ice_gmsl_std_scaled: (
                     x - e
@@ -279,7 +309,7 @@ def create_composite_figure(
             ),
         )
         ax_inset_sec.set_xlabel(
-            "Relative to Ice GMSL (σ)",
+            "Relative to Ice GMSL [σ]",
             fontsize=10,
         )
         ax_inset_sec.tick_params(labelsize=10)
@@ -314,6 +344,8 @@ def get_measure_stats(measure, projection, scale_factor, fp):
         * scale_factor
         * fp.length_scale
     )
+    var = averaged_measure.covariance.matrix(dense=True)[0, 0]
+    print(f"Variance: {var}")  # Likely something like -1e-30
     return expectation, std
 
 
@@ -372,7 +404,7 @@ composite_plots = [
         None,
     ),
     (
-        "ODT Error",
+        "Ocean Dynamic Topography induced Error",
         odt_error_sample * fp.ocean_projection() * 1000,
         odt_error_measure,
         fp.ocean_projection(value=0),
@@ -382,7 +414,7 @@ composite_plots = [
         None,
     ),
     (
-        "Altimetry Error",
+        "Altimetry Sensor Error",
         altimetry_error_sample * fp.ocean_projection() * 1000,
         altimetry_error_measure,
         fp.ocean_projection(value=0),
@@ -392,7 +424,7 @@ composite_plots = [
         None,
     ),
     (
-        "Combined Ocean Error",
+        "Combined Error",
         combined_error_sample * fp.ocean_projection() * 1000,
         combined_error_measure,
         fp.ocean_projection(value=0),
@@ -455,6 +487,7 @@ for plot_config in composite_plots:
         title_color=title_color,
         bg_color=bg_color,
         dist_color=dist_color,
+        projection_for_avg=projection_for_avg,
     )
 
     # Save figure
