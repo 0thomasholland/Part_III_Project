@@ -251,7 +251,7 @@ for x in plots:
         ax.title.set_color("black")
     try:
         plt.savefig(
-            f"{output_dir}/{x[1].lower().replace(' ', '_')}.png",
+            f"{output_dir}/maps/{x[1].lower().replace(' ', '_')}.png",
             dpi=600,
             bbox_inches="tight",
         )
@@ -404,12 +404,12 @@ for data in plots:
 
     try:
         plt.savefig(
-            f"{output_dir}/{data[0].lower().replace(' ', '_')}_distribution.png",
+            f"{output_dir}/distributions/{data[0].lower().replace(' ', '_')}_distribution.png",
             dpi=600,
             bbox_inches="tight",
         )
         plt.savefig(
-            f"{output_dir}/{data[0].lower().replace(' ', '_')}_distribution.svg",
+            f"{output_dir}/distributions/{data[0].lower().replace(' ', '_')}_distribution.svg",
             dpi=600,
             bbox_inches="tight",
         )
