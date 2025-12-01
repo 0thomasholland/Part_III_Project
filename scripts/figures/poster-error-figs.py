@@ -1,5 +1,6 @@
 # %%
 import matplotlib as mpl
+import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 import numpy as np
 from pyslfp import (
@@ -242,10 +243,10 @@ for x in plots:
     # if ice driven sea level change plot with tab:blue title color, if total observed plot with tab:orange title color else black, and set background 20% of that color except black
     if x[1] == "Sea Level Change from Ice Load":
         ax.title.set_color("tab:blue")
-        ax.set_facecolor("tab:blue20")
+        fig.set_facecolor(mcolors.to_rgba("tab:blue", alpha=0.2))
     elif x[1] == "Total Observed Sea Surface Height Change":
         ax.title.set_color("tab:orange")
-        ax.set_facecolor("tab:orange20")
+        fig.set_facecolor(mcolors.to_rgba("tab:orange", alpha=0.2))
     else:
         ax.title.set_color("black")
     try:
