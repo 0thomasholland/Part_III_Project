@@ -47,17 +47,20 @@ B_ssh = C @ A @ T
 
 # %%
 # Define observation location
-lat_camb, lon_camb = 52.1951, -0.1313
-
+lat, lon = 33, -80
 # %%
 # Compute sensitivity kernels using the adjoint method
 
 # For sea level change
-v_slc = B_slc.codomain.dirac_representation((lat_camb, lon_camb))
+v_slc = B_slc.codomain.dirac_representation(
+    (lat, lon),
+)
 w_slc = B_slc.adjoint(v_slc)
 
 # For sea surface height
-v_ssh = B_ssh.codomain.dirac_representation((lat_camb, lon_camb))
+v_ssh = B_ssh.codomain.dirac_representation(
+    (lat, lon),
+)
 w_ssh = B_ssh.adjoint(v_ssh)
 
 # %%
@@ -77,15 +80,13 @@ fig_slc_kern, ax_slc_kern, im_slc_kern = plot(
     cmap="seismic",
     symmetric=True,
     gridlines=False,
-    vmax=vmax * 1000,
-    vmin=-vmax * 1000,
 )
 ax_slc_kern.set_title(
     "Sea Level Change Sensitivity\n(per unit ice thickness)",
 )
 ax_slc_kern.plot(
-    lon_camb,
-    lat_camb,
+    lon,
+    lat,
     "m*",
     markersize=10,
     transform=ccrs.PlateCarree(),
@@ -108,15 +109,13 @@ fig_ssh_kern, ax_ssh_kern, im_ssh_kern = plot(
     cmap="seismic",
     symmetric=True,
     gridlines=False,
-    vmax=vmax * 1000,
-    vmin=-vmax * 1000,
 )
 ax_ssh_kern.set_title(
     "Sea Surface Height Sensitivity\n(per unit ice thickness)",
 )
 ax_ssh_kern.plot(
-    lon_camb,
-    lat_camb,
+    lon,
+    lat,
     "m*",
     markersize=10,
     transform=ccrs.PlateCarree(),
