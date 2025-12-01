@@ -59,7 +59,7 @@ odt_standard_deviation_factor = 0.001 / fp.length_scale
 altimetry_error_length_scale = 0.01 * fp.mean_sea_floor_radius
 altimetry_error_standard_deviation = 0.0005 / fp.length_scale
 
-altimetry_range = 66
+altimetry_range = 74.0  # degrees
 
 
 # %%
