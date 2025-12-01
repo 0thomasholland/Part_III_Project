@@ -204,6 +204,8 @@ def create_composite_figure(
     # Set background color
     if bg_color is not None:
         fig.set_facecolor(mcolors.to_rgba(bg_color, alpha=0.2))
+    else:
+        fig.set_facecolor((1, 1, 1, 0.0))  # fully transparent
 
     # Create main map axes - nearly full figure
     ax_map = fig.add_axes(
