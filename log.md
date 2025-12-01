@@ -199,3 +199,10 @@
 - Converted units to millimetres and adjusted to more physically sensible ice loss scenarios.
 - Added distribution plots and updated poster layout.
 
+## 1 December 2025
+
+- Generated combined distribution plots for the poster with consistent colour schemes.
+- Finalised poster figures: GMSL plots, background sensitivity plots, and combined error distributions.
+- Set transparent backgrounds as default for all figure output.
+- Investigated sensitivity kernels for the forward model.
+
