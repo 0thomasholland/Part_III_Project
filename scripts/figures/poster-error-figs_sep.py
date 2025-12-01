@@ -20,7 +20,14 @@ from Part_III_Project import (
 
 mpl.rcParams["font.size"] = 24
 mpl.rcParams["figure.dpi"] = 600
-output_dir = "../../outputs/poster/AutomatedFigures/Distributions"
+output_dir = (
+    "../../outputs/poster/AutomatedFigures/Distributions_Flow"
+)
+
+# print working dir
+import os
+
+print("Working directory:", os.getcwd())
 
 # %%
 # Setup
@@ -345,6 +352,7 @@ ice_gmsl_expectation_scaled = (
     * fp.length_scale
 )  # Convert to mm and plot units
 
+# %%
 for data in plots:
     spatial_average = averaging_operator(
         data[1].domain,
@@ -474,6 +482,8 @@ print(f"GMSL Error Std: {error_std:.4e} mm")
 
 # %%
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5), sharey=True)
+# figure background transparent
+fig.patch.set_alpha(0.0)
 
 # GMSL distributions
 x_range = 4
