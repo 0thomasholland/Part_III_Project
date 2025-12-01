@@ -54,7 +54,7 @@ odt_standard_deviation_factor = 0.001 / fp.length_scale
 altimetry_error_length_scale = 0.01 * fp.mean_sea_floor_radius
 altimetry_error_standard_deviation = 0.0005 / fp.length_scale
 
-altimetry_range = 66
+altimetry_range = 77
 
 # %%
 # Generate data
@@ -506,3 +506,161 @@ for plot_config in composite_plots:
     plt.close()
 
 print("\nAll composite figures generated!")
+
+
+# %%
+# GMSL Comparison and Error Distribution Plot
+# (adapted from code A)
+
+# Calculate true GMSL statistics
+gmsl_true_expectation = (
+    ice_gmsl_averaged_measure.expectation[0]
+    * 1000.0
+    * fp.length_scale
+)
+gmsl_true_std = (
+    (
+        ice_gmsl_averaged_measure.covariance.matrix(dense=True)[0, 0]
+        ** 0.5
+    )
+    * 1000.0
+    * fp.length_scale
+)
+
+# Calculate estimated GMSL statistics using altimetry projection
+alt_projection_avg_op = averaging_operator(
+    total_observed_measure.domain,
+    [altimetry_projection / fp.integrate(altimetry_projection)],
+)
+
+gmsl_estimated = total_observed_measure.affine_mapping(
+    operator=alt_projection_avg_op,
+)
+
+gmsl_estimated_expectation = (
+    gmsl_estimated.expectation[0] * 1000.0 * fp.length_scale
+)
+gmsl_estimated_std = (
+    (gmsl_estimated.covariance.matrix(dense=True)[0, 0] ** 0.5)
+    * 1000.0
+    * fp.length_scale
+)
+
+# Calculate error statistics
+error_mean = gmsl_estimated_expectation - gmsl_true_expectation
+error_std = (gmsl_estimated_std**2 + gmsl_true_std**2) ** 0.5
+
+print(f"True GMSL Expectation: {gmsl_true_expectation:.4e} mm")
+print(f"True GMSL Std: {gmsl_true_std:.4e} mm")
+print(
+    f"Estimated GMSL Expectation: {gmsl_estimated_expectation:.4e} mm",
+)
+print(f"Estimated GMSL Std: {gmsl_estimated_std:.4e} mm")
+print(f"GMSL Error Mean: {error_mean:.4e} mm")
+print(f"GMSL Error Std: {error_std:.4e} mm")
+
+# %%
+# Create the dual-panel figure
+error_fig, (error_ax1, error_ax2) = plt.subplots(
+    1,
+    2,
+    figsize=(12, 5),
+    sharey=True,
+)
+error_fig.patch.set_alpha(0.0)
+
+# GMSL distributions
+gmsl_x_range = 4
+gmsl_x_min = min(
+    gmsl_estimated_expectation - gmsl_x_range * gmsl_estimated_std,
+    gmsl_true_expectation - gmsl_x_range * gmsl_true_std,
+)
+gmsl_x_max = max(
+    gmsl_estimated_expectation + gmsl_x_range * gmsl_estimated_std,
+    gmsl_true_expectation + gmsl_x_range * gmsl_true_std,
+)
+gmsl_x = np.linspace(gmsl_x_min, gmsl_x_max, 1000)
+
+error_ax1.plot(
+    gmsl_x,
+    norm.pdf(gmsl_x, gmsl_true_expectation, gmsl_true_std),
+    "tab:blue",
+    label="True GMSL",
+    linewidth=3,
+)
+error_ax1.plot(
+    gmsl_x,
+    norm.pdf(gmsl_x, gmsl_estimated_expectation, gmsl_estimated_std),
+    "tab:orange",
+    label="Estimated GMSL",
+    linewidth=3,
+)
+error_ax1.set_xlabel("GMSL (mm)")
+error_ax1.set_ylabel("Probability Density")
+error_ax1.set_title("GMSL Distributions")
+error_ax1.legend()
+error_ax1.grid(alpha=0.3)
+
+# Secondary axis for error_ax1
+error_ax1_sec = error_ax1.secondary_xaxis(
+    -0.25,
+    functions=(
+        lambda x, e=gmsl_true_expectation, s=gmsl_true_std: (x - e)
+        / s,
+        lambda x, e=gmsl_true_expectation, s=gmsl_true_std: x * s + e,
+    ),
+)
+error_ax1_sec.set_xlabel("Relative to True GMSL (σ)")
+error_ax1.legend(
+    loc="lower center",
+    bbox_to_anchor=(0.5, -0.7),
+    ncol=2,
+)
+
+# Error distribution
+error_dist_x = np.linspace(
+    error_mean - 4 * error_std,
+    error_mean + 4 * error_std,
+    1000,
+)
+error_ax2.plot(
+    error_dist_x,
+    norm.pdf(error_dist_x, error_mean, error_std),
+    "tab:red",
+    linewidth=3,
+)
+error_ax2.axvline(
+    0,
+    color="k",
+    linestyle="--",
+    alpha=0.3,
+)
+error_ax2.set_xlabel("Error (mm)")
+error_ax2.set_title("Error Distribution")
+error_ax2.grid(alpha=0.3)
+
+# Secondary axis for error_ax2
+error_ax2_sec = error_ax2.secondary_xaxis(
+    -0.25,
+    functions=(
+        lambda x, e=error_mean, s=gmsl_true_std: (x - e) / s,
+        lambda x, e=error_mean, s=gmsl_true_std: x * s + e,
+    ),
+)
+error_ax2_sec.set_xlabel("Relative to Error Mean (σ)")
+
+try:
+    plt.savefig(
+        f"{output_dir}/gmsl_and_error_distributions.png",
+        dpi=600,
+        bbox_inches="tight",
+    )
+    plt.savefig(
+        f"{output_dir}/gmsl_and_error_distributions.svg",
+        dpi=600,
+        bbox_inches="tight",
+    )
+except Exception as e:
+    print(f"Could not save figure: {e}")
+
+plt.close()
