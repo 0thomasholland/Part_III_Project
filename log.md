@@ -206,3 +206,8 @@
 - Set transparent backgrounds as default for all figure output.
 - Investigated sensitivity kernels for the forward model.
 
+## 2 December 2025
+
+- Continued poster refinement: updated figures, plot styling, and layout.
+- Merged poster branch into main.
+
