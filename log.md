@@ -187,3 +187,27 @@
 - Configured Git LFS for tracking large PNG files.
 - Began conference poster preparation with initial layout and figures.
 
+## 29 November 2025
+
+- Added additional figures for the poster and refined whitespace in plots.
+
+## 30 November 2025
+
+- Built plots comparing SSH and SLC sensitivity kernels — a physically important distinction since SSH is what altimetry actually measures, whilst SLC is what matters for coastal communities.
+- Resolved the SSH/SLC sign discrepancy: the source was identified as originating from the SLC = N − U decomposition and which component of the fingerprint output was being projected onto.
+- Prepared explainer figures showing the physical distinction between sea level change and sea surface height change.
+- Converted units to millimetres and adjusted to more physically sensible ice loss scenarios.
+- Added distribution plots and updated poster layout.
+
+## 1 December 2025
+
+- Generated combined distribution plots for the poster with consistent colour schemes.
+- Finalised poster figures: GMSL plots, background sensitivity plots, and combined error distributions.
+- Set transparent backgrounds as default for all figure output.
+- Investigated sensitivity kernels for the forward model.
+
+## 2 December 2025
+
+- Continued poster refinement: updated figures, plot styling, and layout.
+- Merged poster branch into main.
+
