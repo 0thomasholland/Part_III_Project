@@ -104,6 +104,7 @@ fig_ice, ax_ice, im_ice = plot(
     symmetric=True,
     gridlines=False,
 )
+fig_ice.set_facecolor((1, 1, 1, 0.0))
 cbar_ice = fig_ice.colorbar(
     im_ice,
     ax=ax_ice,
@@ -118,6 +119,7 @@ fig_load, ax_load, im_load = plot(
     symmetric=True,
     gridlines=False,
 )
+fig_load.set_facecolor((1, 1, 1, 0.0))
 cbar_load = fig_load.colorbar(
     im_load,
     ax=ax_load,
@@ -132,6 +134,7 @@ fig_displacement, ax_displacement, im_displacement = plot(
     symmetric=True,
     gridlines=False,
 )
+fig_displacement.set_facecolor((1, 1, 1, 0.0))
 cbar_displacement = fig_displacement.colorbar(
     im_displacement,
     ax=ax_displacement,
@@ -147,6 +150,7 @@ fig_slc, ax_slc, im_slc = plot(
     norm=norm,
     gridlines=False,
 )
+fig_slc.set_facecolor((1, 1, 1, 0.0))
 cbar_slc = fig_slc.colorbar(
     im_slc,
     ax=ax_slc,
@@ -154,7 +158,9 @@ cbar_slc = fig_slc.colorbar(
     pad=0.05,
     shrink=0.8,
 )
-cbar_slc.set_ticks([-0.25 * 1000, -0.125 * 1000, 0, 0.03 * 1000])
+cbar_slc.set_ticks(
+    [-0.25 * 1000, -0.125 * 1000, 0, 0.015 * 1000, 0.03 * 1000],
+)
 cbar_slc.set_label(
     f"Sea Level Change (mm)\nGMSL Change = {gmsl * 1000:.1f} mm",
 )
@@ -164,6 +170,7 @@ fig_sshc, ax_sshc, im_sshc = plot(
     norm=norm,
     gridlines=False,
 )
+fig_sshc.set_facecolor((1, 1, 1, 0.0))
 cbar_sshc = fig_sshc.colorbar(
     im_sshc,
     ax=ax_sshc,
@@ -171,7 +178,9 @@ cbar_sshc = fig_sshc.colorbar(
     pad=0.05,
     shrink=0.8,
 )
-cbar_sshc.set_ticks([-0.25 * 1000, -0.125 * 1000, 0, 0.03 * 1000])
+cbar_sshc.set_ticks(
+    [-0.25 * 1000, -0.125 * 1000, 0, 0.015 * 1000, 0.03 * 1000]
+)
 cbar_sshc.set_label(
     f"Sea Surface Height Change (mm)\nGMSL Estimated Change = {gmsl_estimate * 1000:.1f} mm",
 )
@@ -183,6 +192,7 @@ fig_error, ax_error, im_error = plot(
     vmin=-150,
     gridlines=False,
 )
+fig_error.set_facecolor((1, 1, 1, 0.0))
 cbar_error = fig_error.colorbar(
     im_error,
     ax=ax_error,
@@ -194,40 +204,6 @@ cbar_error.set_label(
     f"Error (mm) [SSHC - SLC]\nGMSL Error = {error_calc * 1000:.1f} mm\nMean Abs Error = {absolute_error_mean * 1000:.1f} mm",
 )
 
-fig_abs_error, ax_abs_error, im_abs_error = plot(
-    np.abs(error) * fp.ocean_projection() * 1000,
-    gridlines=False,
-    cmap="plasma",
-    vmax=1.5,
-)
-cbar_abs_error = fig_abs_error.colorbar(
-    im_abs_error,
-    ax=ax_abs_error,
-    orientation="horizontal",
-    pad=0.05,
-    shrink=0.8,
-)
-mean = fp.integrate(np.abs(error) * fp.ocean_function)
-cbar_abs_error.set_label(
-    f"Absolute Error (mm) |SSHC - SLC|, mean ={mean * 1000:.2e} mm",
-)
-
-fig_log_abs_error, ax_log_abs_error, im_log_abs_error = plot(
-    np.abs(error) * fp.ocean_projection() * 1000,
-    gridlines=False,
-    cmap="plasma",
-    norm=mcolors.SymLogNorm(linthresh=1e-3, vmin=0, vmax=1.5),
-)
-cbar_log_abs_error = fig_log_abs_error.colorbar(
-    im_log_abs_error,
-    ax=ax_log_abs_error,
-    orientation="horizontal",
-    pad=0.05,
-    shrink=0.8,
-)
-cbar_log_abs_error.set_label(
-    "Absolute Error (mm) |SSHC - SLC|",
-)
 
 # %%
 # save all the figures at 600 dpi in ../../outputs/posters/AutomatedFigures/
