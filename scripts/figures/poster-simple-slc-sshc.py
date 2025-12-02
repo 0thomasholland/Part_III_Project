@@ -58,15 +58,15 @@ gmsl_estimate = (
 error_calc = fp.integrate(error) / fp.ocean_area
 alt_error = gmsl_estimate - gmsl
 
-print(f"GMSL: {gmsl:.4f} m")
-print(f"GMSL Estimate: {gmsl_estimate:.4f} m")
-print(f"Error: {error_calc:.4f} m")
+print(f"GMSL: {gmsl * 1000:.4f} mm")
+print(f"GMSL Estimate: {gmsl_estimate * 1000:.4f} mm")
+print(f"Error: {error_calc * 1000:.4f} mm")
 
 absolute_error_mean = (
     fp.integrate(np.abs(error) * fp.ocean_function) / fp.ocean_area
 )
 
-print(f"Mean Absolute Error: {absolute_error_mean:.4f} m")
+print(f"Mean Absolute Error: {absolute_error_mean * 1000:.4f} mm")
 
 # %%
 
@@ -81,11 +81,11 @@ data_max = max(
 )
 data_abs = 0.25 * 1000
 
-print(f"SLC min: {(sea_level_change).min():.2e} m")
-print(f"SLC max: {sea_level_change.max():.2e} m")
-print(f"SSHC min: {sea_surface_height_change.min():.2e} m")
-print(f"SSHC max: {sea_surface_height_change.max():.2e} m")
-print(f"Universal colorbar range: ±{data_abs:.2e} m")
+print(f"SLC min: {(sea_level_change).min() * 1000:.2e} mm")
+print(f"SLC max: {sea_level_change.max() * 1000:.2e} mm")
+print(f"SSHC min: {sea_surface_height_change.min() * 1000:.2e} mm")
+print(f"SSHC max: {sea_surface_height_change.max() * 1000:.2e} mm")
+print(f"Universal colorbar range: ±{data_abs:.2e} mm")
 
 # %%
 
@@ -103,6 +103,7 @@ fig_ice, ax_ice, im_ice = plot(
     ice_change * fp.ice_projection(),
     symmetric=True,
     gridlines=False,
+    figsize=(10 * 0.8, 8 * 0.8),
 )
 fig_ice.set_facecolor((1, 1, 1, 0.0))
 cbar_ice = fig_ice.colorbar(
@@ -179,7 +180,7 @@ cbar_sshc = fig_sshc.colorbar(
     shrink=0.8,
 )
 cbar_sshc.set_ticks(
-    [-0.25 * 1000, -0.125 * 1000, 0, 0.015 * 1000, 0.03 * 1000]
+    [-0.25 * 1000, -0.125 * 1000, 0, 0.015 * 1000, 0.03 * 1000],
 )
 cbar_sshc.set_label(
     f"Sea Surface Height Change (mm)\nGMSL Estimated Change = {gmsl_estimate * 1000:.1f} mm",
@@ -201,7 +202,7 @@ cbar_error = fig_error.colorbar(
     shrink=0.8,
 )
 cbar_error.set_label(
-    f"Error (mm) [SSHC - SLC]\nGMSL Error = {error_calc * 1000:.1f} mm\nMean Abs Error = {absolute_error_mean * 1000:.1f} mm",
+    "Error: SSHC - SLC (mm)",
 )
 
 
