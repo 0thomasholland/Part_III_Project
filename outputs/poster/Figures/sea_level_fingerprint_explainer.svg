@@ -24,9 +24,9 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      showgrid="false"
-     inkscape:zoom="0.56405347"
-     inkscape:cx="624.05431"
-     inkscape:cy="55.84577"
+     inkscape:zoom="0.88405739"
+     inkscape:cx="263.55755"
+     inkscape:cy="302.58216"
      inkscape:window-width="1512"
      inkscape:window-height="920"
      inkscape:window-x="0"
@@ -370,7 +370,7 @@
    id="tspan17">ψ</tspan>)</tspan></text>
   <g
      id="g15"
-     transform="matrix(3.7795277,0,0,3.7795277,-744.84323,-163.09267)">
+     transform="matrix(3.7795277,0,0,3.7795277,-728.06714,-163.09267)">
     <g
        id="g14"
        transform="translate(0,0.51982016)">
@@ -400,7 +400,7 @@
            style="font-size:26.6667px;line-height:1;font-family:'Noto Sans Math';-inkscape-font-specification:'Noto Sans Math';text-align:center;writing-mode:lr-tb;direction:ltr;white-space:pre;shape-inside:url(#rect2-1-6);display:inline;fill:#165016;fill-opacity:1;stroke:none;stroke-width:0;stroke-opacity:1"><tspan
              x="529.44223"
              y="218.55168"
-             id="tspan3">Post Ice Melt</tspan></text>
+             id="tspan1">Post Ice Melt</tspan></text>
         <text
            xml:space="preserve"
            transform="matrix(0.34395833,0,0,0.34395833,27.283694,63.664075)"
@@ -408,7 +408,7 @@
            style="font-size:26.6667px;line-height:1;font-family:'Noto Sans Math';-inkscape-font-specification:'Noto Sans Math';text-align:center;writing-mode:lr-tb;direction:ltr;white-space:pre;shape-inside:url(#rect2-3-23-3);display:inline;fill:#603984;fill-opacity:1;stroke:none;stroke-width:0;stroke-opacity:1"><tspan
              x="524.12665"
              y="218.55168"
-             id="tspan5">Pre Ice Melt</tspan></text>
+             id="tspan2">Pre Ice Melt</tspan></text>
       </g>
       <text
          xml:space="preserve"
