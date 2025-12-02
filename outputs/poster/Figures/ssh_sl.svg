@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
    version="1.1"
-   viewBox="0 0 1133.8583 642.5197"
+   viewBox="0 0 1375.7481 642.5197"
    id="svg21"
    sodipodi:docname="ssh_sl.svg"
-   width="300mm"
+   width="364mm"
    height="170mm"
    inkscape:export-filename="ssh_sl.png"
    inkscape:export-xdpi="600"
@@ -24,9 +24,9 @@
      inkscape:pageopacity="0.0"
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
-     inkscape:zoom="0.33035887"
-     inkscape:cx="473.72725"
-     inkscape:cy="388.97094"
+     inkscape:zoom="0.39852992"
+     inkscape:cx="649.88848"
+     inkscape:cy="144.28026"
      inkscape:window-width="1512"
      inkscape:window-height="920"
      inkscape:window-x="0"
@@ -37,6 +37,26 @@
   <!-- Generator: Adobe Illustrator 30.0.0, SVG Export Plug-In . SVG Version: 2.1.1 Build 123)  -->
   <defs
      id="defs1">
+    <marker
+       style="overflow:visible"
+       id="marker15"
+       refX="0"
+       refY="0"
+       orient="auto-start-reverse"
+       inkscape:stockid="Wide arrow"
+       markerWidth="1"
+       markerHeight="1"
+       viewBox="0 0 1 1"
+       inkscape:isstock="true"
+       inkscape:collect="always"
+       preserveAspectRatio="xMidYMid">
+      <path
+         style="fill:none;stroke:context-stroke;stroke-width:1;stroke-linecap:butt"
+         d="M 3,-3 0,0 3,3"
+         transform="rotate(180,0.125,0)"
+         sodipodi:nodetypes="ccc"
+         id="path15" />
+    </marker>
     <marker
        style="overflow:visible"
        id="SemiCircleEmpty"
@@ -54,26 +74,6 @@
          style="fill:none;fill-rule:evenodd;stroke:context-stroke;stroke-width:1.08"
          d="m -0.7647042,-3.0274156 c 1.656,0 3,1.344 3,3 0,1.656 -1.344,3 -3,3"
          id="path26" />
-    </marker>
-    <marker
-       style="overflow:visible"
-       id="Triangle"
-       refX="0"
-       refY="0"
-       orient="auto-start-reverse"
-       inkscape:stockid="Triangle arrow"
-       markerWidth="1"
-       markerHeight="1"
-       viewBox="0 0 1 1"
-       inkscape:isstock="true"
-       inkscape:collect="always"
-       preserveAspectRatio="xMidYMid"
-       markerUnits="strokeWidth">
-      <path
-         transform="scale(0.5)"
-         style="fill:context-stroke;fill-rule:evenodd;stroke:context-stroke;stroke-width:1pt"
-         d="M 5.77,0 -2.88,5 V -5 Z"
-         id="path135" />
     </marker>
     <style
        id="style1">
@@ -109,26 +109,6 @@
         display: none;
       }
     </style>
-    <marker
-       style="overflow:visible"
-       id="Triangle-4"
-       refX="0"
-       refY="0"
-       orient="auto-start-reverse"
-       inkscape:stockid="Triangle arrow"
-       markerWidth="1"
-       markerHeight="1"
-       viewBox="0 0 1 1"
-       inkscape:isstock="true"
-       inkscape:collect="always"
-       preserveAspectRatio="xMidYMid"
-       markerUnits="strokeWidth">
-      <path
-         transform="scale(0.5)"
-         style="fill:context-stroke;fill-rule:evenodd;stroke:context-stroke;stroke-width:1pt"
-         d="M 5.77,0 -2.88,5 V -5 Z"
-         id="path135-2" />
-    </marker>
   </defs>
   <image
      width="1194.4799"
@@ -138,14 +118,17 @@
      style="display:none"
      x="25.269997"
      y="0" />
-  <line
-     class="st4"
-     x1="696.63531"
-     y1="69.337173"
-     x2="659.7605"
-     y2="330.2265"
-     id="line7-0"
-     style="fill:none;stroke:#c80000;stroke-width:5.33545;stroke-miterlimit:10;stroke-dasharray:5.33545, 10.6709;stroke-dashoffset:0" />
+  <g
+     inkscape:groupmode="layer"
+     id="layer4"
+     inkscape:label="Layer 1">
+    <path
+       id="path3-3"
+       style="display:inline;fill:#1f77b4;fill-opacity:0.202586;fill-rule:evenodd;stroke:none;stroke-width:3.77953;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       class="st3"
+       d="m 195.51,228.59 c 1.92,-1.56 9.48,-5.45 13.88,-6.36 2.84,-0.59 5.4,-0.3 10.41,0.29 4.75,0.56 9.52,1.15 15.62,3.18 4.58,1.52 8.08,3.25 10.12,4.34 6.94,3.7 7.99,5.9 13.3,8.97 7.66,4.43 14.92,5.32 16.49,5.5 9.54,1.05 17,-1.77 22.27,-3.76 4.57,-1.73 9.18,-3.47 13.88,-7.52 4.49,-3.87 5.2,-6.52 12.15,-17.64 6.05,-9.69 9.08,-14.53 11.57,-16.49 8.64,-6.79 19.56,-6.51 25.16,-6.36 4.27,0.11 11.15,0.29 18.51,4.05 11.03,5.64 11.39,13.31 20.83,15.33 2.94,0.63 6.59,0.03 13.88,-1.16 11.95,-1.95 15.47,-4.76 20.83,-2.6 4.21,1.7 2.84,3.76 8.1,6.94 5.32,3.22 7.72,1.71 20.54,4.63 7.48,1.7 7.67,2.45 10.7,2.31 5.92,-0.26 10.15,-3.32 15.62,-7.52 14.29,-10.99 14.79,-12.72 22.56,-18.22 0.36,-0.25 9.29,-6.5 21.98,-11.57 4.94,-1.97 8.72,-3.08 13.31,-2.6 5.38,0.56 9.36,3.02 10.99,4.05 4.49,2.84 4.84,4.83 8.97,8.39 5.71,4.92 11.67,6.85 14.75,7.81 8.11,2.53 14.89,2.08 19.38,1.74 2.22,-0.17 6.57,-0.52 11.57,-2.02 5.32,-1.6 10.04,-4.09 21.98,-13.59 15.64,-12.44 15.78,-14.72 22.56,-17.06 7.22,-2.5 14.17,-2.38 17.93,-2.31 4.86,0.08 10.01,0.17 15.91,2.6 2.76,1.13 6.31,3.76 13.31,8.97 9.13,6.79 9.93,7.97 13.31,8.97 3.63,1.08 6.95,0.72 13.59,0 1.51,-0.16 7.99,-0.9 18.8,-3.76 10.69,-2.83 10.68,-3.79 14.17,-3.47 3.58,0.32 7.3,1.66 14.75,4.34 1.97,0.71 13.83352,2.6154 14.89352,3.0254 M 195.51,228.59 c 10.7462,9.69316 24.21141,21.89253 41.3,37.48 19.61,17.89 29.5,26.89 33.37,29.77 8.26,6.13 43.88,31.71 100.12,44.2 32.85,7.29 59.85,7.26 103.73,7.22 24.74,-0.03 40.82,-1.35 70.36,1.42 21.81,2.04 26.93,4.06 41.49,3.99 29.82,-0.14 52.46,-8.81 66.75,-14.43 22.94,-9.03 66.19,-26.04 91.1,-66.75 10.22,-16.69 8.41,-22.77 23.45,-46 8.29428,-12.81489 16.08607,-24.85487 26.90352,-35.4746"
+       sodipodi:nodetypes="cccccccccccccccccccccccccccccccccccccccccccccccccc" />
+  </g>
   <g
      id="physical_earth"
      style="display:inline;stroke-width:3.77953;stroke-dasharray:none">
@@ -153,27 +136,28 @@
        class="st3"
        d="m 58.27,188.38 c 40.93,-12.11 68.28,-6.42 84.73,0 15.18,5.93 23.23,13.31 93.81,77.69 19.61,17.89 29.5,26.89 33.37,29.77 8.26,6.13 43.88,31.71 100.12,44.2 32.85,7.29 59.85,7.26 103.73,7.22 24.74,-0.03 40.82,-1.35 70.36,1.42 21.81,2.04 26.93,4.06 41.49,3.99 29.82,-0.14 52.46,-8.81 66.75,-14.43 22.94,-9.03 66.19,-26.04 91.1,-66.75 10.22,-16.69 8.41,-22.77 23.45,-46 10.66,-16.47 20.49,-31.66 36.98,-44.2 36.53,-27.79 82.58,-25.04 109.14,-23.45 19.47,1.17 35.15,4.6 45.1,7.22"
        id="path1"
-       style="stroke:#503b1f;stroke-width:3.77953;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#8c564b;stroke-width:3.77953;stroke-dasharray:none;stroke-opacity:1" />
     <path
        class="st3"
-       d="m 59.08,270.53 c 6.05,-5.44 11.42,-7.23 15.08,-7.9 6.47,-1.18 9.7,0.78 22.26,1.44 1.76,0.09 8.12,0.39 13.64,0 12.9,-0.9 22.08,-5.57 27.29,-7.9 10.84,-4.86 26.07,-9.68 43.8,-10.05 12.57,-0.26 11.67,2.38 22.98,1.44 9.2,-0.77 13.99,-2.88 34.47,-9.33 14.14,-4.46 21.2,-6.69 23.69,-7.18 19.05,-3.77 23.11,0.86 42.36,-2.87 7.18,-1.39 12.69,-3.32 23.69,-7.18 19.97,-7 23.07,-10.41 33.75,-12.92 12.55,-2.95 13.3,1.25 33.75,0 2.41,-0.15 5.4,-0.38 30.16,-4.31 33,-5.23 34.17,-5.85 40.93,-5.74 10.63,0.16 10.16,1.71 32.31,3.59 9.73,0.83 16.72,1.42 25.85,1.44 15.17,0.02 27.02,-1.57 41.65,-3.59 21.46,-2.96 21.74,-4.38 31.59,-4.31 13.54,0.11 14.64,2.8 30.88,3.59 8.6,0.42 8.83,-0.31 32.31,-1.44 19,-0.91 28.49,-1.37 35.18,-0.72 14.86,1.44 14.57,4.09 34.47,7.18 15.52,2.41 17.72,1.1 33.75,3.59 11.71,1.82 14.94,3.21 29.44,6.46 31.63,7.1 30.83,3.77 57.44,10.05 15.64,3.69 23.39,6.61 40.21,8.62 8.08,0.96 14.82,1.3 19.39,1.44"
+       d="m 958.40005,165.06 c -9.95,-2.62 -25.63,-6.05 -45.1,-7.22 -26.56,-1.59 -72.61005,-4.34 -109.14005,23.45 -16.49,12.54 -26.32,27.73 -36.98,44.2 -15.04,23.23 -13.23,29.31 -23.45,46 -24.91,40.71 -68.16,57.72 -91.1,66.75 -14.29,5.62 -36.93,14.29 -66.75,14.43 -14.56,0.07 -19.68,-1.95 -41.49,-3.99 -29.54,-2.77 -45.62,-1.45 -70.36,-1.42 -43.88,0.04 -70.88,0.07 -103.73,-7.22 -56.24,-12.49 -91.86,-38.07 -100.12,-44.2 -3.87,-2.88 -13.76,-11.88 -33.37,-29.77 -70.58,-64.38 -78.63,-71.76 -93.81,-77.69 -16.45,-6.42 -43.8,-12.11 -84.73,0 l 98.03252,233.23437 c 0,0 142.07575,-38.36439 389.23748,-37.13972 122.19986,0.60549 292.47559,35.30309 292.47559,35.30309 z"
+       id="path1-9"
+       style="display:inline;fill:#8c564b;fill-opacity:0.202586;stroke:none;stroke-width:3.77953;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       sodipodi:nodetypes="cccccccccccccccscc" />
+    <path
+       class="st3"
+       d="m 89.607536,263.52139 c 1.935179,0.21289 4.166842,0.40959 6.812464,0.54861 1.76,0.09 8.12,0.39 13.64,0 12.9,-0.9 22.08,-5.57 27.29,-7.9 10.84,-4.86 26.07,-9.68 43.8,-10.05 12.57,-0.26 11.67,2.38 22.98,1.44 9.2,-0.77 13.99,-2.88 34.47,-9.33 14.14,-4.46 21.2,-6.69 23.69,-7.18 19.05,-3.77 23.11,0.86 42.36,-2.87 7.18,-1.39 12.69,-3.32 23.69,-7.18 19.97,-7 23.07,-10.41 33.75,-12.92 12.55,-2.95 13.3,1.25 33.75,0 2.41,-0.15 5.4,-0.38 30.16,-4.31 33,-5.23 34.17,-5.85 40.93,-5.74 10.63,0.16 10.16,1.71 32.31,3.59 9.73,0.83 16.72,1.42 25.85,1.44 15.17,0.02 27.02,-1.57 41.65,-3.59 21.46,-2.96 21.74,-4.38 31.59,-4.31 13.54,0.11 14.64,2.8 30.88,3.59 8.6,0.42 8.83,-0.31 32.31,-1.44 19,-0.91 28.49,-1.37 35.18,-0.72 14.86,1.44 14.57,4.09 34.47,7.18 15.52,2.41 17.72,1.1 33.75,3.59 11.71,1.82 14.94,3.21 29.44,6.46 31.63,7.1 30.83,3.77 57.44,10.05 15.64,3.69 23.39,6.61 40.21,8.62 8.08,0.96 14.82,1.3 19.39,1.44"
        id="path2"
-       style="stroke-width:3.77953;stroke-dasharray:22.6772, 7.55906;stroke-dashoffset:0" />
+       style="stroke-width:3.77953;stroke-dasharray:22.6772, 7.55906;stroke-dashoffset:0"
+       sodipodi:nodetypes="cccccccccccccccccccccsccccc" />
     <path
        class="st3"
        d="m 195.51,228.59 c 1.92,-1.56 9.48,-5.45 13.88,-6.36 2.84,-0.59 5.4,-0.3 10.41,0.29 4.75,0.56 9.52,1.15 15.62,3.18 4.58,1.52 8.08,3.25 10.12,4.34 6.94,3.7 7.99,5.9 13.3,8.97 7.66,4.43 14.92,5.32 16.49,5.5 9.54,1.05 17,-1.77 22.27,-3.76 4.57,-1.73 9.18,-3.47 13.88,-7.52 4.49,-3.87 5.2,-6.52 12.15,-17.64 6.05,-9.69 9.08,-14.53 11.57,-16.49 8.64,-6.79 19.56,-6.51 25.16,-6.36 4.27,0.11 11.15,0.29 18.51,4.05 11.03,5.64 11.39,13.31 20.83,15.33 2.94,0.63 6.59,0.03 13.88,-1.16 11.95,-1.95 15.47,-4.76 20.83,-2.6 4.21,1.7 2.84,3.76 8.1,6.94 5.32,3.22 7.72,1.71 20.54,4.63 7.48,1.7 7.67,2.45 10.7,2.31 5.92,-0.26 10.15,-3.32 15.62,-7.52 14.29,-10.99 14.79,-12.72 22.56,-18.22 0.36,-0.25 9.29,-6.5 21.98,-11.57 4.94,-1.97 8.72,-3.08 13.31,-2.6 5.38,0.56 9.36,3.02 10.99,4.05 4.49,2.84 4.84,4.83 8.97,8.39 5.71,4.92 11.67,6.85 14.75,7.81 8.11,2.53 14.89,2.08 19.38,1.74 2.22,-0.17 6.57,-0.52 11.57,-2.02 5.32,-1.6 10.04,-4.09 21.98,-13.59 15.64,-12.44 15.78,-14.72 22.56,-17.06 7.22,-2.5 14.17,-2.38 17.93,-2.31 4.86,0.08 10.01,0.17 15.91,2.6 2.76,1.13 6.31,3.76 13.31,8.97 9.13,6.79 9.93,7.97 13.31,8.97 3.63,1.08 6.95,0.72 13.59,0 1.51,-0.16 7.99,-0.9 18.8,-3.76 10.69,-2.83 10.68,-3.79 14.17,-3.47 3.58,0.32 7.3,1.66 14.75,4.34 1.97,0.71 14.27,3.06 15.33,3.47"
        id="path3"
-       style="stroke:#2d466f;stroke-width:3.77953;stroke-dasharray:none;stroke-opacity:1" />
-    <path
-       class="st3"
-       d="M 72.171395,380.21139 C 175.45139,350.60139 341.22,316.37 545.54,321.72 c 155.89,4.08 284.18,30.56 374.84,55.67"
-       id="path4"
-       style="stroke-width:3.77953;stroke-dasharray:22.6772, 7.55906;stroke-dashoffset:0"
-       sodipodi:nodetypes="ccc" />
+       style="display:inline;stroke:#1f77b4;stroke-width:3.77953;stroke-dasharray:none;stroke-opacity:1" />
   </g>
   <g
      id="measurements"
-     style="stroke-width:3.77953;stroke-dasharray:none">
+     style="display:inline;stroke-width:3.77953;stroke-dasharray:none">
     <g
        id="g7"
        style="stroke-width:3.77953;stroke-dasharray:none">
@@ -181,34 +165,35 @@
          class="st3"
          points="514.95 307.85 527.7 307.81 527.73 321.07"
          id="polyline6"
-         style="stroke-width:3.77953;stroke-dasharray:none" />
+         style="stroke:#000000;stroke-width:3.77953;stroke-dasharray:none;stroke-opacity:1"
+         transform="matrix(-1,0,0,1,1052.5638,0)" />
       <path
-         style="fill:#000000;stroke:#000000;stroke-width:3.77953;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Triangle)"
-         d="M 514.16039,322.26577 515.3451,208.50744"
+         style="fill:#ff7f0e;stroke:#000000;stroke-width:3.77953;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker15)"
+         d="m 536.16039,322.26577 1.2221,-134.08366"
          id="path24"
          sodipodi:nodetypes="cc" />
       <text
          xml:space="preserve"
-         style="font-size:45.3333px;font-family:'Noto Sans Display';-inkscape-font-specification:'Noto Sans Display';text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#000000;stroke:#000000;stroke-width:3.77953;stroke-opacity:0"
-         x="520.99878"
+         style="font-size:45.3333px;font-family:'Noto Sans Display';-inkscape-font-specification:'Noto Sans Display';text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:3.77953;stroke-opacity:0"
+         x="540.99878"
          y="266.71045"
          id="text1"><tspan
            sodipodi:role="line"
            id="tspan1"
-           x="520.99878"
+           x="540.99878"
            y="266.71045"
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:45.3333px;font-family:'Noto Sans Display';-inkscape-font-specification:'Noto Sans Display, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;stroke:#000000;stroke-opacity:0">SSH</tspan></text>
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:45.3333px;font-family:'Noto Sans Display';-inkscape-font-specification:'Noto Sans Display, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:0">SSH</tspan></text>
       <text
          xml:space="preserve"
-         style="font-size:45.3333px;font-family:'Noto Sans Display';-inkscape-font-specification:'Noto Sans Display';text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#000000;stroke:#000000;stroke-width:3.77953;stroke-opacity:0"
-         x="433.31317"
+         style="font-size:45.3333px;font-family:'Noto Sans Display';-inkscape-font-specification:'Noto Sans Display';text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#000000;fill-opacity:1;stroke:#d62728;stroke-width:3.77953;stroke-opacity:0"
+         x="453.31317"
          y="290.09329"
          id="text2"><tspan
            sodipodi:role="line"
            id="tspan2"
-           x="433.31317"
+           x="453.31317"
            y="290.09329"
-           style="font-size:45.3333px">SL</tspan></text>
+           style="font-size:45.3333px;fill:#000000;fill-opacity:1;stroke:#d62728">SL</tspan></text>
       <text
          xml:space="preserve"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:45.3333px;font-family:'Noto Sans Display';-inkscape-font-specification:'Noto Sans Display, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#000000;stroke:#000000;stroke-width:3.77953;stroke-opacity:0"
@@ -228,16 +213,16 @@
       <text
          xml:space="preserve"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:48px;font-family:'Noto Sans Display';-inkscape-font-specification:'Noto Sans Display, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#000000;stroke:#000000;stroke-width:3.77953;stroke-dasharray:none;stroke-opacity:0"
-         x="915.48541"
+         x="937.48541"
          y="250.19904"
          id="text3-3"><tspan
            sodipodi:role="line"
-           x="915.48541"
+           x="937.48541"
            y="250.19904"
            id="tspan4-8"
            style="font-size:45.3333px">Geoid</tspan><tspan
            sodipodi:role="line"
-           x="915.48541"
+           x="937.48541"
            y="310.19904"
            id="tspan5" /></text>
       <text
@@ -277,27 +262,34 @@
            style="font-size:45.3333px">Satellites → SSH</tspan></text>
       <text
          xml:space="preserve"
-         style="font-size:56px;font-family:'Noto Sans Display';-inkscape-font-specification:'Noto Sans Display';text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#000000;stroke:#000000;stroke-width:3.77953;stroke-dasharray:none;stroke-opacity:0"
+         style="font-size:54.6667px;line-height:0;font-family:'Noto Sans Display';-inkscape-font-specification:'Noto Sans Display';text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;white-space:pre;inline-size:1448.59;display:inline;fill:#000000;stroke:#000000;stroke-width:3.77953;stroke-dasharray:none;stroke-opacity:0"
          x="5.6693683"
-         y="482.5831"
-         id="text2-6"><tspan
-           sodipodi:role="line"
-           id="tspan2-8"
+         y="484.5831"
+         id="text2-6"
+         transform="translate(0,40)"><tspan
            x="5.6693683"
-           y="482.5831"
-           style="font-size:56px"
-           dy="10">Sea Level (SL): Relative to Solid Earth</tspan><tspan
-           sodipodi:role="line"
+           y="484.5831"
+           id="tspan9"><tspan
+             style="line-height:1"
+             id="tspan7">Sea Level (SL): Relative to solid Earth
+</tspan></tspan><tspan
            x="5.6693683"
-           y="552.58313"
-           id="tspan7"
-           style="font-size:56px">Sea Surface Height (SSH): Relative to </tspan><tspan
+           y="555.64981"
+           id="tspan12"><tspan
+             style="line-height:1.6"
+             id="tspan10">Sea Surface Height (SSH): Relative to r</tspan><tspan
+             style="line-height:0.2"
+             id="tspan11">eference ellipsoid</tspan></tspan></text>
+      <text
+         xml:space="preserve"
+         style="font-size:48px;line-height:0.2;font-family:'Noto Sans Display';-inkscape-font-specification:'Noto Sans Display';text-align:end;text-decoration-color:#000000;writing-mode:lr-tb;direction:ltr;text-anchor:end;white-space:pre;opacity:1;fill:#103c5b;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:2.26772;stroke-dasharray:22.6772, 7.55906;stroke-dashoffset:0;stroke-opacity:1"
+         x="847.66663"
+         y="787.46301"
+         id="text31"><tspan
            sodipodi:role="line"
-           x="5.6693683"
-           y="622.58307"
-           style="font-size:56px"
-           id="tspan8"
-           dy="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0">                                               Reference Ellipsoid</tspan></text>
+           id="tspan31"
+           x="847.66663"
+           y="805.93701" /></text>
     </g>
     <g
        id="g7-0"
@@ -305,22 +297,22 @@
        transform="translate(-86.381103,1.391061)">
       <g
          id="g25"
-         transform="rotate(-1.6849265,516.44784,276.24157)">
+         transform="rotate(-1.1223595,529.046,-847.58733)">
         <polyline
            class="st3"
            points="514.95 307.85 527.7 307.81 527.73 321.07"
            id="polyline6-6"
-           style="fill:none;stroke:#000000;stroke-width:3.77953;stroke-miterlimit:10;stroke-dasharray:none" />
+           style="fill:none;stroke:#000000;stroke-width:3.77953;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" />
         <path
-           style="fill:#000000;stroke:#000000;stroke-width:3.77953;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Triangle-4)"
-           d="M 514.16039,345.5379 514.9502,220.35445"
+           style="fill:#d62728;stroke:#000000;stroke-width:3.77953;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker15)"
+           d="M 515.38448,345.53588 513.9839,219.78308"
            id="path24-0"
            sodipodi:nodetypes="cc" />
       </g>
     </g>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:37.3333px;font-family:'Noto Sans Display';-inkscape-font-specification:'Noto Sans Display, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#2d466f;fill-opacity:1;stroke:#000000;stroke-width:3.77953;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:37.3333px;font-family:'Noto Sans Display';-inkscape-font-specification:'Noto Sans Display, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#1f77b4;fill-opacity:1;stroke:#000000;stroke-width:3.77953;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0"
        x="221.28598"
        y="182.34712"
        id="text6"><tspan
@@ -328,10 +320,26 @@
          id="tspan6"
          x="221.28598"
          y="182.34712">Sea Surface</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:48px;line-height:1;font-family:'Noto Sans Display';-inkscape-font-specification:'Noto Sans Display';text-align:end;text-decoration-color:#000000;writing-mode:lr-tb;direction:ltr;text-anchor:end;white-space:pre;opacity:1;fill:#d62728;fill-opacity:0.202586;fill-rule:evenodd;stroke:#d62728;stroke-width:2.26772;stroke-dasharray:none;stroke-opacity:1"
+       x="43.554901"
+       y="54.443626"
+       id="text15"><tspan
+         sodipodi:role="line"
+         id="tspan15"
+         x="43.554901"
+         y="92.117638" /></text>
   </g>
+  <path
+     class="st3"
+     d="M 132.67419,364.31823 C 235.26808,339.73507 377.34133,317.31582 545.54,321.72 c 126.34949,3.30686 234.56807,21.32865 319.31543,41.40943"
+     id="path4"
+     style="display:inline;stroke-width:3.77953;stroke-dasharray:22.6772, 7.55906;stroke-dashoffset:0"
+     sodipodi:nodetypes="ccc" />
   <g
      id="stations"
-     style="stroke-width:3.77953;stroke-dasharray:none">
+     style="display:inline;stroke-width:3.77953;stroke-dasharray:none">
     <g
        id="g20"
        style="stroke-width:3.77953;stroke-dasharray:none">
@@ -524,5 +532,13 @@
        d="m 187,201.31 c 0,0 19.33,-0.18 19.51,0 v 37.16"
        id="path21"
        style="stroke-width:3.77953;stroke-dasharray:none" />
+    <line
+       class="st4"
+       x1="696.63531"
+       y1="69.337173"
+       x2="659.7605"
+       y2="330.2265"
+       id="line7-0"
+       style="fill:none;stroke:#c80000;stroke-width:5.33545;stroke-miterlimit:10;stroke-dasharray:5.33545, 10.6709;stroke-dashoffset:0" />
   </g>
 </svg>
