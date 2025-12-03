@@ -88,7 +88,7 @@ for param in input_parameters:
 # plot the net_ice_thickness_change vs altimetry_range with size being error_mean
 # use the cet D12
 
-plt.figure(figsize=(8, 6))
+plt.figure(figsize=(11, 8))
 scatter = plt.scatter(
     data["net_ice_thickness_change"],
     data["altimetry_range"],
@@ -107,9 +107,9 @@ plt.ylabel("Altimetry Range (deg)")
 plt.title(
     "Net Ice Thickness Change vs Altimetry Range with GMSL Error Mean",
 )
-
+# %%
 # do same plot but with but with continous colourisation across the entire data range using interpolation using pcolormesh
-plt.figure(figsize=(8, 6))
+plt.figure(figsize=(11, 8))
 # create a grid of net_ice_thickness_change and altimetry_range
 xi = np.linspace(
     data["net_ice_thickness_change"].min(),
