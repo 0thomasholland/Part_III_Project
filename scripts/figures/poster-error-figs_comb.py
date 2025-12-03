@@ -311,7 +311,7 @@ def create_composite_figure(
             ),
         )
         ax_inset_sec.set_xlabel(
-            "Relative to Ice GMSL [σ]",
+            "Relative to True GMSL [σ]",
             fontsize=10,
         )
         ax_inset_sec.tick_params(labelsize=10)
@@ -647,7 +647,7 @@ error_ax2_sec = error_ax2.secondary_xaxis(
         lambda x, e=error_mean, s=gmsl_true_std: x * s + e,
     ),
 )
-error_ax2_sec.set_xlabel("Relative to Error Mean (σ)")
+error_ax2_sec.set_xlabel("Relative to True GMSL (σ)")
 
 try:
     plt.savefig(
@@ -809,7 +809,7 @@ ax_inset_sec = ax_inset.secondary_xaxis(
     ),
 )
 ax_inset_sec.set_xlabel(
-    "Relative to Ice GMSL [σ]",
+    "Relative to True GMSL [σ]",
     fontsize=10,
 )
 ax_inset_sec.tick_params(labelsize=10)
