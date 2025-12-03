@@ -664,3 +664,171 @@ except Exception as e:
     print(f"Could not save figure: {e}")
 
 plt.close()
+
+
+# %%
+# ODT change measure plot, but with the distribution input being dotted and a delta function at zero
+fig_size = 10
+fig = plt.figure(figsize=(fig_size, fig_size))
+
+# Set background color
+fig.set_facecolor((1, 1, 1, 0.0))  # fully transparent
+
+# Create main map axes - nearly full figure
+ax_map = fig.add_axes(
+    [0.02, 0.0, 0.96, 0.88],
+    projection=ccrs.Robinson(),
+)
+
+grid_data = odt_measure_sample * fp.ocean_projection() * 1000
+
+# Get lon/lat from SHGrid
+lons = grid_data.lons()
+lats = grid_data.lats()
+data = grid_data.data
+
+# Set up color scaling
+plot_kwargs = {"cmap": "RdBu"}
+
+data_max = 1.2 * np.nanmax(np.abs(data))
+plot_kwargs["vmin"] = -data_max
+plot_kwargs["vmax"] = data_max
+
+# Plot the data
+im = ax_map.pcolormesh(
+    lons,
+    lats,
+    data,
+    transform=ccrs.PlateCarree(),
+    **plot_kwargs,
+)
+
+# Add coastlines
+
+ax_map.add_feature(cfeature.COASTLINE, linewidth=0.8)
+
+# Set global extent
+ax_map.set_global()
+
+# Add title
+ax_map.set_title(
+    "Ocean Dynamic Topography Change",
+    fontsize=36,
+    pad=20,
+)
+
+# Background for inset (slightly larger than inset)
+ax_inset_bg = fig.add_axes(
+    # [left, bottom, width, height]
+    [-0.02, 0.05, 0.38, 0.35],  # previous 0.37
+)
+ax_inset_bg.set_facecolor((1, 1, 1, 0.6))
+ax_inset_bg.set_xticks([])
+ax_inset_bg.set_yticks([])
+for spine in ax_inset_bg.spines.values():
+    spine.set_visible(False)
+ax_inset_bg.set_zorder(ax_map.get_zorder() + 1)
+
+# Then create the actual inset on top
+ax_inset = fig.add_axes([0.06, 0.15, 0.28, 0.22])
+ax_inset.set_facecolor((1, 1, 1, 0.5))  # 50% white for plot area
+ax_inset.set_zorder(ax_map.get_zorder() + 2)
+
+clean_data = grid_data.copy()
+clean_data.data = np.nan_to_num(grid_data.data, nan=0.0)
+
+map_mean_value = fp.integrate(
+    clean_data * projection_for_avg,
+) / fp.integrate(projection_for_avg)
+
+# Add horizontal colorbar next to inset plot
+# [left, bottom, width, height]
+cbar_ax = fig.add_axes([0.45, 0.15, 0.45, 0.025])
+cbar = fig.colorbar(im, cax=cbar_ax, orientation="horizontal")
+if map_mean_value != 0.0:
+    cbar.set_label(
+        f"Example Sample [mm]\nAverage Value: {map_mean_value:.2f} mm",
+        fontsize=12,
+    )
+else:
+    cbar.set_label(
+        "Example Sample [mm]",
+        fontsize=12,
+    )
+# Plot distribution
+
+x_space = np.linspace(
+    -4 * odt_standard_deviation_factor * 1000.0,
+    4 * odt_standard_deviation_factor * 1000.0,
+    1000,
+)
+# Create dotted normal distribution for the input parameters of ODT defined at top and delta function at zero
+pdf_dotted = norm.pdf(
+    x_space,
+    loc=0.0,
+    scale=odt_standard_deviation_factor * 1000.0,
+)
+pdf_delta = np.zeros_like(x_space)
+closest_index = np.argmin(np.abs(x_space - 0.0))
+pdf_delta[closest_index] = 1.0 / (x_space[1] - x_space[0])
+
+ax_inset.plot(
+    x_space,
+    pdf_dotted,
+    color="k",
+    linewidth=2,
+    linestyle=":",
+    label="Point Location",
+)
+ax_inset.plot(
+    x_space,
+    pdf_delta,
+    color="k",
+    linewidth=2,
+    label="Global Average",
+)
+ax_inset.set_xlabel(
+    "Global Average and Point Location [mm]",
+    fontsize=12,
+)
+ax_inset.legend(fontsize=10)
+
+# limit the y axis to ~ 3 times the max of the dotted distribution
+ax_inset.set_ylim(0, 3 * np.max(pdf_dotted))
+ax_inset.set_ylabel("Probability Density", fontsize=10)
+ax_inset.set_title("Distribution", fontsize=12)
+# inset figure background 20% white
+
+# Add secondary x-axis if requested and units are mm
+
+ax_inset_sec = ax_inset.secondary_xaxis(
+    -0.25,
+    functions=(
+        lambda x, e=0, s=ice_gmsl_std_scaled: (x - e) / s,
+        lambda x, e=0, s=ice_gmsl_std_scaled: x * s + e,
+    ),
+)
+ax_inset_sec.set_xlabel(
+    "Relative to Ice GMSL [σ]",
+    fontsize=10,
+)
+ax_inset_sec.tick_params(labelsize=10)
+
+# Style the inset
+ax_inset.tick_params(labelsize=10)
+
+# Add border to inset
+for spine in ax_inset.spines.values():
+    spine.set_edgecolor("gray")
+    spine.set_linewidth(1)
+
+try:
+    plt.savefig(
+        f"{output_dir}/odt_change_with_distribution_composite.png",
+        dpi=600,
+        bbox_inches="tight",
+    )
+except Exception as e:
+    print(f"  Could not save figure: {e}")
+
+# %%
