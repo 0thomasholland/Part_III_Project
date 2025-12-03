@@ -1,5 +1,14 @@
 # Part III Project: Bayesian Inversion Methods for Sea Level Change Estimation
 
+![GitHub last commit](https://img.shields.io/github/last-commit/0thomasholland/Part_III_Project)
+![GitHub commit activity](https://img.shields.io/github/commit-activity/m/0thomasholland/Part_III_Project)
+![GitHub commit activity](https://img.shields.io/github/commit-activity/t/0thomasholland/Part_III_Project)
+![GitHub top language](https://img.shields.io/github/languages/top/0thomasholland/Part_III_Project)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/0thomasholland/Part_III_Project)
+![GitHub repo size](https://img.shields.io/github/repo-size/0thomasholland/Part_III_Project)
+![GitHub License](https://img.shields.io/github/license/0thomasholland/Part_III_Project)
+
+
 A research project investigating the application of Bayesian inversion methods to estimate sea level change from satellite altimetry observations, incorporating sea level physics to improve upon traditional spatial averaging approaches.
 <!-- 
 **Author:** Thomas Holland  
