@@ -25,15 +25,16 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:zoom="0.39852992"
-     inkscape:cx="649.88848"
-     inkscape:cy="144.28026"
+     inkscape:cx="720.14668"
+     inkscape:cy="836.8255"
      inkscape:window-width="1512"
      inkscape:window-height="920"
      inkscape:window-x="0"
      inkscape:window-y="34"
      inkscape:window-maximized="1"
      inkscape:current-layer="g7"
-     inkscape:document-units="mm" />
+     inkscape:document-units="mm"
+     showgrid="false" />
   <!-- Generator: Adobe Illustrator 30.0.0, SVG Export Plug-In . SVG Version: 2.1.1 Build 123)  -->
   <defs
      id="defs1">
@@ -266,20 +267,20 @@
          x="5.6693683"
          y="484.5831"
          id="text2-6"
-         transform="translate(0,40)"><tspan
+         transform="translate(0,6)"><tspan
            x="5.6693683"
            y="484.5831"
-           id="tspan9"><tspan
+           id="tspan13"><tspan
              style="line-height:1"
-             id="tspan7">Sea Level (SL): Relative to solid Earth
+             id="tspan8">Sea Level (SL): Relative to solid Earth
 </tspan></tspan><tspan
            x="5.6693683"
            y="555.64981"
-           id="tspan12"><tspan
+           id="tspan17"><tspan
              style="line-height:1.6"
-             id="tspan10">Sea Surface Height (SSH): Relative to r</tspan><tspan
+             id="tspan14">Sea Surface Height (SSH): Relative to r</tspan><tspan
              style="line-height:0.2"
-             id="tspan11">eference ellipsoid</tspan></tspan></text>
+             id="tspan16">eference ellipsoid</tspan></tspan></text>
       <text
          xml:space="preserve"
          style="font-size:48px;line-height:0.2;font-family:'Noto Sans Display';-inkscape-font-specification:'Noto Sans Display';text-align:end;text-decoration-color:#000000;writing-mode:lr-tb;direction:ltr;text-anchor:end;white-space:pre;opacity:1;fill:#103c5b;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:2.26772;stroke-dasharray:22.6772, 7.55906;stroke-dashoffset:0;stroke-opacity:1"
