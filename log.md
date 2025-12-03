@@ -211,3 +211,8 @@
 - Continued poster refinement: updated figures, plot styling, and layout.
 - Merged poster branch into main.
 
+## 3 December 2025
+
+- Added improved inset plot for ODT showing both pointwise (Dirac delta function) and distributed representations.
+- Finalised conference poster with print-ready settings (bleed marks removed).
+
