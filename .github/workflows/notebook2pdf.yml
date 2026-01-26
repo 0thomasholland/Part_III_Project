@@ -50,6 +50,7 @@ jobs:
                       -H .github/formatting/preamble.tex
                       -f markdown+rebase_relative_paths
                       -o log/Notebook.pdf
+                      --resource-path=.:log:whiteboards
                       --toc
                       --number-sections
                       -V geometry:a4paper

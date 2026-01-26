@@ -15,7 +15,7 @@ output_data = pd.DataFrame(
     load(
         path.join(
             path.dirname(path.abspath(__file__)),
-            "output",
+            "data",
             "metrics_big.pkl",
         ),
     ),
@@ -35,10 +35,12 @@ ssh_odt_mean = output_data["ssh_odt_gmsl_expectation"]
 ssh_odt_std = output_data["ssh_odt_gmsl_std"]
 
 slc_gausses = [
-    norm(loc=mean, scale=std) for mean, std in zip(slc_mean, slc_std, strict=True)
+    norm(loc=mean, scale=std)
+    for mean, std in zip(slc_mean, slc_std, strict=True)
 ]
 ssh_gausses = [
-    norm(loc=mean, scale=std) for mean, std in zip(ssh_mean, ssh_std, strict=True)
+    norm(loc=mean, scale=std)
+    for mean, std in zip(ssh_mean, ssh_std, strict=True)
 ]
 ssh_odt_gausses = [
     norm(loc=mean, scale=std)
@@ -176,7 +178,8 @@ plt.savefig("error_metrics_vs_inputs.pdf")
 # %%
 
 mean_diff = np.average(
-    output_data["ssh_gmsl_expectation"] - output_data["ssh_odt_gmsl_expectation"],
+    output_data["ssh_gmsl_expectation"]
+    - output_data["ssh_odt_gmsl_expectation"],
 )
 std_diff = np.average(
     output_data["ssh_gmsl_std"] - output_data["ssh_odt_gmsl_std"],
@@ -187,7 +190,8 @@ print(std_diff)
 # %%
 
 odt_range_to_ice_gmsl_target_std = np.abs(
-    output_data["odt_amplitude_95_range"] / output_data["ice_gmsl_target_std"],
+    output_data["odt_amplitude_95_range"]
+    / output_data["ice_gmsl_target_std"],
 )
 
 odt_range_to_ice_net_ice_thickness_change = np.abs(
