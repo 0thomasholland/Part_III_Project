@@ -1,7 +1,6 @@
 # %%
 from os import path
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import pyslfp as sl
@@ -9,8 +8,6 @@ from joblib import Parallel, delayed, dump, load
 
 from Part_III_Project import (
     get_altimetry_gmsl_measure,
-    get_gmsl_measure,
-    get_stats_from_measure,
     ice_thickness_change_measures,
     load_measure,
     ocean_dynamic_topography_measures,

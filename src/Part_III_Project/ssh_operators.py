@@ -11,14 +11,9 @@ Functions:
     compute_sea_surface_height_change: Calculate SSH from components
 """
 
-from typing import Optional, Tuple
-
 import numpy as np
 import pyslfp as sl
-from pygeoinf import LinearOperator
-from pygeoinf.symmetric_space.sphere import Lebesgue, Sobolev
 from pyshtools import SHGrid
-from pyslfp import FingerPrint
 from pyslfp.physical_parameters import GRAVITATIONAL_ACCELERATION
 
 

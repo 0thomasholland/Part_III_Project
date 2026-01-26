@@ -31,9 +31,7 @@ n_rows = int(np.ceil(n_subplots / n_cols))
 vmin = float("inf")
 vmax = float("-inf")
 for load_rad in unique_load_radii:
-    data_subset = error_output[
-        error_output["load_radius"] == load_rad
-    ]
+    data_subset = error_output[error_output["load_radius"] == load_rad]
     pivot_table = data_subset.pivot(
         index="latitude",
         columns="satellite_range",
@@ -59,9 +57,7 @@ for idx, load_rad in enumerate(sorted(unique_load_radii)):
     ax = axes[idx]
 
     # Filter data for this load radius
-    data_subset = error_output[
-        error_output["load_radius"] == load_rad
-    ]
+    data_subset = error_output[error_output["load_radius"] == load_rad]
 
     pivot_table = data_subset.pivot(
         index="latitude",
@@ -129,9 +125,7 @@ plt.show()
 # %%
 # plot of error for 1 degree error minus 10 degrees error
 
-difference_data = error_output[
-    error_output["load_radius"].isin([1, 10])
-]
+difference_data = error_output[error_output["load_radius"].isin([1, 10])]
 difference_pivot = difference_data.pivot_table(
     index="latitude",
     columns=["satellite_range", "load_radius"],

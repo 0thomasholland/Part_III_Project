@@ -139,13 +139,11 @@ def process_ice_sheet(
         angular_velocity_change,
     ) = fp(direct_load=direct_load)
 
-    sea_surface_height_change_result = (
-        compute_sea_surface_height_change(
-            fp,
-            sea_level_change,
-            displacement,
-            angular_velocity_change,
-        )
+    sea_surface_height_change_result = compute_sea_surface_height_change(
+        fp,
+        sea_level_change,
+        displacement,
+        angular_velocity_change,
     )
 
     # Calculate mean sea level change once per ice sheet
@@ -168,16 +166,14 @@ def process_ice_sheet(
         )
 
         mean_sea_level_change_estimate = fp.integrate(
-            altimetry_weighting_function
-            * sea_surface_height_change_result,
+            altimetry_weighting_function * sea_surface_height_change_result,
         )
 
         # Calculate relative error
         error = (
             100
             * np.abs(
-                mean_sea_level_change_estimate
-                - mean_sea_level_change,
+                mean_sea_level_change_estimate - mean_sea_level_change,
             )
             / np.abs(mean_sea_level_change)
         )
@@ -206,9 +202,7 @@ for ice_sheet_name, error_col, errors in results:
 
 # %%
 # error_output.to_csv("traditional_method_errors.csv", index=True)
-error_output = pd.read_csv(
-    "traditional_method_errors.csv", index_col=0
-)
+error_output = pd.read_csv("traditional_method_errors.csv", index_col=0)
 
 # %%
 plt.figure(figsize=(11, 8))

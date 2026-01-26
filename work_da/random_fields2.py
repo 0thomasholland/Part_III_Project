@@ -1,7 +1,5 @@
 import numpy as np
-import matplotlib.pyplot as plt
 import pygeoinf as inf
-
 
 # Set up Euclidean space and a simple Gaussian distribution
 X = inf.EuclideanSpace(6)

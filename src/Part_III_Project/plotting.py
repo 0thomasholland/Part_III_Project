@@ -25,7 +25,6 @@ from __future__ import annotations
 import mpltern  # noqa: F401  # Needed to register the 'ternary' projection with matplotlib
 import numpy as np
 import pandas as pd
-from joblib import Parallel, delayed
 from matplotlib import pyplot as plt
 
 #####################
@@ -385,9 +384,7 @@ def plot_ternary_heatmap_subplots(
     )
     plt.tight_layout()
 
-    print_statement = "Max error across all segments: {:.2f}; Min error across all segments: {:.2f}".format(
-        global_vmax, global_vmin
-    )
+    print_statement = f"Max error across all segments: {global_vmax:.2f}; Min error across all segments: {global_vmin:.2f}"
     return fig, print_statement
 
 

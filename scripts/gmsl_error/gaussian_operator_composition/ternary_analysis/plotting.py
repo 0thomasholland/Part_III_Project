@@ -14,9 +14,7 @@ print(os.getcwd())
 data = pd.read_csv("ternary_error_analysis_w_shift_hr.csv")
 
 # remove any rows with negative fractions (these are invalid)
-data = data[
-    (data["G"] >= 0.0) & (data["W"] >= 0.0) & (data["E"] >= 0.0)
-]
+data = data[(data["G"] >= 0.0) & (data["W"] >= 0.0) & (data["E"] >= 0.0)]
 
 fig = plt.figure(figsize=(8, 7))
 ax = fig.add_subplot(111, projection="ternary")
@@ -49,9 +47,7 @@ ax.set_title(
 )
 colorbar = fig.colorbar(cs, ax=ax, orientation="horizontal", pad=0.1)
 
-fig.savefig(
-    "gmsl_error_std_vs_ice_sheet_fractions_hr_aternary.png", dpi=600
-)
+fig.savefig("gmsl_error_std_vs_ice_sheet_fractions_hr_aternary.png", dpi=600)
 
 fig = plt.figure(figsize=(8, 7))
 ax = fig.add_subplot(111, projection="ternary")

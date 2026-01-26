@@ -11,7 +11,6 @@ from Part_III_Project import (
     ocean_dynamic_topography_measures,
     plot_measure,
     sea_level_change_measure,
-    sea_surface_height_measure,
 )
 
 # --- Control switches ---

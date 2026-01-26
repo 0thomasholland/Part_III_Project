@@ -1,9 +1,7 @@
 # %%
-import matplotlib as mpl
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from joblib import Parallel, delayed, dump, load
+from joblib import Parallel, delayed
 from pyslfp import (
     FingerPrint,
     averaging_operator,
@@ -12,7 +10,6 @@ from pyslfp import (
     sea_surface_height_operator,
     spatial_mutliplication_operator,
 )
-from scipy.stats import norm
 
 from Part_III_Project import (
     ice_thickness_change_measures,
@@ -80,10 +77,12 @@ odt_change, _ = ocean_dynamic_topography_measures(
     odt_std,
 )
 
-measurement_error = measurement_space.point_value_scaled_sobolev_kernel_gaussian_measure(
-    1.5,
-    altimetry_error_length_scale,
-    altimetry_error_std,
+measurement_error = (
+    measurement_space.point_value_scaled_sobolev_kernel_gaussian_measure(
+        1.5,
+        altimetry_error_length_scale,
+        altimetry_error_std,
+    )
 )
 
 # %%
@@ -163,9 +162,7 @@ def compute_error(load_tuple: tuple):
     )
 
     total_ice_thickness_change = (
-        G_ice_thickness_change
-        + W_ice_thickness_change
-        + E_ice_thickness_change
+        G_ice_thickness_change + W_ice_thickness_change + E_ice_thickness_change
     )
 
     true_gmsl = total_ice_thickness_change.affine_mapping(
@@ -185,25 +182,15 @@ def compute_error(load_tuple: tuple):
     error = estimated_gmsl - true_gmsl
 
     true_mean = true_gmsl.expectation[0] * fp.length_scale
-    true_std = (
-        np.sqrt(true_gmsl.covariance.matrix(dense=True)[0, 0])
-        * fp.length_scale
-    )
+    true_std = np.sqrt(true_gmsl.covariance.matrix(dense=True)[0, 0]) * fp.length_scale
     est_mean = estimated_gmsl.expectation[0] * fp.length_scale
     est_std = (
-        np.sqrt(estimated_gmsl.covariance.matrix(dense=True)[0, 0])
-        * fp.length_scale
+        np.sqrt(estimated_gmsl.covariance.matrix(dense=True)[0, 0]) * fp.length_scale
     )
     error_mean = error.expectation[0] * fp.length_scale
-    error_std = (
-        np.sqrt(error.covariance.matrix(dense=True)[0, 0])
-        * fp.length_scale
-    )
+    error_std = np.sqrt(error.covariance.matrix(dense=True)[0, 0]) * fp.length_scale
     error_mean = error.expectation[0] * fp.length_scale
-    error_std = (
-        np.sqrt(error.covariance.matrix(dense=True)[0, 0])
-        * fp.length_scale
-    )
+    error_std = np.sqrt(error.covariance.matrix(dense=True)[0, 0]) * fp.length_scale
     return {
         "true_mean": true_mean,
         "true_std": true_std,

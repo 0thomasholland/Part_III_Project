@@ -9,12 +9,8 @@ from pyslfp import (
     ice_projection_operator,
     ice_thickness_change_to_load_operator,
     ocean_projection_operator,
-    sea_level_change_to_load_operator,
     sea_surface_height_operator,
 )
-from scipy.special import kl_div
-from scipy.stats import wasserstein_distance
-from tqdm import tqdm
 
 
 def ice_thickness_change_measures(

@@ -38,16 +38,32 @@ src = ["src"]
 
 [tool.ruff.lint]
 select = [
-    "F",
-    "E",
-    "W",
-    "I",
-    "ANN",
-    "TID",
+    "F",    # Pyflakes (correctness)
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "I",    # isort (import sorting)
+    "B",    # flake8-bugbear (catches common bugs like mutable defaults)
+    "UP",   # pyupgrade (upgrades code to modern Python 3.12 syntax)
+    "SIM",  # flake8-simplify (helps you write cleaner code)
+    "N",    # pep8-naming (enforces standard function/class names)
+]
+
+extend-select = [
+    "ANN",  # flake8-annotations (type hints)
+    "TID",  # flake8-tidy-imports (cleaner import structures)
+    "TCH",  # flake8-type-checking (moves circular imports to TYPE_CHECKING blocks)
+    "RUF",  # Ruff-specific rules (ambiguous characters, etc.)
+]
+
+ignore = [
+    "ANN101", # Missing type annotation for 'self' (inferred automatically)
+    "ANN102", # Missing type annotation for 'cls' (inferred automatically)
+    "ANN204", # Missing return type annotation for '__init__' (usually redundant)
 ]
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["ANN201", "ANN204"]
+"tests/*" = ["ANN"]  # Don't require strict types in tests
 
 [tool.ty]
 implicit-optional = true
