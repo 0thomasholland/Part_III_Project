@@ -5,7 +5,6 @@ from os import path
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import seaborn as sns
 from joblib import load
 from scipy.stats import norm
 
@@ -145,24 +144,17 @@ for i, (error_metric, error_label) in enumerate(
     ):
         ax = axes[i, j]
 
-        sns.scatterplot(
-            x=input_metric,
-            y=error_metric,
+        ax.scatter(
+            input_metric,
+            error_metric,
             label="SSH GMSL",
             color="blue",
-            ax=ax,
+            alpha=0.5,
         )
-        # sns.regplot(
-        #     x=input_metric,
-        #     y=error_metric,
-        #     scatter=False,
-        #     color="blue",
-        #     ax=ax,
-        # )
 
-        sns.scatterplot(
-            x=input_metric,
-            y=[
+        ax.scatter(
+            input_metric,
+            [
                 ssh_odt_kl,
                 ssh_odt_mse,
                 ssh_odt_cohens_d,
@@ -170,20 +162,8 @@ for i, (error_metric, error_label) in enumerate(
             ][i],
             label="SSH ODT GMSL",
             color="orange",
-            ax=ax,
+            alpha=0.5,
         )
-        # sns.regplot(
-        #     x=input_metric,
-        #     y=[
-        #         ssh_odt_kl,
-        #         ssh_odt_mse,
-        #         ssh_odt_cohens_d,
-        #         ssh_odt_w2,
-        #     ][i],
-        #     scatter=False,
-        #     color="orange",
-        #     ax=ax,
-        # )
 
         ax.set_xlabel(input_label)
         ax.set_ylabel(error_label)
@@ -234,24 +214,24 @@ for i, (error_metric, error_label) in enumerate(
 ):
     ax = axes[i, 0]
 
-    sns.scatterplot(
-        x=odt_range_to_ice_gmsl_target_std,
-        y=error_metric,
+    ax.scatter(
+        odt_range_to_ice_gmsl_target_std,
+        error_metric,
         label="SSH GMSL",
         color="blue",
-        ax=ax,
+        alpha=0.5,
     )
 
-    sns.scatterplot(
-        x=odt_range_to_ice_gmsl_target_std,
-        y=[
+    ax.scatter(
+        odt_range_to_ice_gmsl_target_std,
+        [
             ssh_odt_kl,
             ssh_odt_cohens_d,
             ssh_odt_w2,
         ][i],
         label="SSH ODT GMSL",
         color="orange",
-        ax=ax,
+        alpha=0.5,
     )
 
     ax.set_xlabel("ODT Amplitude to Ice GMSL Target Std Ratio")
@@ -260,24 +240,24 @@ for i, (error_metric, error_label) in enumerate(
 
     ax = axes[i, 1]
 
-    sns.scatterplot(
-        x=odt_range_to_ice_net_ice_thickness_change,
-        y=error_metric,
+    ax.scatter(
+        odt_range_to_ice_net_ice_thickness_change,
+        error_metric,
         label="SSH GMSL",
         color="blue",
-        ax=ax,
+        alpha=0.5,
     )
 
-    sns.scatterplot(
-        x=odt_range_to_ice_net_ice_thickness_change,
-        y=[
+    ax.scatter(
+        odt_range_to_ice_net_ice_thickness_change,
+        [
             ssh_odt_kl,
             ssh_odt_cohens_d,
             ssh_odt_w2,
         ][i],
         label="SSH ODT GMSL",
         color="orange",
-        ax=ax,
+        alpha=0.5,
     )
 
     ax.set_xlabel(
@@ -296,32 +276,34 @@ plt.show()
 
 # CORNER PLOT TIMEEEEE
 
-sns.pairplot(
-    output_data,
-    diag_kind="kde",
-    plot_kws={"alpha": 0.5},
-    x_vars=[
-        "ice_length_scale",
-        "ice_gmsl_target_std",
-        "net_ice_thickness_change",
-        "odt_length_scale",
-        "odt_amplitude_95_range",
-    ],
-    y_vars=[
-        "ssh_gmsl_kl",
-        "ssh_gmsl_cohens_d",
-        "ssh_gmsl_wasserstein_distance",
-        # "ssh_odt_gmsl_kl",
-        # "ssh_odt_gmsl_cohens_d",
-        # "ssh_odt_gmsl_wasserstein_distance",
-        "slc_gmsl_expectation",
-        "ssh_gmsl_expectation",
-        # "ssh_odt_gmsl_expectation",
-        "slc_gmsl_std",
-        "ssh_gmsl_std",
-        # "ssh_odt_gmsl_std",
-    ],
+x_vars = [
+    "ice_length_scale",
+    "ice_gmsl_target_std",
+    "net_ice_thickness_change",
+    "odt_length_scale",
+    "odt_amplitude_95_range",
+]
+y_vars = [
+    "ssh_gmsl_kl",
+    "ssh_gmsl_cohens_d",
+    "ssh_gmsl_wasserstein_distance",
+    "slc_gmsl_expectation",
+    "ssh_gmsl_expectation",
+    "slc_gmsl_std",
+    "ssh_gmsl_std",
+]
+
+fig, axes = plt.subplots(
+    len(y_vars), len(x_vars), figsize=(len(x_vars) * 3, len(y_vars) * 3)
 )
+for i, y_var in enumerate(y_vars):
+    for j, x_var in enumerate(x_vars):
+        axes[i, j].scatter(output_data[x_var], output_data[y_var], alpha=0.5)
+        if i == len(y_vars) - 1:
+            axes[i, j].set_xlabel(x_var)
+        if j == 0:
+            axes[i, j].set_ylabel(y_var)
+plt.tight_layout()
 plt.savefig("corner_plot.pdf")
 
 
@@ -379,26 +361,43 @@ print(melted_data.head())
 # %%
 # redo pairplot with melted data, using hue=type to differentiate between slc, ssh, and ssh_odt
 
-sns.pairplot(
-    melted_data,
-    diag_kind="kde",
-    plot_kws={"alpha": 0.5},
-    hue="type",
-    x_vars=[
-        "ice_length_scale",
-        "ice_gmsl_target_std",
-        "net_ice_thickness_change",
-        "odt_length_scale",
-        "odt_amplitude_95_range",
-    ],
-    y_vars=[
-        "expectation",
-        "std",
-        "kl",
-        "cohens_d",
-        "wasserstein_distance",
-    ],
+x_vars = [
+    "ice_length_scale",
+    "ice_gmsl_target_std",
+    "net_ice_thickness_change",
+    "odt_length_scale",
+    "odt_amplitude_95_range",
+]
+y_vars = [
+    "expectation",
+    "std",
+    "kl",
+    "cohens_d",
+    "wasserstein_distance",
+]
+
+fig, axes = plt.subplots(
+    len(y_vars), len(x_vars), figsize=(len(x_vars) * 3, len(y_vars) * 3)
 )
+groups = melted_data.groupby("type")
+# Get default color cycle
+colors = plt.rcParams["axes.prop_cycle"].by_key()["color"]
+
+for i, y_var in enumerate(y_vars):
+    for j, x_var in enumerate(x_vars):
+        for k, (name, group) in enumerate(groups):
+            color = colors[k % len(colors)]
+            axes[i, j].scatter(
+                group[x_var], group[y_var], label=name, color=color, alpha=0.5
+            )
+        if i == len(y_vars) - 1:
+            axes[i, j].set_xlabel(x_var)
+        if j == 0:
+            axes[i, j].set_ylabel(y_var)
+        if i == 0 and j == len(x_vars) - 1:
+            axes[i, j].legend()
+
+plt.tight_layout()
 plt.savefig("corner_plot_melted.pdf")
 
 # %%
