@@ -24,12 +24,10 @@ def old_ice_thickness_change_measures(
     Takes a length scale for the ice thickness changes and either a target GMSL std or a 95% range for the ice thickness changes to set the amplitude of the ocean dynamic topography measure.
     All parameters should be passed in non-dimensionalized form (already divided by fingerprint.length_scale).
     """
-    ice_measure = (
-        fingerprint_operator.domain.point_value_scaled_heat_kernel_gaussian_measure(
-            scale=length_scale,  # controls correlation length between nearby points
-            amplitude=thickness_95_range
-            / 3.92,  # the standard deviation of melt at each point
-        )
+    ice_measure = fingerprint_operator.domain.point_value_scaled_heat_kernel_gaussian_measure(
+        scale=length_scale,  # controls correlation length between nearby points
+        amplitude=thickness_95_range
+        / 3.92,  # the standard deviation of melt at each point
     )
     # project over ice only
     # remove mean shift now
@@ -70,7 +68,7 @@ def ice_thickness_change_measures(
     net_thickness_change: float,
 ) -> tuple[GaussianMeasure, GaussianMeasure]:
     """-> ice_thickness_measure, ice_thickness_load_measure
-    Takes a length scale for the ice thickness changes and either a target GMSL std or a 95% range for the ice thickness changes to set the amplitude of the ocean dynamic topography measure.
+    Takes a length scale for the ice thickness changes and a target GMSL std for the ice thickness changes to set the amplitude of the ocean dynamic topography measure.
     All parameters should be passed in non-dimensionalized form (already divided by fingerprint.length_scale).
     """
     initial_ice_thickness_measure = (
@@ -82,8 +80,10 @@ def ice_thickness_change_measures(
         fingerprint,
         fingerprint_operator.domain,
     )
-    ice_thickness_measure = initial_ice_thickness_measure.affine_mapping(
-        operator=ice_projection,
+    ice_thickness_measure = (
+        initial_ice_thickness_measure.affine_mapping(
+            operator=ice_projection,
+        )
     )
     GMSL_weighting_function = (
         -fingerprint.ice_density
@@ -143,12 +143,10 @@ def ocean_dynamic_topography_measures(
             "Either amplitude_95_range or standard_deviation must be provided",
         )
 
-    _initial_odt_measure = (
-        fingerprint_operator.domain.point_value_scaled_sobolev_kernel_gaussian_measure(
-            order=1.5,
-            scale=length_scale,
-            amplitude=standard_deviation,
-        )
+    _initial_odt_measure = fingerprint_operator.domain.point_value_scaled_sobolev_kernel_gaussian_measure(
+        order=1.5,
+        scale=length_scale,
+        amplitude=standard_deviation,
     )
     # set the ODT to be zero mean over oceans
     _ocean_projection = sl.ocean_projection_operator(
@@ -175,7 +173,8 @@ def ocean_dynamic_topography_measures(
 def load_measure(
     ice_thickness_load_measure: GaussianMeasure
     | tuple[GaussianMeasure, GaussianMeasure],
-    odt_load_measure: GaussianMeasure | tuple[GaussianMeasure, GaussianMeasure],
+    odt_load_measure: GaussianMeasure
+    | tuple[GaussianMeasure, GaussianMeasure],
 ) -> GaussianMeasure:
     """Returns a direct load measure"""
     if isinstance(ice_thickness_load_measure, tuple):
@@ -192,7 +191,9 @@ def load_measure(
             "Both input measures must be defined on the same domain",
         )
     try:
-        direct_load_measure = ice_thickness_load_measure + odt_load_measure
+        direct_load_measure = (
+            ice_thickness_load_measure + odt_load_measure
+        )
     except:
         raise ValueError(
             "Ya code broke boss tryna combine those two load measures to one",
@@ -295,13 +296,17 @@ def sea_surface_height_measure(
             _odt_measure_to_add = odt_measure
 
         # Get the identity operator for the target domain (the observation space)
-        target_identity_operator = ssh_measure.domain.identity_operator()
+        target_identity_operator = (
+            ssh_measure.domain.identity_operator()
+        )
 
         try:
             # Map the ODT measure to the target observation space (ssh_measure.domain)
             # using the identity operator to match the domain object required for addition.
-            odt_measure_obs_space = _odt_measure_to_add.affine_mapping(
-                operator=target_identity_operator,
+            odt_measure_obs_space = (
+                _odt_measure_to_add.affine_mapping(
+                    operator=target_identity_operator,
+                )
             )
         except Exception as e:
             # This catch is for any issue with the affine mapping itself (like domain incompatibility)
@@ -345,7 +350,9 @@ def get_gmsl_measure(
     measure: GaussianMeasure,
     fingerprint: FingerPrint,
 ) -> GaussianMeasure:
-    weighting_function = fingerprint.ocean_function / fingerprint.ocean_area
+    weighting_function = (
+        fingerprint.ocean_function / fingerprint.ocean_area
+    )
 
     altimetry_estimate_operator = sl.averaging_operator(
         measure.domain,
@@ -371,8 +378,11 @@ def get_altimetry_gmsl_measure(
         value=0,
     )
     combined_projection_function = ocea_projection * projection
-    weighting_function = combined_projection_function / fingerprint.integrate(
+    weighting_function = (
         combined_projection_function
+        / fingerprint.integrate(
+            combined_projection_function,
+        )
     )
     altimetry_estimate_operator = sl.averaging_operator(
         measure.domain,
