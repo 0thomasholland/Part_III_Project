@@ -10,19 +10,34 @@ from pygeoinf.symmetric_space.circle import (
 # %% definitions
 model_space = Sobolev.from_sobolev_parameters(2.0, 0.05)
 
-n_data_high = 10
-n_data_low = 10
-standard_deviation_high = 0.1
-standard_deviation_low = 0.05
+n_data = 20
+missing = 8  # number of missing observations
+standard_deviation = 0.1
 
-# Generate observation points for both cases
-observation_points_high = model_space.random_points(
+# Calculate number of observations for each case
+n_data_high = n_data
+n_data_low = n_data - missing
+
+# Generate ALL observation points first (for the high case)
+observation_points_all = model_space.random_points(
     n_data_high
 )
-observation_points_low = model_space.random_points(
-    n_data_low
-)
 
+# Convert to numpy array if it isn't already
+observation_points_all = np.array(observation_points_all)
+
+# For the low case, randomly select which points to keep
+# First shuffle to make the selection random
+indices = np.arange(n_data_high)
+np.random.shuffle(indices)
+selected_indices = np.sort(
+    indices[:n_data_low]
+)  # Sort to maintain order
+
+observation_points_high = observation_points_all
+observation_points_low = observation_points_all[
+    selected_indices
+]
 
 # Create forward operators for both cases
 forward_operator_high = (
@@ -39,6 +54,10 @@ forward_operator_low = (
 data_space_high = forward_operator_high.codomain
 data_space_low = forward_operator_low.codomain
 
+
+standard_deviation_high = standard_deviation
+standard_deviation_low = standard_deviation
+
 data_error_measure_high = (
     inf.GaussianMeasure.from_standard_deviation(
         data_space_high, standard_deviation_high
@@ -46,11 +65,9 @@ data_error_measure_high = (
 )
 data_error_measure_low = (
     inf.GaussianMeasure.from_standard_deviation(
-        data_space_low,
-        standard_deviation_low,
+        data_space_low, standard_deviation_low
     )
 )
-
 
 forward_problem_high = inf.LinearForwardProblem(
     forward_operator_high,
@@ -65,20 +82,13 @@ model_prior_measure = model_space.point_value_scaled_heat_kernel_gaussian_measur
     0.1, 1.0
 )
 
-# Generate the true model once using the high observation problem
 true_model, data_high = (
     forward_problem_high.synthetic_model_and_data(
         model_prior_measure
     )
 )
 
-# Generate data for low observations using the same true model
-# Apply the forward operator to the true model and add noise
-data_low_clean = forward_operator_low(true_model)
-noise_low = np.random.normal(
-    0, standard_deviation_low, n_data_low
-)
-data_low = data_low_clean + noise_low
+data_low = data_high[selected_indices]
 
 # %% plotting helper for comparison
 
@@ -115,7 +125,7 @@ def plot_comparison_results(
         fig=fig,
         ax=ax,
         color="b",
-        label=f"Posterior Mean (n={n_high})",
+        label=f"All Data Obs Posterior Mean (n={n_high})",
     )
     space.plot_error_bounds(
         posterior_mean_high,
@@ -132,7 +142,7 @@ def plot_comparison_results(
         fig=fig,
         ax=ax,
         color="r",
-        label=f"Posterior Mean (n={n_low})",
+        label=f"Reduced Posterior Mean (n={n_low})",
     )
     space.plot_error_bounds(
         posterior_mean_low,
@@ -143,16 +153,14 @@ def plot_comparison_results(
         color="r",
     )
 
-    # ax.errorbar(obs_points, data, 2 * data_std, fmt="ko", capsize=3, label="Data")
-    # use for high and low obs points
-
     ax.errorbar(
         obs_points_high,
         data_high,
         2 * data_high_std,
         fmt="bo",
         capsize=3,
-        label="High Obs Data (σ=%.2f)" % data_high_std,
+        label=f"All Obs Data (n={n_high}, σ=%.2f)"
+        % data_high_std,
     )
     ax.errorbar(
         obs_points_low,
@@ -160,11 +168,12 @@ def plot_comparison_results(
         2 * data_low_std,
         fmt="ro",
         capsize=3,
-        label="Low Obs Data (σ=%.2f)" % data_low_std,
+        label=f"Reduced Obs Data (n={n_low}, σ=%.2f)"
+        % data_low_std,
     )
 
     ax.set_title(
-        "Inversion Comparison: High vs Low Observations",
+        f"Inversion Comparison: {n_high} vs {n_low} Observations ({missing} Missing Points)",
         fontsize=16,
     )
     ax.set_xlabel("Angle (radians)")
@@ -174,7 +183,7 @@ def plot_comparison_results(
 
     plt.tight_layout()
     plt.savefig(
-        "bayesian_inversion_comparison.png", dpi=600
+        "pygeoinf_inversion_missing_case.png", dpi=600
     )
     plt.show()
 
