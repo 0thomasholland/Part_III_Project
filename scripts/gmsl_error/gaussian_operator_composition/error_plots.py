@@ -1,10 +1,8 @@
 # %%
-import colorcet as cc
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import seaborn as sns
 from mpl_toolkits.mplot3d import Axes3D
 from scipy.interpolate import griddata
 from scipy.stats import norm
@@ -20,23 +18,27 @@ data = pd.read_csv(
 # x values: error_mean, error_std
 # y values: ice_length_scale" "ice_gmsl_target_std", "net_ice_thickness_change",    "odt_length_scale", "odt_standard_deviation", "altimetry_error_length_scale", "altimetry_error_amplitude", "altimetry_range",
 
-sns.pairplot(
-    data,
-    x_vars=[
-        "ice_gmsl_target_std",
-        "ice_length_scale",
-        "net_ice_thickness_change",
-        "odt_length_scale",
-        "odt_standard_deviation",
-        "altimetry_error_length_scale",
-        "altimetry_error_amplitude",
-        "altimetry_range",
-    ],
-    y_vars=["error_mean", "error_std"],
-    height=4,
-    aspect=1,
-    kind="scatter",
+x_vars = [
+    "ice_gmsl_target_std",
+    "ice_length_scale",
+    "net_ice_thickness_change",
+    "odt_length_scale",
+    "odt_standard_deviation",
+    "altimetry_error_length_scale",
+    "altimetry_error_amplitude",
+    "altimetry_range",
+]
+y_vars = ["error_mean", "error_std"]
+
+fig, axes = plt.subplots(
+    len(y_vars), len(x_vars), figsize=(len(x_vars) * 4, len(y_vars) * 4)
 )
+for i, y_var in enumerate(y_vars):
+    for j, x_var in enumerate(x_vars):
+        axes[i, j].scatter(data[x_var], data[y_var])
+        axes[i, j].set_xlabel(x_var)
+        axes[i, j].set_ylabel(y_var)
+plt.tight_layout()
 
 # %%
 # for each of the input parameters, average the error_mean and error_std over the other parameters and plot each of the distributions using scipy norm
@@ -74,7 +76,7 @@ for param in input_parameters:
             norm.pdf(x, mean, std),
             label=f"{param}={i:.4f}",
             # Use the sequential index for the color map
-            color=cc.cm.fire(color_value),
+            color=plt.cm.magma(color_value),
         )
     plt.title(f"GMSL Error Distribution varying {param}")
     plt.xlabel("GMSL Error (m)")
@@ -94,7 +96,7 @@ scatter = plt.scatter(
     data["altimetry_range"],
     # s=data["error_mean"] * 1000,`
     c=data["error_mean"],
-    cmap=cc.cm.CET_D1A,
+    cmap="coolwarm",
     norm=mpl.colors.TwoSlopeNorm(
         vcenter=0,
         vmin=-data["error_mean"].max(),
@@ -136,7 +138,7 @@ plt.pcolormesh(
     yi,
     zi,
     shading="auto",
-    cmap=cc.cm.CET_D1A,
+    cmap="coolwarm",
     # set 0 as center of the colormap
     norm=mpl.colors.TwoSlopeNorm(
         vcenter=0,
@@ -169,7 +171,7 @@ ax.scatter(
     data["altimetry_range"],
     data["error_mean"],
     c=data["error_mean"],
-    cmap=cc.cm.bmy,
+    cmap="viridis",
     alpha=0.7,
 )
 ax.set_xlabel("Net Ice Thickness Change (m)")
@@ -183,7 +185,7 @@ fig.colorbar(
         data["altimetry_range"],
         data["error_mean"],
         c=data["error_mean"],
-        cmap=cc.cm.bmy,
+        cmap="viridis",
         alpha=0.7,
     ),
     ax=ax,
