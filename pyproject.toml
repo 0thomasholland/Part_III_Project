@@ -33,7 +33,7 @@ packages = [{ include = "Part_III_Project", from = "src" }]
 
 [tool.ruff]
 target-version = "py312"
-line-length = 88
+line-length = 60
 src = ["src"]
 
 [tool.ruff.lint]
