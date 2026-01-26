@@ -6,7 +6,6 @@ probability distributions related to sea level change analysis.
 
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.ticker import EngFormatter
 from pygeoinf import GaussianMeasure
 from pyslfp import FingerPrint
 from scipy.stats import norm
@@ -56,9 +55,7 @@ def plot_gaussian_measure_distribution(
 
     # Create figure and plot distributions
     fig, ax = plt.subplots(figsize=figsize)
-    for label, mu, sigma in zip(
-        labels, expectations, stds, strict=False
-    ):
+    for label, mu, sigma in zip(labels, expectations, stds, strict=False):
         y = norm.pdf(x, mu, sigma)
         legend_label = (
             f"{label} (μ={mu:.2e}, σ={sigma:.2e})"
@@ -80,9 +77,7 @@ def plot_gaussian_measure_distribution(
             # Format small numbers in scientific notation
             if isinstance(value, (int, float)):
                 formatted_value = (
-                    f"{value:.2e}"
-                    if abs(value) < 0.01 and value != 0
-                    else str(value)
+                    f"{value:.2e}" if abs(value) < 0.01 and value != 0 else str(value)
                 )
             else:
                 formatted_value = str(value)

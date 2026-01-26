@@ -9,8 +9,6 @@
 # ---
 
 # %%
-import matplotlib.pyplot as plt
-from pygeoinf import GaussianMeasure, LinearOperator
 from pyslfp import (
     EarthModelParameters,
     FingerPrint,

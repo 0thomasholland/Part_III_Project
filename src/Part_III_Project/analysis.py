@@ -129,7 +129,6 @@ def wasserstein_distance(
 
     """
     wd = np.sqrt(
-        (expectation_true - expectation_approx) ** 2
-        + (std_true - std_approx) ** 2,
+        (expectation_true - expectation_approx) ** 2 + (std_true - std_approx) ** 2,
     )
     return float(wd)

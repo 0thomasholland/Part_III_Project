@@ -102,9 +102,7 @@ error_output = pd.DataFrame()
 
 
 # %%
-def compute_error_for_combination(
-    segments, west_contribution, east_contribution, fp
-):
+def compute_error_for_combination(segments, west_contribution, east_contribution, fp):
     green_contribution = 1 - west_contribution - east_contribution
 
     direct_load = (
@@ -120,13 +118,11 @@ def compute_error_for_combination(
         angular_velocity_change,
     ) = fp(direct_load=direct_load)
 
-    sea_surface_height_change_result = (
-        compute_sea_surface_height_change(
-            fp,
-            sea_level_change,
-            displacement,
-            angular_velocity_change,
-        )
+    sea_surface_height_change_result = compute_sea_surface_height_change(
+        fp,
+        sea_level_change,
+        displacement,
+        angular_velocity_change,
     )
     mean_sea_level_change = fp.mean_sea_level_change(direct_load)
 
@@ -137,23 +133,18 @@ def compute_error_for_combination(
             latitude_max=segment,
             value=0,
         )
-        altimetry_projection_integral = fp.integrate(
-            altimetry_projection
-        )
+        altimetry_projection_integral = fp.integrate(altimetry_projection)
         altimetry_weighting_function = (
             altimetry_projection / altimetry_projection_integral
         )
 
         mean_sea_level_change_estimate = fp.integrate(
-            altimetry_weighting_function
-            * sea_surface_height_change_result,
+            altimetry_weighting_function * sea_surface_height_change_result,
         )
 
         error = (
             100
-            * np.abs(
-                mean_sea_level_change_estimate - mean_sea_level_change
-            )
+            * np.abs(mean_sea_level_change_estimate - mean_sea_level_change)
             / np.abs(mean_sea_level_change)
         )
 
@@ -173,12 +164,8 @@ def compute_error_for_combination(
 # Generate all combinations
 tasks = []
 for west_contribution in np.linspace(0, 1, plot_resolution + 1):
-    for east_contribution in np.linspace(
-        0, 1 - west_contribution, plot_resolution + 1
-    ):
-        tasks.append(
-            (sat_data_range, west_contribution, east_contribution)
-        )
+    for east_contribution in np.linspace(0, 1 - west_contribution, plot_resolution + 1):
+        tasks.append((sat_data_range, west_contribution, east_contribution))
 
 # Run in parallel
 results = Parallel(n_jobs=-1, verbose=4, batch_size="auto")(
@@ -193,9 +180,7 @@ error_output = pd.DataFrame(flattened_results)
 
 # %%
 # error_output.to_csv("ternary_sea_surface_height_error_large.csv")
-error_output = pd.read_csv(
-    "ternary_sea_surface_height_error_large.csv"
-)
+error_output = pd.read_csv("ternary_sea_surface_height_error_large.csv")
 
 print(error_output)
 
@@ -474,13 +459,9 @@ ax.set_title(
 # label the peak of each histogram with its segment
 for segment in np.unique(error_output["segment"]):
     segment_data = error_output[error_output["segment"] == segment]
-    counts, bin_edges = np.histogram(
-        segment_data["error"], bins=50, density=True
-    )
+    counts, bin_edges = np.histogram(segment_data["error"], bins=50, density=True)
     max_count_index = np.argmax(counts)
-    peak_error = (
-        bin_edges[max_count_index] + bin_edges[max_count_index + 1]
-    ) / 2
+    peak_error = (bin_edges[max_count_index] + bin_edges[max_count_index + 1]) / 2
     ax.text(
         peak_error,
         counts[max_count_index],

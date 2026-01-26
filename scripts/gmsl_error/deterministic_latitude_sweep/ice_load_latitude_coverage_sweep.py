@@ -7,10 +7,9 @@
 # %%
 import numpy as np
 import pandas as pd
-import pyshtools as pysh
 from joblib import Parallel, delayed
 from matplotlib import pyplot as plt
-from pyslfp import FingerPrint, IceModel, plot
+from pyslfp import FingerPrint, plot
 
 from Part_III_Project import (
     compute_sea_surface_height_change,
@@ -100,13 +99,11 @@ for load_rad in load_radius:  # Added outer loop for load_radius
             angular_velocity_change,
         ) = fp(direct_load=ice_thickness_change)
 
-        sea_surface_height_change_result = (
-            compute_sea_surface_height_change(
-                fp,
-                sea_level_change,
-                displacement,
-                angular_velocity_change,
-            )
+        sea_surface_height_change_result = compute_sea_surface_height_change(
+            fp,
+            sea_level_change,
+            displacement,
+            angular_velocity_change,
         )
 
         mean_sea_level_change = fp.mean_sea_level_change(
@@ -128,8 +125,7 @@ for load_rad in load_radius:  # Added outer loop for load_radius
             )
 
             mean_sea_level_change_estimate = fp.integrate(
-                altimetry_weighting_function
-                * sea_surface_height_change_result,
+                altimetry_weighting_function * sea_surface_height_change_result,
             )
 
             # Calculate relative error
@@ -137,8 +133,7 @@ for load_rad in load_radius:  # Added outer loop for load_radius
                 error = (
                     100
                     * np.abs(
-                        mean_sea_level_change_estimate
-                        - mean_sea_level_change,
+                        mean_sea_level_change_estimate - mean_sea_level_change,
                     )
                     / np.abs(mean_sea_level_change)
                 )
@@ -190,13 +185,11 @@ def process_load_latitude_radius(
         angular_velocity_change,
     ) = fp(direct_load=ice_thickness_change)
 
-    sea_surface_height_change_result = (
-        compute_sea_surface_height_change(
-            fp,
-            sea_level_change,
-            displacement,
-            angular_velocity_change,
-        )
+    sea_surface_height_change_result = compute_sea_surface_height_change(
+        fp,
+        sea_level_change,
+        displacement,
+        angular_velocity_change,
     )
 
     mean_sea_level_change = fp.mean_sea_level_change(
@@ -221,8 +214,7 @@ def process_load_latitude_radius(
         )
 
         mean_sea_level_change_estimate = fp.integrate(
-            altimetry_weighting_function
-            * sea_surface_height_change_result,
+            altimetry_weighting_function * sea_surface_height_change_result,
         )
 
         # Calculate relative error
@@ -230,8 +222,7 @@ def process_load_latitude_radius(
             error = (
                 100
                 * np.abs(
-                    mean_sea_level_change_estimate
-                    - mean_sea_level_change,
+                    mean_sea_level_change_estimate - mean_sea_level_change,
                 )
                 / np.abs(mean_sea_level_change)
             )
@@ -276,9 +267,7 @@ error_output = pd.DataFrame(results)
 # %%
 # plot of error for 1 degree error minus 10 degrees error
 
-difference_data = error_output[
-    error_output["load_radius"].isin([1, 10])
-]
+difference_data = error_output[error_output["load_radius"].isin([1, 10])]
 difference_pivot = difference_data.pivot_table(
     index="latitude",
     columns=["satellite_range", "load_radius"],

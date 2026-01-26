@@ -5,7 +5,6 @@ import numpy as np
 import pandas as pd
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
-from scipy import stats
 
 data = pd.read_csv(
     "gmsl_error_with_measurement_noise_results_lmax128.csv",
@@ -73,9 +72,7 @@ for target in ["error_mean", "error_std"]:
 
     # Filter significant parameters
     significant_params = [
-        param
-        for param in input_parameters
-        if model.pvalues[param] < 0.05
+        param for param in input_parameters if model.pvalues[param] < 0.05
     ]
 
     if not significant_params:
@@ -276,15 +273,11 @@ for target in ["error_mean", "error_std"]:
     # add interaction terms between all input parameters
     for i in range(len(input_parameters)):
         for j in range(i + 1, len(input_parameters)):
-            model_formula += (
-                f" + {input_parameters[i]}:{input_parameters[j]}"
-            )
+            model_formula += f" + {input_parameters[i]}:{input_parameters[j]}"
     model = smf.ols(f"{target} ~ {model_formula}", data=data).fit()
     # Filter significant parameters
     significant_params = [
-        param
-        for param in input_parameters
-        if model.pvalues[param] < 0.05
+        param for param in input_parameters if model.pvalues[param] < 0.05
     ]
 
     if not significant_params:

@@ -1,9 +1,8 @@
 # %%
 import matplotlib as mpl
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from joblib import Parallel, delayed, dump, load
+from joblib import Parallel, delayed
 from pyslfp import (
     FingerPrint,
     averaging_operator,
@@ -11,7 +10,6 @@ from pyslfp import (
     sea_level_change_to_load_operator,
     sea_surface_height_operator,
 )
-from scipy.stats import norm
 
 from Part_III_Project import (
     ice_thickness_change_measures,
@@ -62,9 +60,7 @@ net_ice_thickness_change = (
 )
 
 net_ice_thickness_change = np.unique(
-    np.concatenate(
-        ((net_ice_thickness_change, net_ice_thickness_change * -1),)
-    )
+    np.concatenate(((net_ice_thickness_change, net_ice_thickness_change * -1),))
 )
 
 
@@ -90,12 +86,8 @@ def get_data(
     altimetry_range=66,
 ):
     # Derived parameters
-    odt_standard_deviation = (
-        odt_standard_deviation_factor * ice_gmsl_target_std
-    )
-    altimetry_error_amplitude = (
-        altimetry_error_amplitude_factor * ice_gmsl_target_std
-    )
+    odt_standard_deviation = odt_standard_deviation_factor * ice_gmsl_target_std
+    altimetry_error_amplitude = altimetry_error_amplitude_factor * ice_gmsl_target_std
     # Measures
     ice_thickness_change, _ = ice_thickness_change_measures(
         fingerprint=fp,
@@ -112,10 +104,12 @@ def get_data(
         standard_deviation=odt_standard_deviation,
     )
 
-    measurement_error = measurement_space.point_value_scaled_sobolev_kernel_gaussian_measure(
-        1.5,
-        altimetry_error_length_scale,
-        altimetry_error_amplitude,
+    measurement_error = (
+        measurement_space.point_value_scaled_sobolev_kernel_gaussian_measure(
+            1.5,
+            altimetry_error_length_scale,
+            altimetry_error_amplitude,
+        )
     )
 
     # Operators
@@ -166,22 +160,15 @@ def get_data(
 
     # Extract statistics (convert to meters)
     true_mean = true_gmsl.expectation[0] * fp.length_scale
-    true_std = (
-        np.sqrt(true_gmsl.covariance.matrix(dense=True)[0, 0])
-        * fp.length_scale
-    )
+    true_std = np.sqrt(true_gmsl.covariance.matrix(dense=True)[0, 0]) * fp.length_scale
 
     est_mean = estimated_gmsl.expectation[0] * fp.length_scale
     est_std = (
-        np.sqrt(estimated_gmsl.covariance.matrix(dense=True)[0, 0])
-        * fp.length_scale
+        np.sqrt(estimated_gmsl.covariance.matrix(dense=True)[0, 0]) * fp.length_scale
     )
 
     error_mean = error.expectation[0] * fp.length_scale
-    error_std = (
-        np.sqrt(error.covariance.matrix(dense=True)[0, 0])
-        * fp.length_scale
-    )
+    error_std = np.sqrt(error.covariance.matrix(dense=True)[0, 0]) * fp.length_scale
 
     # return results and then input parameters
     return {

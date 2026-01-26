@@ -46,12 +46,8 @@ def compute_altimetry_weighting_function(
         latitude_max=latitude_max,
         value=0,
     )
-    altimetry_projection_integral = fingerprint.integrate(
-        altimetry_projection
-    )
-    altimetry_weighting_function = (
-        altimetry_projection / altimetry_projection_integral
-    )
+    altimetry_projection_integral = fingerprint.integrate(altimetry_projection)
+    altimetry_weighting_function = altimetry_projection / altimetry_projection_integral
     return altimetry_weighting_function
 
 
@@ -98,13 +94,9 @@ def compute_relative_error(
 
     """
     if true_value == 0:
-        raise ValueError(
-            "True value cannot be zero for relative error calculation"
-        )
+        raise ValueError("True value cannot be zero for relative error calculation")
 
-    relative_error = np.abs(estimated_value - true_value) / np.abs(
-        true_value
-    )
+    relative_error = np.abs(estimated_value - true_value) / np.abs(true_value)
 
     if percentage:
         relative_error *= 100
@@ -139,8 +131,6 @@ def compute_ocean_altimetry_weighting_function(
         value=0,
     )
     combined_projection = ocean_projection * altimetry_projection
-    normalization_integral = fingerprint.integrate(
-        combined_projection
-    )
+    normalization_integral = fingerprint.integrate(combined_projection)
     weighting_function = combined_projection / normalization_integral
     return weighting_function

@@ -64,10 +64,12 @@ odt_change, _ = ocean_dynamic_topography_measures(
     standard_deviation=odt_standard_deviation,
 )
 
-measurement_error = measurement_space.point_value_scaled_sobolev_kernel_gaussian_measure(
-    1.5,
-    altimetry_error_length_scale,
-    altimetry_error_amplitude,
+measurement_error = (
+    measurement_space.point_value_scaled_sobolev_kernel_gaussian_measure(
+        1.5,
+        altimetry_error_length_scale,
+        altimetry_error_amplitude,
+    )
 )
 # %%
 # Operators
@@ -118,22 +120,13 @@ error = estimated_gmsl - true_gmsl
 # %%
 # Extract statistics (convert to meters)
 true_mean = true_gmsl.expectation[0] * fp.length_scale
-true_std = (
-    np.sqrt(true_gmsl.covariance.matrix(dense=True)[0, 0])
-    * fp.length_scale
-)
+true_std = np.sqrt(true_gmsl.covariance.matrix(dense=True)[0, 0]) * fp.length_scale
 
 est_mean = estimated_gmsl.expectation[0] * fp.length_scale
-est_std = (
-    np.sqrt(estimated_gmsl.covariance.matrix(dense=True)[0, 0])
-    * fp.length_scale
-)
+est_std = np.sqrt(estimated_gmsl.covariance.matrix(dense=True)[0, 0]) * fp.length_scale
 
 error_mean = error.expectation[0] * fp.length_scale
-error_std = (
-    np.sqrt(error.covariance.matrix(dense=True)[0, 0])
-    * fp.length_scale
-)
+error_std = np.sqrt(error.covariance.matrix(dense=True)[0, 0]) * fp.length_scale
 
 print(f"Error expectation: {error_mean:.6f} m")
 print(f"Error std dev: {error_std:.6f} m")

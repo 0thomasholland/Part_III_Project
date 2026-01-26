@@ -1,8 +1,6 @@
-import numpy as np
 import matplotlib.pyplot as plt
-import pygeoinf as inf
+import numpy as np
 import pyslfp as sl
-
 
 # --- Set up a fingerprint instance ---
 fp = sl.FingerPrint(lmax=256)
