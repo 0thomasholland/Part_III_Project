@@ -1,7 +1,5 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
-from matplotlib.ticker import EngFormatter
 from pygeoinf.gaussian_measure import GaussianMeasure
 from pyslfp import FingerPrint
 from scipy.stats import norm
@@ -70,9 +68,7 @@ def plot_measure(
     for key, value in args.items():
         # Format the value to be a string, using scientific notation for small numbers
         formatted_value = (
-            f"{value:.2e}"
-            if abs(value) < 0.01 and value != 0
-            else str(value)
+            f"{value:.2e}" if abs(value) < 0.01 and value != 0 else str(value)
         )
         text_lines.append(f"{key}: {formatted_value} m")
 

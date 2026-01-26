@@ -22,11 +22,9 @@ load_space = fingerprint_operator.domain
 response_space = fingerprint_operator.codomain
 
 # --- form the sea surface height operator ---
-response_to_sea_surface_height_operator = (
-    sl.sea_surface_height_operator(
-        fp,
-        response_space,
-    )
+response_to_sea_surface_height_operator = sl.sea_surface_height_operator(
+    fp,
+    response_space,
 )
 # %%
 # --- Set up a random field for the ice thickness change and associated load ---
@@ -35,10 +33,8 @@ ice_thickness_length_scale = 0.1 * fp.mean_sea_floor_radius
 ice_thickness_gmsl_target = 0.005 / fp.length_scale
 
 # Set an intial rotationally invariant measure
-initial_ice_thickness_measure = (
-    load_space.heat_kernel_gaussian_measure(
-        ice_thickness_length_scale,
-    )
+initial_ice_thickness_measure = load_space.heat_kernel_gaussian_measure(
+    ice_thickness_length_scale,
 )
 
 # Set a projection operator for the ice sheets and push forward the
@@ -130,9 +126,7 @@ gmsl_calc = sea_level_change_measure.affine_mapping(
 gmsl_calc_variance = gmsl_calc.covariance.matrix(dense=True)[0, 0]
 gmsl_calc_std = np.sqrt(gmsl_calc_variance)
 print(f"GMSL from sea level change std: {gmsl_calc_std:.4f} m")
-print(
-    f"GMSL from sea level change mean: {gmsl_calc.expectation[0]:.4f} m"
-)
+print(f"GMSL from sea level change mean: {gmsl_calc.expectation[0]:.4f} m")
 
 # %%
 
@@ -140,9 +134,7 @@ print(
 # --- Set up a random field for the ocean dynamic topography ---
 
 ocean_dynamic_topography_order = 1.5
-ocean_dynamic_topography_length_scale = (
-    0.005 * fp.mean_sea_floor_radius
-)
+ocean_dynamic_topography_length_scale = 0.005 * fp.mean_sea_floor_radius
 ocean_dynamic_topography_amplitude = 0.001 / fp.length_scale
 
 
@@ -178,15 +170,11 @@ joint_measure = inf.GaussianMeasure.from_direct_sum(
 # --- Set up a random field for the total load ---
 
 # Define operators that maps ice thickness changes and sea level change to loads
-ice_thickness_to_load_operator = (
-    sl.ice_thickness_change_to_load_operator(
-        fp,
-        load_space,
-    )
+ice_thickness_to_load_operator = sl.ice_thickness_change_to_load_operator(
+    fp,
+    load_space,
 )
-sea_level_change_to_load_operator = (
-    sl.sea_level_change_to_load_operator(fp, load_space)
-)
+sea_level_change_to_load_operator = sl.sea_level_change_to_load_operator(fp, load_space)
 
 
 # Set up the linear operator that maps to the direct load ---
@@ -260,25 +248,23 @@ altimetry_error_length_scale = 0.005 * fp.mean_sea_floor_radius
 altimetry_error_order_amplitude = 0.0001 / fp.length_scale
 
 
-initial_altimetry_error_measure = sea_surface_height_space.point_value_scaled_sobolev_kernel_gaussian_measure(
-    altimetry_error_order,
-    altimetry_error_length_scale,
-    altimetry_error_order_amplitude,
+initial_altimetry_error_measure = (
+    sea_surface_height_space.point_value_scaled_sobolev_kernel_gaussian_measure(
+        altimetry_error_order,
+        altimetry_error_length_scale,
+        altimetry_error_order_amplitude,
+    )
 )
 
-altimetry_error_measure = (
-    initial_altimetry_error_measure.affine_mapping(
-        operator=altimetry_operator,
-    )
+altimetry_error_measure = initial_altimetry_error_measure.affine_mapping(
+    operator=altimetry_operator,
 )
 
 
 # --- make an instance of the inputs and plot the results ---
 
 
-ice_thickness_change, ocean_dynamic_topography = (
-    joint_measure.sample()
-)
+ice_thickness_change, ocean_dynamic_topography = joint_measure.sample()
 
 sea_surface_height_change = total_sea_surface_height_operator(
     [ice_thickness_change, ocean_dynamic_topography],
@@ -286,9 +272,7 @@ sea_surface_height_change = total_sea_surface_height_operator(
 
 altimetry_error = altimetry_error_measure.sample()
 
-altimetry_observation = (
-    altimetry_operator(sea_surface_height_change) + altimetry_error
-)
+altimetry_observation = altimetry_operator(sea_surface_height_change) + altimetry_error
 
 
 # fig1, ax1, im1 = sl.plot(
@@ -365,8 +349,7 @@ altimetry_estimate_operator = sl.averaging_operator(
 # --- Push forward the various measures to get one for the altimetry estimate ---
 
 altimetry_estimate_measure = joint_measure.affine_mapping(
-    operator=altimetry_estimate_operator
-    @ total_sea_surface_height_operator,
+    operator=altimetry_estimate_operator @ total_sea_surface_height_operator,
 ) + altimetry_error_measure.affine_mapping(
     operator=altimetry_estimate_operator,
 )

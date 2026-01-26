@@ -1,9 +1,8 @@
 # %%
 import matplotlib as mpl
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from joblib import Parallel, delayed, dump, load
+from joblib import Parallel, delayed
 from pyslfp import (
     FingerPrint,
     averaging_operator,
@@ -11,7 +10,6 @@ from pyslfp import (
     sea_level_change_to_load_operator,
     sea_surface_height_operator,
 )
-from scipy.stats import norm
 
 from Part_III_Project import (
     ice_thickness_change_measures,
@@ -39,9 +37,7 @@ sea_surface_height_op = sea_surface_height_operator(
 measurement_space = sea_surface_height_op.codomain
 # %%
 # Parameters
-ice_length_scale = (
-    np.array([0.05, 0.2, 0.5, 0.7]) * fp.mean_sea_floor_radius
-)
+ice_length_scale = np.array([0.05, 0.2, 0.5, 0.7]) * fp.mean_sea_floor_radius
 ice_gmsl_target_std = (
     np.array(
         [0.0005, 0.001, 0.005, 0.01, 0.025, 0.05, 0.1, 0.5],
@@ -64,12 +60,8 @@ net_ice_thickness_change = (
     / fp.length_scale
 )
 
-odt_length_scale = (
-    np.array([0.01, 0.001, 0.1]) * fp.mean_sea_floor_radius
-)
-odt_standard_deviation = (
-    np.array([0.08, 0.016, 0.008, 0.0008]) / fp.length_scale
-)
+odt_length_scale = np.array([0.01, 0.001, 0.1]) * fp.mean_sea_floor_radius
+odt_standard_deviation = np.array([0.08, 0.016, 0.008, 0.0008]) / fp.length_scale
 
 altimetry_range = np.array(
     [90, 85, 80, 75, 70, 66, 60, 55, 50],
@@ -84,9 +76,7 @@ altimetry_error_length_scale = (
     )
     * fp.mean_sea_floor_radius
 )
-altimetry_error_amplitude = (
-    np.array([0.03, 0.003, 0.0003]) / fp.length_scale
-)
+altimetry_error_amplitude = np.array([0.03, 0.003, 0.0003]) / fp.length_scale
 # %%
 
 
@@ -116,10 +106,12 @@ def get_data(
         standard_deviation=odt_standard_deviation,
     )
 
-    measurement_error = measurement_space.point_value_scaled_sobolev_kernel_gaussian_measure(
-        1.5,
-        altimetry_error_length_scale,
-        altimetry_error_amplitude,
+    measurement_error = (
+        measurement_space.point_value_scaled_sobolev_kernel_gaussian_measure(
+            1.5,
+            altimetry_error_length_scale,
+            altimetry_error_amplitude,
+        )
     )
 
     # Operators
@@ -170,22 +162,15 @@ def get_data(
 
     # Extract statistics (convert to meters)
     true_mean = true_gmsl.expectation[0] * fp.length_scale
-    true_std = (
-        np.sqrt(true_gmsl.covariance.matrix(dense=True)[0, 0])
-        * fp.length_scale
-    )
+    true_std = np.sqrt(true_gmsl.covariance.matrix(dense=True)[0, 0]) * fp.length_scale
 
     est_mean = estimated_gmsl.expectation[0] * fp.length_scale
     est_std = (
-        np.sqrt(estimated_gmsl.covariance.matrix(dense=True)[0, 0])
-        * fp.length_scale
+        np.sqrt(estimated_gmsl.covariance.matrix(dense=True)[0, 0]) * fp.length_scale
     )
 
     error_mean = error.expectation[0] * fp.length_scale
-    error_std = (
-        np.sqrt(error.covariance.matrix(dense=True)[0, 0])
-        * fp.length_scale
-    )
+    error_std = np.sqrt(error.covariance.matrix(dense=True)[0, 0]) * fp.length_scale
 
     # return results and then input parameters
     return {

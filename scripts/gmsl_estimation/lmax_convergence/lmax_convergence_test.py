@@ -5,20 +5,15 @@ import pyslfp as sl
 from pygeoinf import GaussianMeasure, LinearOperator
 from pyslfp import (
     FingerPrint,
-    averaging_operator,
     ice_projection_operator,
     ice_thickness_change_to_load_operator,
     ocean_projection_operator,
-    sea_level_change_to_load_operator,
     sea_surface_height_operator,
 )
-from scipy.special import kl_div
-from scipy.stats import wasserstein_distance
 from tqdm import tqdm
 
 lmaxes = [30, 40, 50, 64, 80, 100, 128, 160, 200, 256, 320, 400, 512]
 
-from Part_III_Project import plot_measure
 
 # %%
 

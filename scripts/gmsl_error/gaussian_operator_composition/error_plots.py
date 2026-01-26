@@ -3,7 +3,6 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from mpl_toolkits.mplot3d import Axes3D
 from scipy.interpolate import griddata
 from scipy.stats import norm
 
@@ -56,12 +55,8 @@ for param in input_parameters:
         {"error_mean": "mean", "error_std": "mean"},
     )
     # find the max and min y values of the distributions via 4* standard deviation
-    xmax = (
-        grouped["error_mean"].max() + 4 * grouped["error_std"].max()
-    )
-    xmin = (
-        grouped["error_mean"].min() - 4 * grouped["error_std"].max()
-    )
+    xmax = grouped["error_mean"].max() + 4 * grouped["error_std"].max()
+    xmin = grouped["error_mean"].min() - 4 * grouped["error_std"].max()
     x = np.linspace(xmin, xmax, 1000)
     plt.figure(figsize=(8, 6))
     for k, (i, row) in enumerate(grouped.iterrows()):

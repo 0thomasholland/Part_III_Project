@@ -3,9 +3,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import statsmodels.api as sm
 from scipy.interpolate import griddata
-from scipy.stats import norm
 from statsmodels.formula.api import ols
 
 mpl.rcParams["figure.dpi"] = 600
@@ -27,7 +25,9 @@ print(data["altimetry_range"].unique())
 
 # linear model of error_mean ~net_ice_thickness_change + net_ice_thickness_change:altimetry_range
 
-formula = "error_mean ~ net_ice_thickness_change + net_ice_thickness_change:altimetry_range"
+formula = (
+    "error_mean ~ net_ice_thickness_change + net_ice_thickness_change:altimetry_range"
+)
 model = ols(formula, data=data).fit()
 print("Linear regression results for interaction model:")
 print(model.summary())
@@ -115,18 +115,18 @@ axs["grid"].axvline(
     linewidth=1,
 )
 # altimetry cross section, there is data at 66 deg, i want to have a smooth line through the data, i want the x axis to be flipped so negative is to the right
-altimetry_data_0 = data[
-    data["altimetry_range"] == altimetry_cs_0
-].sort_values(by="net_ice_thickness_change")
+altimetry_data_0 = data[data["altimetry_range"] == altimetry_cs_0].sort_values(
+    by="net_ice_thickness_change"
+)
 axs["altimetry"].plot(
     altimetry_data_0["net_ice_thickness_change"],
     altimetry_data_0["error_mean_mm"],
     "--",
     color="purple",
 )
-altimetry_data_1 = data[
-    data["altimetry_range"] == altimetry_cs_1
-].sort_values(by="net_ice_thickness_change")
+altimetry_data_1 = data[data["altimetry_range"] == altimetry_cs_1].sort_values(
+    by="net_ice_thickness_change"
+)
 axs["altimetry"].plot(
     altimetry_data_1["net_ice_thickness_change"],
     altimetry_data_1["error_mean_mm"],
@@ -137,18 +137,18 @@ axs["altimetry"].plot(
 axs["altimetry"].set_ylabel("GMSL Error (mm)")
 
 # net ice cross section
-net_ice_data_0 = data[
-    data["net_ice_thickness_change"] == net_ice_cs_0
-].sort_values(by="altimetry_range")
+net_ice_data_0 = data[data["net_ice_thickness_change"] == net_ice_cs_0].sort_values(
+    by="altimetry_range"
+)
 axs["net_ice"].plot(
     net_ice_data_0["error_mean_mm"],
     net_ice_data_0["altimetry_range"],
     "--",
     color="g",
 )
-net_ice_data_1 = data[
-    data["net_ice_thickness_change"] == net_ice_cs_1
-].sort_values(by="altimetry_range")
+net_ice_data_1 = data[data["net_ice_thickness_change"] == net_ice_cs_1].sort_values(
+    by="altimetry_range"
+)
 axs["net_ice"].plot(
     net_ice_data_1["error_mean_mm"],
     net_ice_data_1["altimetry_range"],

@@ -4,9 +4,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import statsmodels.api as sm
 from scipy.interpolate import griddata
-from scipy.stats import norm
 from statsmodels.formula.api import ols
 
 mpl.rcParams["figure.dpi"] = 600
@@ -62,12 +60,7 @@ for t in target:
             for param2 in input_parameters[i + 1 :]
         ],
     )
-    formula = (
-        f"{t} ~ "
-        + " + ".join(input_parameters)
-        + " + "
-        + interaction_terms
-    )
+    formula = f"{t} ~ " + " + ".join(input_parameters) + " + " + interaction_terms
     model = ols(formula, data=data).fit()
     print(
         f"Linear regression results with interaction terms for {t}:",
@@ -167,9 +160,7 @@ target = [
 ]
 
 ndata = data.copy()
-ndata["error_std_normalised"] = (
-    ndata["error_std"] / ndata["ice_gmsl_target_std"]
-)
+ndata["error_std_normalised"] = ndata["error_std"] / ndata["ice_gmsl_target_std"]
 for factor_var in factor_variables:
     for error_var in target:
         x_i = np.logspace(

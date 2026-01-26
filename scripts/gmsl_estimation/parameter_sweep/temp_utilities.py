@@ -1,6 +1,5 @@
 from os import path
 
-import pandas as pd
 from joblib import dump, load
 
 # file name is work/8-redo/output/metrics_big.pkl
