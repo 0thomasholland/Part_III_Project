@@ -1,5 +1,4 @@
 # %%
-import colorcet as cc
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
@@ -149,7 +148,7 @@ error_sample = odt_sample + altimetry_error_sample + odt_ssh_sampled
 
 
 def plot_map(data, title, file_name=None):
-    _fig, _ax, _im = plot(data, cmap=cc.cm.CET_D1)
+    _fig, _ax, _im = plot(data, cmap="coolwarm")
     _ax.set_title(title)
     if file_name is not None:
         plt.savefig(f"{file_name}.pdf", dpi=600)
