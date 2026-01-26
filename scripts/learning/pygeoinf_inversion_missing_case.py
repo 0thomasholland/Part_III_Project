@@ -182,9 +182,9 @@ def plot_comparison_results(
     ax.grid(True, linestyle=":", alpha=0.7)
 
     plt.tight_layout()
-    plt.savefig(
-        "pygeoinf_inversion_missing_case.png", dpi=600
-    )
+    # plt.savefig(
+    #     "pygeoinf_inversion_missing_case.png", dpi=600
+    # )
     plt.show()
 
 
