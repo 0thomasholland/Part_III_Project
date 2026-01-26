@@ -1,16 +1,11 @@
 # %%
 
-import colorcet as cc
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 from scipy import stats
-from seaborn import reset_defaults
-
-reset_defaults()
-import matplotlib.pyplot as plt
-import seaborn as sns
 
 data = pd.read_csv(
     "gmsl_error_with_measurement_noise_results_lmax128.csv",
@@ -153,9 +148,9 @@ print(model.summary())
 # %%
 # test for interaction effects
 
-formula = """error_mean ~ net_ice_thickness_change + altimetry_range + 
-             net_ice_thickness_change:altimetry_range + 
-             ice_gmsl_target_std + odt_standard_deviation + 
+formula = """error_mean ~ net_ice_thickness_change + altimetry_range +
+             net_ice_thickness_change:altimetry_range +
+             ice_gmsl_target_std + odt_standard_deviation +
              altimetry_error_amplitude"""
 
 
@@ -196,7 +191,7 @@ plt.savefig(
 # %%
 
 
-formula = """error_mean ~ net_ice_thickness_change + 
+formula = """error_mean ~ net_ice_thickness_change +
              net_ice_thickness_change:altimetry_range"""
 
 
@@ -254,7 +249,7 @@ plt.contourf(
     ALT,
     ERROR,
     levels=20,
-    cmap=cc.cm.CET_D1A,
+    cmap="coolwarm",
     vmin=-np.max(np.abs(ERROR)),
     vmax=np.max(np.abs(ERROR)),
 )
