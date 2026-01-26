@@ -4,14 +4,12 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import seaborn as sns
 import statsmodels.api as sm
 from scipy.interpolate import griddata
 from scipy.stats import norm
 from statsmodels.formula.api import ols
 
 mpl.rcParams["figure.dpi"] = 600
-sns.set_theme(style="whitegrid")
 # %%
 
 data = pd.read_csv(

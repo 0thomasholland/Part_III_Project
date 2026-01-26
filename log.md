@@ -216,3 +216,8 @@
 - Added improved inset plot for ODT showing both pointwise (Dirac delta function) and distributed representations.
 - Finalised conference poster with print-ready settings (bleed marks removed).
 
+## 26 January 2026
+
+- Resumed work on Bayesian inversion using pygeoinf: generated inversion demonstration plots.
+- Began write-up planning, structuring the introduction and error quantification sections within the 7,500-word paper-style limit. Focus on integrating the deterministic analysis (ternary plots, latitude sweeps) with the analytical Gaussian operator approach into a coherent narrative.
+

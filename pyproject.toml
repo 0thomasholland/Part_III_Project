@@ -1,65 +1,54 @@
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
 [project]
 name = "Part_III_Project"
 version = "0.1.0"
 description = ""
+readme = "README.md"
+requires-python = "~=3.12.0"
 authors = [
     { name = "Thomas Holland", email = "101332229+0thomasholland@users.noreply.github.com" },
 ]
-readme = "README.md"
-requires-python = "~=3.12.0"
 dependencies = [
-    "pyslfp",
     "matplotlib",
-    "numpy",
-    "ipykernel",
-    "pandas",
     "mpltern",
-    "snakeviz",
-    "seaborn",
-    "ty",
-    "ruff",
+    "numpy",
+    "pandas",
+    "pyslfp",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ipykernel",
     "jupytext",
-    "colorcet",
+    "ruff",
     "statsmodels",
+    "ty",
 ]
 
 [tool.poetry]
 packages = [{ include = "Part_III_Project", from = "src" }]
 
-[build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
-
-[tool.pyright] # Pylance uses Pyright under the hood
-typeCheckingMode = "strict"
-reportUnknownVariableType = false
-
 [tool.ruff]
 target-version = "py312"
 line-length = 88
+src = ["src"]
 
 [tool.ruff.lint]
-# Core rule groups
 select = [
-    "F", # Pyflakes (general errors)
-    "E", # Pycodestyle Errors
-    "W", # Pycodestyle Warnings
-    "I", # isort (import sorting)
-    # ... other core groups
+    "F",
+    "E",
+    "W",
+    "I",
+    "ANN",
+    "TID",
 ]
 
-# Enable strict typing discipline rules:
-extend-select = [
-    "ANN", # flake8-annotations: Forces missing type annotations
-    "TID", # flake8-type-checking: Enforces type-checking best practices (e.g., using TYPE_CHECKING)
-]
-
-# Optional: Disable rules that are too strict for your project's needs
 [tool.ruff.lint.per-file-ignores]
-# Example: Ignore missing annotations for special methods like __init__
 "__init__.py" = ["ANN201", "ANN204"]
 
 [tool.ty]
-# It disables 'implicit Any' which forces you to explicitly type everything.
 implicit-optional = true
-extra-paths = ["src"]
+src = ["src"]
