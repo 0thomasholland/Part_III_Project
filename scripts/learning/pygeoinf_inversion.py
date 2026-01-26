@@ -173,9 +173,9 @@ def plot_comparison_results(
     ax.grid(True, linestyle=":", alpha=0.7)
 
     plt.tight_layout()
-    plt.savefig(
-        "bayesian_inversion_comparison.png", dpi=600
-    )
+    # plt.savefig(
+    #     "bayesian_inversion_comparison.png", dpi=600
+    # )
     plt.show()
 
 
