@@ -221,3 +221,7 @@
 - Resumed work on Bayesian inversion using pygeoinf: generated inversion demonstration plots.
 - Began write-up planning, structuring the introduction and error quantification sections within the 7,500-word paper-style limit. Focus on integrating the deterministic analysis (ternary plots, latitude sweeps) with the analytical Gaussian operator approach into a coherent narrative.
 
+## 27 January 2026
+
+- Explored pygeoinf inversion functionality, experimenting with different prior and observation configurations.
+
