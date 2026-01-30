@@ -225,3 +225,7 @@
 
 - Explored pygeoinf inversion functionality, experimenting with different prior and observation configurations.
 
+## 30 January 2026
+
+- Staged intermediate work for repository restructuring.
+
