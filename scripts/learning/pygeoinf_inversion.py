@@ -8,9 +8,9 @@ from pygeoinf.symmetric_space.circle import (
 )
 
 # %% definitions
-model_space = Sobolev.from_sobolev_parameters(2.0, 0.05)
+model_space = Sobolev.from_sobolev_parameters(2.0, 0.01)
 
-n_data_high = 10
+n_data_high = 15
 n_data_low = 10
 standard_deviation_high = 0.1
 standard_deviation_low = 0.05

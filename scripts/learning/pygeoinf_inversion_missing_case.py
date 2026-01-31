@@ -8,7 +8,7 @@ from pygeoinf.symmetric_space.circle import (
 )
 
 # %% definitions
-model_space = Sobolev.from_sobolev_parameters(2.0, 0.05)
+model_space = Sobolev.from_sobolev_parameters(2.0, 0.005)
 
 n_data = 20
 missing = 8  # number of missing observations
@@ -79,7 +79,7 @@ forward_problem_low = inf.LinearForwardProblem(
 )
 
 model_prior_measure = model_space.point_value_scaled_heat_kernel_gaussian_measure(
-    0.1, 1.0
+    0.2, 1.0
 )
 
 true_model, data_high = (
@@ -206,7 +206,7 @@ posterior_mean_high = (
 
 posterior_pointwise_variance_high = (
     model_posterior_measure_high.sample_pointwise_variance(
-        200
+        2000
     )
 )
 posterior_std_high = np.sqrt(
@@ -228,7 +228,7 @@ posterior_mean_low = model_posterior_measure_low.expectation
 
 posterior_pointwise_variance_low = (
     model_posterior_measure_low.sample_pointwise_variance(
-        200
+        2000
     )
 )
 posterior_std_low = np.sqrt(
