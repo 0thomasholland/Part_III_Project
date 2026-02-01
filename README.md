@@ -27,22 +27,20 @@ This project aims to develop and compare methods for estimating global mean sea 
 
 ### Research Goals
 
-1. **Traditional Methods Implementation** (Weeks 1-4 of Michaelmas Term)
+1. **Traditional Methods Implementation**
    - Implement conventional methods for estimating sea level change from satellite altimetry
    - Investigate accuracy and error characteristics
    - Spatial averaging of sea surface height changes over oceans
 
-2. **Bayesian Inversion Methods** (Weeks 5-8 of Michaelmas Term)
+2. **Bayesian Inversion Methods**
    - Apply Bayesian inversion incorporating sea level physics
    - Single-time (~ 1 month data averages) estimates initially
    - Compare new methods against traditional approaches
    - Explore error space for conventional methods across satellite availability bands
 
-3. **Time-Dependent Extensions** (Christmas Break)
+4. **Possible Extensions** (Lent Term)
    - Extend to time-dependent estimates
    - Consider feed-forward mechanisms (Kalman filter-like approaches)
-
-4. **Possible Extensions** (Lent Term)
    - Integration of ice altimetry data and other data types
    - Network robustness analysis (simulating data gaps)
    - Comparative analysis of data types
@@ -55,45 +53,21 @@ Part_III_Project/
 ├── pyproject.toml              # Project configuration and dependencies
 ├── README.md                   # This file
 │
-├── src/Part_III_Project/       # Core library code
-│   ├── analysis.py             # Analysis utilities
-│   ├── gaussian_measures.py    # Gaussian measure implementations
-│   ├── ice_loads.py            # Ice load models
-│   ├── measure_utilities.py    # Measure utility functions
-│   ├── plotting.py             # Plotting functions
-│   ├── ssh_operators.py        # Sea surface height operators
-│   ├── utilities.py            # General utilities
-│   └── visualization.py        # Visualization tools
+├── src/
+│   ├── pyslfp_extras/          # Extensions/adaptations to pyslfp library
+│   ├── pygeoinf_extras/        # Extensions/adaptations to pygeoinf library
+│   └── project/                # Reusable project code
 │
-├── scripts/                    # Analysis scripts
-│   ├── bayesian_inversion/     # Bayesian inversion methods
-│   │   ├── bayesian_inversion_initial.py
-│   │   ├── bayesian_inversion_nicer.py
-│   │   └── bayesian_inversion_lmax64_1000runs.ipynb
-│   ├── gmsl_error/             # GMSL error analysis
-│   │   ├── deterministic_latitude_sweep/   # Latitude coverage analysis
-│   │   ├── deterministic_ternary/          # Ternary ice sheet mixture analysis
-│   │   └── gaussian_operator_composition/  # Error via operator composition
-│   ├── gmsl_estimation/        # GMSL estimation methods
-│   │   ├── lmax_convergence/   # L_max convergence studies
-│   │   ├── parameter_sweep/    # Parameter sweep analysis
-│   │   └── single_case/        # Single case examples
-│   └── figures/                # Figure generation scripts
-│       └── poster/
+├── scripts/                    # Analysis scripts and workflows
+│   └── README.md               # Details of specific analyses
 │
 ├── outputs/                    # Report and bibliography
 │   ├── refs.bib                # Bibliography
 │   ├── report/                 # Project report (LaTeX)
 │   └── poster/                 # Poster materials
 │
-├── work_da/                    # Working directory from supervisor
-│   └── random_fields*.py       # Random field examples
-│
-└── log/                        # Project documentation and notes
-    ├── Progress.md             # Weekly progress tracking
-    ├── Maths.md                # Mathematical notes
-    ├── Literature.md           # Literature review
-    └── Code notes.md           # Code documentation
+└── work_da/                    # Working directory from supervisor
+    └── random_fields*.py       # Random field examples
 ```
 
 ## Poster

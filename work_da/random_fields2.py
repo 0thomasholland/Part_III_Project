@@ -21,7 +21,9 @@ cov_ij = 0
 for x in xs:
     xi = x[i]
     xj = x[j]
-    cov_ij += (xi - mu.expectation[i]) * (xj - mu.expectation[j])
+    cov_ij += (xi - mu.expectation[i]) * (
+        xj - mu.expectation[j]
+    )
 cov_ij /= n
 
 print(cov_ij)
