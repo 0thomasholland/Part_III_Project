@@ -233,3 +233,7 @@
 
 - Cleaned and restructured the repository in preparation for the final development phase.
 
+## 1 February 2026
+
+- Staged intermediate computational results.
+
