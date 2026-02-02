@@ -85,25 +85,25 @@ data_low = data_low_clean + noise_low
 
 def plot_comparison_results(
     space: CircleHelper,
-    true_model: np.ndarray,
+    # true_model: np.ndarray,
     posterior_mean_high: np.ndarray,
     posterior_std_high: np.ndarray,
-    posterior_mean_low: np.ndarray,
-    posterior_std_low: np.ndarray,
+    # posterior_mean_low: np.ndarray,
+    # posterior_std_low: np.ndarray,
     n_high: int,
-    n_low: int,
+    # n_low: int,
     obs_points_high: np.ndarray,
-    obs_points_low: np.ndarray,
+    # obs_points_low: np.ndarray,
     data_high: np.ndarray,
-    data_low: np.ndarray,
+    # data_low: np.ndarray,
     data_high_std: float,
-    data_low_std: float,
+    # data_low_std: float,
 ):
     """Helper function to create a comparison plot of high vs low observations."""
     fig, ax = space.plot(
         true_model,
-        color="k",
-        linestyle="--",
+        color="white",
+        linestyle="",
         linewidth=2,
         label="True Model",
         figsize=(10, 6),
@@ -127,21 +127,21 @@ def plot_comparison_results(
     )
 
     # Plot low observations solution (red)
-    space.plot(
-        posterior_mean_low,
-        fig=fig,
-        ax=ax,
-        color="r",
-        label=f"Posterior Mean (n={n_low})",
-    )
-    space.plot_error_bounds(
-        posterior_mean_low,
-        2 * posterior_std_low,
-        fig=fig,
-        ax=ax,
-        alpha=0.2,
-        color="r",
-    )
+    # space.plot(
+    #     posterior_mean_low,
+    #     fig=fig,
+    #     ax=ax,
+    #     color="r",
+    #     label=f"Posterior Mean (n={n_low})",
+    # )
+    # space.plot_error_bounds(
+    #     posterior_mean_low,
+    #     2 * posterior_std_low,
+    #     fig=fig,
+    #     ax=ax,
+    #     alpha=0.2,
+    #     color="r",
+    # )
 
     # ax.errorbar(obs_points, data, 2 * data_std, fmt="ko", capsize=3, label="Data")
     # use for high and low obs points
@@ -154,14 +154,14 @@ def plot_comparison_results(
         capsize=3,
         label="High Obs Data (σ=%.2f)" % data_high_std,
     )
-    ax.errorbar(
-        obs_points_low,
-        data_low,
-        2 * data_low_std,
-        fmt="ro",
-        capsize=3,
-        label="Low Obs Data (σ=%.2f)" % data_low_std,
-    )
+    # ax.errorbar(
+    #     obs_points_low,
+    #     data_low,
+    #     2 * data_low_std,
+    #     fmt="ro",
+    #     capsize=3,
+    #     label="Low Obs Data (σ=%.2f)" % data_low_std,
+    # )
 
     ax.set_title(
         "Inversion Comparison: High vs Low Observations",
@@ -230,17 +230,17 @@ posterior_std_low = np.sqrt(
 
 plot_comparison_results(
     model_space,
-    true_model,
+    # true_model,
     posterior_mean_high,
     posterior_std_high,
-    posterior_mean_low,
-    posterior_std_low,
+    # posterior_mean_low,
+    # posterior_std_low,
     n_data_high,
-    n_data_low,
+    # n_data_low,
     observation_points_high,
-    observation_points_low,
+    # observation_points_low,
     data_high,
-    data_low,
+    # data_low,
     standard_deviation_high,
-    standard_deviation_low,
+    # standard_deviation_low,
 )

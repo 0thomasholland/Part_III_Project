@@ -57,9 +57,7 @@ def altimetry_gmsl(
 def gmsl_error(
     true_gmsl: float | ndarray | GaussianMeasure,
     estimated_gmsl: float | ndarray | GaussianMeasure,
-    error_type: Literal[
-        "absolute", "relative"
-    ] = "relative",
+    error_type: Literal["numeric", "relative"] = "relative",
 ) -> float | ndarray | GaussianMeasure:
     if isinstance(true_gmsl, float) and isinstance(
         estimated_gmsl, float

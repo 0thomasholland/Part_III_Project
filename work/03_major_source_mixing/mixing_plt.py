@@ -49,7 +49,7 @@ for latitude in np.unique(latitudes):
         cmap="RdBu_r",
     )
     ax.set_title(
-        f"Source Mixing - Relative Error at Altimetry Range Latitude {latitude:.2f}˚"
+        f"Source Mixing - Relative Error at Altimetry Range Latitude {latitude:.0f}˚"
     )
     ax.set_tlabel("GIS")
     ax.set_llabel("EAIS")
@@ -60,7 +60,7 @@ for latitude in np.unique(latitudes):
 
     plt.tight_layout()
     plt.savefig(
-        f"figures/mixing_det_altimetry_error_latitude_{latitude:.2f}.png",
+        f"figures/mixing_det_altimetry_error_latitude_{latitude:.0f}.png",
         dpi=600,
     )
     plt.close()
