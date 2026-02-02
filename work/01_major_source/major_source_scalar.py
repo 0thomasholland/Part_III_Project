@@ -20,16 +20,13 @@ alimetry_resolution = (
 )
 
 latitudes = np.linspace(1, 90, alimetry_resolution)
-gis_errors = np.zeros_like(latitudes)
-eais_errors = np.zeros_like(latitudes)
-wias_errors = np.zeros_like(latitudes)
 
 fp = FingerPrint(lmax=256)
 fp.set_state_from_ice_ng(version=IceModel.ICE7G, date=0.0)
 
 gis_load = fp.greenland_load()
 eais_load = fp.east_antarctic_load()
-wias_load = fp.west_antarctic_load()
+wais_load = fp.west_antarctic_load()
 
 # %%
 # fingerprint response to major ice sheets
@@ -44,9 +41,9 @@ eais_ssh = fp.sea_surface_height_change(
     eais_slc, eais_dis, eais_avc
 )
 
-wias_slc, wias_dis, _, wias_avc = fp(direct_load=wias_load)
-wias_ssh = fp.sea_surface_height_change(
-    wias_slc, wias_dis, wias_avc
+wais_slc, wais_dis, _, wais_avc = fp(direct_load=wais_load)
+wais_ssh = fp.sea_surface_height_change(
+    wais_slc, wais_dis, wais_avc
 )
 # %%
 # calculate true gmsl from ice load
@@ -61,10 +58,10 @@ eais_gmsl: float = fp.mean_sea_level_change(
 )
 eais_estimated_gmsl = np.zeros_like(latitudes)
 
-wias_gmsl: float = fp.mean_sea_level_change(
-    direct_load=wias_load
+wais_gmsl: float = fp.mean_sea_level_change(
+    direct_load=wais_load
 )
-wias_estimated_gmsl = np.zeros_like(latitudes)
+wais_estimated_gmsl = np.zeros_like(latitudes)
 
 for i, lat in enumerate(latitudes):
     gis_estimated_gmsl[i] = altimetry_gmsl(
@@ -77,8 +74,8 @@ for i, lat in enumerate(latitudes):
         fp,
         latitude=lat,
     )
-    wias_estimated_gmsl[i] = altimetry_gmsl(
-        wias_ssh,
+    wais_estimated_gmsl[i] = altimetry_gmsl(
+        wais_ssh,
         fp,
         latitude=lat,
     )
@@ -87,24 +84,30 @@ for i, lat in enumerate(latitudes):
         print(f"Completed latitude {lat:.2f}˚")
 
 # %%
+print(gis_estimated_gmsl)
 
-_gis_error = gmsl_error(
+print(gis_gmsl)
+
+# %%
+gis_errors = gmsl_error(
     true_gmsl=gis_gmsl * np.ones_like(latitudes),
     estimated_gmsl=gis_estimated_gmsl,
     error_type="relative",
 )
 
-_eais_error = gmsl_error(
+eais_errors = gmsl_error(
     true_gmsl=eais_gmsl * np.ones_like(latitudes),
     estimated_gmsl=eais_estimated_gmsl,
     error_type="relative",
 )
 
-_wias_error = gmsl_error(
-    true_gmsl=wias_gmsl * np.ones_like(latitudes),
-    estimated_gmsl=wias_estimated_gmsl,
+wais_errors = gmsl_error(
+    true_gmsl=wais_gmsl * np.ones_like(latitudes),
+    estimated_gmsl=wais_estimated_gmsl,
     error_type="relative",
 )
+
+print(gis_errors)
 
 
 # %% save data
@@ -114,5 +117,5 @@ np.savez(
     latitudes=latitudes,
     gis_errors=gis_errors,
     eais_errors=eais_errors,
-    wias_errors=wias_errors,
+    wais_errors=wais_errors,
 )

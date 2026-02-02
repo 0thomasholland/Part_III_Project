@@ -237,3 +237,7 @@
 
 - Staged intermediate computational results.
 
+## 2 February 2026
+
+- Updated major source mixing figures and refactored source code for improved modularity.
+
