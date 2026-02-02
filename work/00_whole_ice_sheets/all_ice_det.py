@@ -81,3 +81,39 @@ print(f"Estimated GMSL: {estimated_gmsl:.4f} m")
 print(f"Numeric Error: {numeric_error:.4f} m")
 print(f"Relative Error: {relative_error:.4f} ")
 print(f"Relative Error: {relative_error * 100:.4f} %")
+
+# %%
+
+estimated_gmsl_latitudes = np.zeros_like(latitudes)
+
+for i, latitude in enumerate(latitudes):
+    estimated_gmsl_latitudes[i] = altimetry_gmsl(
+        ssh,
+        fp,
+        latitude=latitude,
+    )
+    if i % 100 == 0:
+        print(f"Completed latitude {latitude:.2f}˚")
+
+# %%
+
+numeric_errors_latitudes: NDArray = gmsl_error(
+    true_gmsl=gmsl * np.ones_like(latitudes),
+    estimated_gmsl=estimated_gmsl_latitudes,
+    error_type="numeric",
+)
+
+relative_errors_latitudes: NDArray = gmsl_error(
+    true_gmsl=gmsl * np.ones_like(latitudes),
+    estimated_gmsl=estimated_gmsl_latitudes,
+    error_type="relative",
+)
+
+# %%
+
+np.savez(
+    "all_ice_sheets_altimetry_errors.npz",
+    latitudes=latitudes,
+    numeric_errors=numeric_errors_latitudes,
+    relative_errors=relative_errors_latitudes,
+)

@@ -4,6 +4,8 @@ Directory where my work files / science occurs.
 
 `major sources` = GIS/WAIS/EAIS
 
+## folder structure
+
 Folders are structured in terms of "questions":
 
 - 00 - all ice field error: `with uniform/uniform distribution of ice thickness change across ice fields what is the error?`
@@ -13,19 +15,22 @@ Folders are structured in terms of "questions":
 - 04 - signal effects: `how do other signals (e.g. ODT, signal noise, etc) affect the error associated?`
 - 05 - bayesian inversions: `what are bayesian inversions?`
 - 06 - altimetry sampling: `how can altimeter data be sampled to generate a point field?`
+- 07 - inversion: `how can we use baysian inversion with altimetry data`
+- XX - time data: `how can time series be used to improve error estimates?`
+- XX - other data: `can we use other data sources to improve accuracy?`
 
-## Order of work
+## order of work
 
 Deterministic:
-- 00 - all ice field error
-- 01 - major sources in scalar fields
-- 02 - ice load bands with scalar fields
-- 03 - looking at mixing of major sources
+- [x] 00 - all ice field error
+- [x] 01 - major sources in scalar fields
+- [ ] 02 - ice load bands with scalar fields
+- [x] 03 - looking at mixing of major sources
 
 Gaussian framework:
-- 00 - gaussian all ice field error
-- 01 - major sources in gaussian fields
-- 04 - adding in other signals (ODT, etc)
-- 05 - learning about inversions using pygeoinf
-- 06 - satellite altimetry sampling
-- 07 - implementing inversions
+- [ ] 00 - gaussian all ice field error
+- [ ] 01 - major sources in gaussian fields
+- [ ] 04 - adding in other signals (ODT, etc)
+- [ ] 05 - learning about inversions using pygeoinf
+- [ ] 06 - satellite altimetry sampling
+- [ ] 07 - implementing inversions

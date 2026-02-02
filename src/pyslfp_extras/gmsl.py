@@ -3,6 +3,7 @@ from typing import Literal
 from numpy import ndarray
 from pygeoinf import (
     GaussianMeasure,
+    HilbertSpace,
     LinearOperator,
 )
 from pygeoinf.symmetric_space.sphere import (
@@ -10,14 +11,17 @@ from pygeoinf.symmetric_space.sphere import (
     Sobolev,
 )
 from pyshtools import SHGrid
-from pyslfp import FingerPrint, averaging_operator
+from pyslfp import (
+    FingerPrint,
+    averaging_operator,
+    ice_thickness_change_to_load_operator,
+)
 
 
-def gmsl_from_ice_load_operator(
-    load_space: Lebesgue | Sobolev,
+def gmsl_from_ice_thickness_operator(
+    load_space: Lebesgue | Sobolev | HilbertSpace,
     fp: FingerPrint,
-    measure: GaussianMeasure,
-) -> GaussianMeasure:
+) -> LinearOperator:
     _op: LinearOperator = averaging_operator(
         load_space,
         [
@@ -28,10 +32,22 @@ def gmsl_from_ice_load_operator(
             / (fp.water_density * fp.ocean_area),
         ],
     )
+    return _op
 
-    _gmsl_measure = measure.affine_mapping(operator=_op)
 
-    return _gmsl_measure
+def gmsl_from_ice_load_operator(
+    load_space: Lebesgue | Sobolev | HilbertSpace,
+    fp: FingerPrint,
+) -> LinearOperator:
+    _thickness_to_load_op: LinearOperator = (
+        ice_thickness_change_to_load_operator(
+            finger_print=fp, load_space=load_space
+        )
+    )
+    _op: LinearOperator = (
+        gmsl_from_ice_load_operator @ _thickness_to_load_op
+    )
+    return _op
 
 
 def altimetry_gmsl(
