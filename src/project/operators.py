@@ -111,7 +111,7 @@ def ice_thickness_to_gmsl_estimation_error_operator(
     altimetry_latitude_range: float = 66.0,
 ) -> LinearOperator:
     _gmsl = gmsl_from_ice_thickness_operator(
-        finger_print_operator.domain, finger_print
+        finger_print, finger_print_operator
     )
     _estimated_gmsl = (
         ice_thickness_to_estimated_gmsl_operator(
