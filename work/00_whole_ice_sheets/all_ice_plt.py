@@ -2,7 +2,10 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from project.plots import error_latitude_plot
+from project.plots import (
+    double_distribution_plot,
+    error_latitude_plot,
+)
 
 # %%
 
@@ -152,3 +155,33 @@ for gmsl_mean in unique_gmsl_means:
             f"figures/guassian_error_combined/all_ice_sheets_gauss_gmslmean_{gmsl_mean}_std_{gmsl_std}.png",
             dpi=600,
         )
+
+
+# %%
+
+# for gmsl mean = 0.01, std = 0.001, plot double_distribution_plot with 66 degrees and 80 degrees
+
+mask = (gmsl_means_gauss == 0.01) & (
+    gmsl_stds_gauss == 0.001
+)
+latitudes_subset = latitudes_gauss[mask]
+estimate_means_subset = (
+    estimate_means_gauss[mask] * 1e3
+)  # convert to mm
+estimate_stds_subset = (
+    estimate_stds_gauss[mask] * 1e3
+)  # convert to mm
+
+fig, (ax1, ax2, ax3, ax4, ax5, ax6) = (
+    double_distribution_plot(
+        latitude=latitudes_subset,
+        true_mean=np.full_like(latitudes_subset, 0.01),
+        true_std=np.full_like(latitudes_subset, 0.001),
+        sample_values=(66, 80),
+        estimate_mean=estimate_means_subset,
+        estimate_std=estimate_stds_subset,
+        error_mean=error_means_subset,
+        error_std=error_stds_subset,
+        suptitle="GMSL Distributions at 66˚ and 80˚ Latitude\n(GMSL Mean: 0.01 m, Std: 0.001 m)",
+    )
+)
