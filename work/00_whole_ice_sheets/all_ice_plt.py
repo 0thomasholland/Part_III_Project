@@ -132,10 +132,10 @@ for gmsl_mean in unique_gmsl_means:
         fig, (ax1, ax2) = error_latitude_plot(
             latitude=latitudes_subset,
             true_mean=np.full_like(
-                latitudes_subset, gmsl_mean
+                latitudes_subset, gmsl_mean * 1000
             ),
             true_std=np.full_like(
-                latitudes_subset, gmsl_std
+                latitudes_subset, gmsl_std * 1000
             ),
             true_label="True GMSL",
             estimate_mean=estimate_means_subset,
@@ -150,7 +150,6 @@ for gmsl_mean in unique_gmsl_means:
             ax2_ylabel="Estimation Error (mm)",
             suptitle=f"GMSL Estimation and Error vs Latitude\n(GMSL Mean: {gmsl_mean}, Std: {gmsl_std})",
         )
-
         fig.savefig(
             f"figures/guassian_error_combined/all_ice_sheets_gauss_gmslmean_{gmsl_mean}_std_{gmsl_std}.png",
             dpi=600,
@@ -171,17 +170,33 @@ estimate_means_subset = (
 estimate_stds_subset = (
     estimate_stds_gauss[mask] * 1e3
 )  # convert to mm
+error_means_subset = (
+    error_means_gauss[mask] * 1e3
+)  # convert to mm
+error_stds_subset = (
+    error_stds_gauss[mask] * 1e3
+)  # convert to mm
 
 fig, (ax1, ax2, ax3, ax4, ax5, ax6) = (
     double_distribution_plot(
         latitude=latitudes_subset,
-        true_mean=np.full_like(latitudes_subset, 0.01),
-        true_std=np.full_like(latitudes_subset, 0.001),
-        sample_values=(66, 80),
+        true_mean=np.full_like(
+            latitudes_subset, 0.01 * 1e3
+        ),  # convert to mm
+        true_std=np.full_like(
+            latitudes_subset, 0.001 * 1e3
+        ),  # convert to mm
+        sample_values=(66.0, 80.0),
         estimate_mean=estimate_means_subset,
         estimate_std=estimate_stds_subset,
         error_mean=error_means_subset,
         error_std=error_stds_subset,
-        suptitle="GMSL Distributions at 66˚ and 80˚ Latitude\n(GMSL Mean: 0.01 m, Std: 0.001 m)",
+        suptitle="GMSL Distributions at 66˚ and 80˚ Latitude\n(GMSL Mean: 10 mm, Std: 1 mm)",
     )
 )
+
+fig.savefig(
+    "figures/double_distribution_66_80.png",
+    dpi=600,
+)
+plt.close(fig)
