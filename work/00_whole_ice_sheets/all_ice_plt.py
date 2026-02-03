@@ -46,7 +46,6 @@ latitudes_gauss = data_gauss["latitudes"]
 estimate_means_gauss = data_gauss["estimate_means"]
 estimate_stds_gauss = data_gauss["estimate_stds"]
 
-print(latitudes_gauss)
 
 # %%
 
