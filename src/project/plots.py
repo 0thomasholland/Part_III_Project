@@ -21,8 +21,15 @@ def error_plot_from_metrics(
     ax2_title: str = "Error Distribution",
     ax2_xlabel: str = "Error",
     suptitle: str = "Comparison of True, Estimated, and Error Distributions",
+    ax: tuple[Axes, Axes] | None = None,
 ) -> tuple[Figure, tuple[Axes, Axes]]:
-    fig, (ax1, ax2) = subplots(1, 2, figsize=figsize)
+    # If axes provided, use them; otherwise create new figure
+    if ax is None:
+        fig, (ax1, ax2) = subplots(1, 2, figsize=figsize)
+        fig.suptitle(suptitle)
+    else:
+        ax1, ax2 = ax
+        fig = ax1.get_figure()
 
     true_mean = true_measure[0]
     true_std = true_measure[1]
@@ -72,12 +79,10 @@ def error_plot_from_metrics(
             error_mean,
             color="black",
             linestyle="--",
-            label=f"Error Expectation ({1000 * error_mean:.1f} mm)",
+            label=f"Error Expectation ({error_mean:.4f})",
         )
     ax2.set_title(ax2_title)
     ax2.set_xlabel(ax2_xlabel)
-
-    fig.suptitle(suptitle)
 
     return fig, (ax1, ax2)
 
@@ -97,10 +102,9 @@ def error_plot(
     ax2_title: str = "Error Distribution",
     ax2_xlabel: str = "Error",
     suptitle: str = "Comparison of True, Estimated, and Error Distributions",
+    ax: tuple[Axes, Axes] | None = None,
 ) -> tuple[Figure, tuple[Axes, Axes]]:
-    fig, (ax1, ax2) = subplots(1, 2, figsize=figsize)
-
-    _error_measure: GuassianMeasure = (
+    _error_measure: GaussianMeasure = (
         estimation_measure - true_measure
     )
 
@@ -140,6 +144,7 @@ def error_plot(
         ax2_title,
         ax2_xlabel,
         suptitle,
+        ax,
     )
 
     return fig, (ax1, ax2)
@@ -165,13 +170,20 @@ def error_latitude_plot(
     ax2_title: str = "Error Distribution",
     ax2_ylabel: str = "Error",
     suptitle: str = "Comparison of True, Estimated, and Error Distributions across latitudes",
+    ax: tuple[Axes, Axes] | None = None,
 ) -> tuple[Figure, tuple[Axes, Axes]]:
-    fig, (ax1, ax2) = subplots(1, 2, figsize=(16, 6))
-    # Left plot: True and Estimated GMSL
+    # If axes provided, use them; otherwise create new figure
+    if ax is None:
+        fig, (ax1, ax2) = subplots(1, 2, figsize=(16, 6))
+        fig.suptitle(suptitle)
+    else:
+        ax1, ax2 = ax
+        fig = ax1.get_figure()
 
+    # Left plot: True and Estimated GMSL
     ax1.plot(
         latitude,
-        np.full_like(latitude, true_mean),
+        true_mean,
         label=true_label,
         color=true_color,
     )
@@ -222,8 +234,6 @@ def error_latitude_plot(
     ax2.set_title(ax2_title)
     ax2.legend()
 
-    fig.suptitle(suptitle)
-
     return fig, (ax1, ax2)
 
 
@@ -235,7 +245,7 @@ def double_distribution_plot(
     estimate_std: list[float] | np.ndarray,
     error_mean: list[float] | np.ndarray,
     error_std: list[float] | np.ndarray,
-    show_bias: bool = True,
+    show_bias: bool = False,
     figsize: tuple[int, int] = (16, 18),
     sample_values: tuple[float, float] = (np.nan, np.nan),
     true_label: str = "True Distribution",
@@ -251,14 +261,13 @@ def double_distribution_plot(
 ) -> tuple[
     Figure, tuple[Axes, Axes, Axes, Axes, Axes, Axes]
 ]:
-    fig, (ax1, ax2, ax3, ax4, ax5, ax6) = subplots(
-        3, 2, figsize=figsize
-    )
+    fig, axes = subplots(3, 2, figsize=figsize)
+    ax1, ax2, ax3, ax4, ax5, ax6 = axes.flatten()
 
     fig.suptitle(suptitle)
 
     # first and second axes are from error_latitude_plot
-    _, (ax1, ax2) = error_latitude_plot(
+    error_latitude_plot(
         latitude,
         true_mean,
         true_std,
@@ -277,20 +286,25 @@ def double_distribution_plot(
         ax1_ylabel,
         ax2_title,
         ax2_ylabel,
+        ax=(ax1, ax2),
     )
 
-    # third and fourth axes are the distributions at sample_values[0], where that is the latitude to take the means and std from the provided data at
+    # third and fourth axes are the distributions at sample_values[0]
+    # Find the nearest latitude to sample_values[0]
+    latitude_arr = np.array(latitude)
+    idx_0 = np.argmin(
+        np.abs(latitude_arr - sample_values[0])
+    )
+    actual_lat_0 = latitude_arr[idx_0]
 
-    for i, lat in enumerate(latitude):
-        if np.isclose(lat, sample_values[0]):
-            true_mean_sample = true_mean[i]
-            true_std_sample = true_std[i]
-            estimate_mean_sample = estimate_mean[i]
-            estimate_std_sample = estimate_std[i]
-            error_mean_sample = error_mean[i]
-            error_std_sample = error_std[i]
+    true_mean_sample = true_mean[idx_0]
+    true_std_sample = true_std[idx_0]
+    estimate_mean_sample = estimate_mean[idx_0]
+    estimate_std_sample = estimate_std[idx_0]
+    error_mean_sample = error_mean[idx_0]
+    error_std_sample = error_std[idx_0]
 
-    _, (ax3, ax4) = error_plot_from_metrics(
+    error_plot_from_metrics(
         (true_mean_sample, true_std_sample),
         (estimate_mean_sample, estimate_std_sample),
         (error_mean_sample, error_std_sample),
@@ -301,24 +315,28 @@ def double_distribution_plot(
         error_label,
         true_color,
         estimate_color,
-        f"Distributions at Latitude {sample_values[0]}˚",
+        f"Distributions at Latitude {actual_lat_0:.1f}˚",
         "Value",
-        f"Error Distribution at Latitude {sample_values[0]}˚",
+        f"Error Distribution at Latitude {actual_lat_0:.1f}˚",
         "Error",
-        f"Distributions at Latitude {sample_values[0]}˚",
+        ax=(ax3, ax4),
     )
 
-    # fifth and sixth axes are the distributions at sample_values[1], where that is the latitude to take the means and std from the provided data at
+    # fifth and sixth axes are the distributions at sample_values[1]
+    # Find the nearest latitude to sample_values[1]
+    idx_1 = np.argmin(
+        np.abs(latitude_arr - sample_values[1])
+    )
+    actual_lat_1 = latitude_arr[idx_1]
 
-    for i, lat in enumerate(latitude):
-        if np.isclose(lat, sample_values[1]):
-            true_mean_sample = true_mean[i]
-            true_std_sample = true_std[i]
-            estimate_mean_sample = estimate_mean[i]
-            estimate_std_sample = estimate_std[i]
-            error_mean_sample = error_mean[i]
-            error_std_sample = error_std[i]
-    _, (ax5, ax6) = error_plot_from_metrics(
+    true_mean_sample = true_mean[idx_1]
+    true_std_sample = true_std[idx_1]
+    estimate_mean_sample = estimate_mean[idx_1]
+    estimate_std_sample = estimate_std[idx_1]
+    error_mean_sample = error_mean[idx_1]
+    error_std_sample = error_std[idx_1]
+
+    error_plot_from_metrics(
         (true_mean_sample, true_std_sample),
         (estimate_mean_sample, estimate_std_sample),
         (error_mean_sample, error_std_sample),
@@ -329,11 +347,38 @@ def double_distribution_plot(
         error_label,
         true_color,
         estimate_color,
-        f"Distributions at Latitude {sample_values[1]}˚",
+        f"Distributions at Latitude {actual_lat_1:.1f}˚",
         "Value",
-        f"Error Distribution at Latitude {sample_values[1]}˚",
+        f"Error Distribution at Latitude {actual_lat_1:.1f}˚",
         "Error",
-        f"Distributions at Latitude {sample_values[1]}˚",
+        ax=(ax5, ax6),
+    )
+
+    # add vertical lines on the first two axes for the sample values
+
+    ax1.axvline(
+        sample_values[0],
+        color="black",
+        linestyle="--",
+        label=f"Sample Latitude {sample_values[0]}˚",
+    )
+    ax1.axvline(
+        sample_values[1],
+        color="black",
+        linestyle="--",
+        label=f"Sample Latitude {sample_values[1]}˚",
+    )
+    ax2.axvline(
+        sample_values[0],
+        color="black",
+        linestyle="--",
+        label=f"Sample Latitude {sample_values[0]}˚",
+    )
+    ax2.axvline(
+        sample_values[1],
+        color="black",
+        linestyle="--",
+        label=f"Sample Latitude {sample_values[1]}˚",
     )
 
     return fig, (ax1, ax2, ax3, ax4, ax5, ax6)
