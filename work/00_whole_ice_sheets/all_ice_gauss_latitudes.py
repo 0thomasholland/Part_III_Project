@@ -20,14 +20,14 @@ from pyslfp_extras.measures import (
 
 
 alimetry_resolution = (
-    100  # number of points from 0 to 90˚ that are sampled
+    300  # number of points from 0 to 90˚ that are sampled
 )
 
 latitudes = np.linspace(10, 90, alimetry_resolution)
-gmsl_target_mean = np.array([0, 0.001, 0.01])
-gmsl_target_std = np.array([0.001, 0.005])
+gmsl_target_mean = np.array([-0.01, -0.001, 0, 0.001, 0.01])
+gmsl_target_std = np.array([0.001, 0.005, 0.01])
 
-fp = FingerPrint(lmax=64)
+fp = FingerPrint(lmax=128)
 fp.set_state_from_ice_ng(version=IceModel.ICE7G, date=0.0)
 
 fp_op = fp.as_sobolev_linear_operator(
