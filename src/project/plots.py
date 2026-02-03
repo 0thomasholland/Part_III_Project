@@ -5,9 +5,10 @@ from matplotlib.pyplot import subplots
 from pygeoinf import GaussianMeasure
 
 
-def error_plot(
-    true_measure: GaussianMeasure,
-    estimation_measure: GaussianMeasure,
+def error_plot_from_metrics(
+    true_measure: tuple[float, float],
+    estimation_measure: tuple[float, float],
+    error_measure: tuple[float, float],
     show_bias: bool = True,
     figsize: tuple[int, int] = (12, 6),
     true_label: str = "True Distribution",
@@ -23,29 +24,12 @@ def error_plot(
 ) -> tuple[Figure, tuple[Axes, Axes]]:
     fig, (ax1, ax2) = subplots(1, 2, figsize=figsize)
 
-    _error_measure: GuassianMeasure = (
-        estimation_measure - true_measure
-    )
-
-    true_mean = true_measure.expectation[0]
-    true_std = (
-        (true_measure.covariance.matrix(dense=True)[0, 0])
-        ** 0.5
-    )
-    est_mean = estimation_measure.expectation[0]
-    est_std = (
-        (
-            estimation_measure.covariance.matrix(
-                dense=True
-            )[0, 0]
-        )
-        ** 0.5
-    )
-    error_mean = _error_measure.expectation[0]
-    error_std = (
-        (_error_measure.covariance.matrix(dense=True)[0, 0])
-        ** 0.5
-    )
+    true_mean = true_measure[0]
+    true_std = true_measure[1]
+    est_mean = estimation_measure[0]
+    est_std = estimation_measure[1]
+    error_mean = error_measure[0]
+    error_std = error_measure[1]
 
     # calculate the x_1 axis via the most negative 4std of each and the most positive 4std of each
     x_1 = np.linspace(
@@ -98,6 +82,69 @@ def error_plot(
     return fig, (ax1, ax2)
 
 
+def error_plot(
+    true_measure: GaussianMeasure,
+    estimation_measure: GaussianMeasure,
+    show_bias: bool = True,
+    figsize: tuple[int, int] = (12, 6),
+    true_label: str = "True Distribution",
+    est_label: str = "Estimated Distribution",
+    error_label: str = "Error Distribution",
+    true_color: str = "blue",
+    est_color: str = "orange",
+    ax1_title: str = "",
+    ax1_xlabel: str = "Value",
+    ax2_title: str = "Error Distribution",
+    ax2_xlabel: str = "Error",
+    suptitle: str = "Comparison of True, Estimated, and Error Distributions",
+) -> tuple[Figure, tuple[Axes, Axes]]:
+    fig, (ax1, ax2) = subplots(1, 2, figsize=figsize)
+
+    _error_measure: GuassianMeasure = (
+        estimation_measure - true_measure
+    )
+
+    true_mean = true_measure.expectation[0]
+    true_std = (
+        (true_measure.covariance.matrix(dense=True)[0, 0])
+        ** 0.5
+    )
+    est_mean = estimation_measure.expectation[0]
+    est_std = (
+        (
+            estimation_measure.covariance.matrix(
+                dense=True
+            )[0, 0]
+        )
+        ** 0.5
+    )
+    error_mean = _error_measure.expectation[0]
+    error_std = (
+        (_error_measure.covariance.matrix(dense=True)[0, 0])
+        ** 0.5
+    )
+
+    fig, (ax1, ax2) = error_plot_from_metrics(
+        (true_mean, true_std),
+        (est_mean, est_std),
+        (error_mean, error_std),
+        show_bias,
+        figsize,
+        true_label,
+        est_label,
+        error_label,
+        true_color,
+        est_color,
+        ax1_title,
+        ax1_xlabel,
+        ax2_title,
+        ax2_xlabel,
+        suptitle,
+    )
+
+    return fig, (ax1, ax2)
+
+
 def error_latitude_plot(
     latitude: list[float] | np.ndarray,
     true_mean: list[float] | np.ndarray,
@@ -120,14 +167,6 @@ def error_latitude_plot(
     suptitle: str = "Comparison of True, Estimated, and Error Distributions across latitudes",
 ) -> tuple[Figure, tuple[Axes, Axes]]:
     fig, (ax1, ax2) = subplots(1, 2, figsize=(16, 6))
-
-    true_mean = np.array(true_mean)
-    true_std = np.array(true_std)
-    estimate_mean = np.array(estimate_mean)
-    estimate_std = np.array(estimate_std)
-    error_mean = np.array(error_mean)
-    error_std = np.array(error_std)
-
     # Left plot: True and Estimated GMSL
 
     ax1.plot(
@@ -186,3 +225,115 @@ def error_latitude_plot(
     fig.suptitle(suptitle)
 
     return fig, (ax1, ax2)
+
+
+def double_distribution_plot(
+    latitude: list[float] | np.ndarray,
+    true_mean: list[float] | np.ndarray,
+    true_std: list[float] | np.ndarray,
+    estimate_mean: list[float] | np.ndarray,
+    estimate_std: list[float] | np.ndarray,
+    error_mean: list[float] | np.ndarray,
+    error_std: list[float] | np.ndarray,
+    show_bias: bool = True,
+    figsize: tuple[int, int] = (16, 18),
+    sample_values: tuple[float, float] = (np.nan, np.nan),
+    true_label: str = "True Distribution",
+    estimate_label: str = "Estimated Distribution",
+    error_label: str = "Error Distribution",
+    true_color: str = "tab:blue",
+    estimate_color: str = "tab:orange",
+    ax1_title: str = "",
+    ax1_ylabel: str = "Value",
+    ax2_title: str = "Error Distribution",
+    ax2_ylabel: str = "Error",
+    suptitle: str = "Comparison of True, Estimated, and Error Distributions across latitudes",
+) -> tuple[
+    Figure, tuple[Axes, Axes, Axes, Axes, Axes, Axes]
+]:
+    fig, (ax1, ax2, ax3, ax4, ax5, ax6) = subplots(
+        3, 2, figsize=figsize
+    )
+
+    fig.suptitle(suptitle)
+
+    # first and second axes are from error_latitude_plot
+    _, (ax1, ax2) = error_latitude_plot(
+        latitude,
+        true_mean,
+        true_std,
+        estimate_mean,
+        estimate_std,
+        error_mean,
+        error_std,
+        show_bias,
+        figsize,
+        true_label,
+        estimate_label,
+        error_label,
+        true_color,
+        estimate_color,
+        ax1_title,
+        ax1_ylabel,
+        ax2_title,
+        ax2_ylabel,
+    )
+
+    # third and fourth axes are the distributions at sample_values[0], where that is the latitude to take the means and std from the provided data at
+
+    for i, lat in enumerate(latitude):
+        if np.isclose(lat, sample_values[0]):
+            true_mean_sample = true_mean[i]
+            true_std_sample = true_std[i]
+            estimate_mean_sample = estimate_mean[i]
+            estimate_std_sample = estimate_std[i]
+            error_mean_sample = error_mean[i]
+            error_std_sample = error_std[i]
+
+    _, (ax3, ax4) = error_plot_from_metrics(
+        (true_mean_sample, true_std_sample),
+        (estimate_mean_sample, estimate_std_sample),
+        (error_mean_sample, error_std_sample),
+        show_bias,
+        figsize,
+        true_label,
+        estimate_label,
+        error_label,
+        true_color,
+        estimate_color,
+        f"Distributions at Latitude {sample_values[0]}˚",
+        "Value",
+        f"Error Distribution at Latitude {sample_values[0]}˚",
+        "Error",
+        f"Distributions at Latitude {sample_values[0]}˚",
+    )
+
+    # fifth and sixth axes are the distributions at sample_values[1], where that is the latitude to take the means and std from the provided data at
+
+    for i, lat in enumerate(latitude):
+        if np.isclose(lat, sample_values[1]):
+            true_mean_sample = true_mean[i]
+            true_std_sample = true_std[i]
+            estimate_mean_sample = estimate_mean[i]
+            estimate_std_sample = estimate_std[i]
+            error_mean_sample = error_mean[i]
+            error_std_sample = error_std[i]
+    _, (ax5, ax6) = error_plot_from_metrics(
+        (true_mean_sample, true_std_sample),
+        (estimate_mean_sample, estimate_std_sample),
+        (error_mean_sample, error_std_sample),
+        show_bias,
+        figsize,
+        true_label,
+        estimate_label,
+        error_label,
+        true_color,
+        estimate_color,
+        f"Distributions at Latitude {sample_values[1]}˚",
+        "Value",
+        f"Error Distribution at Latitude {sample_values[1]}˚",
+        "Error",
+        f"Distributions at Latitude {sample_values[1]}˚",
+    )
+
+    return fig, (ax1, ax2, ax3, ax4, ax5, ax6)
