@@ -19,8 +19,8 @@ def ice_thickness_gaussian_measure(
     """Create a Gaussian measure for ice thickness change, normalized to a target GMSL standard deviation and mean.
 
     Args:
-        load_space: The Sobolev space for the load.
-        fp: The FingerPrint instance.
+        finger_print: The FingerPrint instance.
+        finger_print_operator: Linear operator mapping FingerPrint to a Sobolev space.
         length_scale: Length scale for the heat kernel.
         gmsl_target_std: Target standard deviation for GMSL.
         gmsl_target_mean: Target mean for GMSL (shifts the distribution).
@@ -31,17 +31,18 @@ def ice_thickness_gaussian_measure(
 
     ## MEASURES AND OPS ##
     _load_space: Sobolev = finger_print_operator.domain
-    fp: FingerPrint = finger_print
     _base_measure: GaussianMeasure = (
         _load_space.heat_kernel_gaussian_measure(
             length_scale
         )
     )
     _ice_projection_op: LinearOperator = (
-        ice_projection_operator(fp, _load_space)
+        ice_projection_operator(finger_print, _load_space)
     )
     _gmsl_op: LinearOperator = (
-        gmsl_from_ice_thickness_operator(_load_space, fp)
+        gmsl_from_ice_thickness_operator(
+            finger_print, finger_print_operator
+        )
     )
 
     ## STD SCALING ##
@@ -54,12 +55,15 @@ def ice_thickness_gaussian_measure(
 
     ## SHIFT ##
 
-    _gmsl_per_unit = fp.integrate(
-        -fp.ice_density
-        * fp.one_minus_ocean_function
-        * fp.ice_projection(value=0)
-        * fp.length_scale
-        / (fp.water_density * fp.ocean_area)
+    _gmsl_per_unit = finger_print.integrate(
+        -finger_print.ice_density
+        * finger_print.one_minus_ocean_function
+        * finger_print.ice_projection(value=0)
+        * finger_print.length_scale
+        / (
+            finger_print.water_density
+            * finger_print.ocean_area
+        )
     )
 
     _ice_shift_needed = (
