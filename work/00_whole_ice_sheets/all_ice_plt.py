@@ -2,6 +2,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+from project.plots import error_latitude_plot
+
 # %%
 
 data_scalar = np.load("all_ice_sheets_altimetry_errors.npz")
@@ -124,67 +126,29 @@ for gmsl_mean in unique_gmsl_means:
             error_stds_gauss[mask] * 1e3
         )  # convert to mm
 
-        fig, (ax1, ax2) = plt.subplots(
-            1, 2, figsize=(16, 6)
+        fig, (ax1, ax2) = error_latitude_plot(
+            latitude=latitudes_subset,
+            true_mean=np.full_like(
+                latitudes_subset, gmsl_mean
+            ),
+            true_std=np.full_like(
+                latitudes_subset, gmsl_std
+            ),
+            true_label="True GMSL",
+            estimate_mean=estimate_means_subset,
+            estimate_std=estimate_stds_subset,
+            estimate_label="Estimated GMSL",
+            ax1_title="True vs Estimated GMSL",
+            ax1_ylabel="GMSL (mm)",
+            error_mean=error_means_subset,
+            error_std=error_stds_subset,
+            error_label="Estimation Error",
+            ax2_title="GMSL Estimation Error",
+            ax2_ylabel="Estimation Error (mm)",
+            suptitle=f"GMSL Estimation and Error vs Latitude\n(GMSL Mean: {gmsl_mean}, Std: {gmsl_std})",
         )
-
-        # Left plot: True and Estimated GMSL
-        ax1.plot(
-            latitudes_subset,
-            np.full_like(latitudes_subset, gmsl_mean * 1e3),
-            label="True GMSL",
-            color="tab:green",
-        )
-        ax1.fill_between(
-            latitudes_subset,
-            (gmsl_mean - 2 * gmsl_std) * 1e3,
-            (gmsl_mean + 2 * gmsl_std) * 1e3,
-            color="tab:green",
-            alpha=0.3,
-            label="True ±2 Std Dev",
-        )
-        ax1.plot(
-            latitudes_subset,
-            estimate_means_subset,
-            label="Estimated GMSL",
-            color="tab:blue",
-        )
-        ax1.fill_between(
-            latitudes_subset,
-            estimate_means_subset
-            - 2 * estimate_stds_subset,
-            estimate_means_subset
-            + 2 * estimate_stds_subset,
-            color="tab:blue",
-            alpha=0.3,
-            label="Estimated ±2 Std Dev",
-        )
-        ax1.set_xlabel("Latitude (˚)")
-        ax1.set_ylabel("GMSL (mm)")
-        ax1.set_title("True vs Estimated GMSL")
-        ax1.legend()
-
-        # Right plot: Estimation Error
-        ax2.plot(
-            latitudes_subset,
-            error_means_subset,
-            label="Estimation Error",
-            color="tab:orange",
-        )
-        ax2.fill_between(
-            latitudes_subset,
-            error_means_subset - 2 * error_stds_subset,
-            error_means_subset + 2 * error_stds_subset,
-            color="tab:orange",
-            alpha=0.3,
-            label="±2 Std Dev",
-        )
-        ax2.set_xlabel("Latitude (˚)")
-        ax2.set_ylabel("GMSL Estimation Error (mm)")
-        ax2.set_title("GMSL Estimation Error vs Latitude")
-        ax2.legend()
 
         fig.savefig(
-            f"figures/guassian_error_comparison/all_ice_sheets_gauss_comparison_gmslmean_{gmsl_mean}_std_{gmsl_std}.png",
+            f"figures/guassian_error_combined/all_ice_sheets_gauss_gmslmean_{gmsl_mean}_std_{gmsl_std}.png",
             dpi=600,
         )

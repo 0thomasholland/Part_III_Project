@@ -96,3 +96,93 @@ def error_plot(
     fig.suptitle(suptitle)
 
     return fig, (ax1, ax2)
+
+
+def error_latitude_plot(
+    latitude: list[float] | np.ndarray,
+    true_mean: list[float] | np.ndarray,
+    true_std: list[float] | np.ndarray,
+    estimate_mean: list[float] | np.ndarray,
+    estimate_std: list[float] | np.ndarray,
+    error_mean: list[float] | np.ndarray,
+    error_std: list[float] | np.ndarray,
+    show_bias: bool = True,
+    figsize: tuple[int, int] = (12, 6),
+    true_label: str = "True Distribution",
+    estimate_label: str = "Estimated Distribution",
+    error_label: str = "Error Distribution",
+    true_color: str = "tab:blue",
+    estimate_color: str = "tab:orange",
+    ax1_title: str = "",
+    ax1_ylabel: str = "Value",
+    ax2_title: str = "Error Distribution",
+    ax2_ylabel: str = "Error",
+    suptitle: str = "Comparison of True, Estimated, and Error Distributions across latitudes",
+) -> tuple[Figure, tuple[Axes, Axes]]:
+    fig, (ax1, ax2) = subplots(1, 2, figsize=(16, 6))
+
+    true_mean = np.array(true_mean)
+    true_std = np.array(true_std)
+    estimate_mean = np.array(estimate_mean)
+    estimate_std = np.array(estimate_std)
+    error_mean = np.array(error_mean)
+    error_std = np.array(error_std)
+
+    # Left plot: True and Estimated GMSL
+
+    ax1.plot(
+        latitude,
+        np.full_like(latitude, true_mean),
+        label=true_label,
+        color=true_color,
+    )
+    ax1.fill_between(
+        latitude,
+        (true_mean - 2 * true_std),
+        (true_mean + 2 * true_std),
+        color=true_color,
+        alpha=0.3,
+        label="±2 Std Dev",
+    )
+    ax1.plot(
+        latitude,
+        estimate_mean,
+        label=estimate_label,
+        color=estimate_color,
+    )
+    ax1.fill_between(
+        latitude,
+        estimate_mean - 2 * estimate_std,
+        estimate_mean + 2 * estimate_std,
+        color=estimate_color,
+        alpha=0.3,
+        label="±2 Std Dev",
+    )
+    ax1.set_xlabel("Latitude (˚)")
+    ax1.set_ylabel(ax1_ylabel)
+    ax1.set_title(ax1_title)
+    ax1.legend()
+
+    # Right plot: Estimation Error
+    ax2.plot(
+        latitude,
+        error_mean,
+        label=error_label,
+        color="tab:red",
+    )
+    ax2.fill_between(
+        latitude,
+        error_mean - 2 * error_std,
+        error_mean + 2 * error_std,
+        color="tab:red",
+        alpha=0.3,
+        label="±2 Std Dev",
+    )
+    ax2.set_xlabel("Latitude (˚)")
+    ax2.set_ylabel(ax2_ylabel)
+    ax2.set_title(ax2_title)
+    ax2.legend()
+
+    fig.suptitle(suptitle)
+
+    return fig, (ax1, ax2)
