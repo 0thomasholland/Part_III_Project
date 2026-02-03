@@ -4,7 +4,11 @@ This package provides tools for analyzing sea level changes using
 Gaussian measures and pyslfp FingerPrint objects.
 """
 
-from Part_III_Project.analysis import (
+from project.operators import (
+    ice_thickness_to_slc_operator,
+)
+from project.plots import error_plot
+from project.stats import (
     cohens_d_effect_size,
     kullback_leibler_divergence,
     mean_squared_error,
@@ -15,5 +19,7 @@ __all__ = [
     "cohens_d_effect_size",
     "kullback_leibler_divergence",
     "wasserstein_distance",
-    "mean_squared_error"
+    "mean_squared_error",
+    "error_plot",
+    "ice_thickness_to_slc_operator",
 ]

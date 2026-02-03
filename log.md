@@ -241,3 +241,9 @@
 
 - Updated major source mixing figures and refactored source code for improved modularity.
 
+## 3 February 2026
+
+- Implemented Gaussian error model work: added Gaussian error analysis for whole ice sheet configurations.
+- Generated new plots and ran high-resolution computations across all Gaussian latitudes.
+- Cleaned up deprecated code and reorganised plotting functions.
+

@@ -19,17 +19,20 @@ from pyslfp import (
 
 
 def gmsl_from_ice_thickness_operator(
-    load_space: Lebesgue | Sobolev | HilbertSpace,
-    fp: FingerPrint,
+    finger_print: FingerPrint,
+    finger_print_operator: LinearOperator,
 ) -> LinearOperator:
     _op: LinearOperator = averaging_operator(
-        load_space,
+        finger_print_operator.domain,
         [
-            -fp.ice_density
-            * fp.one_minus_ocean_function
-            * fp.ice_projection(value=0)
-            * fp.length_scale
-            / (fp.water_density * fp.ocean_area),
+            -finger_print.ice_density
+            * finger_print.one_minus_ocean_function
+            * finger_print.ice_projection(value=0)
+            * finger_print.length_scale
+            / (
+                finger_print.water_density
+                * finger_print.ocean_area
+            ),
         ],
     )
     return _op
