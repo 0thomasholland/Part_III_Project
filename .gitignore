@@ -18,6 +18,9 @@
 *.xdv
 *-converted-to.*
 
+work/**/*.png
+work/*.png
+
 
 ## Bibliography auxiliary files (bibtex/biblatex/biber):
 *.bbl
