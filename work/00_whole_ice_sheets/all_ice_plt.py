@@ -102,7 +102,7 @@ for gmsl_mean in unique_gmsl_means:
         # %%
 
         fig.savefig(
-            f"figures/guassian_error_single/all_ice_sheets_gauss_errors_gmslmean_{gmsl_mean}_std_{gmsl_std}.png",
+            f"figures/all_ice_sheets_gauss_errors_gmslmean_{gmsl_mean}_std_{gmsl_std}.png",
             dpi=600,
         )
         plt.close(fig)
@@ -149,9 +149,12 @@ for gmsl_mean in unique_gmsl_means:
             ax2_title="GMSL Estimation Error",
             ax2_ylabel="Estimation Error (mm)",
             suptitle=f"GMSL Estimation and Error vs Latitude\n(GMSL Mean: {gmsl_mean}, Std: {gmsl_std})",
+            error_100_value=gmsl_std
+            * 1000,  # convert to mm
+            error_100_value_name=f"1 GMSL Std Dev ({gmsl_std * 1000:.1f} mm)",
         )
         fig.savefig(
-            f"figures/guassian_error_combined/all_ice_sheets_gauss_gmslmean_{gmsl_mean}_std_{gmsl_std}.png",
+            f"figures/all_ice_sheets_gauss_gmslmean_{gmsl_mean}_std_{gmsl_std}.png",
             dpi=600,
         )
 
