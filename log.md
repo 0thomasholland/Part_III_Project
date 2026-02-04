@@ -247,3 +247,7 @@
 - Generated new plots and ran high-resolution computations across all Gaussian latitudes.
 - Cleaned up deprecated code and reorganised plotting functions.
 
+## 4 February 2026
+
+- Added new analysis file and updated figure plotting code.
+
