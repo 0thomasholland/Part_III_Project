@@ -170,6 +170,8 @@ def error_latitude_plot(
     ax2_title: str = "Error Distribution",
     ax2_ylabel: str = "Error",
     suptitle: str = "Comparison of True, Estimated, and Error Distributions across latitudes",
+    error_100_value: float | None = None,
+    error_100_value_name: str | None = None,
     ax: tuple[Axes, Axes] | None = None,
 ) -> tuple[Figure, tuple[Axes, Axes]]:
     # If axes provided, use them; otherwise create new figure
@@ -232,6 +234,26 @@ def error_latitude_plot(
     ax2.set_xlabel("Latitude (˚)")
     ax2.set_ylabel(ax2_ylabel)
     ax2.set_title(ax2_title)
+    # if error_100_value is not None, add a second y axis on the right of the plot that is our error value as a percentage of the error_100_value
+    # using matplotlib.axes.Axes.secondary_xaxis
+
+    if error_100_value is not None:
+        ax2_sec = ax2.secondary_yaxis(
+            "right",
+            functions=(
+                lambda x: (x / error_100_value) * 100,
+                lambda x: (x / 100) * error_100_value,
+            ),
+        )
+        if error_100_value_name is None:
+            ax2_sec.set_ylabel(
+                "Error as % of Reference Value"
+            )
+        else:
+            ax2_sec.set_ylabel(
+                f"Error as % of {error_100_value_name}"
+            )
+
     ax2.legend()
 
     return fig, (ax1, ax2)
