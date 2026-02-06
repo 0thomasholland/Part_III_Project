@@ -22,14 +22,14 @@ from pyslfp_extras.measures import (
 
 
 alimetry_resolution = (
-    300  # number of points from 0 to 90˚ that are sampled
+    30  # number of points from 0 to 90˚ that are sampled
 )
 
 latitudes = np.linspace(10, 90, alimetry_resolution)
-gmsl_target_mean = np.array([-0.01, -0.001, 0, 0.001, 0.01])
-gmsl_target_std = np.array([0.001, 0.005, 0.01])
+gmsl_target_mean = np.array([0, 0.001, 0.01])
+gmsl_target_std = np.array([0.001, 0.01])
 
-fp = FingerPrint(lmax=128)
+fp = FingerPrint(lmax=64)
 fp.set_state_from_ice_ng(version=IceModel.ICE7G, date=0.0)
 
 fp_op = fp.as_sobolev_linear_operator(
@@ -54,6 +54,7 @@ for mean in gmsl_target_mean:
         ice_thickness_measures[(mean, std)] = (
             _ice_thickness_measure
         )
+        del _ice_thickness_measure
 
 
 # %%
@@ -116,7 +117,7 @@ def compute_measures(latitude, mean, std):
     )
 
 
-results = Parallel(n_jobs=-1, verbose=5)(
+results = Parallel(n_jobs=4, verbose=5)(
     delayed(compute_measures)(latitude, mean, std)
     for latitude in latitudes
     for mean in gmsl_target_mean
@@ -156,14 +157,14 @@ def compute_stats(key, measure):
     return key, (expectation_value, std_value)
 
 
-results = Parallel(n_jobs=-1, verbose=5)(
+results = Parallel(n_jobs=4, verbose=5)(
     delayed(compute_stats)(key, measure)
     for key, measure in error_measures.items()
 )
 for key, stat in results:
     error_stats[key] = stat
 
-results = Parallel(n_jobs=-1, verbose=5)(
+results = Parallel(n_jobs=4, verbose=5)(
     delayed(compute_stats)(key, measure)
     for key, measure in estimate_measures.items()
 )
