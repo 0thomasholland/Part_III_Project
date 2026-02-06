@@ -1,45 +1,10 @@
 # %%
 import matplotlib.pyplot as plt
 import numpy as np
-
 from project.plots import (
     double_distribution_plot,
     error_latitude_plot,
 )
-
-# %%
-
-data_scalar = np.load("all_ice_sheets_altimetry_errors.npz")
-
-# %%
-
-latitudes_scalar = data_scalar["latitudes"]
-numeric_errors_scalar = data_scalar["numeric_errors"]
-relative_errors_scalar = data_scalar["relative_errors"]
-
-# %%
-
-fig1, ax1 = plt.subplots(figsize=(10, 6))
-ax1.plot(
-    latitudes_scalar,
-    relative_errors_scalar,
-    label="Relative Error",
-    color="tab:blue",
-)
-ax1.set_xlabel("Latitude (˚)")
-ax1.set_ylabel("Relative Error")
-ax1.set_title(
-    "Altimetry GMSL Estimation Errors for All Ice Sheets"
-)
-
-# %%
-
-fig1.savefig(
-    "figures/all_ice_sheets_altimetry_errors.png", dpi=600
-)
-plt.close(fig1)
-
-# %% ##### GAUSSIAN DATA SET #####
 
 data_gauss = np.load("all_ice_sheets_gauss_latitudes.npz")
 
