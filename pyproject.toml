@@ -14,18 +14,15 @@ dependencies = [
   "pandas",
   "pygeoinf",
   "pyslfp",
-  "jupyter (>=1.1.1,<2.0.0)"
-]
-
-[project.optional-dependencies]
-dev = [
+  "jupyter",
   "ipykernel",
   "jupytext",
   "ruff",
   "statsmodels",
   "ty",
   "pynvim",
-  "jupyter-client"
+  "jupyter-client",
+  "notebook"
 ]
 
 [build-system]
@@ -66,8 +63,3 @@ extend-select = [
 "tests/*" = ["ANN"]  # Don't require strict types in tests
 
 [tool.ty]
-
-[dependency-groups]
-dev = [
-    "notebook (>=7.5.3,<8.0.0)"
-]
