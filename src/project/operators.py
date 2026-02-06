@@ -8,8 +8,14 @@ from pyslfp import (
     spatial_mutliplication_operator,
 )
 
+from pygeoinf_extras.operators import (
+    point_averaging_operator,
+)
 from pyslfp_extras.gmsl import (
     gmsl_from_ice_thickness_operator,
+)
+from pyslfp_extras.operators import (
+    ocean_point_evaluation_operator,
 )
 
 
@@ -105,6 +111,31 @@ def ice_thickness_to_estimated_gmsl_operator(
     )
 
 
+def ice_thickness_to_point_estimated_gmsl_operator(
+    finger_print: FingerPrint,
+    finger_print_operator: LinearOperator,
+    altimetry_latitude_range: float = 66.0,
+    point_degree_spacing: float = 5.0,
+) -> LinearOperator:
+    _ssh_op = ice_thickness_to_ssh_operator(
+        finger_print,
+        finger_print_operator,
+        altimetry_latitude_range,
+    )
+    _point_projection_op = ocean_point_evaluation_operator(
+        finger_print,
+        _ssh_op.codomain,
+        point_degree_spacing=point_degree_spacing,
+    )
+    _avg_op = point_averaging_operator(
+        _point_projection_op.codomain
+    )
+    _total_op: LinearOperator = (
+        _avg_op @ _point_projection_op @ _ssh_op
+    )
+    return _total_op
+
+
 def ice_thickness_to_gmsl_estimation_error_operator(
     finger_print: FingerPrint,
     finger_print_operator: LinearOperator,
@@ -118,6 +149,26 @@ def ice_thickness_to_gmsl_estimation_error_operator(
             finger_print,
             finger_print_operator,
             altimetry_latitude_range,
+        )
+    )
+    return _gmsl - _estimated_gmsl
+
+
+def ice_thickness_to_gmsl_point_estimation_error_operator(
+    finger_print: FingerPrint,
+    finger_print_operator: LinearOperator,
+    altimetry_latitude_range: float = 66.0,
+    point_degree_spacing: float = 5.0,
+) -> LinearOperator:
+    _gmsl = gmsl_from_ice_thickness_operator(
+        finger_print, finger_print_operator
+    )
+    _estimated_gmsl = (
+        ice_thickness_to_point_estimated_gmsl_operator(
+            finger_print,
+            finger_print_operator,
+            altimetry_latitude_range,
+            point_degree_spacing,
         )
     )
     return _gmsl - _estimated_gmsl

@@ -29,7 +29,7 @@ from pyslfp_extras.measures import (
 # %%
 
 
-fp = FingerPrint(lmax=64)
+fp = FingerPrint(lmax=128)
 fp.set_state_from_ice_ng(version=IceModel.ICE7G, date=0.0)
 
 fp_op = fp.as_sobolev_linear_operator(
@@ -74,7 +74,7 @@ print(
     )
 )
 
-plot(ice_thickness_measure.sample(), symmetric=True)
+# plot(ice_thickness_measure.sample(), symmetric=True)
 
 # %%
 
@@ -98,8 +98,8 @@ ssh_s = ssh.sample()
 # get the max value from the absolute values of slc and ssh samples
 value = max(np.abs(slc_s).max(), np.abs(ssh_s).max())
 
-plot(slc_s, vmax=value, vmin=-value, symmetric=True)
-plot(ssh_s, vmax=value, vmin=-value, symmetric=True)
+# plot(slc_s, vmax=value, vmin=-value, symmetric=True)
+# plot(ssh_s, vmax=value, vmin=-value, symmetric=True)
 
 # %%
 
@@ -152,10 +152,11 @@ print(
 fig, (ax1, ax2) = error_plot(
     true_measure=true_gmsl_measure,
     estimation_measure=estimated_gmsl_measure,
-    true_label="True GMSL",
-    est_label="Estimated GMSL",
     true_color="blue",
     est_color="orange",
+    true_label=f"True GMSL (mean: {gmsl_exp:.2e} m, std: {gmsl_std:.2e} m)",
+    est_label=f"Estimated GMSL (mean: {est_exp:.2e} m, std: {est_std:.2e} m)",
+    error_label=f"GMSL Estimation Error (mean: {err_exp:.4e} m, std: {err_std:.4e} m)",
     ax1_title="GMSL Distribution",
     ax1_xlabel="GMSL (m)",
     ax2_title="GMSL Error Distribution",
@@ -164,4 +165,4 @@ fig, (ax1, ax2) = error_plot(
     show_bias=True,
 )
 plt.tight_layout()
-plt.show()
+plt.savefig("gmsl_estimation_error.png", dpi=300)
