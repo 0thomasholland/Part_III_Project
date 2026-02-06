@@ -111,7 +111,7 @@ def ice_thickness_to_estimated_gmsl_operator(
     )
 
 
-def ice_thickness_to_point_estimated_gmsl_operator(
+def ice_thickness_to_ssh_point_estimations_operator(
     finger_print: FingerPrint,
     finger_print_operator: LinearOperator,
     altimetry_latitude_range: float = 66.0,
@@ -127,11 +127,31 @@ def ice_thickness_to_point_estimated_gmsl_operator(
         _ssh_op.codomain,
         point_degree_spacing=point_degree_spacing,
     )
+    _total_op: LinearOperator = (
+        _point_projection_op @ _ssh_op
+    )
+    return _total_op
+
+
+def ice_thickness_to_point_estimated_gmsl_operator(
+    finger_print: FingerPrint,
+    finger_print_operator: LinearOperator,
+    altimetry_latitude_range: float = 66.0,
+    point_degree_spacing: float = 5.0,
+) -> LinearOperator:
+    _ice_thickness_to_ssh_point_estimations_op = (
+        ice_thickness_to_ssh_point_estimations_operator(
+            finger_print,
+            finger_print_operator,
+            altimetry_latitude_range,
+            point_degree_spacing,
+        )
+    )
     _avg_op = point_averaging_operator(
-        _point_projection_op.codomain
+        _ice_thickness_to_ssh_point_estimations_op.codomain
     )
     _total_op: LinearOperator = (
-        _avg_op @ _point_projection_op @ _ssh_op
+        _avg_op @ _ice_thickness_to_ssh_point_estimations_op
     )
     return _total_op
 

@@ -1,6 +1,7 @@
 # %%
 import matplotlib.pyplot as plt
 import numpy as np
+
 from project.plots import (
     double_distribution_plot,
     error_latitude_plot,
