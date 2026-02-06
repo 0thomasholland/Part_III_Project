@@ -6,6 +6,7 @@
 #   within a space's class
 # %%
 import cartopy.crs as ccrs
+import matplotlib.pyplot as plt
 import numpy as np
 from pygeoinf import (
     EuclideanSpace,
@@ -26,6 +27,9 @@ from project.operators import (
     ice_thickness_to_ssh_operator,
 )
 from pygeoinf_extras import expectation, standard_dev
+from pyslfp_extras.helpers import (
+    get_ocean_point_coordinates,
+)
 from pyslfp_extras.measures import (
     ice_thickness_gaussian_measure,
 )
@@ -60,70 +64,32 @@ ssh: GaussianMeasure = ice_thickness_measure.affine_mapping(
 )
 
 # %%
-plot(ssh.sample())
+fig, ax, im = plot(ssh.sample()*fp.altimetry_projection())
+points = get_ocean_point_coordinates(
+    fp,
+    point_degree_spacing=30.0,
+    altimetry_latitude_range=66.0,
+)
+
+ax.plot(
+    points[1],
+    points[0],
+    "w^",
+    transform=ccrs.PlateCarree(),
+)
 
 # %%
 
 measurement_space = ssh_operator.codomain
 
-point_eval_op = ocean_point_evaluation_operator(
-    finger_print=fp,
-    measurement_space=measurement_space,
-    point_degree_spacing=5.0,
+point_op = ocean_point_evaluation_operator(
+    fp,
+    measurement_space,
+    point_degree_spacing=30.0,
+    altimetry_latitude_range=66.0,
 )
 
-# %%
-# SSH sampling: push forward the SSH measure through point evaluation
-values_measure: GaussianMeasure = ssh.affine_mapping(
-    operator=point_eval_op,
-)
-sample_values = values_measure.sample()
-print(sample_values)
-print(point_eval_op.codomain.dim)
+point_measure = ssh.affine_mapping(operator=point_op)
 
-# %%
-points = [
-    (lat, lon, val)
-    for (lat, lon), val in zip(coords, sample_values)
-]
-
-# %%
-longs_all = [lon for lat, lon in ocean_coords]
-lats_all = [lat for lat, lon in ocean_coords]
-fig, ax, im = plot(ssh.sample())
-
-ax.plot(
-    longs_all,
-    lats_all,
-    "ro",
-    markersize=1,
-    transform=ccrs.PlateCarree(),
-)
-
-
-# %%
-
-n_points = len(coords)
-
-averaging_op = LinearOperator.from_matrix(
-    EuclideanSpace(n_points),
-    EuclideanSpace(1),
-    np.array([[1.0 / n_points] * n_points]),
-)
-average_measure = ssh.affine_mapping(
-    operator=averaging_op @ point_eval_op
-)
-
-print(expectation(average_measure))
-print(standard_dev(average_measure))
-
-_ssh_est = ice_thickness_measure.affine_mapping(
-    operator=ice_thickness_to_estimated_gmsl_operator(
-        finger_print=fp,
-        finger_print_operator=fp_op,
-        altimetry_latitude_range=66,
-    )
-)
-
-print(expectation(_ssh_est))
-print(standard_dev(_ssh_est))
+print(point_measure.sample())
+print(point_measure.domain.dim)
