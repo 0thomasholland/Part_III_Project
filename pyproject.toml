@@ -13,7 +13,8 @@ dependencies = [
   "numpy",
   "pandas",
   "pygeoinf",
-  "pyslfp"
+  "pyslfp",
+  "jupyter (>=1.1.1,<2.0.0)"
 ]
 
 [project.optional-dependencies]
@@ -65,3 +66,8 @@ extend-select = [
 "tests/*" = ["ANN"]  # Don't require strict types in tests
 
 [tool.ty]
+
+[dependency-groups]
+dev = [
+    "notebook (>=7.5.3,<8.0.0)"
+]

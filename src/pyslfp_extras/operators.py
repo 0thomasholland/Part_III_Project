@@ -8,15 +8,20 @@ def ocean_point_evaluation_operator(
     measurement_space: HilbertSpace,
     point_degree_spacing: float = 5.0,
 ) -> LinearOperator:
+    """
+    Constructs a linear operator that evaluates the ocean surface height at
+    specific points on the Earth's surface, as determined by the provided
+    `FingerPrint`. The operator is designed to only evaluate points that are
+    classified as ocean according to the `FingerPrint`'s ocean and altimetry
+    projections.
+    """
     mask = (
         finger_print.ocean_projection(value=0)
         * finger_print.altimetry_projection(value=0)
     ).to_array()
     nlat, nlon = mask.shape
 
-    mask_lats = np.linspace(
-        90, -90, nlat
-    )
+    mask_lats = np.linspace(90, -90, nlat)
     mask_lons = (
         np.linspace(0, 360, nlon, endpoint=True)
         if nlon > nlat
