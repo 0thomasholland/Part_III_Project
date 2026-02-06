@@ -62,6 +62,12 @@ def error_plot_from_metrics(
         x_1, true_pdf, label=true_label, color=true_color
     )
     ax1.plot(x_1, est_pdf, label=est_label, color=est_color)
+    # ledgend to below the plot
+    # ax1.legend(
+    #     loc="upper center",
+    #     bbox_to_anchor=(0.5, -0.15),
+    #     ncol=1,
+    # )
     ax1.set_title(ax1_title)
     ax1.set_xlabel(ax1_xlabel)
 
@@ -74,6 +80,7 @@ def error_plot_from_metrics(
         1 / (error_std * (2 * np.pi) ** 0.5)
     ) * np.exp(-0.5 * ((x_2 - error_mean) / error_std) ** 2)
     ax2.plot(x_2, error_pdf, label="Error", color="red")
+    ax2.legend()
     if show_bias:
         ax2.axvline(
             error_mean,

@@ -251,3 +251,9 @@
 
 - Added new analysis file and updated figure plotting code.
 
+## 6 February 2026
+
+- Implemented altimetry sampling module with whole ice sheet replication for comparison of error behaviour.
+- Implemented the first complete Bayesian inversion pipeline.
+- Added ocean coordinate helper functions and removed duplicated code.
+
