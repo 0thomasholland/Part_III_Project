@@ -151,8 +151,8 @@ def altimetry_error_gaussian_measure(
 def odt_variability_field(
     finger_print: FingerPrint,
     base_amplitude: float = 0.8,
-    current_amplitude: float = 1.5,
-    tropical_amplitude: float = 1.7,
+    current_amplitude: float = 10,
+    tropical_amplitude: float = 7,
 ) -> SHGrid:
     """Generate a synthetic spatial variability field for ODT based on observed patterns.
 
@@ -273,8 +273,8 @@ def odt_gaussian_measure(
     finger_print: FingerPrint,
     finger_print_operator: LinearOperator,
     order: float = 1.5,
-    length_scale: float | None = None,
-    amplitude: float | None = None,
+    length_scale: float | None = 10000,  # 10km
+    amplitude: float | None = 0.003,
     use_spatial_variability: bool = False,
 ) -> GaussianMeasure:
     """Create a Gaussian measure for Ocean Dynamic Topography as a height field on the load space.
@@ -297,13 +297,6 @@ def odt_gaussian_measure(
         A GaussianMeasure for ODT on the load space.
     """
     load_space: Sobolev = finger_print_operator.domain
-
-    if length_scale is None:
-        length_scale = (
-            0.1 * finger_print.mean_sea_floor_radius
-        )
-    if amplitude is None:
-        amplitude = 0.001 / finger_print.length_scale
 
     base_measure = load_space.point_value_scaled_sobolev_kernel_gaussian_measure(
         order, length_scale, amplitude
