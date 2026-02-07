@@ -30,7 +30,6 @@ fp_op = fp.as_sobolev_linear_operator(
 odt_uniform: GaussianMeasure = odt_gaussian_measure(
     finger_print=fp,
     finger_print_operator=fp_op,
-    length_scale=fp.mean_sea_floor_radius * 0.05,
 )
 
 odt_uniform_sample = odt_uniform.sample()
@@ -54,7 +53,6 @@ odt_variable: GaussianMeasure = odt_gaussian_measure(
     finger_print=fp,
     finger_print_operator=fp_op,
     use_spatial_variability=True,
-    length_scale=fp.mean_sea_floor_radius * 0.05,
 )
 
 odt_variable_sample = odt_variable.sample()
