@@ -22,7 +22,7 @@ dependencies = [
   "ty",
   "pynvim",
   "jupyter-client",
-  "notebook"
+  "notebook",
 ]
 
 [build-system]
@@ -33,7 +33,7 @@ build-backend = "poetry.core.masonry.api"
 packages = [
   { include = "project", from = "src" },
   { include = "pyslfp_extras", from = "src" },
-  { include = "pygeoinf_extras", from = "src" }
+  { include = "pygeoinf_extras", from = "src" },
 ]
 
 [tool.ruff]
@@ -43,23 +43,23 @@ src = ["src"]
 
 [tool.ruff.lint]
 select = [
-  "F",  # Pyflakes (correctness)
-  "E",  # pycodestyle errors
-  "W",  # pycodestyle warnings
-  "I",  # isort (import sorting)
-  "B",  # flake8-bugbear (catches common bugs like mutable defaults)
+  "F",   # Pyflakes (correctness)
+  "E",   # pycodestyle errors
+  "W",   # pycodestyle warnings
+  "I",   # isort (import sorting)
+  "B",   # flake8-bugbear (catches common bugs like mutable defaults)
   "UP",  # pyupgrade (upgrades code to modern Python 3.12 syntax)
-  "SIM",  # flake8-simplify (helps you write cleaner code)
-  "N",  # pep8-naming (enforces standard function/class names)
+  "SIM", # flake8-simplify (helps you write cleaner code)
+  "N",   # pep8-naming (enforces standard function/class names)
 ]
 extend-select = [
-  "ANN",  # flake8-annotations (type hints)
-  "TID",  # flake8-tidy-imports (cleaner import structures)
-  "RUF",  # Ruff-specific rules (ambiguous characters, etc.)
+  "ANN", # flake8-annotations (type hints)
+  "TID", # flake8-tidy-imports (cleaner import structures)
+  "RUF", # Ruff-specific rules (ambiguous characters, etc.)
 ]
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["ANN201", "ANN204"]
-"tests/*" = ["ANN"]  # Don't require strict types in tests
+"tests/*" = ["ANN"]                  # Don't require strict types in tests
 
 [tool.ty]

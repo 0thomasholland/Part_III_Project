@@ -257,3 +257,9 @@
 - Implemented the first complete Bayesian inversion pipeline.
 - Added ocean coordinate helper functions and removed duplicated code.
 
+## 7 February 2026
+
+- Added uniform and spatially variable ODT models, characterising where uncertainties arise due to ODT variability.
+- Implemented altimetry error model integration.
+- Updated analysis for Gaussian error over major ice sheet sources.
+
