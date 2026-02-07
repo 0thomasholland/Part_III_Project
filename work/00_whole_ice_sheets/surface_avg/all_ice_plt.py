@@ -9,7 +9,9 @@ from project.plots import (
 
 # %%
 
-data_scalar = np.load("all_ice_sheets_altimetry_errors.npz")
+data_scalar = np.load(
+    "determinant/all_ice_sheets_altimetry_errors.npz"
+)
 
 # %%
 
@@ -41,7 +43,9 @@ plt.close(fig1)
 
 # %% ##### GAUSSIAN DATA SET #####
 
-data_gauss = np.load("all_ice_sheets_gauss_latitudes.npz")
+data_gauss = np.load(
+    "gaussian/all_ice_sheets_gauss_latitudes.npz"
+)
 
 gmsl_means_gauss = data_gauss["gmsl_means"]
 gmsl_stds_gauss = data_gauss["gmsl_stds"]
