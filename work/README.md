@@ -22,15 +22,14 @@ Folders are structured in terms of "questions":
 ## order of work
 
 Deterministic:
-- [x] 00 - all ice field error
-- [x] 01 - major sources in scalar fields
-- [ ] 02 - ice load bands with scalar fields
-- [x] 03 - looking at mixing of major sources
+- 00 - all ice field error
+- 01 - major sources in scalar fields
+- 03 - looking at mixing of major sources
 
 Gaussian framework:
-- [ ] 00 - gaussian all ice field error
+- 00 - gaussian all ice field error
 - [ ] 01 - major sources in gaussian fields
 - [ ] 04 - adding in other signals (ODT, etc)
-- [ ] 05 - learning about inversions using pygeoinf
-- [ ] 06 - satellite altimetry sampling
-- [ ] 07 - implementing inversions
+- 05 - learning about inversions using pygeoinf
+- 06 - satellite altimetry sampling
+- 07 - implementing inversions
