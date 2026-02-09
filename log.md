@@ -263,3 +263,7 @@
 - Implemented altimetry error model integration.
 - Updated analysis for Gaussian error over major ice sheet sources.
 
+## 9 February 2026
+
+- Began work on a realistic inversion case using a rotationally variant error field.
+

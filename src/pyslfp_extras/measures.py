@@ -126,18 +126,24 @@ def _source_ice_thickness_gaussian_measure(
     """
     _load_space: Sobolev = finger_print_operator.domain
     _base_measure: GaussianMeasure = (
-        _load_space.heat_kernel_gaussian_measure(length_scale)
+        _load_space.heat_kernel_gaussian_measure(
+            length_scale
+        )
     )
 
-    _source_projection_grid = source_projection_method(value=0)
+    _source_projection_grid = source_projection_method(
+        value=0
+    )
     _source_projection_op: LinearOperator = (
         spatial_mutliplication_operator(
             _source_projection_grid, _load_space
         )
     )
 
-    _gmsl_op: LinearOperator = gmsl_from_ice_thickness_operator(
-        finger_print, finger_print_operator
+    _gmsl_op: LinearOperator = (
+        gmsl_from_ice_thickness_operator(
+            finger_print, finger_print_operator
+        )
     )
 
     # STD SCALING
@@ -279,9 +285,8 @@ def altimetry_error_gaussian_measure(
 
 def odt_variability_field(
     finger_print: FingerPrint,
-    base_amplitude: float = 0.8,
-    current_amplitude: float = 10,
-    tropical_amplitude: float = 7,
+    base_multiplier: float = 1,
+    point_multiplier: float = 20,
 ) -> SHGrid:
     """Generate a synthetic spatial variability field for ODT based on observed patterns.
 
@@ -326,66 +331,104 @@ def odt_variability_field(
     lon_grid, lat_grid = np.meshgrid(lons, lats)
 
     # Start with base amplitude everywhere
-    field = np.full_like(lat_grid, base_amplitude)
-
-    current_extra = current_amplitude - base_amplitude
+    field = np.full_like(lat_grid, base_multiplier)
 
     # Gulf Stream
     field += (
-        current_extra
-        * 0.75
-        * _gaussian_blob(lat_grid, lon_grid, 35, 305, 8, 25)
+        point_multiplier
+        * 0.3
+        * _gaussian_blob(
+            lat_grid, lon_grid, 35, 305, 20, 20
+        )
     )
     field += (
-        current_extra
-        * 0.5
-        * _gaussian_blob(lat_grid, lon_grid, 40, 330, 8, 10)
+        point_multiplier
+        * 0.3
+        * _gaussian_blob(
+            lat_grid, lon_grid, 45, 320, 20, 30
+        )
     )
     field += (
-        current_extra
-        * 0.75
-        * _gaussian_blob(lat_grid, lon_grid, 45, 350, 8, 10)
+        point_multiplier
+        * 0.3
+        * _gaussian_blob(lat_grid, lon_grid, 35, 305, 8, 8)
+    )
+    field += (
+        point_multiplier
+        * 0.3
+        * _gaussian_blob(lat_grid, lon_grid, 45, 320, 8, 8)
+    )
+
+    # South America
+
+    field += (
+        point_multiplier
+        * 0.3
+        * _gaussian_blob(
+            lat_grid, lon_grid, -45, 305, 20, 30
+        )
+    )
+    field += (
+        point_multiplier
+        * 0.3
+        * _gaussian_blob(lat_grid, lon_grid, -45, 295, 6, 6)
     )
 
     # Kuroshio
-    field += current_extra * _gaussian_blob(
-        lat_grid, lon_grid, 35, 155, 8, 25
+    field += (
+        point_multiplier
+        * 0.6
+        * _gaussian_blob(
+            lat_grid, lon_grid, 35, 155, 10, 30
+        )
     )
 
     # Agulhas
-    field += current_extra * _gaussian_blob(
-        lat_grid, lon_grid, -35, 35, 12, 25
+    field += (
+        point_multiplier
+        * 0.6
+        * _gaussian_blob(
+            lat_grid, lon_grid, -35, 35, 10, 15
+        )
     )
 
     # East Australian Current
-    field += current_extra * _gaussian_blob(
-        lat_grid, lon_grid, -30, 155, 8, 10
+    field += (
+        point_multiplier
+        * 0.8
+        * _gaussian_blob(
+            lat_grid, lon_grid, -30, 150, 10, 15
+        )
     )
 
-    acc_amplitude = 0.5 * (
-        current_amplitude + tropical_amplitude
+    # Antartic current blob
+    field += (
+        point_multiplier
+        * 0.6
+        * _gaussian_blob(
+            lat_grid, lon_grid, -55, 180, 10, 60
+        )
     )
-    acc_extra = acc_amplitude - base_amplitude
-    field += acc_extra * _latitude_band(lat_grid, -60, 10)
-
-    tropical_extra = tropical_amplitude - base_amplitude
 
     # Equatorial Pacific
-    field += tropical_extra * _gaussian_blob(
-        lat_grid, lon_grid, -10, 230, 15, 50
-    )
-    field += tropical_extra * _gaussian_blob(
-        lat_grid, lon_grid, -10, 230, 10, 40
+    field += (
+        point_multiplier
+        * 0.7
+        * _gaussian_blob(lat_grid, lon_grid, 10, 240, 5, 30)
     )
 
     # Indonesian Throughflow
-    field += tropical_extra * _gaussian_blob(
-        lat_grid, lon_grid, -5, 120, 8, 15
+    field += (
+        point_multiplier
+        * 0.6
+        * _gaussian_blob(lat_grid, lon_grid, -5, 120, 5, 10)
     )
 
-    # Caribbean
-    field += tropical_extra * _gaussian_blob(
-        lat_grid, lon_grid, 15, 280, 8, 15
+    # Afar
+    field += (
+        point_multiplier
+        * 0.7
+        * _gaussian_blob(lat_grid, lon_grid, 25, 40, 15, 15)
     )
 
     # Mask to ocean only
@@ -402,9 +445,10 @@ def odt_gaussian_measure(
     finger_print: FingerPrint,
     finger_print_operator: LinearOperator,
     order: float = 1.5,
-    length_scale: float | None = 10000,  # 10km
+    length_scale: float | None = 5000,  # 5km
     amplitude: float | None = 0.003,
     use_spatial_variability: bool = False,
+    point_multiplier: float = 30,
 ) -> GaussianMeasure:
     """Create a Gaussian measure for Ocean Dynamic Topography as a height field on the load space.
 
@@ -440,10 +484,12 @@ def odt_gaussian_measure(
 
     if use_spatial_variability:
         spatial_variability = odt_variability_field(
-            finger_print
+            finger_print,
+            point_multiplier=point_multiplier,
         )
         spatial_op = spatial_mutliplication_operator(
-            spatial_variability, load_space
+            spatial_variability,
+            load_space,
         )
         combined_op = remove_avg @ spatial_op @ ocean_proj
     else:

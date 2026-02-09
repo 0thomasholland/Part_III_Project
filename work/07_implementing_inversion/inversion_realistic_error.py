@@ -3,6 +3,7 @@ import cartopy.crs as ccrs
 import numpy as np
 from pygeoinf import (
     CGMatrixSolver,
+    EigenSolver,
     GaussianMeasure,
     LinearBayesianInversion,
     LinearForwardProblem,
@@ -24,6 +25,7 @@ from project import (
 )
 from project.operators import (
     ice_thickness_to_point_estimated_gmsl_operator,
+    ice_thickness_to_ssh_operator,
     ice_thickness_to_ssh_point_estimations_operator,
 )
 from pyslfp_extras.gmsl import (
@@ -35,6 +37,10 @@ from pyslfp_extras.helpers import (
 )
 from pyslfp_extras.measures import (
     ice_thickness_gaussian_measure,
+    odt_gaussian_measure,
+)
+from pyslfp_extras.operators import (
+    ocean_point_evaluation_operator,
 )
 
 fp = FingerPrint(lmax=128)
@@ -48,15 +54,15 @@ fp_op = fp.as_sobolev_linear_operator(
 
 # generate prior dataset
 
-altimetry_degree_density = 15.0
+altimetry_degree_density = 5.0
 
 ice_thickness_measure: GaussianMeasure = (
     ice_thickness_gaussian_measure(
         finger_print=fp,
         finger_print_operator=fp_op,
         length_scale=0.1 * fp.mean_sea_floor_radius,
-        gmsl_target_std=0.01, # gmsl std = 1cm
-        gmsl_target_mean=0.02, # gmsl mean = 2cm
+        gmsl_target_std=0.04,
+        gmsl_target_mean=0.01,
     )
 )
 
@@ -75,7 +81,6 @@ points: tuple[list[float], list[float]] = (
     )
 )
 
-plot(ice_thickness_measure.sample(), symmetric=True)
 
 # %%
 
@@ -85,27 +90,119 @@ data_space = (
 
 # %%
 
-altimetry_std_dev = 0.001
-data_error_measure = (
-    GaussianMeasure.from_standard_deviation(
-        data_space, altimetry_std_dev
+error_field_measure: GaussianMeasure = odt_gaussian_measure(
+    finger_print=fp,
+    finger_print_operator=fp_op,
+    use_spatial_variability=True,
+    amplitude=0.0001,
+    point_multiplier=10,
+)
+
+error_sampling_points = error_field_measure.affine_mapping(
+    operator=ocean_point_evaluation_operator(
+        finger_print=fp,
+        measurement_space=error_field_measure.domain,
+        point_degree_spacing=altimetry_degree_density,
+        altimetry_latitude_range=66.0,
     )
 )
 
+
+# %%
+sample_ice_thickness = ice_thickness_measure.sample()
+sample_error_field = error_field_measure.sample()
+sample_ssh = ice_thickness_to_ssh_operator(
+    finger_print=fp,
+    finger_print_operator=fp_op,
+    altimetry_latitude_range=66.0,
+)(sample_ice_thickness)
+sample_combined = sample_ssh + sample_error_field
+
+plot(sample_ice_thickness, symmetric=True)
+plot(sample_ssh, symmetric=True)
+plot(sample_error_field, symmetric=True)
+plot(sample_combined, symmetric=True)
+
+# %%
+# Preconditioner
+
+lmax_precon = 32
+
+precon_fp = FingerPrint(lmax=lmax_precon)
+precon_fp.set_state_from_ice_ng(
+    version=IceModel.ICE7G, date=0.0
+)
+
+precon_fp_op = precon_fp.as_sobolev_linear_operator(
+    2, precon_fp.mean_sea_floor_radius * 0.1
+)
+
+precon_ice_thickness_measure: GaussianMeasure = (
+    ice_thickness_gaussian_measure(
+        finger_print=precon_fp,
+        finger_print_operator=precon_fp_op,
+        length_scale=0.1 * precon_fp.mean_sea_floor_radius,
+        gmsl_target_std=0.04,
+        gmsl_target_mean=0.01,
+    )
+)
+
+# Build the precon forward operator manually so it maps to the same
+# data space as the full problem (same ocean points from the full fp).
+precon_ssh_op = ice_thickness_to_ssh_operator(
+    finger_print=precon_fp,
+    finger_print_operator=precon_fp_op,
+    altimetry_latitude_range=66.0,
+)
+precon_point_eval_op = (
+    precon_ssh_op.codomain.point_evaluation_operator(
+        list(zip(points[0], points[1]))
+    )
+)
+precon_forward_op: LinearOperator = (
+    precon_point_eval_op @ precon_ssh_op
+)
+
+precon_forward_problem = LinearForwardProblem(
+    precon_forward_op,
+    data_error_measure=error_sampling_points,
+)
+
+# %%
+
 forward_problem = LinearForwardProblem(
     ice_thickness_to_ssh_point_estimations_op,
-    data_error_measure=data_error_measure,
+    data_error_measure=error_sampling_points,
 )
 
 model_true, data = forward_problem.synthetic_model_and_data(
     ice_thickness_measure
 )
 
+# Set up the inversion for the preconditioning system
+precon_bayesian_inversion = LinearBayesianInversion(
+    precon_forward_problem, precon_ice_thickness_measure
+)
+
+# Get the normal operator for the preconditioning system.
+precon_normal_operator = (
+    precon_bayesian_inversion.normal_operator
+)
+
+# Form its inverse using Eigen-decomposition.
+print("Forming the preconditioner...")
+solver = EigenSolver(parallel=True, n_jobs=12)
+precon_inverse_normal_operator = solver(
+    precon_normal_operator
+)
+
+# Set up the Bayesian inversion method
 bayesian_inversion = LinearBayesianInversion(
     forward_problem, ice_thickness_measure
 )
 
-print("Starting inversion...")
+# Solve for the posterior distribution
+print("Solving the linear system...")
 residuals = []
 pbar = tqdm(desc="CG solve")
 
@@ -118,14 +215,20 @@ def progress_callback(xk):
 
 model_posterior_measure = (
     bayesian_inversion.model_posterior_measure(
-        data, CGMatrixSolver(callback=progress_callback)
+        data,
+        CGMatrixSolver(callback=progress_callback),
+        preconditioner=precon_inverse_normal_operator,
     )
 )
 pbar.close()
-print("")
-print("Inversion complete.")
+
+# Get the posterior expectation
 model_posterior_expectation = (
     model_posterior_measure.expectation
+)
+
+print(
+    f"Number of solutions of the fingerprint problem = {fp.solver_counter}"
 )
 
 # %%
@@ -284,7 +387,7 @@ GMSL_posterior_measure = (
 # Plot the PDFs
 fig, ax = plot_1d_distributions(
     GMSL_posterior_measure,
-    prior_measures=GMSL_prior_measure,
+    # prior_measures=GMSL_prior_measure,
     true_value=GMSL_true[0],
     xlabel="GMSL Change (mm)",
     title="Global Mean Sea Level Change Inference from GRACE Data",

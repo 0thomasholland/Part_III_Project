@@ -48,15 +48,15 @@ fp_op = fp.as_sobolev_linear_operator(
 
 # generate prior dataset
 
-altimetry_degree_density = 15.0
+altimetry_degree_density = 5.0
 
 ice_thickness_measure: GaussianMeasure = (
     ice_thickness_gaussian_measure(
         finger_print=fp,
         finger_print_operator=fp_op,
         length_scale=0.1 * fp.mean_sea_floor_radius,
-        gmsl_target_std=0.01, # gmsl std = 1cm
-        gmsl_target_mean=0.02, # gmsl mean = 2cm
+        gmsl_target_std=0.01,
+        gmsl_target_mean=0.0,
     )
 )
 
@@ -79,7 +79,7 @@ plot(ice_thickness_measure.sample(), symmetric=True)
 
 # %%
 
-data_space = (
+ssh_data_space = (
     ice_thickness_to_ssh_point_estimations_op.codomain
 )
 
@@ -284,7 +284,7 @@ GMSL_posterior_measure = (
 # Plot the PDFs
 fig, ax = plot_1d_distributions(
     GMSL_posterior_measure,
-    prior_measures=GMSL_prior_measure,
+    # prior_measures=GMSL_prior_measure,
     true_value=GMSL_true[0],
     xlabel="GMSL Change (mm)",
     title="Global Mean Sea Level Change Inference from GRACE Data",
