@@ -137,6 +137,24 @@ for mi, gmsl_mean in enumerate(gmsl_target_means):
                 alpha=0.2,
                 label=f"{source_labels[source]} +/-2 Std Dev",
             )
+        # make array like latitudes that is full of gmsl mean and std
+        gmsl_means = np.full_like(altimetry_latitudes, gmsl_mean * 1e3)
+        gmsl_stds = np.full_like(altimetry_latitudes, gmsl_std)
+        ax.plot(
+            altimetry_latitudes,
+            gmsl_means,
+            label="True GMSL Mean",
+            color="grey"
+        )
+        ax.fill_between(
+            x=altimetry_latitudes,
+            y1=gmsl_means - 2 * gmsl_stds,
+            y2=gmsl_means + 2 * gmsl_stds,
+            color="grey",
+            alpha=0.2,
+            label="True GMSL +/-2 Std Dev",
+        )
+
         ax.set_xlabel("Latitude (degrees)")
         ax.set_ylabel("GMSL Estimation Error (mm)")
         ax.set_title(
