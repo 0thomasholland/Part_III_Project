@@ -61,8 +61,8 @@ ice_thickness_measure: GaussianMeasure = (
         finger_print=fp,
         finger_print_operator=fp_op,
         length_scale=0.1 * fp.mean_sea_floor_radius,
-        gmsl_target_std=0.04,
-        gmsl_target_mean=0.01,
+        gmsl_target_std=0.01,
+        gmsl_target_mean=0.08,
     )
 )
 
@@ -94,8 +94,8 @@ error_field_measure: GaussianMeasure = odt_gaussian_measure(
     finger_print=fp,
     finger_print_operator=fp_op,
     use_spatial_variability=True,
-    amplitude=0.0001,
-    point_multiplier=10,
+    amplitude=0.003,
+    point_multiplier=20,
 )
 
 error_sampling_points = error_field_measure.affine_mapping(
@@ -123,8 +123,20 @@ plot(sample_ssh, symmetric=True)
 plot(sample_error_field, symmetric=True)
 plot(sample_combined, symmetric=True)
 
+
 # %%
-# Preconditioner
+
+forward_problem = LinearForwardProblem(
+    ice_thickness_to_ssh_point_estimations_op,
+    data_error_measure=error_sampling_points,
+)
+
+model_true, data = forward_problem.synthetic_model_and_data(
+    ice_thickness_measure
+)
+
+# %%
+# Preconditioner — low-resolution version of the full problem
 
 lmax_precon = 32
 
@@ -142,10 +154,40 @@ precon_ice_thickness_measure: GaussianMeasure = (
         finger_print=precon_fp,
         finger_print_operator=precon_fp_op,
         length_scale=0.1 * precon_fp.mean_sea_floor_radius,
-        gmsl_target_std=0.04,
-        gmsl_target_mean=0.01,
+        gmsl_target_std=0.01,
+        gmsl_target_mean=0.08,
     )
 )
+
+# Check that the full-resolution ocean points are also ocean points
+# on the lower-resolution preconditioner grid.
+precon_ocean_points = get_ocean_point_coordinates(
+    finger_print=precon_fp,
+    point_degree_spacing=altimetry_degree_density,
+    altimetry_latitude_range=66.0,
+)
+precon_ocean_set = set(
+    zip(precon_ocean_points[0], precon_ocean_points[1])
+)
+full_ocean_set = set(zip(points[0], points[1]))
+points_not_in_precon_ocean = (
+    full_ocean_set - precon_ocean_set
+)
+print(
+    f"Full-resolution ocean points: {len(full_ocean_set)}"
+)
+print(
+    f"Preconditioner ocean points: {len(precon_ocean_set)}"
+)
+print(
+    f"Full-res points NOT in preconditioner ocean: {len(points_not_in_precon_ocean)}"
+)
+if points_not_in_precon_ocean:
+    print(
+        "WARNING: Some ocean points from the full grid are not ocean on the preconditioner grid:"
+    )
+    for lat, lon in sorted(points_not_in_precon_ocean):
+        print(f"  lat={lat:.1f}, lon={lon:.1f}")
 
 # Build the precon forward operator manually so it maps to the same
 # data space as the full problem (same ocean points from the full fp).
@@ -163,20 +205,32 @@ precon_forward_op: LinearOperator = (
     precon_point_eval_op @ precon_ssh_op
 )
 
+# Build the low-resolution realistic error measure, using a point
+# evaluation operator from the same SSH codomain so the error measure
+# lands in the same data space as precon_forward_op.
+precon_error_field_measure: GaussianMeasure = (
+    odt_gaussian_measure(
+        finger_print=precon_fp,
+        finger_print_operator=precon_fp_op,
+        use_spatial_variability=True,
+        amplitude=0.003,
+        point_multiplier=20,
+    )
+)
+
+precon_error_point_eval_op = precon_error_field_measure.domain.point_evaluation_operator(
+    list(zip(points[0], points[1]))
+)
+
+precon_error_sampling_points = (
+    precon_error_field_measure.affine_mapping(
+        operator=precon_error_point_eval_op,
+    )
+)
+
 precon_forward_problem = LinearForwardProblem(
     precon_forward_op,
-    data_error_measure=error_sampling_points,
-)
-
-# %%
-
-forward_problem = LinearForwardProblem(
-    ice_thickness_to_ssh_point_estimations_op,
-    data_error_measure=error_sampling_points,
-)
-
-model_true, data = forward_problem.synthetic_model_and_data(
-    ice_thickness_measure
+    data_error_measure=precon_error_sampling_points,
 )
 
 # Set up the inversion for the preconditioning system
@@ -196,13 +250,15 @@ precon_inverse_normal_operator = solver(
     precon_normal_operator
 )
 
+# %%
+
 # Set up the Bayesian inversion method
 bayesian_inversion = LinearBayesianInversion(
     forward_problem, ice_thickness_measure
 )
 
 # Solve for the posterior distribution
-print("Solving the linear system...")
+print("Starting inversion...")
 residuals = []
 pbar = tqdm(desc="CG solve")
 
@@ -221,6 +277,8 @@ model_posterior_measure = (
     )
 )
 pbar.close()
+print("")
+print("Inversion complete.")
 
 # Get the posterior expectation
 model_posterior_expectation = (
@@ -250,7 +308,7 @@ max_abs_ice_change = (
     * fp.length_scale
 )
 
-# --- Plot 1: The "Ground Trutsh" Model ---
+# --- Plot 1: The "Ground Truth" Model ---
 fig1, ax1, im1 = plot(
     1000
     * model_true
@@ -324,14 +382,6 @@ fig3, ax3, im13 = plot(
     colorbar_label="Sea Level Change (mm)",
 )
 ax3.set_title("a) True Sea-Level Fingerprint")
-# ax3.plot(
-#     points[1],  # longitudes
-#     points[0],  # latitudes
-#     "kx",
-#     label="Altimetry Point Estimations",
-#     transform=ccrs.PlateCarree(),
-# )
-
 
 # --- Plot 4: The Sea-Level Field Predicted by the Inversion ---
 fig4, ax4, im4 = plot(
@@ -428,12 +478,6 @@ C = averaging_operator(
         EAI_weighting_function,
     ],
 )
-
-property_true = C(model_true)
-property_posterior_measure = (
-    model_posterior_measure.affine_mapping(operator=C)
-)
-
 
 property_true = C(model_true)
 property_posterior_measure = (
