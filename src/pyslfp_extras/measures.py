@@ -1,7 +1,6 @@
 from typing import Callable
 
 import numpy as np
-from pandas import read_iceberg
 from pygeoinf import (
     GaussianMeasure,
     HilbertSpace,
