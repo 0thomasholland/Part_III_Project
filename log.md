@@ -267,3 +267,9 @@
 
 - Began work on a realistic inversion case using a rotationally variant error field.
 
+## 10 February 2026
+
+- Created ice sheet density profile for realistic ice thickness calculations.
+- Added observational datasets for real-data inversions.
+- Continued developing the inversion framework.
+

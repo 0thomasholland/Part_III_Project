@@ -48,15 +48,15 @@ fp_op = fp.as_sobolev_linear_operator(
 
 # generate prior dataset
 
-altimetry_degree_density = 15.0
+altimetry_degree_density = 5.0
 
 ice_thickness_measure: GaussianMeasure = (
     ice_thickness_gaussian_measure(
         finger_print=fp,
         finger_print_operator=fp_op,
         length_scale=0.1 * fp.mean_sea_floor_radius,
-        gmsl_target_std=0.01, # gmsl std = 1cm
-        gmsl_target_mean=0.02, # gmsl mean = 2cm
+        gmsl_target_std=0.01,  # gmsl std = 1cm
+        gmsl_target_mean=0.02,  # gmsl mean = 2cm
     )
 )
 
@@ -85,7 +85,7 @@ data_space = (
 
 # %%
 
-altimetry_std_dev = 0.001
+altimetry_std_dev = 0.01
 data_error_measure = (
     GaussianMeasure.from_standard_deviation(
         data_space, altimetry_std_dev
@@ -177,6 +177,19 @@ ax2.set_title(
     "b) Posterior Expectation (Inferred from Data)"
 )
 
+fig2_1, ax2_1, im2_1 = plot(
+    1000
+    * (model_true - model_posterior_expectation)
+    * fp.length_scale
+    * fp.ice_projection(),
+    coasts=True,
+    vmin=-max_abs_ice_change,
+    vmax=max_abs_ice_change,
+    cmap="seismic",
+    colorbar_label="Ice Thickness Change (mm)",
+)
+ax2.set_title("Difference")
+
 # %%
 
 ice_thickness_to_slc_op = ice_thickness_to_slc_operator(
@@ -243,12 +256,24 @@ fig4, ax4, im4 = plot(
     colorbar_label="Sea Level Change (mm)",
 )
 ax4.set_title("b) Predicted Sea-Level Fingerprint")
-ax4.plot(
-    points[1],  # longitudes
-    points[0],  # latitudes
-    "kx",
-    label="Altimetry Point Estimations",
-    transform=ccrs.PlateCarree(),
+# ax4.plot(
+#     points[1],  # longitudes
+#     points[0],  # latitudes
+#     "kx",
+#     label="Altimetry Point Estimations",
+#     transform=ccrs.PlateCarree(),
+# )
+
+fig4_a, ax4_a, im4_a = plot(
+    1000
+    * (sea_level_posterior - sea_level_true)
+    * fp.ocean_projection()
+    * fp.length_scale,
+    coasts=True,
+    cmap="seismic",
+    vmin=-max_abs_sl_change,
+    vmax=max_abs_sl_change,
+    colorbar_label="Sea Level Change (mm)",
 )
 # %%
 
@@ -284,7 +309,7 @@ GMSL_posterior_measure = (
 # Plot the PDFs
 fig, ax = plot_1d_distributions(
     GMSL_posterior_measure,
-    prior_measures=GMSL_prior_measure,
+    # prior_measures=GMSL_prior_measure,
     true_value=GMSL_true[0],
     xlabel="GMSL Change (mm)",
     title="Global Mean Sea Level Change Inference from GRACE Data",
