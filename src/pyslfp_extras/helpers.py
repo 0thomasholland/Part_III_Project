@@ -1,4 +1,5 @@
 import numpy as np
+from joblib import Parallel, delayed
 from pyslfp import FingerPrint
 
 
@@ -6,6 +7,7 @@ def get_ocean_point_coordinates(
     finger_print: FingerPrint,
     point_degree_spacing: float = 5.0,
     altimetry_latitude_range: float = 66.0,
+    parallel_workers: None | int = None,
 ) -> tuple[list[float], list[float]]:
     """
     Returns the latitude and longitude coordinates of ocean points on the Earth's
@@ -51,17 +53,23 @@ def get_ocean_point_coordinates(
     ocean_lats = []
     ocean_lons = []
 
-    for lat in target_lats:
-        for lon in target_lons:
-            mask_lat_idx = np.argmin(
-                np.abs(mask_lats - lat)
-            )
-            mask_lon_idx = np.argmin(
-                np.abs(mask_lons - lon)
-            )
+    def check_point(lat, lon):
+        mask_lat_idx = np.argmin(np.abs(mask_lats - lat))
+        mask_lon_idx = np.argmin(np.abs(mask_lons - lon))
 
-            if mask[mask_lat_idx, mask_lon_idx] == 1:
-                ocean_lats.append(lat)
-                ocean_lons.append(lon)
+        if mask[mask_lat_idx, mask_lon_idx] == 1:
+            ocean_lats.append(lat)
+            ocean_lons.append(lon)
+
+    if parallel_workers is not None:
+        Parallel(n_jobs=parallel_workers)(
+            delayed(check_point)(lat, lon)
+            for lat in target_lats
+            for lon in target_lons
+        )
+    else:
+        for lat in target_lats:
+            for lon in target_lons:
+                check_point(lat, lon)
 
     return ocean_lats, ocean_lons

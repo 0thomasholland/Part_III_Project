@@ -81,6 +81,7 @@ ice_thickness_to_ssh_point_estimations_op: LinearOperator = ice_thickness_to_ssh
     finger_print_operator=fp_op,
     altimetry_latitude_range=66.0,
     point_degree_spacing=ALTIMETRY_DEGREE_SPACING,
+    parallel_workers=-1,
 )
 
 points: tuple[list[float], list[float]] = (
@@ -88,6 +89,7 @@ points: tuple[list[float], list[float]] = (
         finger_print=fp,
         point_degree_spacing=ALTIMETRY_DEGREE_SPACING,
         altimetry_latitude_range=66.0,
+        parallel_workers=-1,
     )
 )
 
@@ -120,6 +122,7 @@ data_error_measure = error_field_measure.affine_mapping(
         measurement_space=error_field_measure.domain,
         point_degree_spacing=ALTIMETRY_DEGREE_SPACING,
         altimetry_latitude_range=66.0,
+        parallel_workers=-1,
     )
 )
 

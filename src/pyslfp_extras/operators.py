@@ -12,6 +12,7 @@ def ocean_point_evaluation_operator(
     measurement_space: HilbertSpace,
     point_degree_spacing: float = 5.0,
     altimetry_latitude_range: float = 66.0,
+    parallel_workers: None | int = None,
 ) -> LinearOperator:
     """
     Constructs a linear operator that evaluates the ocean surface height at
@@ -24,6 +25,7 @@ def ocean_point_evaluation_operator(
         finger_print,
         point_degree_spacing=point_degree_spacing,
         altimetry_latitude_range=altimetry_latitude_range,
+        parallel_workers=parallel_workers,
     )
 
     ocean_coords = list(zip(*ocean_coords))
