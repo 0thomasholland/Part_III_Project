@@ -273,3 +273,7 @@
 - Added observational datasets for real-data inversions.
 - Continued developing the inversion framework.
 
+## 12 February 2026
+
+- Parallelised the grid point computation for improved performance.
+

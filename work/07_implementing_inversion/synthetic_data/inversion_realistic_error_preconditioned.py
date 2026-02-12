@@ -71,6 +71,7 @@ ice_thickness_to_ssh_point_estimations_op: LinearOperator = ice_thickness_to_ssh
     finger_print_operator=fp_op,
     altimetry_latitude_range=66.0,
     point_degree_spacing=altimetry_degree_density,
+    parallel_workers=-1,
 )
 
 points: tuple[list[float], list[float]] = (
@@ -78,6 +79,7 @@ points: tuple[list[float], list[float]] = (
         finger_print=fp,
         point_degree_spacing=altimetry_degree_density,
         altimetry_latitude_range=66.0,
+        parallel_workers=-1,
     )
 )
 
@@ -165,6 +167,7 @@ precon_ocean_points = get_ocean_point_coordinates(
     finger_print=precon_fp,
     point_degree_spacing=altimetry_degree_density,
     altimetry_latitude_range=66.0,
+    parallel_workers=-1,
 )
 precon_ocean_set = set(
     zip(precon_ocean_points[0], precon_ocean_points[1])
