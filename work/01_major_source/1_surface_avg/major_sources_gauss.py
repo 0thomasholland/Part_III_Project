@@ -134,18 +134,11 @@ def compute_measures(
         (source, mean, std)
     ]
 
-    gmsl_op = gmsl_from_ice_thickness_operator(
+    _gmsl_op = gmsl_from_ice_thickness_operator(
         finger_print=fp, finger_print_operator=fp_op
     )
-    estimated_gmsl_op = (
+    _estimated_gmsl_op = (
         ice_thickness_to_estimated_gmsl_operator(
-            finger_print=fp,
-            finger_print_operator=fp_op,
-            altimetry_latitude_range=latitude,
-        )
-    )
-    error_op = (
-        ice_thickness_to_gmsl_estimation_error_operator(
             finger_print=fp,
             finger_print_operator=fp_op,
             altimetry_latitude_range=latitude,
@@ -153,14 +146,12 @@ def compute_measures(
     )
 
     _true_gmsl_measure = _ice_measure.affine_mapping(
-        operator=gmsl_op
+        operator=_gmsl_op
     )
     _estimate_measure = _ice_measure.affine_mapping(
-        operator=estimated_gmsl_op
+        operator=_estimated_gmsl_op
     )
-    _error_measure = _ice_measure.affine_mapping(
-        operator=error_op
-    )
+    _error_measure = _true_gmsl_measure - _estimate_measure
 
     return (
         (source, latitude, mean, std),
