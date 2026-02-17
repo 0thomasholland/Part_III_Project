@@ -277,3 +277,7 @@
 
 - Parallelised the grid point computation for improved performance.
 
+## 17 February 2026
+
+- Added time series inversion capability, extending the framework to handle temporal sequences.
+
