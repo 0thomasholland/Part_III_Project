@@ -94,8 +94,8 @@ error_field_measure: GaussianMeasure = odt_gaussian_measure(
     finger_print=fp,
     finger_print_operator=fp_op,
     use_spatial_variability=True,
-    amplitude=0.003,
-    point_multiplier=20,
+    amplitude=0.0003,
+    point_multiplier=30.0,
 )
 
 error_sampling_points = error_field_measure.affine_mapping(
@@ -107,8 +107,13 @@ error_sampling_points = error_field_measure.affine_mapping(
     )
 )
 
+altimetry_error_std = 0.01
 
-# %%
+error_sampling_points += GaussianMeasure.from_standard_deviation(
+    data_space, altimetry_error_std
+)
+
+
 sample_ice_thickness = ice_thickness_measure.sample()
 sample_error_field = error_field_measure.sample()
 sample_ssh = ice_thickness_to_ssh_operator(
@@ -198,8 +203,8 @@ fig1, ax1, im1 = plot(
     * fp.ice_projection(),
     coasts=True,
     cmap="seismic",
-    vmin=-max_abs_ice_change,
-    vmax=max_abs_ice_change,
+    # vmin=-max_abs_ice_change,
+    # vmax=max_abs_ice_change,
     colorbar_label="Ice Thickness Change (mm)",
 )
 ax1.set_title("a) True Ice Thickness Change")
@@ -212,8 +217,8 @@ fig2, ax2, im2 = plot(
     * fp.ice_projection(),
     coasts=True,
     cmap="seismic",
-    vmin=-max_abs_ice_change,
-    vmax=max_abs_ice_change,
+    # vmin=-max_abs_ice_change,
+    # vmax=max_abs_ice_change,
     colorbar_label="Ice Thickness Change (mm)",
 )
 ax2.set_title(
@@ -259,8 +264,8 @@ fig3, ax3, im13 = plot(
     1000 * sea_level_true * ocean_mask * fp.length_scale,
     coasts=True,
     cmap="seismic",
-    vmin=-max_abs_sl_change,
-    vmax=max_abs_sl_change,
+    # vmin=-max_abs_sl_change,
+    # vmax=max_abs_sl_change,
     colorbar_label="Sea Level Change (mm)",
 )
 ax3.set_title("a) True Sea-Level Fingerprint")
@@ -281,18 +286,18 @@ fig4, ax4, im4 = plot(
     * fp.length_scale,
     coasts=True,
     cmap="seismic",
-    vmin=-max_abs_sl_change,
-    vmax=max_abs_sl_change,
+    # vmin=-max_abs_sl_change,
+    # vmax=max_abs_sl_change,
     colorbar_label="Sea Level Change (mm)",
 )
 ax4.set_title("b) Predicted Sea-Level Fingerprint")
-ax4.plot(
-    points[1],  # longitudes
-    points[0],  # latitudes
-    "kx",
-    label="Altimetry Point Estimations",
-    transform=ccrs.PlateCarree(),
-)
+# ax4.plot(
+#     points[1],  # longitudes
+#     points[0],  # latitudes
+#     "kx",
+#     label="Altimetry Point Estimations",
+#     transform=ccrs.PlateCarree(),
+# )
 # %%
 
 

@@ -50,26 +50,32 @@ def get_ocean_point_coordinates(
     )
     target_lons = np.arange(0, 360, point_degree_spacing)
 
-    ocean_lats = []
-    ocean_lons = []
-
-    def check_point(lat, lon):
+    def is_ocean_point(lat, lon):
         mask_lat_idx = np.argmin(np.abs(mask_lats - lat))
         mask_lon_idx = np.argmin(np.abs(mask_lons - lon))
 
         if mask[mask_lat_idx, mask_lon_idx] == 1:
-            ocean_lats.append(lat)
-            ocean_lons.append(lon)
+            return (lat, lon)
+        return None
 
     if parallel_workers is not None:
-        Parallel(n_jobs=parallel_workers)(
-            delayed(check_point)(lat, lon)
+        # Use threads to avoid copying large arrays across processes.
+        results = Parallel(n_jobs=parallel_workers, prefer="threads")(
+            delayed(is_ocean_point)(lat, lon)
             for lat in target_lats
             for lon in target_lons
         )
+        ocean_coords = [coord for coord in results if coord is not None]
     else:
+        ocean_coords = []
         for lat in target_lats:
             for lon in target_lons:
-                check_point(lat, lon)
+                coord = is_ocean_point(lat, lon)
+                if coord is not None:
+                    ocean_coords.append(coord)
 
-    return ocean_lats, ocean_lons
+    if not ocean_coords:
+        return [], []
+
+    ocean_lats, ocean_lons = zip(*ocean_coords)
+    return list(ocean_lats), list(ocean_lons)

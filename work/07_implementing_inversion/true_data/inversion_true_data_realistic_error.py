@@ -45,7 +45,7 @@ from pyslfp_extras.operators import (
 DUACS_PATH = Path("../../../data/duacs/duacs_annual.nc")
 YEAR_START = 1993
 YEAR_END = 2019
-ALTIMETRY_DEGREE_SPACING = 2.0
+ALTIMETRY_DEGREE_SPACING = 0.5
 
 # %%
 # ---------------------------------------------------------------------------
@@ -72,6 +72,9 @@ ice_thickness_measure: GaussianMeasure = (
     )
 )
 
+
+
+
 # %%
 # ---------------------------------------------------------------------------
 # Forward operator and ocean point coordinates
@@ -83,6 +86,7 @@ ice_thickness_to_ssh_point_estimations_op: LinearOperator = ice_thickness_to_ssh
     point_degree_spacing=ALTIMETRY_DEGREE_SPACING,
     parallel_workers=-1,
 )
+
 
 points: tuple[list[float], list[float]] = (
     get_ocean_point_coordinates(
@@ -105,25 +109,32 @@ error_field_measure: GaussianMeasure = odt_gaussian_measure(
     finger_print=fp,
     finger_print_operator=fp_op,
     use_spatial_variability=True,
-    amplitude=0.003,
-    point_multiplier=20,
+    amplitude=0.0003,
+    point_multiplier=30.0,
 )
 
-plot(
-    error_field_measure.sample() * 1000,
-    symmetric=True,
-)
-
-# %%
-
-data_error_measure = error_field_measure.affine_mapping(
+error_sampling_points = error_field_measure.affine_mapping(
     operator=ocean_point_evaluation_operator(
         finger_print=fp,
         measurement_space=error_field_measure.domain,
         point_degree_spacing=ALTIMETRY_DEGREE_SPACING,
         altimetry_latitude_range=66.0,
-        parallel_workers=-1,
     )
+)
+
+altimetry_error_std = 0.01
+
+data_space = (
+    ice_thickness_to_ssh_point_estimations_op.codomain
+)
+
+error_sampling_points += GaussianMeasure.from_standard_deviation(
+    data_space, altimetry_error_std
+)
+
+plot(
+    error_field_measure.sample() * 1000,
+    symmetric=True,
 )
 
 
@@ -253,7 +264,7 @@ ax_obs.set_title(
 # ---------------------------------------------------------------------------
 forward_problem = LinearForwardProblem(
     ice_thickness_to_ssh_point_estimations_op,
-    data_error_measure=data_error_measure,
+    data_error_measure=error_sampling_points,
 )
 
 bayesian_inversion = LinearBayesianInversion(
