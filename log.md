@@ -281,3 +281,8 @@
 
 - Added time series inversion capability, extending the framework to handle temporal sequences.
 
+## 20 February 2026
+
+- Added time series visualisation to analysis plots.
+- Began initial report writing.
+
