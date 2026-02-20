@@ -49,10 +49,13 @@
 \usepackage{caption}
 \usepackage{subcaption}
 
+\usepackage[T1]{fontenc}
+\usepackage{stix2}
+
 \usepackage[margin=3cm, bindingoffset=0.5cm]{geometry}
 
-\usepackage[backend=bibtex, uniquename=full, maxnames=1, style=authoryear]{biblatex}
-\bibliography{../refs.bib}
+\usepackage[backend=biber, uniquename=full, maxnames=1, style=authoryear]{biblatex}
+\addbibresource{../refs.bib}
 
 \usepackage{booktabs}
 \usepackage{tabularx}

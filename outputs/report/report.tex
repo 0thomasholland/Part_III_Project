@@ -1,23 +1,36 @@
-\documentclass[titlepage, a4paper,12pt,draft]{article}
+\documentclass[titlepage, a4paper,12pt]{article}
 
-\input{parts/frontmatter.tex}
+\input{parts/0frontmatter.tex}
 
 \begin{document}
 
 %TC:ignore
 
-\input{parts/titles.tex}
+\input{parts/0titles.tex}
 
-\input{parts/abstract.tex}
+\input{parts/0abstract.tex}
 
 \tableofcontents
 \newpage
 %TC:endignore
 
 \section{Introduction}
-\input{parts/introduction.tex}
+\input{parts/1introduction.tex}
 
-\section{Previous methods}
-\input{parts/previous_methods.tex}
+\section{Methods}
+\input{parts/2methods-setup.tex}
+\input{parts/2methods-error.tex}
+\input{parts/2methods-inversion.tex}
+
+\section{Results}
+\input{parts/3results.tex}
+
+\section{Discussion}
+\input{parts/4discussion.tex}
+
+\section{Conclusion}
+\input{parts/5conclusion.tex}
+
+\printbibliography
 
 \end{document}
