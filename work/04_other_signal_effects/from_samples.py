@@ -11,7 +11,8 @@ from pyshtools import SHGrid
 from pyslfp import FingerPrint, IceModel, plot
 
 # %%
-fp = FingerPrint(lmax=128)
+lmax = 128
+fp = FingerPrint(lmax=lmax)
 fp.set_state_from_ice_ng(version=IceModel.ICE7G, date=0.0)
 
 fp_op = fp.as_sobolev_linear_operator(
@@ -75,7 +76,7 @@ measure = GaussianMeasure.from_samples(
 # save measure
 # %%
 
-with open("odt.pkl", "wb") as f:
+with open(f"odt{lmax}.pkl", "wb") as f:
     dill.dump(measure, f)
 
 # %%
