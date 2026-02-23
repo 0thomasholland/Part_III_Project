@@ -1,5 +1,6 @@
 # %%
 import cartopy.crs as ccrs
+import colorcet as cc
 import numpy as np
 from pygeoinf import (
     CGMatrixSolver,
@@ -48,15 +49,15 @@ fp_op = fp.as_sobolev_linear_operator(
 
 # generate prior dataset
 
-altimetry_degree_density = 5.0
+altimetry_degree_density = 2.0
 
 ice_thickness_measure: GaussianMeasure = (
     ice_thickness_gaussian_measure(
         finger_print=fp,
         finger_print_operator=fp_op,
         length_scale=0.1 * fp.mean_sea_floor_radius,
-        gmsl_target_std=0.01,  # gmsl std = 1cm
-        gmsl_target_mean=0.02,  # gmsl mean = 2cm
+        gmsl_target_std=0.005,  # gmsl std = 5mm
+        spatial_melt=True,
     )
 )
 
@@ -179,16 +180,14 @@ ax2.set_title(
 
 fig2_1, ax2_1, im2_1 = plot(
     1000
-    * (model_true - model_posterior_expectation)
+    * np.abs(model_true - model_posterior_expectation)
     * fp.length_scale
     * fp.ice_projection(),
     coasts=True,
-    vmin=-max_abs_ice_change,
-    vmax=max_abs_ice_change,
-    cmap="seismic",
-    colorbar_label="Ice Thickness Change (mm)",
+    cmap=cc.cm.CET_L17,
+    colorbar_label="error (mm)",
 )
-ax2.set_title("Difference")
+ax2_1.set_title("Difference")
 
 # %%
 
@@ -266,14 +265,12 @@ ax4.set_title("b) Predicted Sea-Level Fingerprint")
 
 fig4_a, ax4_a, im4_a = plot(
     1000
-    * (sea_level_posterior - sea_level_true)
+    * np.abs(sea_level_posterior - sea_level_true)
     * fp.ocean_projection()
     * fp.length_scale,
     coasts=True,
-    cmap="seismic",
-    vmin=-max_abs_sl_change,
-    vmax=max_abs_sl_change,
-    colorbar_label="Sea Level Change (mm)",
+    cmap=cc.cm.CET_L17,
+    colorbar_label="Sea Level Change Error (mm)",
 )
 # %%
 

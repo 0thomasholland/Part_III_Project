@@ -4,6 +4,7 @@ from pathlib import Path
 import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import xarray as xr
 from pygeoinf import (
     CGMatrixSolver,
@@ -33,13 +34,11 @@ from pyslfp_extras.helpers import (
 )
 from pyslfp_extras.measures import (
     ice_thickness_gaussian_measure,
-    odt_gaussian_measure,
+    # odt_gaussian_measure,
 )
 from pyslfp_extras.operators import (
     ocean_point_evaluation_operator,
 )
-
-import pandas as pd
 
 # %%
 
@@ -56,14 +55,13 @@ fp_op = fp.as_sobolev_linear_operator(
 )
 
 # %%
-ice_thickness_measure: GaussianMeasure = (
-    ice_thickness_gaussian_measure(
-        finger_print=fp,
-        finger_print_operator=fp_op,
-        length_scale=0.1 * fp.mean_sea_floor_radius,
-        gmsl_target_std=0.015, # 15 mm of uncertainty in GMSL change from ice melt over the year
-        gmsl_target_mean=0.003,  # 3 mm of GMSL change from ice melt over the year
-    )
+ice_thickness_measure: GaussianMeasure = ice_thickness_gaussian_measure(
+    finger_print=fp,
+    finger_print_operator=fp_op,
+    length_scale=0.1 * fp.mean_sea_floor_radius,
+    gmsl_target_std=0.015,  # 15 mm of uncertainty in GMSL change from ice melt over the year
+    gmsl_target_mean=0.003,  # 3 mm of GMSL change from ice melt over the year
+    spatial_melt=True,
 )
 
 ice_thickness_to_ssh_point_estimations_op: LinearOperator = ice_thickness_to_ssh_point_estimations_operator(
@@ -89,8 +87,10 @@ data_space = (
     ice_thickness_to_ssh_point_estimations_op.codomain
 )
 
-error_sampling_points = GaussianMeasure.from_standard_deviation(
-    data_space, altimetry_error_std
+error_sampling_points = (
+    GaussianMeasure.from_standard_deviation(
+        data_space, altimetry_error_std
+    )
 )
 
 #### SPATIAL ERROR (disabled)
@@ -110,8 +110,6 @@ error_sampling_points = GaussianMeasure.from_standard_deviation(
 #         altimetry_latitude_range=66.0,
 #     )
 # )
-
-
 
 
 # %%
@@ -165,10 +163,12 @@ D = averaging_operator(
     ],
 )
 
+
 def progress_callback(xk):
     residuals.append(np.linalg.norm(xk))
     pbar.set_postfix({"||x||": f"{residuals[-1]:.2e}"})
     pbar.update(1)
+
 
 # %%
 
@@ -181,11 +181,11 @@ for year in range(YEAR_START, YEAR_END + 1):
         time=f"{year}-01-01", method="nearest"
     )
     sla_end = ds["sla"].sel(
-        time=f"{year+1}-01-01", method="nearest"
+        time=f"{year + 1}-01-01", method="nearest"
     )
     sla_diff = sla_end - sla_start  # metres
 
-    print(f"SLA difference: {year+1} minus {year}")
+    print(f"SLA difference: {year + 1} minus {year}")
 
     # Extract SLA difference at each ocean point
     n_points = len(points[0])
@@ -211,7 +211,9 @@ for year in range(YEAR_START, YEAR_END + 1):
             # Local fallback: ±1° box around the point
             box = sla_diff.sel(
                 latitude=slice(lat - 1, lat + 1),
-                longitude=slice(lon_duacs - 1, lon_duacs + 1),
+                longitude=slice(
+                    lon_duacs - 1, lon_duacs + 1
+                ),
             )
             box_vals = box.values[~np.isnan(box.values)]
             if len(box_vals) > 0:
@@ -289,30 +291,35 @@ for year in range(YEAR_START, YEAR_END + 1):
     )
 
     posterior_mean = property_posterior_measure.expectation
-    posterior_covariance = property_posterior_measure.covariance.matrix(
-                dense=True
-            )
+    posterior_covariance = (
+        property_posterior_measure.covariance.matrix(
+            dense=True
+        )
+    )
 
-    global_posterior_mean = global_property_posterior_measure.expectation[0]
-    global_posterior_covariance = global_property_posterior_measure.covariance.matrix(
-                dense=True
-            )[0, 0]
+    global_posterior_mean = (
+        global_property_posterior_measure.expectation[0]
+    )
+    global_posterior_covariance = (
+        global_property_posterior_measure.covariance.matrix(
+            dense=True
+        )[0, 0]
+    )
     _data = {
         "GIS_mean": posterior_mean[0],
         "WAIS_mean": posterior_mean[1],
         "EAIS_mean": posterior_mean[2],
         "GIS_marginal_cov": posterior_covariance[0, 0],
         "WAIS_marginal_cov": posterior_covariance[1, 1],
-        "EAIS_marginal_cov": posterior_covariance[2, 2], 
+        "EAIS_marginal_cov": posterior_covariance[2, 2],
         "global_mean": global_posterior_mean,
         "global_cov": global_posterior_covariance,
     }
-    output_data[f"{year}-{year+1}"] = _data
+    output_data[f"{year}-{year + 1}"] = _data
 
 # %%
 
 print(output_data)
-
 
 
 # %%
