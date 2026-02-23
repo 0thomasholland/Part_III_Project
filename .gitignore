@@ -79,3 +79,4 @@ __pypackages__/
 .venv
 
 data/*/*
+!data/**/*.py

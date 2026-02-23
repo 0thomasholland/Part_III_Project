@@ -33,7 +33,7 @@ from pyslfp_extras.helpers import (
 )
 from pyslfp_extras.measures import (
     ice_thickness_gaussian_measure,
-    odt_gaussian_measure,
+    non_ice_ssh_variability_gaussian_measure,
 )
 from pyslfp_extras.operators import (
     ocean_point_evaluation_operator,
@@ -43,9 +43,13 @@ from pyslfp_extras.operators import (
 # Configuration — adjust these as needed
 # ---------------------------------------------------------------------------
 DUACS_PATH = Path("../../../data/duacs/duacs_annual.nc")
+NOISE_FILE = (
+    "../../../data/noise_file/non_ice_ssh_variability.nc"
+)
+
 YEAR_START = 1993
 YEAR_END = 2019
-ALTIMETRY_DEGREE_SPACING = 0.5
+ALTIMETRY_DEGREE_SPACING = 2
 
 # %%
 # ---------------------------------------------------------------------------
@@ -71,8 +75,6 @@ ice_thickness_measure: GaussianMeasure = (
         gmsl_target_mean=0.07,
     )
 )
-
-
 
 
 # %%
@@ -105,12 +107,16 @@ print(
 # ---------------------------------------------------------------------------
 # Realistic error model (spatially varying ODT error)
 # ---------------------------------------------------------------------------
-error_field_measure: GaussianMeasure = odt_gaussian_measure(
-    finger_print=fp,
-    finger_print_operator=fp_op,
-    use_spatial_variability=True,
-    amplitude=0.0003,
-    point_multiplier=30.0,
+error_field_measure: GaussianMeasure = (
+    non_ice_ssh_variability_gaussian_measure(
+        finger_print=fp,
+        finger_print_operator=fp_op,
+        length_scale=fp.mean_sea_floor_radius * 0.2,
+        use_spatial_variability=True,
+        amplitude=0.002,
+        point_multiplier=300000,
+        variability_path=NOISE_FILE,
+    )
 )
 
 error_sampling_points = error_field_measure.affine_mapping(
@@ -128,8 +134,10 @@ data_space = (
     ice_thickness_to_ssh_point_estimations_op.codomain
 )
 
-error_sampling_points += GaussianMeasure.from_standard_deviation(
-    data_space, altimetry_error_std
+error_sampling_points += (
+    GaussianMeasure.from_standard_deviation(
+        data_space, altimetry_error_std
+    )
 )
 
 plot(

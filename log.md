@@ -286,3 +286,7 @@
 - Added time series visualisation to analysis plots.
 - Began initial report writing.
 
+## 23 February 2026
+
+- Implemented `from_samples` method for constructing Gaussian measures from empirical data.
+

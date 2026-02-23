@@ -109,8 +109,10 @@ error_sampling_points = error_field_measure.affine_mapping(
 
 altimetry_error_std = 0.01
 
-error_sampling_points += GaussianMeasure.from_standard_deviation(
-    data_space, altimetry_error_std
+error_sampling_points += (
+    GaussianMeasure.from_standard_deviation(
+        data_space, altimetry_error_std
+    )
 )
 
 

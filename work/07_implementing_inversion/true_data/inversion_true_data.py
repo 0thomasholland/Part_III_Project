@@ -63,9 +63,10 @@ ice_thickness_measure: GaussianMeasure = (
     ice_thickness_gaussian_measure(
         finger_print=fp,
         finger_print_operator=fp_op,
-        length_scale=0.1 * fp.mean_sea_floor_radius,
-        gmsl_target_std=0.005,
+        length_scale=0.05 * fp.mean_sea_floor_radius,
+        gmsl_target_std=0.008,
         gmsl_target_mean=0.08,
+        spatial_melt=True,
     )
 )
 
