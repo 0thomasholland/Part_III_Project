@@ -42,7 +42,7 @@ DUACS_PATH = Path("../../../data/duacs/duacs_annual.nc")
 YEAR_START = 1993
 YEAR_END = 2019
 ALTIMETRY_DEGREE_SPACING = 2.0
-DATA_ERROR_STD = 0.005  # metres
+DATA_ERROR_STD = 0.01  # metres
 
 # %%
 # ---------------------------------------------------------------------------
@@ -64,7 +64,8 @@ ice_thickness_measure: GaussianMeasure = (
         finger_print=fp,
         finger_print_operator=fp_op,
         length_scale=0.05 * fp.mean_sea_floor_radius,
-        gmsl_target_std=0.08,
+        gmsl_target_std=0.02,
+        gmsl_target_mean=0.07,
         spatial_melt=True,
     )
 )

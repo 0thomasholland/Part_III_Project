@@ -290,3 +290,7 @@
 
 - Implemented `from_samples` method for constructing Gaussian measures from empirical data.
 
+## 24 February 2026
+
+- Processed DUACS real data: loaded monthly SSH anomaly dataset with xarray, regridded to the pyslfp spherical harmonic grid, expanded to SH coefficients, and fitted a GaussianMeasure from the sample collection. This provides the empirical ocean dynamic topography (ODT) characterisation for the joint inversion prior.
+
