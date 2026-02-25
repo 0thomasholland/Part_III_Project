@@ -54,3 +54,25 @@ Sophie
 due to graviatational attraction of the water to the ice. the ice affects the equipotential geoid such that when the ice melts the SL changes to reflect this.
 
 This is can be expressed as
+
+
+---
+
+Ocean function is
+\begin{align}
+	\mathrm{C}(\mathbf{x})= \begin{cases}
+		1, &\quad\rho_w\mathrm{SL}(x)-\rho_i\mathrm{I}(x)>0 \\
+		0, &\quad\rho_w\mathrm{SL}(x)-\rho_i\mathrm{I}(x)\le0
+			\end{cases}
+\end{align}
+
+SLC can then be defined as:
+
+\begin{align}
+	\Delta SL = -\frac{\Delta M_\text{ice}}{\rho_w A} 
+\end{align}
+
+Where:
+\begin{align*}
+	A &= \int_{\partial M}\mathrm{C}\, dS \\ &= r^2\int_{\mathbb{S}^2}\mathrm{C}\, dS
+\end{align*}
