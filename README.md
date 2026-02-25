@@ -70,7 +70,7 @@ Folders are structured in terms of "questions":
 - 07 - inversion: `how can we use baysian inversion with sea altimetry data?`
 - XX - other data: `can we use other data sources to improve accuracy?`
 
-## order of work
+### Order of work
 
 Deterministic:
 - 00 - all ice field error
