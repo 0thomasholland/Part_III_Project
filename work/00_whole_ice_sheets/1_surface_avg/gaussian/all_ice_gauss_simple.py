@@ -22,8 +22,8 @@ from pygeoinf_extras.stats import expectation, standard_dev
 from pyslfp_extras.gmsl import (
     gmsl_from_ice_thickness_operator,
 )
-from pyslfp_extras.measures import (
-    ice_thickness_gaussian_measure,
+from pyslfp_extras.ice_thickness import (
+    IceSheetChange,
 )
 
 # %%
@@ -39,14 +39,16 @@ fp_op = fp.as_sobolev_linear_operator(
 
 # %%
 
+ice_change = IceSheetChange.global_ice(
+    finger_print=fp,
+    finger_print_operator=fp_op,
+    length_scale=0.2 * fp.mean_sea_floor_radius,
+    pattern=IceSheetChange.UniformPattern(),
+    ice_gmsl_std=0.001,
+    gmsl_target_mean=0.01,
+)
 ice_thickness_measure: GaussianMeasure = (
-    ice_thickness_gaussian_measure(
-        finger_print=fp,
-        finger_print_operator=fp_op,
-        length_scale=0.2 * fp.mean_sea_floor_radius,
-        gmsl_target_std=0.001,
-        gmsl_target_mean=0.01,
-    )
+    ice_change.ice_thickness_measure
 )
 
 # %%
