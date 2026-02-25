@@ -42,6 +42,10 @@ def _activator(x, x_min, x_max):
     return _x
 
 
+def firn_thickness_gaussian_measure():
+    return True
+
+
 def ice_thickness_gaussian_measure(
     finger_print: FingerPrint,
     finger_print_operator: LinearOperator,
@@ -319,6 +323,17 @@ def altimetry_error_gaussian_measure(
 
 def non_ice_ssh_variability_field(
     finger_print: FingerPrint,
+    use_dataset: bool = False,
+    variability_path: str = "data/non_ice_ssh_variability.nc",
+    use_synthetic: bool = False,
+    base_multiplier: float = 1,
+    point_multiplier: float = 20,
+):
+    return True
+
+
+def dataset_non_ice_ssh_variability_field(
+    finger_print: FingerPrint,
     variability_path: str = "data/non_ice_ssh_variability.nc",
 ) -> SHGrid:
     """Load empirically-derived non-ice SSH variability field from DUACS inter-annual RMS.
@@ -394,7 +409,7 @@ def non_ice_ssh_variability_field(
     return grid
 
 
-def old_non_ice_ssh_variability_variability_field(
+def _old_non_ice_ssh_variability_variability_field(
     finger_print: FingerPrint,
     base_multiplier: float = 1,
     point_multiplier: float = 20,
