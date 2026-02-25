@@ -6,14 +6,14 @@ from functools import cached_property
 from typing import Callable, Optional
 
 import numpy as np
-from dill.tests.test_module import cached
 from pygeoinf import GaussianMeasure, LinearOperator
 from pygeoinf.symmetric_space.sphere import Sobolev
 from pyslfp import (
     FingerPrint,
     ice_projection_operator,
     ice_thickness_change_to_load_operator,
-    spatial_mutliplication_operator, sea_surface_height_operator,
+    sea_surface_height_operator,
+    spatial_mutliplication_operator,
 )
 
 from pygeoinf_extras import standard_dev
@@ -496,7 +496,12 @@ class IceSheetChange:
         )
 
     @cached_property
-    def sea_surface_height_response(self) -> GaussianMeasure:
+    def sea_surface_height_response(
+        self,
+    ) -> GaussianMeasure:
         _response_space = self._op.codomain
         return self._total_finger_print_response.affine_mapping(
-            operator=sea_surface_height_operator(self._fp, _response_space)
+            operator=sea_surface_height_operator(
+                self._fp, _response_space
+            )
+        )
