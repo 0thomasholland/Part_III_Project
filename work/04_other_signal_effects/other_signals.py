@@ -11,7 +11,6 @@ from pyslfp import (
     plot,
     sea_surface_height_operator,
 )
-
 from pyslfp_extras.measures import (
     non_ice_ssh_variability_field,
     non_ice_ssh_variability_fingerprint_ssh_measure,

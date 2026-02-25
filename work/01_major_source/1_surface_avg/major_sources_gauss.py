@@ -18,10 +18,8 @@ from pygeoinf_extras import expectation, variance
 from pyslfp_extras.gmsl import (
     gmsl_from_ice_thickness_operator,
 )
-from pyslfp_extras.measures import (
-    east_antarctic_ice_thickness_gaussian_measure,
-    greenland_ice_thickness_gaussian_measure,
-    west_antarctic_ice_thickness_gaussian_measure,
+from pyslfp_extras.ice_thickness import (
+    IceSheetChange,
 )
 
 # %%
@@ -48,36 +46,41 @@ length_scale = 0.2 * fp.mean_sea_floor_radius
 # Create Gaussian measures for each major ice sheet source
 # keyed by (source, mean, std)
 
+ice_pattern = IceSheetChange.UniformPattern()
+
 ice_thickness_measures = {}
 
 for mean in gmsl_target_means:
     for std in gmsl_target_stds:
         ice_thickness_measures[("gis", mean, std)] = (
-            greenland_ice_thickness_gaussian_measure(
+            IceSheetChange.greenland(
                 finger_print=fp,
                 finger_print_operator=fp_op,
                 length_scale=length_scale,
-                gmsl_target_std=std,
+                pattern=ice_pattern,
+                ice_gmsl_std=std,
                 gmsl_target_mean=mean,
-            )
+            ).ice_thickness_measure
         )
         ice_thickness_measures[("wais", mean, std)] = (
-            west_antarctic_ice_thickness_gaussian_measure(
+            IceSheetChange.west_antarctic(
                 finger_print=fp,
                 finger_print_operator=fp_op,
                 length_scale=length_scale,
-                gmsl_target_std=std,
+                pattern=ice_pattern,
+                ice_gmsl_std=std,
                 gmsl_target_mean=mean,
-            )
+            ).ice_thickness_measure
         )
         ice_thickness_measures[("eais", mean, std)] = (
-            east_antarctic_ice_thickness_gaussian_measure(
+            IceSheetChange.east_antarctic(
                 finger_print=fp,
                 finger_print_operator=fp_op,
                 length_scale=length_scale,
-                gmsl_target_std=std,
+                pattern=ice_pattern,
+                ice_gmsl_std=std,
                 gmsl_target_mean=mean,
-            )
+            ).ice_thickness_measure
         )
 
 # %%

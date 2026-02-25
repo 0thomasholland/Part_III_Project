@@ -31,8 +31,8 @@ from project.operators import (
 from pyslfp_extras.helpers import (
     get_ocean_point_coordinates,
 )
-from pyslfp_extras.measures import (
-    ice_thickness_gaussian_measure,
+from pyslfp_extras.ice_thickness import (
+    IceSheetChange,
 )
 
 # ---------------------------------------------------------------------------
@@ -59,15 +59,16 @@ fp_op = fp.as_sobolev_linear_operator(
 # ---------------------------------------------------------------------------
 # Prior measure for ice thickness
 # ---------------------------------------------------------------------------
+ice_change = IceSheetChange.global_ice(
+    finger_print=fp,
+    finger_print_operator=fp_op,
+    length_scale=0.05 * fp.mean_sea_floor_radius,
+    pattern=IceSheetChange.ThicknessWeightedPattern(),
+    ice_gmsl_std=0.02,
+    gmsl_target_mean=0.07,
+)
 ice_thickness_measure: GaussianMeasure = (
-    ice_thickness_gaussian_measure(
-        finger_print=fp,
-        finger_print_operator=fp_op,
-        length_scale=0.05 * fp.mean_sea_floor_radius,
-        gmsl_target_std=0.02,
-        gmsl_target_mean=0.07,
-        spatial_melt=True,
-    )
+    ice_change.ice_thickness_measure
 )
 
 # %%
