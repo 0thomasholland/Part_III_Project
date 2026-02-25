@@ -17,6 +17,12 @@ from pyslfp import (
     averaging_operator,
     plot,
 )
+from pyslfp_extras.helpers import (
+    get_ocean_point_coordinates,
+)
+from pyslfp_extras.operators import (
+    ocean_point_evaluation_operator,
+)
 from tqdm import tqdm
 
 from project import (
@@ -32,17 +38,11 @@ from pyslfp_extras.gmsl import (
     altimetry_gmsl,
     gmsl_from_ice_thickness_operator,
 )
-from pyslfp_extras.helpers import (
-    get_ocean_point_coordinates,
-)
 from pyslfp_extras.ice_thickness import (
     IceSheetChange,
 )
 from pyslfp_extras.ocean_dynamics import (
-    non_ice_ssh_variability_gaussian_measure,
-)
-from pyslfp_extras.operators import (
-    ocean_point_evaluation_operator,
+    OceanDynamics,
 )
 
 fp = FingerPrint(lmax=128)
@@ -96,12 +96,16 @@ data_space = (
 
 # %%
 
-error_field_measure: GaussianMeasure = non_ice_ssh_variability_gaussian_measure(
+odt_error = OceanDynamics(
     finger_print=fp,
     finger_print_operator=fp_op,
-    use_spatial_variability=True,
-    amplitude=0.003,
-    point_multiplier=20,
+    std=0.003,
+    pattern=OceanDynamics.SyntheticPattern(
+        point_multiplier=20,
+    ),
+)
+error_field_measure: GaussianMeasure = (
+    odt_error.load_measure
 )
 
 error_sampling_points = error_field_measure.affine_mapping(
@@ -217,14 +221,16 @@ precon_forward_op: LinearOperator = (
 # Build the low-resolution realistic error measure, using a point
 # evaluation operator from the same SSH codomain so the error measure
 # lands in the same data space as precon_forward_op.
-precon_error_field_measure: GaussianMeasure = (
-    non_ice_ssh_variability_gaussian_measure(
-        finger_print=precon_fp,
-        finger_print_operator=precon_fp_op,
-        use_spatial_variability=True,
-        amplitude=0.003,
+precon_odt_error = OceanDynamics(
+    finger_print=precon_fp,
+    finger_print_operator=precon_fp_op,
+    std=0.003,
+    pattern=OceanDynamics.SyntheticPattern(
         point_multiplier=20,
-    )
+    ),
+)
+precon_error_field_measure: GaussianMeasure = (
+    precon_odt_error.load_measure
 )
 
 precon_error_point_eval_op = precon_error_field_measure.domain.point_evaluation_operator(

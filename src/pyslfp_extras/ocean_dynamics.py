@@ -86,12 +86,7 @@ class OceanDynamics:
         def spatial_field(
             self, finger_print: FingerPrint
         ) -> SHGrid:
-            grid = finger_print.zero_grid()
-            ocean_mask = finger_print.ocean_projection(
-                value=0
-            ).to_array()
-            grid.data[:, :] = ocean_mask.astype(float)
-            return grid
+            return finger_print.ocean_projection(value=0)
 
     class SyntheticPattern(VariabilityPattern):
         """Synthetic spatial weights based on observed oceanographic patterns.

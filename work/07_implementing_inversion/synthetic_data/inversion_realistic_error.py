@@ -17,6 +17,12 @@ from pyslfp import (
     averaging_operator,
     plot,
 )
+from pyslfp_extras.helpers import (
+    get_ocean_point_coordinates,
+)
+from pyslfp_extras.operators import (
+    ocean_point_evaluation_operator,
+)
 from tqdm import tqdm
 
 from project import (
@@ -32,17 +38,11 @@ from pyslfp_extras.gmsl import (
     altimetry_gmsl,
     gmsl_from_ice_thickness_operator,
 )
-from pyslfp_extras.helpers import (
-    get_ocean_point_coordinates,
-)
 from pyslfp_extras.ice_thickness import (
     IceSheetChange,
 )
 from pyslfp_extras.ocean_dynamics import (
-    non_ice_ssh_variability_gaussian_measure,
-)
-from pyslfp_extras.operators import (
-    ocean_point_evaluation_operator,
+    OceanDynamics,
 )
 
 fp = FingerPrint(lmax=128)
@@ -94,12 +94,16 @@ data_space = (
 
 # %%
 
-error_field_measure: GaussianMeasure = non_ice_ssh_variability_gaussian_measure(
+odt_error = OceanDynamics(
     finger_print=fp,
     finger_print_operator=fp_op,
-    use_spatial_variability=True,
-    amplitude=0.0003,
-    point_multiplier=30.0,
+    std=0.0003,
+    pattern=OceanDynamics.SyntheticPattern(
+        point_multiplier=30.0
+    ),
+)
+error_field_measure: GaussianMeasure = (
+    odt_error.load_measure
 )
 
 error_sampling_points = error_field_measure.affine_mapping(

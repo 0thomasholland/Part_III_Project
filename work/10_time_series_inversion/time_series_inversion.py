@@ -21,6 +21,12 @@ from pyslfp import (
     averaging_operator,
     plot,
 )
+from pyslfp_extras.helpers import (
+    get_ocean_point_coordinates,
+)
+from pyslfp_extras.operators import (
+    ocean_point_evaluation_operator,
+)
 from tqdm import tqdm
 
 from project import (
@@ -29,14 +35,8 @@ from project import (
 from project.operators import (
     ice_thickness_to_ssh_point_estimations_operator,
 )
-from pyslfp_extras.helpers import (
-    get_ocean_point_coordinates,
-)
 from pyslfp_extras.ice_thickness import (
     IceSheetChange,
-)
-from pyslfp_extras.operators import (
-    ocean_point_evaluation_operator,
 )
 
 # %%
@@ -62,7 +62,9 @@ ice_change = IceSheetChange.global_ice(
     ice_gmsl_std=0.015,  # 15 mm of uncertainty in GMSL change from ice melt over the year
     gmsl_target_mean=0.003,  # 3 mm of GMSL change from ice melt over the year
 )
-ice_thickness_measure: GaussianMeasure = ice_change.ice_thickness_measure
+ice_thickness_measure: GaussianMeasure = (
+    ice_change.ice_thickness_measure
+)
 
 ice_thickness_to_ssh_point_estimations_op: LinearOperator = ice_thickness_to_ssh_point_estimations_operator(
     finger_print=fp,
@@ -94,12 +96,16 @@ error_sampling_points = (
 )
 
 #### SPATIAL ERROR (disabled)
-# error_field_measure: GaussianMeasure = odt_gaussian_measure(
+# odt_error = OceanDynamics(
 #     finger_print=fp,
 #     finger_print_operator=fp_op,
-#     use_spatial_variability=True,
-#     amplitude=0.0003,
-#     point_multiplier=30.0,
+#     std=0.0003,
+#     pattern=OceanDynamics.SyntheticPattern(
+#         point_multiplier=30.0,
+#     ),
+# )
+# error_field_measure: GaussianMeasure = (
+#     odt_error.load_measure
 # )
 
 # error_sampling_points += error_field_measure.affine_mapping(
