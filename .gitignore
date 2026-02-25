@@ -78,5 +78,7 @@ __pypackages__/
 # Environments
 .venv
 
-data/*/*
-!data/**/*.py
+src/pyslfp_extras/data/*/*
+!src/pyslfp_extras/data/**/*.py
+work/99_data_set_generators/duacs/duacs_monthly.nc
+work/99_data_set_generators/duacs/duacs_annual.nc
