@@ -1,5 +1,6 @@
 # Part III Project: Bayesian Inversion Methods for Sea Level Change Estimation
 
+![Tests](https://github.com/0thomasholland/Part_III_Project/actions/workflows/tests.yml/badge.svg)
 ![GitHub last commit](https://img.shields.io/github/last-commit/0thomasholland/Part_III_Project)
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/m/0thomasholland/Part_III_Project)
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/t/0thomasholland/Part_III_Project)
