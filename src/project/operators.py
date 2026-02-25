@@ -116,6 +116,7 @@ def ice_thickness_to_ssh_point_estimations_operator(
     finger_print_operator: LinearOperator,
     altimetry_latitude_range: float = 66.0,
     point_degree_spacing: float = 5.0,
+    parallel_workers: None | int = None,
 ) -> LinearOperator:
     _ssh_op = ice_thickness_to_ssh_operator(
         finger_print,
@@ -126,6 +127,7 @@ def ice_thickness_to_ssh_point_estimations_operator(
         finger_print,
         _ssh_op.codomain,
         point_degree_spacing=point_degree_spacing,
+        parallel_workers=parallel_workers,
     )
     _total_op: LinearOperator = (
         _point_projection_op @ _ssh_op

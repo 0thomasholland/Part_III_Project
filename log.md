@@ -263,3 +263,44 @@
 - Implemented altimetry error model integration.
 - Updated analysis for Gaussian error over major ice sheet sources.
 
+## 9 February 2026
+
+- Began work on a realistic inversion case using a rotationally variant error field.
+
+## 10 February 2026
+
+- Created ice sheet density profile for realistic ice thickness calculations.
+- Added observational datasets for real-data inversions.
+- Continued developing the inversion framework.
+
+## 12 February 2026
+
+- Parallelised the grid point computation for improved performance.
+
+## 17 February 2026
+
+- Added time series inversion capability, extending the framework to handle temporal sequences.
+
+## 20 February 2026
+
+- Added time series visualisation to analysis plots.
+- Began initial report writing.
+
+## 23 February 2026
+
+- Implemented `from_samples` method for constructing Gaussian measures from empirical data.
+
+## 24 February 2026
+
+- Processed DUACS real data: loaded monthly SSH anomaly dataset with xarray, regridded to the pyslfp spherical harmonic grid, expanded to SH coefficients, and fitted a GaussianMeasure from the sample collection. This provides the empirical ocean dynamic topography (ODT) characterisation for the joint inversion prior.
+
+## 25 February 2026
+
+- Major class architecture session: designed `IceSheetChange` and `OceanDynamics` classes. Key design decisions include nested melt pattern classes (uniform vs thickness-weighted logistic activator with configurable parameters), the complement relationship between ice and firn weights, independent firn GMSL std (defaulting to 20% of ice GMSL std), and independent ice/firn priors since the inversion is what disentangles them.
+- Established unified spatial pattern contract for OceanDynamics where all pattern types expose normalised [0,1] weights with amplitude residing on the class.
+- Replaced standalone ice thickness functions with an `IceSheetChange` class and began converting ocean dynamics to a class-based architecture.
+- Added fingerprint response and sea surface height computation to the ice thickness class.
+- Created unit tests for the ice thickness class.
+- Added placeholder subsubsections to the methods section and began writing mathematical content.
+- Restructured the `src/` directory and moved file generators to `work/`.
+
