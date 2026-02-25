@@ -20,6 +20,12 @@ from pyslfp import (
     averaging_operator,
     plot,
 )
+from pyslfp_extras.helpers import (
+    get_ocean_point_coordinates,
+)
+from pyslfp_extras.operators import (
+    ocean_point_evaluation_operator,
+)
 from tqdm import tqdm
 
 from project import (
@@ -28,26 +34,18 @@ from project import (
 from project.operators import (
     ice_thickness_to_ssh_point_estimations_operator,
 )
-from pyslfp_extras.helpers import (
-    get_ocean_point_coordinates,
-)
 from pyslfp_extras.ice_thickness import (
     IceSheetChange,
 )
 from pyslfp_extras.ocean_dynamics import (
-    non_ice_ssh_variability_gaussian_measure,
-)
-from pyslfp_extras.operators import (
-    ocean_point_evaluation_operator,
+    OceanDynamics,
 )
 
 # ---------------------------------------------------------------------------
 # Configuration — adjust these as needed
 # ---------------------------------------------------------------------------
 DUACS_PATH = Path("../../../data/duacs/duacs_annual.nc")
-NOISE_FILE = (
-    "../../../data/noise_file/non_ice_ssh_variability.nc"
-)
+
 
 YEAR_START = 1993
 YEAR_END = 2019
@@ -111,16 +109,15 @@ print(
 # ---------------------------------------------------------------------------
 # Realistic error model (spatially varying ODT error)
 # ---------------------------------------------------------------------------
+odt_error = OceanDynamics(
+    finger_print=fp,
+    finger_print_operator=fp_op,
+    length_scale=fp.mean_sea_floor_radius * 0.2,
+    std=0.002,
+    pattern=OceanDynamics.DataPattern(),
+)
 error_field_measure: GaussianMeasure = (
-    non_ice_ssh_variability_gaussian_measure(
-        finger_print=fp,
-        finger_print_operator=fp_op,
-        length_scale=fp.mean_sea_floor_radius * 0.2,
-        use_spatial_variability=True,
-        amplitude=0.002,
-        point_multiplier=300000,
-        variability_path=NOISE_FILE,
-    )
+    odt_error.load_measure
 )
 
 error_sampling_points = error_field_measure.affine_mapping(

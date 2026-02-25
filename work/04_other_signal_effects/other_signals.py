@@ -11,18 +11,13 @@ from pyslfp import (
     plot,
     sea_surface_height_operator,
 )
-from pyslfp_extras.measures import (
-    non_ice_ssh_variability_field,
-    non_ice_ssh_variability_fingerprint_ssh_measure,
-    non_ice_ssh_variability_gaussian_measure,
-    non_ice_ssh_variability_total_ssh_measure,
+
+from pyslfp_extras.ocean_dynamics import (
+    OceanDynamics,
 )
 
 # %%
 
-DATA_FILE = (
-    "../../data/noise_file/non_ice_ssh_variability.nc"
-)
 
 fp = FingerPrint(lmax=128)
 fp.set_state_from_ice_ng(version=IceModel.ICE7G, date=0.0)
@@ -33,10 +28,8 @@ fp_op = fp.as_sobolev_linear_operator(
 
 # %%
 # Plot the empirically-derived spatial variability field
-variability_field = non_ice_ssh_variability_field(
-    finger_print=fp,
-    variability_path=DATA_FILE,
-)
+data_pattern = OceanDynamics.DataPattern()
+variability_field = data_pattern.spatial_field(fp)
 
 fig, ax, im = plot(
     variability_field,
@@ -51,14 +44,15 @@ ax.set_title(
 
 # %%
 # Uniform (no spatial variability)
+odt_uniform = OceanDynamics(
+    finger_print=fp,
+    finger_print_operator=fp_op,
+    length_scale=fp.mean_sea_floor_radius * 0.2,
+    std=0.0002,
+    pattern=OceanDynamics.UniformPattern(),
+)
 non_ice_ssh_variability_uniform: GaussianMeasure = (
-    non_ice_ssh_variability_gaussian_measure(
-        finger_print=fp,
-        finger_print_operator=fp_op,
-        length_scale=fp.mean_sea_floor_radius * 0.2,
-        amplitude=0.0002,
-        point_multiplier=3000,
-    )
+    odt_uniform.load_measure
 )
 
 non_ice_ssh_variability_uniform_sample = (
@@ -67,16 +61,15 @@ non_ice_ssh_variability_uniform_sample = (
 
 # %%
 # Spatially varying (empirically derived from DUACS)
+odt_variable = OceanDynamics(
+    finger_print=fp,
+    finger_print_operator=fp_op,
+    length_scale=fp.mean_sea_floor_radius * 0.2,
+    std=0.0002,
+    pattern=OceanDynamics.DataPattern(),
+)
 non_ice_ssh_variability_variable: GaussianMeasure = (
-    non_ice_ssh_variability_gaussian_measure(
-        finger_print=fp,
-        finger_print_operator=fp_op,
-        length_scale=fp.mean_sea_floor_radius * 0.2,
-        use_spatial_variability=True,
-        amplitude=0.0002,
-        point_multiplier=3000,
-        variability_path=DATA_FILE,
-    )
+    odt_variable.load_measure
 )
 
 non_ice_ssh_variability_variable_sample = (

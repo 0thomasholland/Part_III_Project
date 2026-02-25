@@ -3,26 +3,25 @@ import matplotlib as mpl
 import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 import numpy as np
+from Part_III_Project import (
+    ice_thickness_change_measures,
+)
 from pyslfp import (
     FingerPrint,
     averaging_operator,
     plot,
-    sea_level_change_to_load_operator,
     sea_surface_height_operator,
     spatial_mutliplication_operator,
 )
 from scipy.stats import norm
 
-from Part_III_Project import (
-    ice_thickness_change_measures,
-    ocean_dynamic_topography_measures,
+from pyslfp_extras.ocean_dynamics import (
+    OceanDynamics,
 )
 
 mpl.rcParams["font.size"] = 24
 mpl.rcParams["figure.dpi"] = 600
-output_dir = (
-    "../../outputs/poster/AutomatedFigures/Distributions_Flow"
-)
+output_dir = "../../outputs/poster/AutomatedFigures/Distributions_Flow"
 
 # print working dir
 import os
@@ -38,7 +37,6 @@ fingerprint_operator = fp.as_sobolev_linear_operator(
     2,
     0.1 * fp.mean_sea_floor_radius,
 )
-load_space = fingerprint_operator.domain
 response_space = fingerprint_operator.codomain
 sea_surface_height_op = sea_surface_height_operator(
     fp,
@@ -56,32 +54,41 @@ net_ice_thickness_change = -5.0
 odt_length_scale = 0.1 * fp.mean_sea_floor_radius
 odt_standard_deviation_factor = 0.001 / fp.length_scale
 
-altimetry_error_length_scale = 0.01 * fp.mean_sea_floor_radius
-altimetry_error_standard_deviation = 0.0005 / fp.length_scale
+altimetry_error_length_scale = (
+    0.01 * fp.mean_sea_floor_radius
+)
+altimetry_error_standard_deviation = (
+    0.0005 / fp.length_scale
+)
 
 altimetry_range = 74.0  # degrees
 
 
 # %%
 
-ice_thickness_change_measure, ice_direct_load_change_measure = (
-    ice_thickness_change_measures(
-        fp,
-        fingerprint_operator,
-        ice_length_scale,
-        ice_gmsl_target_std,
-        net_ice_thickness_change,
-    )
+(
+    ice_thickness_change_measure,
+    ice_direct_load_change_measure,
+) = ice_thickness_change_measures(
+    fp,
+    fingerprint_operator,
+    ice_length_scale,
+    ice_gmsl_target_std,
+    net_ice_thickness_change,
 )
 
 ice_thickness_change_measure_sample = (
     ice_thickness_change_measure.sample()
 )
 
-ice_load_measure_sample = fp.direct_load_from_ice_thickness_change(
-    ice_thickness_change_measure_sample,
+ice_load_measure_sample = (
+    fp.direct_load_from_ice_thickness_change(
+        ice_thickness_change_measure_sample,
+    )
 )
-ice_slc_sample_response = fp(direct_load=ice_load_measure_sample)
+ice_slc_sample_response = fp(
+    direct_load=ice_load_measure_sample
+)
 
 ice_ssh_sample = fp.sea_surface_height_change(
     ice_slc_sample_response[0],
@@ -91,23 +98,30 @@ ice_ssh_sample = fp.sea_surface_height_change(
 
 ice_slc_sample = ice_slc_sample_response[0]
 
-ice_slc_measure = ice_direct_load_change_measure.affine_mapping(
-    operator=response_space.subspace_projection(0)
-    @ fingerprint_operator,
+ice_slc_measure = (
+    ice_direct_load_change_measure.affine_mapping(
+        operator=response_space.subspace_projection(0)
+        @ fingerprint_operator,
+    )
 )
 
-ice_ssh_measure = ice_direct_load_change_measure.affine_mapping(
-    operator=sea_surface_height_op @ fingerprint_operator,
+ice_ssh_measure = (
+    ice_direct_load_change_measure.affine_mapping(
+        operator=sea_surface_height_op
+        @ fingerprint_operator,
+    )
 )
 
 # %%
 
-odt_measure, odt_load_measure = ocean_dynamic_topography_measures(
-    fp,
-    fingerprint_operator,
-    odt_length_scale,
-    odt_standard_deviation_factor,
+odt = OceanDynamics(
+    finger_print=fp,
+    finger_print_operator=fingerprint_operator,
+    length_scale=odt_length_scale,
+    std=odt_standard_deviation_factor,
+    pattern=OceanDynamics.UniformPattern(),
 )
+odt_measure = odt.load_measure
 
 ### SAMPLES
 
@@ -121,26 +135,15 @@ odt_fingerprint_sample = fp.sea_surface_height_change(
     odt_fingerprint_response[1],
     odt_fingerprint_response[3],
 )
-odt_error_sample = odt_fingerprint_sample + odt_measure_sample
+odt_error_sample = (
+    odt_fingerprint_sample + odt_measure_sample
+)
 
 
 ### OPERATORS
 
 
-sea_level_to_load_op = sea_level_change_to_load_operator(
-    fp,
-    load_space,
-)
-odt_combined_op = (
-    sea_surface_height_op
-    @ fingerprint_operator
-    @ sea_level_to_load_op
-    + odt_measure.domain.identity_operator()
-)
-
-odt_error_measure = odt_measure.affine_mapping(
-    operator=odt_combined_op,
-)
+odt_error_measure = odt.ssh_measure
 
 
 # %%
@@ -154,11 +157,19 @@ altimetry_error_sample = altimetry_error_measure.sample()
 
 # %%
 
-combined_error_measure = odt_error_measure + altimetry_error_measure
-combined_error_sample = odt_error_sample + altimetry_error_sample
+combined_error_measure = (
+    odt_error_measure + altimetry_error_measure
+)
+combined_error_sample = (
+    odt_error_sample + altimetry_error_sample
+)
 
-total_observerable_measure = ice_ssh_measure + combined_error_measure
-total_observable_sample = ice_ssh_sample + combined_error_sample
+total_observerable_measure = (
+    ice_ssh_measure + combined_error_measure
+)
+total_observable_sample = (
+    ice_ssh_sample + combined_error_sample
+)
 
 # %%
 altimetry_projection = fp.altimetry_projection(
@@ -178,16 +189,21 @@ altimetry_operator = spatial_mutliplication_operator(
     measurement_space,
 )
 
-total_observed_measure = total_observerable_measure.affine_mapping(
-    operator=altimetry_operator,
+total_observed_measure = (
+    total_observerable_measure.affine_mapping(
+        operator=altimetry_operator,
+    )
 )
-total_observed_sample = total_observable_sample * altimetry_projection
+total_observed_sample = (
+    total_observable_sample * altimetry_projection
+)
 
 # %% map plots
 
 plots = [
     (
-        ice_thickness_change_measure_sample * fp.ice_projection(),
+        ice_thickness_change_measure_sample
+        * fp.ice_projection(),
         "Ice Thickness Change",
         "metres",
     ),
@@ -212,12 +228,16 @@ plots = [
         "mm",
     ),
     (
-        altimetry_error_sample * fp.ocean_projection() * 1000,
+        altimetry_error_sample
+        * fp.ocean_projection()
+        * 1000,
         "Altimetry Error",
         "mm",
     ),
     (
-        combined_error_sample * fp.ocean_projection() * 1000,
+        combined_error_sample
+        * fp.ocean_projection()
+        * 1000,
         "Combined Ocean Error",
         "mm",
     ),
@@ -250,10 +270,14 @@ for x in plots:
     # if ice driven sea level change plot with tab:blue title color, if total observed plot with tab:orange title color else black, and set background 20% of that color except black
     if x[1] == "Sea Level Change from Ice Load":
         ax.title.set_color("tab:blue")
-        fig.set_facecolor(mcolors.to_rgba("tab:blue", alpha=0.2))
+        fig.set_facecolor(
+            mcolors.to_rgba("tab:blue", alpha=0.2)
+        )
     elif x[1] == "Total Observed Sea Surface Height Change":
         ax.title.set_color("tab:orange")
-        fig.set_facecolor(mcolors.to_rgba("tab:orange", alpha=0.2))
+        fig.set_facecolor(
+            mcolors.to_rgba("tab:orange", alpha=0.2)
+        )
     else:
         ax.title.set_color("black")
     try:
@@ -339,7 +363,9 @@ ice_gmsl_averaged_measure = ice_slc_measure.affine_mapping(
     operator=ice_gmsl_spatial_average,
 )
 ice_gmsl_std = (
-    ice_gmsl_averaged_measure.covariance.matrix(dense=True)[0, 0]
+    ice_gmsl_averaged_measure.covariance.matrix(dense=True)[
+        0, 0
+    ]
     ** 0.5
 )
 ice_gmsl_std_scaled = (
@@ -362,7 +388,10 @@ for data in plots:
         operator=spatial_average,
     )
     expectation = averaged_measure.expectation[0]
-    std = averaged_measure.covariance.matrix(dense=True)[0, 0] ** 0.5
+    std = (
+        averaged_measure.covariance.matrix(dense=True)[0, 0]
+        ** 0.5
+    )
     expectation *= data[4]
     std *= data[4]
     print(
@@ -380,7 +409,8 @@ for data in plots:
     if data[0] == "Ice Change Driven Sea Level Change":
         color = "tab:blue"
     elif (
-        data[0] == "Total Observed Sea Surface Height Change Measure"
+        data[0]
+        == "Total Observed Sea Surface Height Change Measure"
     ):
         color = "tab:orange"
     else:
@@ -400,12 +430,12 @@ for data in plots:
         ax2 = ax.secondary_xaxis(
             -0.25,
             functions=(
-                lambda x,
-                e=expectation * fp.length_scale,
-                s=ice_gmsl_std_scaled: (x - e) / s,
-                lambda x,
-                e=expectation * fp.length_scale,
-                s=ice_gmsl_std_scaled: x * s + e,
+                lambda x, e=expectation * fp.length_scale, s=ice_gmsl_std_scaled: (
+                    (x - e) / s
+                ),
+                lambda x, e=expectation * fp.length_scale, s=ice_gmsl_std_scaled: (
+                    x * s + e
+                ),
             ),
         )
         ax2.set_xlabel("Relative to Ice GMSL (σ)")
@@ -434,7 +464,9 @@ gmsl_true_expectation = (
 )
 gmsl_true_std = (
     (
-        ice_gmsl_averaged_measure.covariance.matrix(dense=True)[0, 0]
+        ice_gmsl_averaged_measure.covariance.matrix(
+            dense=True
+        )[0, 0]
         ** 0.5
     )
     * 1000.0
@@ -460,15 +492,24 @@ gmsl_estimated_expectation = (
     gmsl_estimated.expectation[0] * 1000.0 * fp.length_scale
 )
 gmsl_estimated_std = (
-    (gmsl_estimated.covariance.matrix(dense=True)[0, 0] ** 0.5)
+    (
+        gmsl_estimated.covariance.matrix(dense=True)[0, 0]
+        ** 0.5
+    )
     * 1000.0
     * fp.length_scale
 )
 
-error_mean = gmsl_estimated_expectation - gmsl_true_expectation
-error_std = (gmsl_estimated_std**2 + gmsl_true_std**2) ** 0.5
+error_mean = (
+    gmsl_estimated_expectation - gmsl_true_expectation
+)
+error_std = (
+    gmsl_estimated_std**2 + gmsl_true_std**2
+) ** 0.5
 
-print(f"True GMSL Expectation: {gmsl_true_expectation:.4e} mm")
+print(
+    f"True GMSL Expectation: {gmsl_true_expectation:.4e} mm"
+)
 print(
     f"True GMSL Std: {gmsl_true_std * fp.length_scale:.4e} mm",
 )
@@ -481,18 +522,22 @@ print(f"GMSL Error Std: {error_std:.4e} mm")
 
 
 # %%
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5), sharey=True)
+fig, (ax1, ax2) = plt.subplots(
+    1, 2, figsize=(12, 5), sharey=True
+)
 # figure background transparent
 fig.patch.set_alpha(0.0)
 
 # GMSL distributions
 x_range = 4
 x_min = min(
-    gmsl_estimated_expectation - x_range * gmsl_estimated_std,
+    gmsl_estimated_expectation
+    - x_range * gmsl_estimated_std,
     gmsl_true_expectation - x_range * gmsl_true_std,
 )
 x_max = max(
-    gmsl_estimated_expectation + x_range * gmsl_estimated_std,
+    gmsl_estimated_expectation
+    + x_range * gmsl_estimated_std,
     gmsl_true_expectation + x_range * gmsl_true_std,
 )
 x = np.linspace(x_min, x_max, 1000)
@@ -506,7 +551,9 @@ ax1.plot(
 )
 ax1.plot(
     x,
-    norm.pdf(x, gmsl_estimated_expectation, gmsl_estimated_std),
+    norm.pdf(
+        x, gmsl_estimated_expectation, gmsl_estimated_std
+    ),
     "tab:orange",
     label="Estimated GMSL",
     linewidth=3,
@@ -521,13 +568,18 @@ ax1.grid(alpha=0.3)
 ax1_sec = ax1.secondary_xaxis(
     -0.25,
     functions=(
-        lambda x, e=gmsl_true_expectation, s=gmsl_true_std: (x - e)
-        / s,
-        lambda x, e=gmsl_true_expectation, s=gmsl_true_std: x * s + e,
+        lambda x, e=gmsl_true_expectation, s=gmsl_true_std: (
+            (x - e) / s
+        ),
+        lambda x, e=gmsl_true_expectation, s=gmsl_true_std: (
+            x * s + e
+        ),
     ),
 )
 ax1_sec.set_xlabel("Relative to True GMSL (σ)")
-ax1.legend(loc="lower center", bbox_to_anchor=(0.5, -0.7), ncol=2)
+ax1.legend(
+    loc="lower center", bbox_to_anchor=(0.5, -0.7), ncol=2
+)
 
 
 # Error distribution
@@ -556,7 +608,9 @@ ax2.grid(alpha=0.3)
 ax2_sec = ax2.secondary_xaxis(
     -0.25,
     functions=(
-        lambda x, e=error_mean, s=gmsl_true_std: (x - e) / s,
+        lambda x, e=error_mean, s=gmsl_true_std: (
+            (x - e) / s
+        ),
         lambda x, e=error_mean, s=gmsl_true_std: x * s + e,
     ),
 )
