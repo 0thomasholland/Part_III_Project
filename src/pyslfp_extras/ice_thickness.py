@@ -296,7 +296,7 @@ class IceSheetChange(IceThicknessGMSLOperators):
         self.firn_density = (
             firn_density
             if firn_density is not None
-            else self._fp.ice_density
+            else self._fp.ice_density * 0.5
         )
 
     # -----------------------------------------------------------------------
