@@ -1,21 +1,12 @@
 from pygeoinf import LinearOperator
 from pyslfp import (
     FingerPrint,
-    averaging_operator,
     ice_thickness_change_to_load_operator,
     ocean_projection_operator,
-    sea_surface_height_operator,
-    spatial_mutliplication_operator,
 )
 
-from pygeoinf_extras.operators import (
-    point_averaging_operator,
-)
-from pyslfp_extras.gmsl import (
-    gmsl_from_ice_thickness_operator,
-)
-from pyslfp_extras.operators import (
-    ocean_point_evaluation_operator,
+from pyslfp_extras.ice_thickness import (
+    IceThicknessGMSLOperators,
 )
 
 
@@ -57,23 +48,11 @@ def ice_thickness_to_ssh_operator(
     Create an operator that maps ice thickness changes to sea surface height changes
     based on altimetry coverage.
     """
-    _sea_surface_height_op = sea_surface_height_operator(
-        finger_print, finger_print_operator.codomain
-    )
-    return (
-        spatial_mutliplication_operator(
-            finger_print.altimetry_projection(
-                latitude_min=-altimetry_latitude_range,
-                latitude_max=altimetry_latitude_range,
-                value=0,
-            ),
-            _sea_surface_height_op.codomain,
-        )
-        @ _sea_surface_height_op
-        @ _ice_thickness_to_finger_print_operator(
-            finger_print, finger_print_operator
-        )
-    )
+    return IceThicknessGMSLOperators(
+        finger_print,
+        finger_print_operator,
+        altimetry_latitude_range=altimetry_latitude_range,
+    ).load_to_altimetry_ssh_operator
 
 
 def ice_thickness_to_estimated_gmsl_operator(
@@ -85,30 +64,11 @@ def ice_thickness_to_estimated_gmsl_operator(
     Create an operator that maps ice thickness changes to estimated GMSL changes
     based on altimetry coverage.
     """
-    _ssh_operator = ice_thickness_to_ssh_operator(
+    return IceThicknessGMSLOperators(
         finger_print,
         finger_print_operator,
-        altimetry_latitude_range,
-    )
-    _altimetry_projection = (
-        finger_print.altimetry_projection(
-            latitude_min=-altimetry_latitude_range,
-            latitude_max=altimetry_latitude_range,
-            value=0,
-        )
-    )
-    return (
-        averaging_operator(
-            _ssh_operator.codomain,
-            [
-                _altimetry_projection
-                / finger_print.integrate(
-                    _altimetry_projection
-                )
-            ],
-        )
-        @ _ssh_operator
-    )
+        altimetry_latitude_range=altimetry_latitude_range,
+    ).load_to_estimated_gmsl_operator
 
 
 def ice_thickness_to_ssh_point_estimations_operator(
@@ -118,21 +78,13 @@ def ice_thickness_to_ssh_point_estimations_operator(
     point_degree_spacing: float = 5.0,
     parallel_workers: None | int = None,
 ) -> LinearOperator:
-    _ssh_op = ice_thickness_to_ssh_operator(
+    return IceThicknessGMSLOperators(
         finger_print,
         finger_print_operator,
-        altimetry_latitude_range,
-    )
-    _point_projection_op = ocean_point_evaluation_operator(
-        finger_print,
-        _ssh_op.codomain,
+        altimetry_latitude_range=altimetry_latitude_range,
         point_degree_spacing=point_degree_spacing,
         parallel_workers=parallel_workers,
-    )
-    _total_op: LinearOperator = (
-        _point_projection_op @ _ssh_op
-    )
-    return _total_op
+    ).load_to_ssh_point_estimations_operator
 
 
 def ice_thickness_to_point_estimated_gmsl_operator(
@@ -141,21 +93,12 @@ def ice_thickness_to_point_estimated_gmsl_operator(
     altimetry_latitude_range: float = 66.0,
     point_degree_spacing: float = 5.0,
 ) -> LinearOperator:
-    _ice_thickness_to_ssh_point_estimations_op = (
-        ice_thickness_to_ssh_point_estimations_operator(
-            finger_print,
-            finger_print_operator,
-            altimetry_latitude_range,
-            point_degree_spacing,
-        )
-    )
-    _avg_op = point_averaging_operator(
-        _ice_thickness_to_ssh_point_estimations_op.codomain
-    )
-    _total_op: LinearOperator = (
-        _avg_op @ _ice_thickness_to_ssh_point_estimations_op
-    )
-    return _total_op
+    return IceThicknessGMSLOperators(
+        finger_print,
+        finger_print_operator,
+        altimetry_latitude_range=altimetry_latitude_range,
+        point_degree_spacing=point_degree_spacing,
+    ).load_to_point_estimated_gmsl_operator
 
 
 def ice_thickness_to_gmsl_estimation_error_operator(
@@ -163,17 +106,11 @@ def ice_thickness_to_gmsl_estimation_error_operator(
     finger_print_operator: LinearOperator,
     altimetry_latitude_range: float = 66.0,
 ) -> LinearOperator:
-    _gmsl = gmsl_from_ice_thickness_operator(
-        finger_print, finger_print_operator
-    )
-    _estimated_gmsl = (
-        ice_thickness_to_estimated_gmsl_operator(
-            finger_print,
-            finger_print_operator,
-            altimetry_latitude_range,
-        )
-    )
-    return _gmsl - _estimated_gmsl
+    return IceThicknessGMSLOperators(
+        finger_print,
+        finger_print_operator,
+        altimetry_latitude_range=altimetry_latitude_range,
+    ).gmsl_estimation_error_operator
 
 
 def ice_thickness_to_gmsl_point_estimation_error_operator(
@@ -182,15 +119,9 @@ def ice_thickness_to_gmsl_point_estimation_error_operator(
     altimetry_latitude_range: float = 66.0,
     point_degree_spacing: float = 5.0,
 ) -> LinearOperator:
-    _gmsl = gmsl_from_ice_thickness_operator(
-        finger_print, finger_print_operator
-    )
-    _estimated_gmsl = (
-        ice_thickness_to_point_estimated_gmsl_operator(
-            finger_print,
-            finger_print_operator,
-            altimetry_latitude_range,
-            point_degree_spacing,
-        )
-    )
-    return _gmsl - _estimated_gmsl
+    return IceThicknessGMSLOperators(
+        finger_print,
+        finger_print_operator,
+        altimetry_latitude_range=altimetry_latitude_range,
+        point_degree_spacing=point_degree_spacing,
+    ).gmsl_point_estimation_error_operator

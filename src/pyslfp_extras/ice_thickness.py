@@ -8,16 +8,19 @@ from typing import Callable, Optional
 import numpy as np
 from pygeoinf import GaussianMeasure, LinearOperator
 from pygeoinf.symmetric_space.sphere import Sobolev
+from pyshtools import SHGrid
 from pyslfp import (
     FingerPrint,
     ice_projection_operator,
     ice_thickness_change_to_load_operator,
+    ocean_projection_operator,
     sea_surface_height_operator,
     spatial_mutliplication_operator,
 )
 
 from pygeoinf_extras import standard_dev
 from pyslfp_extras.gmsl import (
+    GMSLOperatorBase,
     gmsl_from_ice_thickness_operator,
 )
 
@@ -28,12 +31,118 @@ from pyslfp_extras.gmsl import (
 
 @dataclass
 class IceSheetChangeSample:
-    ice_thickness: object  # SHGrid
-    firn_thickness: object  # SHGrid | None
-    total_thickness: object  # SHGrid
-    ice_load: object  # SHGrid
-    firn_load: object  # SHGrid | None
-    total_load: object  # SHGrid
+    ice_thickness: SHGrid
+    firn_thickness: SHGrid
+    total_thickness: SHGrid
+
+    ice_load: SHGrid
+    firn_load: SHGrid
+    total_load: SHGrid
+
+    ice_slc: SHGrid
+    firn_slc: SHGrid
+    total_slc: SHGrid
+
+    ice_ssh: SHGrid
+    firn_ssh: SHGrid
+    total_ssh: SHGrid
+
+
+# ---------------------------------------------------------------------------
+# Operator mixin
+# ---------------------------------------------------------------------------
+
+
+class IceThicknessGMSLOperators(GMSLOperatorBase):
+    """Operators mapping thickness/load to SLC, SSH, and GMSL."""
+
+    # -----------------------------------------------------------------------
+    # Abstract implementations required by GMSLOperatorBase
+    # -----------------------------------------------------------------------
+    @cached_property
+    def _thickness_to_load_op(self) -> LinearOperator:
+        return ice_thickness_change_to_load_operator(
+            self._fp, self._op.domain
+        )
+
+    @cached_property
+    def _load_to_ssh_operator(self) -> LinearOperator:
+        ssh_op = sea_surface_height_operator(
+            self._fp, self._op.codomain
+        )
+        return (
+            ssh_op @ self._op @ self._thickness_to_load_op
+        )
+
+    @cached_property
+    def _gmsl_operator(self) -> LinearOperator:
+        return gmsl_from_ice_thickness_operator(
+            self._fp, self._op
+        )
+
+    # -----------------------------------------------------------------------
+    # New Public / Density-Aware Operators for Sampling
+    # -----------------------------------------------------------------------
+
+    # -- Ice Operators --
+    @cached_property
+    def ice_thickness_to_load_operator(
+        self,
+    ) -> LinearOperator:
+        scale = self.ice_density / self._fp.ice_density
+        return (
+            scale * self._thickness_to_load_op
+            if scale != 1.0
+            else self._thickness_to_load_op
+        )
+
+    @cached_property
+    def ice_thickness_to_gmsl_operator(
+        self,
+    ) -> LinearOperator:
+        scale = self.ice_density / self._fp.ice_density
+        return (
+            scale * self._gmsl_operator
+            if scale != 1.0
+            else self._gmsl_operator
+        )
+
+    # -- Firn Operators --
+    @cached_property
+    def firn_thickness_to_load_operator(
+        self,
+    ) -> LinearOperator:
+        scale = self.firn_density / self._fp.ice_density
+        return (
+            scale * self._thickness_to_load_op
+            if scale != 1.0
+            else self._thickness_to_load_op
+        )
+
+    @cached_property
+    def firn_thickness_to_gmsl_operator(
+        self,
+    ) -> LinearOperator:
+        scale = self.firn_density / self._fp.ice_density
+        return (
+            scale * self._gmsl_operator
+            if scale != 1.0
+            else self._gmsl_operator
+        )
+
+    # -- Load to SLC/SSH (Density agnostic) --
+    @cached_property
+    def load_to_slc_operator(self) -> LinearOperator:
+        """Maps surface load to Relative Sea Level Change (Fingerprint)."""
+        return self._op
+
+    @cached_property
+    def load_to_ssh_operator(self) -> LinearOperator:
+        """Maps surface load to Sea Surface Height."""
+        ssh_op = sea_surface_height_operator(
+            self._fp, self._op.codomain
+        )
+        return ssh_op @ self._op
 
 
 # ---------------------------------------------------------------------------
@@ -41,40 +150,9 @@ class IceSheetChangeSample:
 # ---------------------------------------------------------------------------
 
 
-class IceSheetChange:
+class IceSheetChange(IceThicknessGMSLOperators):
     """Generates paired Gaussian measures and samples for ice and firn
-    thickness/load changes over a specified region.
-
-    Parameters
-    ----------
-    finger_print:
-        The FingerPrint instance.
-    finger_print_operator:
-        Linear operator mapping ice load to the observation space.
-    length_scale:
-        Length scale for the heat kernel Gaussian measure.
-    region_projection:
-        Callable returning an SHGrid projection mask for the region of
-        interest (e.g. ``finger_print.greenland_projection``).
-    pattern:
-        An IceSheetChange.MeltPattern instance controlling spatial weighting.
-    include_firn:
-        Whether to model firn thickness/load changes separately.
-    ice_gmsl_std:
-        Prior standard deviation for ice-driven GMSL change (metres).
-    firn_gmsl_std:
-        Prior standard deviation for firn-driven GMSL change (metres).
-        Defaults to 20% of ice_gmsl_std if None.
-    gmsl_target_mean:
-        Prior mean for GMSL change. Defaults to 0.
-
-    Examples
-    --------
-    >>> spatial_pattern = IceSheetChange.ThicknessWeightedPattern(threshold=0.5)
-    >>> greenland_change = IceSheetChange.greenland(fp, op, ls, pattern=spatial_pattern,
-    ...                                include_firn=True, ice_gmsl_std=0.001)
-    >>> sample = greenland_change.sample()
-    >>> pyslfp.plot(sample.total_thickness)
+    thickness, load, SLC, and SSH changes over a specified region.
     """
 
     # -----------------------------------------------------------------------
@@ -113,19 +191,6 @@ class IceSheetChange:
         High weight near ice margins (thin ice), low weight in the ice sheet
         interior (thick ice). Firn weights are the complement (1 - ice weights),
         masked to the ice extent.
-
-        Parameters
-        ----------
-        lower_asymptote:
-            Minimum melt probability (thick ice limit). Default 0.1.
-        upper_asymptote:
-            Maximum melt probability (thin ice limit). Default 1.0.
-        steepness:
-            Controls how rapidly the probability drops with thickness. Default 10.0.
-        threshold:
-            Standardised thickness (0–1) at which the drop-off occurs. Default 0.45.
-        asymmetry:
-            Controls the sharpness of the curve's turn. Default 0.75.
         """
 
         def __init__(
@@ -195,7 +260,19 @@ class IceSheetChange:
         ice_gmsl_std: float = 0.001,
         firn_gmsl_std: Optional[float] = None,
         gmsl_target_mean: float = 0.0,
+        altimetry_latitude_range: float = 66.0,
+        point_degree_spacing: float = 5.0,
+        parallel_workers: None | int = None,
+        ice_density: Optional[float] = None,
+        firn_density: Optional[float] = None,
     ):
+        super().__init__(
+            finger_print,
+            finger_print_operator,
+            altimetry_latitude_range=altimetry_latitude_range,
+            point_degree_spacing=point_degree_spacing,
+            parallel_workers=parallel_workers,
+        )
         self._fp = finger_print
         self._op = finger_print_operator
         self._length_scale = length_scale
@@ -206,9 +283,21 @@ class IceSheetChange:
         self._firn_gmsl_std = (
             firn_gmsl_std
             if firn_gmsl_std is not None
-            else 0.2 * ice_gmsl_std
+            else 0.8 * ice_gmsl_std
         )
         self._gmsl_target_mean = gmsl_target_mean
+
+        # Set densities, falling back to fingerprint default if not provided
+        self.ice_density = (
+            ice_density
+            if ice_density is not None
+            else self._fp.ice_density
+        )
+        self.firn_density = (
+            firn_density
+            if firn_density is not None
+            else self._fp.ice_density
+        )
 
     # -----------------------------------------------------------------------
     # Shared internals
@@ -217,12 +306,6 @@ class IceSheetChange:
     @cached_property
     def _load_space(self) -> Sobolev:
         return self._op.domain
-
-    @cached_property
-    def _gmsl_op(self) -> LinearOperator:
-        return gmsl_from_ice_thickness_operator(
-            self._fp, self._op
-        )
 
     @cached_property
     def _region_projection_grid(self):
@@ -242,21 +325,14 @@ class IceSheetChange:
             * self._region_projection_grid
         )
 
-    @cached_property
-    def _thickness_to_load_op(self) -> LinearOperator:
-        """Linear operator converting thickness change to mass load change."""
-        return ice_thickness_change_to_load_operator(
-            self._fp, self._load_space
-        )
-
     def _build_measure(
         self,
         weights,
         gmsl_std: float,
         gmsl_mean: float,
+        density: float,
+        gmsl_operator: LinearOperator,
     ) -> GaussianMeasure:
-        """Build a normalised, optionally shifted GaussianMeasure for a given
-        weight grid."""
         _base = (
             self._load_space.heat_kernel_gaussian_measure(
                 self._length_scale
@@ -269,16 +345,14 @@ class IceSheetChange:
             self._fp, self._load_space
         )
 
-        # Scale to target GMSL std
         _gmsl_std_current = standard_dev(
-            _base.affine_mapping(operator=self._gmsl_op)
+            _base.affine_mapping(operator=gmsl_operator)
         )
         _std_scale = gmsl_std / _gmsl_std_current
 
-        # Shift to target GMSL mean
         if gmsl_mean != 0.0:
             _gmsl_per_unit = self._fp.integrate(
-                -self._fp.ice_density
+                -density
                 * self._fp.one_minus_ocean_function
                 * weights
                 * self._fp.length_scale
@@ -306,90 +380,159 @@ class IceSheetChange:
         ).affine_mapping(operator=_ice_proj_op)
 
     # -----------------------------------------------------------------------
-    # Thickness measures
+    # Thickness Measures
     # -----------------------------------------------------------------------
 
     @cached_property
-    def ice_thickness_measure(self) -> GaussianMeasure:
+    def ice_thickness(self) -> GaussianMeasure:
         return self._build_measure(
             self._ice_weights,
             self._ice_gmsl_std,
             self._gmsl_target_mean,
+            density=self.ice_density,
+            gmsl_operator=self.ice_thickness_to_gmsl_operator,
         )
 
     @cached_property
-    def firn_thickness_measure(
-        self,
-    ) -> Optional[GaussianMeasure]:
+    def firn_thickness(self) -> Optional[GaussianMeasure]:
         if not self._include_firn:
             return None
         return self._build_measure(
             self._firn_weights,
             self._firn_gmsl_std,
             gmsl_mean=0.0,
+            density=self.firn_density,
+            gmsl_operator=self.firn_thickness_to_gmsl_operator,
         )
 
     @cached_property
-    def total_thickness_measure(self) -> GaussianMeasure:
+    def total_thickness(self) -> GaussianMeasure:
         if self._include_firn:
-            return (
-                self.ice_thickness_measure
-                + self.firn_thickness_measure
-            )
-        return self.ice_thickness_measure
+            return self.ice_thickness + self.firn_thickness
+        return self.ice_thickness
 
     # -----------------------------------------------------------------------
-    # Load measures
+    # Load Measures
     # -----------------------------------------------------------------------
 
     @cached_property
-    def ice_load_measure(self) -> GaussianMeasure:
-        return self.ice_thickness_measure.affine_mapping(
-            operator=self._thickness_to_load_op
+    def ice_load(self) -> GaussianMeasure:
+        return self.ice_thickness.affine_mapping(
+            operator=self.ice_thickness_to_load_operator
         )
 
     @cached_property
-    def firn_load_measure(
-        self,
-    ) -> Optional[GaussianMeasure]:
+    def firn_load(self) -> Optional[GaussianMeasure]:
         if not self._include_firn:
             return None
-        return self.firn_thickness_measure.affine_mapping(
-            operator=self._thickness_to_load_op
+        return self.firn_thickness.affine_mapping(
+            operator=self.firn_thickness_to_load_operator
         )
 
     @cached_property
-    def total_load_measure(self) -> GaussianMeasure:
+    def total_load(self) -> GaussianMeasure:
         if self._include_firn:
-            return (
-                self.ice_load_measure
-                + self.firn_load_measure
-            )
-        return self.ice_load_measure
+            return self.ice_load + self.firn_load
+        return self.ice_load
+
+    # -----------------------------------------------------------------------
+    # SLC (Fingerprint) Measures
+    # -----------------------------------------------------------------------
+
+    @cached_property
+    def ice_slc(self) -> GaussianMeasure:
+        _projection = self.load_to_slc_operator.codomain.subspace_projection(
+            0
+        )
+        return self.ice_load.affine_mapping(
+            operator=_projection @ self.load_to_slc_operator
+        )
+
+    @cached_property
+    def firn_slc(self) -> Optional[GaussianMeasure]:
+        _projection = self.load_to_slc_operator.codomain.subspace_projection(
+            0
+        )
+        if not self._include_firn:
+            return None
+        return self.firn_load.affine_mapping(
+            operator=_projection @ self.load_to_slc_operator
+        )
+
+    @cached_property
+    def total_slc(self) -> GaussianMeasure:
+        if self._include_firn:
+            return self.ice_slc + self.firn_slc
+        return self.ice_slc
+
+    # -----------------------------------------------------------------------
+    # SSH Measures
+    # -----------------------------------------------------------------------
+
+    @cached_property
+    def ice_ssh(self) -> GaussianMeasure:
+        return self.ice_load.affine_mapping(
+            operator=self.load_to_ssh_operator
+        )
+
+    @cached_property
+    def firn_ssh(self) -> Optional[GaussianMeasure]:
+        if not self._include_firn:
+            return None
+        return self.firn_load.affine_mapping(
+            operator=self.load_to_ssh_operator
+        )
+
+    @cached_property
+    def total_ssh(self) -> GaussianMeasure:
+        if self._include_firn:
+            return self.ice_ssh + self.firn_ssh
+        return self.ice_ssh
 
     # -----------------------------------------------------------------------
     # Sampling
     # -----------------------------------------------------------------------
 
     def sample(self) -> IceSheetChangeSample:
-        """Draw an independent sample from the ice and firn priors.
-
-        Ice and firn are sampled independently, consistent with the independent
-        prior. The inversion posterior will introduce correlation between them
-        via the likelihood.
+        """Draw an independent sample from the ice and firn priors and
+        project them through load, SLC, and SSH operators.
         """
-        ice_h = self.ice_thickness_measure.sample()
-        ice_l = self._thickness_to_load_op(ice_h)
+        ice_h = self.ice_thickness.sample()
+        ice_l = self.ice_thickness_to_load_operator(ice_h)
+        slc_proj = self.load_to_slc_operator.codomain.subspace_projection(
+            0
+        )
+        slc_proj = (
+            ocean_projection_operator(
+                self._fp, slc_proj.codomain
+            )
+            @ slc_proj
+        )
+        ice_slc = (slc_proj @ self.load_to_slc_operator)(
+            ice_l
+        )
+        ice_ssh = self.load_to_ssh_operator(ice_l)
 
         if self._include_firn:
-            firn_h = self.firn_thickness_measure.sample()
-            firn_l = self._thickness_to_load_op(firn_h)
+            firn_h = self.firn_thickness.sample()
+            firn_l = self.firn_thickness_to_load_operator(
+                firn_h
+            )
+            firn_slc = (
+                slc_proj @ self.load_to_slc_operator
+            )(firn_l)
+            firn_ssh = self.load_to_ssh_operator(firn_l)
+
             total_h = ice_h + firn_h
             total_l = ice_l + firn_l
+            total_slc = ice_slc + firn_slc
+            total_ssh = ice_ssh + firn_ssh
         else:
-            firn_h = firn_l = None
+            firn_h = firn_l = firn_slc = firn_ssh = None
             total_h = ice_h
             total_l = ice_l
+            total_slc = ice_slc
+            total_ssh = ice_ssh
 
         return IceSheetChangeSample(
             ice_thickness=ice_h,
@@ -398,6 +541,12 @@ class IceSheetChange:
             ice_load=ice_l,
             firn_load=firn_l,
             total_load=total_l,
+            ice_slc=ice_slc,
+            firn_slc=firn_slc,
+            total_slc=total_slc,
+            ice_ssh=ice_ssh,
+            firn_ssh=firn_ssh,
+            total_ssh=total_ssh,
         )
 
     # -----------------------------------------------------------------------
@@ -474,34 +623,4 @@ class IceSheetChange:
             finger_print.ice_projection,
             pattern,
             **kwargs,
-        )
-
-    # ---------------------------------------------------------------------------
-    # Finger Prints and Sea Surface Heights
-    # ---------------------------------------------------------------------------
-
-    @cached_property
-    def _total_finger_print_response(
-        self,
-    ) -> GaussianMeasure:
-        return self.total_load_measure.affine_mapping(
-            operator=self._op
-        )
-
-    @cached_property
-    def finger_print_response(self) -> GaussianMeasure:
-        _subspace = self._op.codomain.subspace_projection(0)
-        return self._total_finger_print_response.affine_mapping(
-            operator=_subspace
-        )
-
-    @cached_property
-    def sea_surface_height_response(
-        self,
-    ) -> GaussianMeasure:
-        _response_space = self._op.codomain
-        return self._total_finger_print_response.affine_mapping(
-            operator=sea_surface_height_operator(
-                self._fp, _response_space
-            )
         )
