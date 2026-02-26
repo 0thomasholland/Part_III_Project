@@ -1,5 +1,7 @@
 # %%
 import colorcet as cc
+from matplotlib import pyplot as plt
+from pyshtools import SHGrid
 from pyslfp import FingerPrint, IceModel, plot
 
 from pygeoinf_extras import expectation, standard_dev
@@ -16,14 +18,6 @@ fp_op = fp.as_sobolev_linear_operator(
     2, fp.mean_sea_floor_radius * 0.1
 )
 # %%
-ice_change_uniform = IceSheetChange.global_ice(
-    finger_print=fp,
-    finger_print_operator=fp_op,
-    length_scale=0.01 * fp.mean_sea_floor_radius,
-    pattern=IceSheetChange.UniformPattern(),
-    ice_gmsl_std=0.01,
-)
-ice_thickness_measure = ice_change_uniform.ice_thickness_measure
 
 ice_change_spatial = IceSheetChange.global_ice(
     finger_print=fp,
@@ -31,91 +25,105 @@ ice_change_spatial = IceSheetChange.global_ice(
     length_scale=0.01 * fp.mean_sea_floor_radius,
     pattern=IceSheetChange.ThicknessWeightedPattern(),
     ice_gmsl_std=0.01,
+    firn_gmsl_std=0.01,
+    include_firn=True,
+    ice_density=fp.ice_density,
+    firn_density=fp.ice_density * 0.5,
 )
-ice_thickness_measure_spatial = (
-    ice_change_spatial.ice_thickness_measure
+print("done generation")
+samples = ice_change_spatial.sample()
+print("done sampling")
+
+print(type(samples.ice_slc))
+print(type(samples.firn_slc))
+# %%
+plot(
+    samples.firn_thickness,
+    symmetric=True,
+    colorbar_label="Firn thickness change (m)",
+)
+plot(
+    samples.firn_load,
+    symmetric=True,
+    colorbar_label="Firn load change (kg/m²)",
+)
+plot(
+    samples.ice_thickness,
+    symmetric=True,
+    colorbar_label="Ice thickness change (m)",
+)
+plot(
+    samples.ice_load,
+    symmetric=True,
+    colorbar_label="Ice load change (kg/m²)",
+)
+plot(
+    samples.total_thickness,
+    symmetric=True,
+    colorbar_label="Total thickness change (m)",
+)
+plot(
+    samples.total_load,
+    symmetric=True,
+    colorbar_label="Total load change (kg/m²)",
+)
+
+
+# %%
+plot(
+    samples.firn_slc,
+    symmetric=True,
+    colorbar_label="Firn SLC (m)",
+)
+plot(
+    samples.ice_slc,
+    symmetric=True,
+    colorbar_label="Ice SLC (m)",
+)
+plot(
+    samples.total_slc,
+    symmetric=True,
+    colorbar_label="Total SLC (m)",
+)
+
+plot(
+    samples.firn_ssh,
+    symmetric=True,
+    colorbar_label="Firn SSH change (m)",
+)
+plot(
+    samples.ice_ssh,
+    symmetric=True,
+    colorbar_label="Ice SSH change (m)",
+)
+plot(
+    samples.total_ssh,
+    symmetric=True,
+    colorbar_label="Total SSH change (m)",
 )
 
 # %%
-(
-    fig1,
-    ax1,
-    im1,
-) = plot(
-    ice_thickness_measure.sample() * fp.ice_projection(),
-    symmetric=True,
-    colorbar_label="Sample (uniform field) (m)",
-)
-(
-    fig2,
-    ax2,
-    im2,
-) = plot(
-    ice_thickness_measure_spatial.sample()
-    * fp.ice_projection(),
-    symmetric=True,
-    colorbar_label="Sample (spatial field) (m)",
-)
-
-# %%
-fig3, ax3, im3 = plot(
-    ice_thickness_measure.expectation * fp.ice_projection(),
-    symmetric=True,
-    colorbar_label="Expectation (uniform field) (m)",
-)
-fig4, ax4, im4 = plot(
-    ice_thickness_measure_spatial.expectation
-    * fp.ice_projection(),
-    symmetric=True,
-    colorbar_label="Expectation (spatial field) (m)",
-)
-
-# %%
-fig5, ax5, im5 = plot(
-    ice_thickness_measure.sample_pointwise_std(
-        1000, parallel=True
+# use L12 cmap
+plot(
+    ice_change_spatial.ice_load.sample_pointwise_variance(
+        30
     )
     * fp.ice_projection(),
-    cmap=cc.cm.blues,
-    colorbar_label="Pointwise standard deviation (uniform field) (m)",
+    cmap=cc.cm.bmy,
 )
-fig6, ax6, im6 = plot(
-    ice_thickness_measure_spatial.sample_pointwise_std(
-        1000, parallel=True
+
+plot(
+    ice_change_spatial.firn_load.sample_pointwise_variance(
+        30
     )
     * fp.ice_projection(),
-    cmap=cc.cm.blues,
-    colorbar_label="Pointwise standard deviation (spatial field) (m)",
+    cmap=cc.cm.bmy,
 )
 
-# %%
-
-gmsl_from_ice_thickness_op = (
-    gmsl_from_ice_thickness_operator(
-        finger_print=fp, finger_print_operator=fp_op
+plot(
+    ice_change_spatial.total_slc.sample_pointwise_variance(
+        90
     )
+    * fp.ocean_projection(),
+    cmap=cc.cm.bmy,
 )
-
-gmsl_uniform = ice_thickness_measure.affine_mapping(
-    operator=gmsl_from_ice_thickness_op
-)
-
-gmsl_spatial = ice_thickness_measure_spatial.affine_mapping(
-    operator=gmsl_from_ice_thickness_op
-)
-
-print("Desired GMSL expetation = 0.08 m, std = 0.01 m")
-print(
-    f"GMSL (uniform field): expectation={expectation(gmsl_uniform):.4f}, std={standard_dev(gmsl_uniform):.4f}"
-)
-print(
-    f"GMSL (spatial field): expectation={expectation(gmsl_spatial):.4f}, std={standard_dev(gmsl_spatial):.4f}"
-)
-
-# %%
-fig1.savefig("sample_uniform.png", dpi=600)
-fig2.savefig("sample_spatial.png", dpi=600)
-fig3.savefig("expectation_uniform.png", dpi=600)
-fig4.savefig("expectation_spatial.png", dpi=600)
-fig5.savefig("std_uniform.png", dpi=600)
-fig6.savefig("std_spatial.png", dpi=600)
