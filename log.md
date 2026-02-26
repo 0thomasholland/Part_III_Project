@@ -304,3 +304,8 @@
 - Added placeholder subsubsections to the methods section and began writing mathematical content.
 - Restructured the `src/` directory and moved file generators to `work/`.
 
+## 26 February 2026
+
+- Began structuring the methods section in earnest, with subsections for the mathematics, ice melt modelling, load operators, SSH, ocean dynamics, error quantification, and Bayesian inversion. The Richards curve activator function was already conceptually in place.
+- Cleaned up repository structure and updated configuration.
+
