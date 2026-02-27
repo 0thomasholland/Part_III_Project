@@ -429,7 +429,7 @@ model_posterior_measure = (
     bayesian_inversion.model_posterior_measure(
         data,
         CGMatrixSolver(
-            callback=progress_callback, maxiter=200
+            callback=progress_callback, maxiter=100
         ),
         preconditioner=precon_inverse_normal_operator,
     )
@@ -446,7 +446,7 @@ plt.title("Convergence of CG Solver")
 plt.xlabel("Iteration")
 plt.ylabel("Norm of Solution ($||x_k||$)")
 plt.grid(True, which="both", ls="-", alpha=0.5)
-plt.show()
+plt.savefig("figs/joint_precon_cg_convergence.png", dpi=600)
 
 model_posterior_expectation = (
     model_posterior_measure.expectation
@@ -503,6 +503,7 @@ fig1, ax1, im1 = plot(
     colorbar_label="Ice Thickness Change (mm)",
 )
 ax1.set_title("a) True Ice Thickness Change")
+fig1.tight_layout()
 
 fig2, ax2, im2 = plot(
     1000
@@ -518,6 +519,7 @@ fig2, ax2, im2 = plot(
 ax2.set_title(
     "b) Posterior Expectation (Inferred from Data)"
 )
+fig2.tight_layout()
 
 # --- Firn thickness ---
 max_abs_firn_change = (
@@ -547,6 +549,7 @@ fig3, ax3, im3 = plot(
     colorbar_label="Firn Thickness Change (mm)",
 )
 ax3.set_title("c) True Firn Thickness Change")
+fig3.tight_layout()
 
 fig4, ax4, im4 = plot(
     1000
@@ -562,6 +565,7 @@ fig4, ax4, im4 = plot(
 ax4.set_title(
     "d) Posterior Expectation (Inferred from Data)"
 )
+fig4.tight_layout()
 
 # --- Ocean dynamics ---
 max_abs_odt_height_change = (
@@ -591,6 +595,7 @@ fig5, ax5, im5 = plot(
     colorbar_label="Ocean Height Change (mm)",
 )
 ax5.set_title("e) True Ocean Height Change")
+fig5.tight_layout()
 
 fig6, ax6, im6 = plot(
     1000
@@ -606,17 +611,15 @@ fig6, ax6, im6 = plot(
 ax6.set_title(
     "f) Posterior Expectation (Inferred from Data)"
 )
-
-plt.show()
-
+fig6.tight_layout()
 
 # %%
 # operator that maps from the model space to slc
 
-slc_true = model_space_to_slc_operator(model_true)
+slc_true = model_space_to_slc_operator(model_true)[0]
 slc_posterior_expectation = model_space_to_slc_operator(
     model_posterior_expectation
-)
+)[0]
 
 # plot
 #
@@ -653,6 +656,7 @@ fig7, ax7, im7 = plot(
     colorbar_label="Sea Level Change (mm)",
 )
 ax7.set_title("g) True Sea-Level Change")
+fig7.tight_layout()
 
 fig8, ax8, im8 = plot(
     1000
@@ -668,3 +672,24 @@ fig8, ax8, im8 = plot(
 ax8.set_title(
     "h) Posterior Expectation (Inferred from Data)"
 )
+fig8.tight_layout()
+
+# %%
+
+fig1.savefig("figs/joint_precon_ice_thickness.png", dpi=600)
+fig2.savefig(
+    "figs/joint_precon_ice_thickness_posterior.png", dpi=600
+)
+fig3.savefig(
+    "figs/joint_precon_firn_thickness.png", dpi=600
+)
+fig4.savefig(
+    "figs/joint_precon_firn_thickness_posterior.png",
+    dpi=600,
+)
+fig5.savefig("figs/joint_precon_odt_height.png", dpi=600)
+fig6.savefig(
+    "figs/joint_precon_odt_height_posterior.png", dpi=600
+)
+fig7.savefig("figs/joint_precon_slc.png", dpi=600)
+fig8.savefig("figs/joint_precon_slc_posterior.png", dpi=600)
