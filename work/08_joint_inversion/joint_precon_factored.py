@@ -43,7 +43,7 @@ fp_op = fp.as_sobolev_linear_operator(
 )
 
 dir = "figs_fac_5"
-measure_error_std = 0.0001
+measure_error_std = 0.0005
 
 ice = IceSheetChange.global_ice(
     finger_print=fp,
@@ -51,6 +51,8 @@ ice = IceSheetChange.global_ice(
     length_scale=0.1 * fp.mean_sea_floor_radius,
     pattern=IceSheetChange.ThicknessWeightedPattern(),
     ice_gmsl_std=0.003,
+    firn_gmsl_std=0.002,
+    firn_density=0.3 * fp.ice_density,
     include_firn=True,
 )
 
@@ -88,8 +90,8 @@ model_prior = GaussianMeasure.from_direct_sum(
 # Observation points
 # =============================================================================
 
-ssh_altimetry = GridPoints.ocean_altimetry(fp, 5.0, 66.0)
-ice_altimetry = GridPoints.ice(fp, 5.0)
+ssh_altimetry = GridPoints.ocean_altimetry(fp, 10.0, 66.0)
+ice_altimetry = GridPoints.ice(fp, 15.0)
 
 lats, lons = read_gloss_tide_gauge_data()
 
@@ -219,9 +221,9 @@ precon_model_prior = GaussianMeasure.from_direct_sum(
 # =============================================================================
 
 precon_ssh_altimetry = GridPoints.ocean_altimetry(
-    precon_fp, 5.0, 66.0
+    precon_fp, 10.0, 66.0
 )
-precon_ice_altimetry = GridPoints.ice(precon_fp, 5.0)
+precon_ice_altimetry = GridPoints.ice(precon_fp, 15.0)
 
 precon_ssh_ocean_set = set(precon_ssh_altimetry.coords)
 full_ssh_ocean_set = set(ssh_altimetry.coords)

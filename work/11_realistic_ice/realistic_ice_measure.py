@@ -25,10 +25,10 @@ ice_change_spatial = IceSheetChange.global_ice(
     length_scale=0.01 * fp.mean_sea_floor_radius,
     pattern=IceSheetChange.ThicknessWeightedPattern(),
     ice_gmsl_std=0.01,
-    firn_gmsl_std=0.01,
+    firn_gmsl_std=0.001,
     include_firn=True,
     ice_density=fp.ice_density,
-    firn_density=fp.ice_density * 0.5,
+    firn_density=fp.ice_density * 0.1,
 )
 print("done generation")
 samples = ice_change_spatial.sample()
@@ -127,5 +127,3 @@ plot(
     * fp.ocean_projection(),
     cmap=cc.cm.bmy,
 )
-
-# %%
