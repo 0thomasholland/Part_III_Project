@@ -51,7 +51,7 @@ OD_pattern = OceanDynamics.DataPattern()
 odt = OceanDynamics(
     finger_print=fp,
     finger_print_operator=fp_op,
-    std=0.002,
+    std=0.004,
     length_scale=10000.0,
     pattern=OD_pattern,
 )
@@ -81,11 +81,34 @@ model_prior = GaussianMeasure.from_direct_sum(
 # Observation points
 # =============================================================================
 
-ssh_altimetry = GridPoints.ocean_altimetry(fp, 5.0, 66.0)
-ice_altimetry = GridPoints.ice(fp, 2.5)
+ssh_altimetry = GridPoints.ocean_altimetry(fp, 10.0, 66.0)
+ice_altimetry = GridPoints.ice(fp, 10.0)
 
 lats, lons = read_gloss_tide_gauge_data()
-tide_gauge_points = list(zip(lats, lons))
+
+
+filtered_lats = lats.copy()
+filtered_lons = lons.copy()
+
+for i in range(len(lats)):
+    for j in range(i + 1, len(lats)):
+        if (
+            abs(lats[i] - lats[j]) < 8.0
+            and abs(lons[i] - lons[j]) < 8.0
+        ):
+            # Remove the second point (j) if it's too close to the first point (i)
+            filtered_lats[j] = None
+            filtered_lons[j] = None
+
+filtered_lats = [
+    lat for lat in filtered_lats if lat is not None
+]
+filtered_lons = [
+    lon for lon in filtered_lons if lon is not None
+]
+
+
+tide_gauge_points = list(zip(filtered_lats, filtered_lons))
 tide_sampling_op = tide_gauge_operator(
     ice.load_to_slc_operator.codomain, tide_gauge_points
 )
@@ -169,7 +192,7 @@ model_space_to_ice_thickness_operator = RowLinearOperator(
 # Data error and forward problem
 # =============================================================================
 
-std_dev = 0.005
+std_dev = 0.002
 data_error_measure = (
     GaussianMeasure.from_standard_deviation(
         data_space, std_dev
@@ -214,10 +237,11 @@ precon_ice = IceSheetChange.global_ice(
 precon_odt = OceanDynamics(
     finger_print=precon_fp,
     finger_print_operator=precon_fp_op,
-    std=0.002,
+    std=0.004,
     length_scale=10000.0,
     pattern=OD_pattern,
 )
+
 
 # --- Preconditioner prior ---
 precon_model_prior = GaussianMeasure.from_direct_sum(
@@ -234,9 +258,9 @@ precon_model_prior = GaussianMeasure.from_direct_sum(
 # =============================================================================
 
 precon_ssh_altimetry = GridPoints.ocean_altimetry(
-    precon_fp, 5.0, 66.0
+    precon_fp, 10.0, 66.0
 )
-precon_ice_altimetry = GridPoints.ice(precon_fp, 2.5)
+precon_ice_altimetry = GridPoints.ice(precon_fp, 10.0)
 
 precon_ssh_ocean_set = set(precon_ssh_altimetry.coords)
 full_ssh_ocean_set = set(ssh_altimetry.coords)
@@ -357,7 +381,7 @@ precon_forward_operator = BlockLinearOperator(
 # Form the preconditioner inverse via eigen-decomposition
 # =============================================================================
 
-precon_std_dev = 0.01
+precon_std_dev = 0.005
 
 precon_data_error_measure = (
     GaussianMeasure.from_standard_deviation(
