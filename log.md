@@ -309,3 +309,14 @@
 - Began structuring the methods section in earnest, with subsections for the mathematics, ice melt modelling, load operators, SSH, ocean dynamics, error quantification, and Bayesian inversion. The Richards curve activator function was already conceptually in place.
 - Cleaned up repository structure and updated configuration.
 
+## 27 February 2026
+
+- Rewrote the altimetry sampling module as a `GridPoints` class supporting arbitrary masks with defaults for ocean, altimetry, and ice projections.
+- Updated the full codebase to use the new `GridPoints` class.
+- Combined the joint observation model (SSH altimetry + ice altimetry, with tide gauges also referenced) with the preconditioning approach.
+- Encountered and resolved a pickling error with BlockLinearOperator that forced eigen-decomposition to run serially. Added consistency checks between full-resolution and preconditioner grid points.
+- Added DUACS sea level anomaly datasets using lmax 32 for preconditioner.
+- Fixed operator naming in ocean dynamics (load vs height distinction).
+- Implemented factored forward operator for improved computational efficiency.
+- Added report content on mathematical framework and expanded the write-up.
+

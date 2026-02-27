@@ -14,6 +14,10 @@ This framework accommodates both deterministic fields, which enter as fixed elem
 
 % Paragraph: Introduce linear operators mapping between fields, and their adjoints. This is the machinery used throughout the forward model.
 
+Linear operators map between fields, with their TKTK 
+
+
+
 \begin{align}
     A: X &\rightarrow Y \\
     A^*: Y &\rightarrow X
@@ -33,7 +37,7 @@ The Gaussian fields over spaces are defined by their mean value and covariance, 
     \mu = \mathcal{N}(\mathbf{m}, \mathcal{C}), \quad \mathcal{C} = \mathcal{C}^*
 \end{equation}
 
-Linear operators, analogous to a linear functionals, can act on these Gaussians such:
+Linear operators can act on these Gaussians such:
 
 \begin{align}
 	A&: X \rightarrow Y\\
@@ -41,7 +45,11 @@ Linear operators, analogous to a linear functionals, can act on these Gaussians 
 	A \mu &= \mathcal{N}(A\mathbf{m}, A\mathcal{C}A^*) \in Y
 \end{align}
 
+Fields can either be rotationally invariant, such that REF is satsified, or spatially variant, such that there is 
 
+\begin{equation}
+	f(\mathbf{x'}) = f(\mathbf{Rx}) = f(\mathbf{x})
+\end{equation}
 
 
 \subsection{Modelling Ice and Firn Thickness Change}
@@ -51,6 +59,10 @@ Linear operators, analogous to a linear functionals, can act on these Gaussians 
 % Different physical processes dominate in different regions -- dynamic ice
 % loss at margins vs firn compaction in the interior. A spatially uniform
 % prior cannot capture this.
+
+
+
+
 
 % Paragraph: Introduce the base Gaussian measure using the heat kernel on
 % the sphere. Explain that this gives a rotationally invariant, spatially
