@@ -1,4 +1,8 @@
-from typing import Literal
+from __future__ import annotations
+
+from abc import ABC, abstractmethod
+from functools import cached_property
+from typing import Literal, Optional
 
 from numpy import ndarray
 from pygeoinf import (
@@ -15,7 +19,169 @@ from pyslfp import (
     FingerPrint,
     averaging_operator,
     ice_thickness_change_to_load_operator,
+    sea_surface_height_operator,
+    spatial_mutliplication_operator,
 )
+
+from pygeoinf_extras.operators import (
+    point_averaging_operator,
+)
+from pyslfp_extras.altimetry import (
+    GridPoints,
+)
+
+
+class GMSLOperatorBase(ABC):
+    """Shared operators for mapping load -> SSH -> GMSL and GMSL estimations.
+
+    Subclasses provide:
+      - _load_to_ssh_operator: load -> SSH (including fingerprint effects)
+      - _gmsl_operator: load -> true GMSL
+    """
+
+    def __init__(
+        self,
+        finger_print: FingerPrint,
+        finger_print_operator: LinearOperator,
+        altimetry_latitude_range: float = 66.0,
+        point_degree_spacing: float = 5.0,
+    ) -> None:
+        self._fp = finger_print
+        self._op = finger_print_operator
+        self._altimetry_latitude_range = (
+            altimetry_latitude_range
+        )
+        self._point_degree_spacing = point_degree_spacing
+
+    @property
+    def finger_print(self) -> FingerPrint:
+        return self._fp
+
+    @property
+    def finger_print_operator(self) -> LinearOperator:
+        return self._op
+
+    @property
+    def altimetry_latitude_range(self) -> float:
+        return self._altimetry_latitude_range
+
+    @property
+    def point_degree_spacing(self) -> float:
+        return self._point_degree_spacing
+
+    @cached_property
+    def _altimetry_projection(self) -> SHGrid:
+        return self._fp.altimetry_projection(
+            latitude_min=-self._altimetry_latitude_range,
+            latitude_max=self._altimetry_latitude_range,
+            value=0,
+        )
+
+    @cached_property
+    def _altimetry_weighting_grid(self) -> SHGrid:
+        projection_integral = self._fp.integrate(
+            self._altimetry_projection
+        )
+        return (
+            self._altimetry_projection / projection_integral
+        )
+
+    @property
+    @abstractmethod
+    def _load_to_ssh_operator(self) -> LinearOperator:
+        """Maps load space -> SSH space."""
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def _gmsl_operator(self) -> LinearOperator:
+        """Maps load space -> true GMSL."""
+        raise NotImplementedError
+
+    @cached_property
+    def _ssh_space(self) -> HilbertSpace:
+        return self._load_to_ssh_operator.codomain
+
+    @cached_property
+    def _altimetry_mask_operator(self) -> LinearOperator:
+        return spatial_mutliplication_operator(
+            self._altimetry_projection, self._ssh_space
+        )
+
+    @cached_property
+    def load_to_ssh_operator(self) -> LinearOperator:
+        """Load -> SSH (full ocean)."""
+        return self._load_to_ssh_operator
+
+    @cached_property
+    def load_to_altimetry_ssh_operator(
+        self,
+    ) -> LinearOperator:
+        """Load -> SSH restricted to altimetry coverage."""
+        return (
+            self._altimetry_mask_operator
+            @ self._load_to_ssh_operator
+        )
+
+    @cached_property
+    def load_to_estimated_gmsl_operator(
+        self,
+    ) -> LinearOperator:
+        """Load -> estimated GMSL by surface-averaged SSH (altimetry mask)."""
+        return (
+            averaging_operator(
+                self._ssh_space,
+                [self._altimetry_weighting_grid],
+            )
+            @ self.load_to_altimetry_ssh_operator
+        )
+
+    @cached_property
+    def load_to_ssh_point_estimations_operator(
+        self,
+    ) -> LinearOperator:
+        """Load -> SSH evaluated at altimetry sampling points."""
+        point_op = GridPoints.ocean_altimetry(
+            self._fp,
+            degree_spacing=self._point_degree_spacing,
+            latitude_range=self._altimetry_latitude_range,
+        ).point_evaluation_operator(self._ssh_space)
+        return (
+            point_op @ self.load_to_altimetry_ssh_operator
+        )
+
+    @cached_property
+    def load_to_point_estimated_gmsl_operator(
+        self,
+    ) -> LinearOperator:
+        """Load -> estimated GMSL via point altimetry averaging."""
+        point_avg_op = point_averaging_operator(
+            self.load_to_ssh_point_estimations_operator.codomain
+        )
+        return (
+            point_avg_op
+            @ self.load_to_ssh_point_estimations_operator
+        )
+
+    @cached_property
+    def gmsl_estimation_error_operator(
+        self,
+    ) -> LinearOperator:
+        """True GMSL minus surface-averaged (altimetry) estimate."""
+        return (
+            self._gmsl_operator
+            - self.load_to_estimated_gmsl_operator
+        )
+
+    @cached_property
+    def gmsl_point_estimation_error_operator(
+        self,
+    ) -> LinearOperator:
+        """True GMSL minus point-altimetry estimate."""
+        return (
+            self._gmsl_operator
+            - self.load_to_point_estimated_gmsl_operator
+        )
 
 
 def gmsl_from_ice_thickness_operator(
@@ -42,15 +208,9 @@ def gmsl_from_ice_load_operator(
     load_space: Lebesgue | Sobolev | HilbertSpace,
     fp: FingerPrint,
 ) -> LinearOperator:
-    _thickness_to_load_op: LinearOperator = (
-        ice_thickness_change_to_load_operator(
-            finger_print=fp, load_space=load_space
-        )
-    )
-    _op: LinearOperator = (
-        gmsl_from_ice_load_operator @ _thickness_to_load_op
-    )
-    return _op
+    """Convenience wrapper when the load space equals the thickness space."""
+    identity_op = load_space.identity_operator()
+    return gmsl_from_ice_thickness_operator(fp, identity_op)
 
 
 def altimetry_gmsl(

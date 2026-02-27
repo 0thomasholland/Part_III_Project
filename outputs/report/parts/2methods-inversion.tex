@@ -1,15 +1,78 @@
 \subsection{Bayseian Inversion}
 
-Point sampling
 
-Preconditioning
+% Paragraph: Frame the inversion problem. We have a prior mu, a forward
+% operator A, and observations y with noise covariance C_noise. The 
+% posterior is Gaussian by conjugacy.
 
-Implementing realistic error
+\begin{equation}
+    p(x | y) \propto p(y | x) \, p(x)
+\end{equation}
 
-Joint inversion
+\begin{equation}
+    \mu_{\text{post}} = \mu_{\text{prior}} + 
+    \mathcal{C}_{\text{prior}} A^* 
+    (A \mathcal{C}_{\text{prior}} A^* + \mathcal{C}_{\text{noise}})^{-1}
+    (y - A\mu_{\text{prior}})
+\end{equation}
 
-Realistic DUACS dataset
+% Paragraph: Discuss preconditioning and why it is needed for numerical
+% efficiency when the operator is ill-conditioned.
 
-Time series
+% Paragraph: Describe the joint inversion -- ice + firn + ocean dynamics
+% inverted simultaneously. Explain why this matters (correlated signals).
 
-Inversion for ice altimetry
+
+
+% Paragraph: Describe application to altimetry data and/or DUACS SSH data.
+
+
+Using the various operators above, we can extend this to map from various model spaces to data spaces:
+
+\begin{align}
+\begin{bmatrix}
+	\text{SSH Altimetry Points}\\
+	\text{Tide Gauge Points}\\
+	\text{Ice Altimetry Points}
+\end{bmatrix}
+&\nonumber\\&=
+\begin{bmatrix}
+	\mathbf{P_S S F L_I} & \mathbf{P_S S F L_F} & \mathbf{P_S(S F L_W + 1)} \\
+	\mathbf{P_T F L_I} & \mathbf{P_T F L_I} & \mathbf{P_T (F L_W + 1)}\\
+	\mathbf{P_I} & \mathbf{P_I} & \mathbf{0}
+\end{bmatrix}
+\begin{bmatrix}
+	\Delta T_\text{Ice}\\
+	\Delta T_\text{Firn}\\
+	\Delta SSH_\text{OD}
+\end{bmatrix}
+\end{align}
+
+Where xyz
+To minimize the number of finger print calls, this can be expanded to the form:
+
+\begin{equation}
+=
+	\begin{bmatrix}
+\mathbf{P_S S} & \mathbf{P_S} & 0 & 0 \\
+\mathbf{P_T} & \mathbf{P_T} & 0 & 0 \\
+0 & 0 & \mathbf{P_I} & \mathbf{P_I}
+\end{bmatrix}
+\begin{bmatrix}
+\mathbf{F} & 0 & 0 & 0 \\
+0 & \mathbf{1} & 0 & 0 \\
+0 & 0 & \mathbf{1} & 0 \\
+0 & 0 & 0 & \mathbf{1}
+\end{bmatrix}
+\begin{bmatrix}
+\mathbf{L_I} & \mathbf{L_F} & \mathbf{L_W} \\
+0 & 0 & \mathbf{1} \\
+\mathbf{1} & 0 & 0 \\
+0 & \mathbf{1} & 0
+\end{bmatrix}
+\begin{bmatrix}
+\Delta T_{\text{Ice}} \\
+\Delta T_{\text{Firn}} \\
+\Delta SSH_{\text{OD}}
+\end{bmatrix}
+\end{equation}

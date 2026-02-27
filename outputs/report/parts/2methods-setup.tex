@@ -1,53 +1,152 @@
-\subsection{Underlying methods}
+\subsection{Mathematical Framework}
 
-\subsubsection{Mathematics}
-The project builds upon and utilises REF pyslfp which itself is built upon pygeoinf \cite{al-attar2023}
 
-Mathematical methods
+% Paragraph: Introduce the function space setting. Explain that fields are  represented as elements of a Sobolev space over the sphere, and why this is appropriate (smoothness, well-defined inner product). Introduce notation.
 
-Fields of either guassian fields or scalars
+To represent continuous fields over the sphere (taken to be a unit sphere, $\mathbb{S}^2$, scaled to the dimensions of the Earth) in a mathematically rigorous way, we work within a Sobolev space (\autoref{eq:sobolev}), where the index $s$ controls the smoothness of admissible fields. In practice this means that realisations of the fields are guaranteed to be spatially smooth, which is physically appropriate given the length scales involved. Using a Sobolev space allows for smoothness within the inner product, which results in the Sobolev inner product penalising spatial roughness, providing a natural measure of closeness between fields.
 
-linear operators defined to map from one to another, with their adjoint (the Hermitian) mapping to the inverse
+
+\begin{equation}\label{eq:sobolev}
+    h \in H^s(\mathbb{S}^2)
+\end{equation}
+
+This framework accommodates both deterministic fields, which enter as fixed elements of $H^s(\mathcal{S}^2)$, and Gaussian random fields, which are represented as probability measures over the same space, allowing uncertainty to be propagated consistently through the forward model and for Linear Operators to be functions on both types.
+
+% Paragraph: Introduce linear operators mapping between fields, and their adjoints. This is the machinery used throughout the forward model.
+
+Linear operators map between fields, with their TKTK 
+
+
 
 \begin{align}
-  A: X &\rightarrow Y \text{ such that}\\
-  y &= A(x) \\
-  A^*: Y &\rightarrow X \text{ such that}\\
-  x&= A^*(y)
+    A: X &\rightarrow Y \\
+    A^*: Y &\rightarrow X
 \end{align}
 
-\subsubsection{Modeling Ice Melt}
-% Assume ice thickness melt constant and fully from ice
+Such that:
 
-% Assume ice thickness melt spatially related to how thick ice is, fully from ice
+\begin{align}
+	\braket{Ax,y}_Y = \braket{x, A^*y}_X
+\end{align}
 
-Activator function that captures the likelihood that 
+% Paragraph: Introduce Gaussian measures over these spaces. A Gaussian field is characterised by a mean and covariance operator. Connect to the structure -- covariance operators are self-adjoint by definition.
 
-% inverse relationship between melt of ice and firn
+The Gaussian fields over spaces are defined by their mean value and covariance, which in the context of this framework are a vector and linear operator matrix respectively. 
+
+\begin{equation}
+    \mu = \mathcal{N}(\mathbf{m}, \mathcal{C}), \quad \mathcal{C} = \mathcal{C}^*
+\end{equation}
+
+Linear operators can act on these Gaussians such:
+
+\begin{align}
+	A&: X \rightarrow Y\\
+	\mu_X &= \mathcal{N}(\mathbf{m}, \mathcal{C}) \in X \\
+	A \mu &= \mathcal{N}(A\mathbf{m}, A\mathcal{C}A^*) \in Y
+\end{align}
+
+Fields can either be rotationally invariant, such that REF is satsified, or spatially variant, such that there is 
+
+\begin{equation}
+	f(\mathbf{x'}) = f(\mathbf{Rx}) = f(\mathbf{x})
+\end{equation}
 
 
-\subsubsection{Relating ice thickness change to mass change}
+\subsection{Modelling Ice and Firn Thickness Change}
+% -------------------------------------------------------------------------
 
-%Ice change to load operator
+% Paragraph: Motivate the need for a spatial prior on ice thickness change.
+% Different physical processes dominate in different regions -- dynamic ice
+% loss at margins vs firn compaction in the interior. A spatially uniform
+% prior cannot capture this.
 
-%Firn change to load operator
 
 
-\subsubsection{Sea Surface Height Change}
 
-% physics
 
-% code
+% Paragraph: Introduce the base Gaussian measure using the heat kernel on
+% the sphere. Explain that this gives a rotationally invariant, spatially
+% smooth prior, with the length scale controlling spatial correlation.
 
-\subsubsection{Modelling Ocean Dynamics}
+\begin{equation}
+    \mathcal{C}_0 = \mathcal{K}_t, \quad t \sim \ell^2
+\end{equation}
 
-% assume uniform field
+% Paragraph: Introduce the generalised Richards curve as the activator
+% function. Define it explicitly. Explain the parameters and what they 
+% control physically. Note that parameters are set heuristically to reflect
+% known glaciological structure, and could in future be constrained empirically.
 
-% can be constrained further by including broad structure
+\begin{equation}
+    \alpha(h) = a + \frac{k - a}{\left(1 + e^{b(x - m)}\right)^{1/\nu}}
+\end{equation}
 
-% using a datsets (DUACS) possible to 
+% where x is the standardised thickness (x in [0,1]), a is lower asymptote,
+% k upper asymptote, b steepness, m threshold, nu asymmetry parameter
 
-Can be thought that over short term (inter-monthly changes)
+% Paragraph: Explain that the activator modulates the covariance of the 
+% ice thickness field via pointwise spatial multiplication. Thick ice 
+% suppresses ice melt variance; thin marginal ice enhances it. Write out
+% the modified covariance structure.
 
-Spatial pattern 
+\begin{equation}
+    \mathcal{C}_{\text{ice}} = W \mathcal{C}_0 W^*, \quad W = \text{diag}(\alpha(h))
+\end{equation}
 
+% Paragraph: Introduce the complementary firn field. Firn weights are 
+% 1 - alpha(h), masked to the ice extent. Ice and firn are therefore
+% complementary by construction -- regions of low ice melt probability
+% have high firn probability.
+
+\begin{equation}
+    \mathcal{C}_{\text{firn}} = \tilde{W} \mathcal{C}_0 \tilde{W}^*, 
+    \quad \tilde{W} = \text{diag}(1 - \alpha(h))
+\end{equation}
+
+% Paragraph: Explain the GMSL variance rescaling. The prior amplitude is 
+% set by requiring the implied global mean sea level change to have a 
+% prescribed standard deviation sigma_gmsl. This is a physically meaningful
+% way to set the prior scale rather than an arbitrary choice.
+
+\begin{equation}
+    \sigma_{\text{gmsl}} = \text{std}(G \circ \mu), 
+    \quad \mathcal{C} \rightarrow \left(\frac{\sigma_{\text{target}}}{\sigma_{\text{gmsl}}}\right)^2 \mathcal{C}
+\end{equation}
+
+
+\subsection{Relating Ice Thickness Change to Mass Change}
+
+% Paragraph: Explain that thickness change is converted to surface load via
+% density scaling. Ice and firn use different densities, which enters as a
+% scalar factor on the thickness-to-load operator.
+
+\begin{equation}
+    L = \rho_{\text{ice}} \, A_{\text{load}} \, h_{\text{ice}}, \quad
+    L = \rho_{\text{firn}} \, A_{\text{load}} \, h_{\text{firn}}
+\end{equation}
+
+% Note: rho_firn ~ 0.5 * rho_ice as used in the code
+
+
+\subsection{Sea Surface Height and Sea Level Change}
+
+% Paragraph: Background physics (probably already in intro but connect here).
+% The sea level fingerprint relates a surface load change to relative sea 
+% level change via a linear operator -- cite pyslfp / al-attar here.
+
+\begin{equation}
+    \Delta \text{SLC} = A_{\text{fp}} \, L
+\end{equation}
+
+% Paragraph: Sea surface height is a related but distinct quantity -- 
+% explain the difference physically and how the SSH operator is composed
+% from the fingerprint operator.
+
+\begin{equation}
+    \Delta \text{SSH} = A_{\text{ssh}} \circ A_{\text{fp}} \, L
+\end{equation}
+
+
+\subsection{Modelling Ocean Dynamics}
+% Paragraph: Discuss assumptions -- uniform field, or with broader spatial
+% structure. Mention DUACS dataset as a possible constraint.

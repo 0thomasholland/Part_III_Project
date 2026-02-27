@@ -17,12 +17,6 @@ from pyslfp import (
     averaging_operator,
     plot,
 )
-from pyslfp_extras.helpers import (
-    get_ocean_point_coordinates,
-)
-from pyslfp_extras.operators import (
-    ocean_point_evaluation_operator,
-)
 from tqdm import tqdm
 
 from project import (
@@ -34,6 +28,7 @@ from project.operators import (
     ice_thickness_to_ssh_operator,
     ice_thickness_to_ssh_point_estimations_operator,
 )
+from pyslfp_extras.altimetry import GridPoints
 from pyslfp_extras.gmsl import (
     altimetry_gmsl,
     gmsl_from_ice_thickness_operator,
@@ -75,16 +70,12 @@ ice_thickness_to_ssh_point_estimations_op: LinearOperator = ice_thickness_to_ssh
     finger_print_operator=fp_op,
     altimetry_latitude_range=66.0,
     point_degree_spacing=altimetry_degree_density,
-    parallel_workers=-1,
 )
 
-points: tuple[list[float], list[float]] = (
-    get_ocean_point_coordinates(
-        finger_print=fp,
-        point_degree_spacing=altimetry_degree_density,
-        altimetry_latitude_range=66.0,
-        parallel_workers=-1,
-    )
+grid_points = GridPoints.ocean_altimetry(
+    fp,
+    degree_spacing=altimetry_degree_density,
+    latitude_range=66.0,
 )
 
 
@@ -109,12 +100,11 @@ error_field_measure: GaussianMeasure = (
 )
 
 error_sampling_points = error_field_measure.affine_mapping(
-    operator=ocean_point_evaluation_operator(
-        finger_print=fp,
-        measurement_space=error_field_measure.domain,
-        point_degree_spacing=altimetry_degree_density,
-        altimetry_latitude_range=66.0,
-    )
+    operator=GridPoints.ocean_altimetry(
+        fp,
+        degree_spacing=altimetry_degree_density,
+        latitude_range=66.0,
+    ).point_evaluation_operator(error_field_measure.domain)
 )
 
 
@@ -173,16 +163,13 @@ precon_ice_thickness_measure: GaussianMeasure = (
 
 # Check that the full-resolution ocean points are also ocean points
 # on the lower-resolution preconditioner grid.
-precon_ocean_points = get_ocean_point_coordinates(
-    finger_print=precon_fp,
-    point_degree_spacing=altimetry_degree_density,
-    altimetry_latitude_range=66.0,
-    parallel_workers=-1,
+precon_grid_points = GridPoints.ocean_altimetry(
+    precon_fp,
+    degree_spacing=altimetry_degree_density,
+    latitude_range=66.0,
 )
-precon_ocean_set = set(
-    zip(precon_ocean_points[0], precon_ocean_points[1])
-)
-full_ocean_set = set(zip(points[0], points[1]))
+precon_ocean_set = set(precon_grid_points.coords)
+full_ocean_set = set(grid_points.coords)
 points_not_in_precon_ocean = (
     full_ocean_set - precon_ocean_set
 )
@@ -211,7 +198,7 @@ precon_ssh_op = ice_thickness_to_ssh_operator(
 )
 precon_point_eval_op = (
     precon_ssh_op.codomain.point_evaluation_operator(
-        list(zip(points[0], points[1]))
+        grid_points.coords
     )
 )
 precon_forward_op: LinearOperator = (

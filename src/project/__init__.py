@@ -4,6 +4,9 @@ This package provides tools for analyzing sea level changes using
 Gaussian measures and pyslfp FingerPrint objects.
 """
 
+from project.factored_forward_operator import (
+    build_factored_forward_operator,
+)
 from project.operators import (
     ice_thickness_to_slc_operator,
 )
@@ -22,4 +25,5 @@ __all__ = [
     "mean_squared_error",
     "error_plot",
     "ice_thickness_to_slc_operator",
+    "build_factored_forward_operator",
 ]

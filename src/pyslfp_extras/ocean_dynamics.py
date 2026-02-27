@@ -14,6 +14,7 @@ from pygeoinf import (
 from pyshtools import SHGrid
 from pyslfp import (
     FingerPrint,
+    averaging_operator,
     ocean_projection_operator,
     remove_ocean_average_operator,
     sea_level_change_to_load_operator,
@@ -21,8 +22,12 @@ from pyslfp import (
     spatial_mutliplication_operator,
 )
 
+from pyslfp_extras.gmsl import (
+    GMSLOperatorBase,
+)
 
-class OceanDynamics:
+
+class OceanDynamics(GMSLOperatorBase):
     """Gaussian measures for non-ice ocean dynamic topography (ODT) SSH variability.
 
     Models the spatial structure of SSH variability not attributable to ice-sheet
@@ -33,6 +38,13 @@ class OceanDynamics:
     measure, scaled to a target pointwise std, multiplied by a normalised [0,1]
     spatial weight field from the chosen pattern. All patterns expose the same
     contract: `spatial_field()` returns weights in [0,1] over ocean points.
+
+    The internal chain is:
+
+        base measure → height (ocean, weighted, zero-avg) → load
+                                                          → SSH (direct + fingerprint)
+
+    Height and load/SSH branch from the same point, ensuring consistent samples.
 
     Parameters
     ----------
@@ -48,13 +60,20 @@ class OceanDynamics:
     pattern:
         An OceanDynamics.VariabilityPattern instance providing normalised [0,1]
         spatial weights. If None, UniformPattern() is used.
+    altimetry_latitude_range:
+        Latitude cutoff for altimetry coverage used in SSH/GMSL estimates.
+        Default 66.0.
+    point_degree_spacing:
+        Degree spacing for point-altimetry sampling. Default 5.0.
+    parallel_workers:
+        Optional thread count for point sampling.
 
     Examples
     --------
     >>> od = OceanDynamics(fp, op, std=0.003)
     >>> od_data = OceanDynamics(fp, op, std=0.005, pattern=OceanDynamics.DataPattern())
     >>> od_synth = OceanDynamics(fp, op, pattern=OceanDynamics.SyntheticPattern())
-    >>> sample = od.load_measure.sample()
+    >>> load_sample, ssh_sample = od.sample()
     """
 
     # -----------------------------------------------------------------------
@@ -227,36 +246,56 @@ class OceanDynamics:
             return grid
 
     class DataPattern(VariabilityPattern):
-        """Spatial weights loaded from a pre-computed SHGrid data file.
+        """Spatial weights loaded from a pre-computed altimetry field.
 
-        Loads a .npy field from the package's data/ directory, masks to
-        ocean, then normalises to [0,1] over ocean points.
+        Loads an NPZ field from the package's data/altimetry directory,
+        masks to ocean, then normalises to [0,1] over ocean points. When
+        no filename is provided, the lmax is inferred from the fingerprint
+        and the file `sla_diff_std_lmax{lmax}.npz` is selected.
 
         Parameters
         ----------
         filename:
-            Name of the .npy file within the package data/ directory.
-            Default 'odt_variability.npy'.
+            Optional file name within package data/altimetry. If None,
+            uses the inferred lmax to load `sla_diff_std_lmax{lmax}.npz`.
         """
 
-        def __init__(
-            self, filename: str = "odt_variability.npy"
-        ):
+        def __init__(self, filename: Optional[str] = None):
             self.filename = filename
 
         def spatial_field(
             self, finger_print: FingerPrint
         ) -> SHGrid:
-            # Load from package data/ directory
-            data_path = resources.files(
-                __package__
-            ).joinpath(f"data/{self.filename}")
-            raw = np.load(str(data_path))
+            if self.filename is not None:
+                data_path = resources.files(
+                    __package__
+                ).joinpath(
+                    f"data/altimetry/{self.filename}"
+                )
+            else:
+                lmax = finger_print.lmax
+                data_path = resources.files(
+                    __package__
+                ).joinpath(
+                    f"data/altimetry/sla_diff_std_lmax{lmax}.npz"
+                )
 
-            # Mask to ocean
+            with np.load(str(data_path)) as data:
+                if "sla_diff_std" not in data:
+                    raise KeyError(
+                        "Expected key 'sla_diff_std' in altimetry NPZ."
+                    )
+                raw = data["sla_diff_std"]
+
             ocean_mask = finger_print.ocean_projection(
                 value=0
             ).to_array()
+
+            if raw.shape != ocean_mask.shape:
+                raise ValueError(
+                    "Altimetry field shape does not match fingerprint grid."
+                )
+
             field = raw * ocean_mask
 
             # Normalise to [0,1] over ocean points only
@@ -286,7 +325,16 @@ class OceanDynamics:
         std: float = 0.003,
         length_scale: Optional[float] = 5000,
         pattern: Optional[VariabilityPattern] = None,
+        altimetry_latitude_range: float = 66.0,
+        point_degree_spacing: float = 5.0,
+        parallel_workers: None | int = None,
     ):
+        super().__init__(
+            finger_print,
+            finger_print_operator,
+            altimetry_latitude_range=altimetry_latitude_range,
+            point_degree_spacing=point_degree_spacing,
+        )
         self._fp = finger_print
         self._op = finger_print_operator
         self._std = std
@@ -298,7 +346,7 @@ class OceanDynamics:
         )
 
     # -----------------------------------------------------------------------
-    # Shared internals
+    # Operators
     # -----------------------------------------------------------------------
 
     @cached_property
@@ -313,49 +361,81 @@ class OceanDynamics:
         )
 
     @cached_property
-    def _spatial_weights(self) -> SHGrid:
-        return self._pattern.spatial_field(self._fp)
-
-    @cached_property
-    def _spatial_op(self) -> LinearOperator:
-        return spatial_mutliplication_operator(
-            self._spatial_weights, self._load_space
+    def _height_op(self) -> LinearOperator:
+        """Base measure space → ocean-projected, spatially weighted, zero-average height."""
+        spatial_op = spatial_mutliplication_operator(
+            self._pattern.spatial_field(self._fp),
+            self._load_space,
         )
+        ocean_proj_op = ocean_projection_operator(
+            self._fp, self._load_space
+        )
+        remove_avg_op = remove_ocean_average_operator(
+            self._fp, self._load_space
+        )
+        return remove_avg_op @ spatial_op @ ocean_proj_op
 
     @cached_property
-    def _ocean_proj_op(self) -> LinearOperator:
-        return ocean_projection_operator(
+    def _height_to_load_op(self) -> LinearOperator:
+        """Physical height change → equivalent mass load."""
+        return sea_level_change_to_load_operator(
             self._fp, self._load_space
         )
 
     @cached_property
-    def _remove_avg_op(self) -> LinearOperator:
-        return remove_ocean_average_operator(
-            self._fp, self._load_space
-        )
+    def _height_to_ssh_op(self) -> LinearOperator:
+        """Physical height change → total SSH (direct change + fingerprint response).
 
-    @cached_property
-    def _combined_op(self) -> LinearOperator:
-        """Ocean projection → spatial weights → remove ocean average."""
-        return (
-            self._remove_avg_op
-            @ self._spatial_op
-            @ self._ocean_proj_op
-        )
-
-    @cached_property
-    def _load_to_ssh_op(self) -> LinearOperator:
-        """Maps load to total SSH: physical height change plus fingerprint response."""
-        load_op = sea_level_change_to_load_operator(
-            self._fp, self._load_space
-        )
+        The fingerprint response accounts for the gravitational, rotational,
+        and deformational effects of the redistributed ocean mass on the
+        sea surface. The total SSH is the sum of the direct height change
+        and this indirect response.
+        """
         ssh_op = sea_surface_height_operator(
             self._fp, self._op.codomain
         )
-        fingerprint_op = ssh_op @ self._op @ load_op
+        fingerprint_response = (
+            ssh_op @ self._op @ self._height_to_load_op
+        )
         return (
-            fingerprint_op
+            fingerprint_response
             + self._load_space.identity_operator()
+        )
+
+    @cached_property
+    def _load_to_ssh_operator(self) -> LinearOperator:
+        """Height (= load) space → total SSH. Satisfies GMSLOperatorBase contract.
+
+        For ODT, the 'load space' is the same Hilbert space as the height space,
+        so this delegates directly to _height_to_ssh_op.
+        """
+        return self._height_to_ssh_op
+
+    @cached_property
+    def _height_to_slc_op(self) -> LinearOperator:
+        """Physical height change → sea level change (fingerprint response).
+
+        Converts height to an equivalent mass load, then applies the fingerprint
+        operator to obtain the sea level change field. Analogous to
+        IceSheetChange.load_to_slc_operator.
+        """
+        return self._op @ self._height_to_load_op
+
+    @cached_property
+    def _gmsl_operator(self) -> LinearOperator:
+        """Maps from the base measure space to scalar GMSL."""
+        ocean_projection = self._fp.ocean_projection(
+            value=0
+        )
+        weighting = ocean_projection / self._fp.integrate(
+            ocean_projection
+        )
+        return (
+            averaging_operator(
+                self._height_to_ssh_op.codomain, [weighting]
+            )
+            @ self._height_to_ssh_op
+            @ self._height_op
         )
 
     # -----------------------------------------------------------------------
@@ -363,23 +443,37 @@ class OceanDynamics:
     # -----------------------------------------------------------------------
 
     @cached_property
-    def load_measure(self) -> GaussianMeasure:
-        """Gaussian measure for ODT variability on the load space.
+    def height_measure(self) -> GaussianMeasure:
+        """ODT variability as physical height change.
 
-        Projected onto the ocean, zero ocean average, spatially weighted
-        by the chosen pattern, scaled to the target pointwise std.
+        Ocean-projected, spatially weighted by the chosen pattern,
+        with zero ocean average, scaled to the target pointwise std.
         """
         return self._base_measure.affine_mapping(
-            operator=self._combined_op
+            operator=self._height_op
+        )
+
+    @cached_property
+    def load_measure(self) -> GaussianMeasure:
+        """ODT variability as equivalent mass load."""
+        return self.height_measure.affine_mapping(
+            operator=self._height_to_load_op
         )
 
     @cached_property
     def ssh_measure(self) -> GaussianMeasure:
-        """Gaussian measure for the total SSH contribution from ODT.
-
-        Includes both the physical height change and the gravitationally-induced
-        fingerprint SSH response.
-        """
-        return self.load_measure.affine_mapping(
-            operator=self._load_to_ssh_op
+        """Total SSH from ODT (direct height change + fingerprint response)."""
+        return self.height_measure.affine_mapping(
+            operator=self._height_to_ssh_op
         )
+
+    # -----------------------------------------------------------------------
+    # Sampling
+    # -----------------------------------------------------------------------
+
+    def sample(self) -> tuple[SHGrid, SHGrid]:
+        """Draw consistent load and SSH samples from a single height realisation."""
+        height_sample = self.height_measure.sample()
+        load_sample = self._height_to_load_op(height_sample)
+        ssh_sample = self._height_to_ssh_op(height_sample)
+        return (load_sample, ssh_sample)
