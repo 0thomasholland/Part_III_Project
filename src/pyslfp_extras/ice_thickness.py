@@ -262,7 +262,6 @@ class IceSheetChange(IceThicknessGMSLOperators):
         gmsl_target_mean: float = 0.0,
         altimetry_latitude_range: float = 66.0,
         point_degree_spacing: float = 5.0,
-        parallel_workers: None | int = None,
         ice_density: Optional[float] = None,
         firn_density: Optional[float] = None,
     ):
@@ -271,7 +270,6 @@ class IceSheetChange(IceThicknessGMSLOperators):
             finger_print_operator,
             altimetry_latitude_range=altimetry_latitude_range,
             point_degree_spacing=point_degree_spacing,
-            parallel_workers=parallel_workers,
         )
         self._fp = finger_print
         self._op = finger_print_operator
