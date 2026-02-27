@@ -42,8 +42,8 @@ fp_op = fp.as_sobolev_linear_operator(
     2, fp.mean_sea_floor_radius * 0.1
 )
 
-dir = "figs_fac"
-measure_error_std = 0.0005
+dir = "figs_fac_5"
+measure_error_std = 0.0001
 
 ice = IceSheetChange.global_ice(
     finger_print=fp,
@@ -88,8 +88,8 @@ model_prior = GaussianMeasure.from_direct_sum(
 # Observation points
 # =============================================================================
 
-ssh_altimetry = GridPoints.ocean_altimetry(fp, 10.0, 66.0)
-ice_altimetry = GridPoints.ice(fp, 10.0)
+ssh_altimetry = GridPoints.ocean_altimetry(fp, 5.0, 66.0)
+ice_altimetry = GridPoints.ice(fp, 5.0)
 
 lats, lons = read_gloss_tide_gauge_data()
 
@@ -97,22 +97,22 @@ lats, lons = read_gloss_tide_gauge_data()
 filtered_lats = lats.copy()
 filtered_lons = lons.copy()
 
-for i in range(len(lats)):
-    for j in range(i + 1, len(lats)):
-        if (
-            abs(lats[i] - lats[j]) < 8.0
-            and abs(lons[i] - lons[j]) < 8.0
-        ):
-            # Remove the second point (j) if it's too close to the first point (i)
-            filtered_lats[j] = None
-            filtered_lons[j] = None
+# for i in range(len(lats)):
+#     for j in range(i + 1, len(lats)):
+#         if (
+#             abs(lats[i] - lats[j]) < 8.0
+#             and abs(lons[i] - lons[j]) < 8.0
+#         ):
+#             # Remove the second point (j) if it's too close to the first point (i)
+#             filtered_lats[j] = None
+#             filtered_lons[j] = None
 
-filtered_lats = [
-    lat for lat in filtered_lats if lat is not None
-]
-filtered_lons = [
-    lon for lon in filtered_lons if lon is not None
-]
+# filtered_lats = [
+#     lat for lat in filtered_lats if lat is not None
+# ]
+# filtered_lons = [
+#     lon for lon in filtered_lons if lon is not None
+# ]
 
 
 tide_gauge_points = list(zip(filtered_lats, filtered_lons))
@@ -219,9 +219,9 @@ precon_model_prior = GaussianMeasure.from_direct_sum(
 # =============================================================================
 
 precon_ssh_altimetry = GridPoints.ocean_altimetry(
-    precon_fp, 10.0, 66.0
+    precon_fp, 5.0, 66.0
 )
-precon_ice_altimetry = GridPoints.ice(precon_fp, 10.0)
+precon_ice_altimetry = GridPoints.ice(precon_fp, 5.0)
 
 precon_ssh_ocean_set = set(precon_ssh_altimetry.coords)
 full_ssh_ocean_set = set(ssh_altimetry.coords)
