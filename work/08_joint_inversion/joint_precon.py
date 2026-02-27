@@ -38,6 +38,8 @@ fp_op = fp.as_sobolev_linear_operator(
     2, fp.mean_sea_floor_radius * 0.1
 )
 
+measure_error_std = 0.0005
+
 ice = IceSheetChange.global_ice(
     finger_print=fp,
     finger_print_operator=fp_op,
@@ -179,23 +181,16 @@ model_space_to_slc_operator = RowLinearOperator(
     ]
 )
 
-model_space_to_ice_thickness_operator = RowLinearOperator(
-    [
-        ice.ice_thickness_to_load_operator,
-        ice.firn_thickness_to_load_operator,
-        odt.height_measure.domain.zero_operator(),
-    ]
-)
 
 # %%
 # =============================================================================
 # Data error and forward problem
 # =============================================================================
 
-std_dev = 0.002
+
 data_error_measure = (
     GaussianMeasure.from_standard_deviation(
-        data_space, std_dev
+        data_space, measure_error_std
     )
 )
 
@@ -381,11 +376,10 @@ precon_forward_operator = BlockLinearOperator(
 # Form the preconditioner inverse via eigen-decomposition
 # =============================================================================
 
-precon_std_dev = 0.005
 
 precon_data_error_measure = (
     GaussianMeasure.from_standard_deviation(
-        data_space, std_dev
+        data_space, measure_error_std
     )
 )
 
@@ -614,3 +608,63 @@ ax6.set_title(
 )
 
 plt.show()
+
+
+# %%
+# operator that maps from the model space to slc
+
+slc_true = model_space_to_slc_operator(model_true)
+slc_posterior_expectation = model_space_to_slc_operator(
+    model_posterior_expectation
+)
+
+# plot
+#
+max_abs_sl_change = (
+    np.nanmax(
+        np.abs(
+            np.concatenate(
+                [
+                    (
+                        slc_true * fp.ocean_projection()
+                    ).data.flatten(),
+                    (
+                        slc_posterior_expectation
+                        * fp.ocean_projection()
+                    ).data.flatten(),
+                ]
+            )
+        )
+    )
+    * 1000
+    * fp.length_scale
+)
+
+
+fig7, ax7, im7 = plot(
+    1000
+    * slc_true
+    * fp.length_scale
+    * fp.ocean_projection(),
+    coasts=True,
+    cmap="seismic",
+    vmin=-max_abs_sl_change,
+    vmax=max_abs_sl_change,
+    colorbar_label="Sea Level Change (mm)",
+)
+ax7.set_title("g) True Sea-Level Change")
+
+fig8, ax8, im8 = plot(
+    1000
+    * slc_posterior_expectation
+    * fp.length_scale
+    * fp.ocean_projection(),
+    coasts=True,
+    cmap="seismic",
+    vmin=-max_abs_sl_change,
+    vmax=max_abs_sl_change,
+    colorbar_label="Sea Level Change (mm)",
+)
+ax8.set_title(
+    "h) Posterior Expectation (Inferred from Data)"
+)
