@@ -42,6 +42,7 @@ fp_op = fp.as_sobolev_linear_operator(
     2, fp.mean_sea_floor_radius * 0.1
 )
 
+dir = "figs_fac"
 measure_error_std = 0.0005
 
 ice = IceSheetChange.global_ice(
@@ -347,7 +348,7 @@ model_posterior_measure = (
     bayesian_inversion.model_posterior_measure(
         data,
         CGMatrixSolver(
-            callback=progress_callback, maxiter=100
+            callback=progress_callback, maxiter=300
         ),
         preconditioner=precon_inverse_normal_operator,
     )
@@ -364,7 +365,9 @@ plt.title("Convergence of CG Solver")
 plt.xlabel("Iteration")
 plt.ylabel("Norm of Solution ($||x_k||$)")
 plt.grid(True, which="both", ls="-", alpha=0.5)
-plt.savefig("figs/joint_precon_cg_convergence.png", dpi=600)
+plt.savefig(
+    f"{dir}/joint_precon_cg_convergence.png", dpi=600
+)
 
 model_posterior_expectation = (
     model_posterior_measure.expectation
@@ -510,7 +513,7 @@ fig5, ax5, im5 = plot(
     cmap="seismic",
     vmin=-max_abs_odt_height_change,
     vmax=max_abs_odt_height_change,
-    colorbar_label="Ocean Height Change (mm)",
+    colorbar_label="ODT Height Change (mm)",
 )
 ax5.set_title("e) True Ocean Height Change")
 fig5.tight_layout()
@@ -524,7 +527,7 @@ fig6, ax6, im6 = plot(
     cmap="seismic",
     vmin=-max_abs_odt_height_change,
     vmax=max_abs_odt_height_change,
-    colorbar_label="Ocean Height Change (mm)",
+    colorbar_label="ODT Height Change (mm)",
 )
 ax6.set_title(
     "f) Posterior Expectation (Inferred from Data)"
@@ -592,8 +595,47 @@ ax8.set_title(
 )
 fig8.tight_layout()
 
+
 # %%
-dir = "figs_fac"
+
+# map from model space to total ice and firn load
+
+total_load = ice.ice_thickness_to_load_operator(
+    ice_thickness_true
+) + ice.firn_thickness_to_load_operator(firn_thickness_true)
+
+total_load_posterior = ice.ice_thickness_to_load_operator(
+    ice_thickness_posterior_expectation
+) + ice.firn_thickness_to_load_operator(
+    firn_thickness_posterior_expectation
+)
+
+fig9, ax9, im9 = plot(
+    total_load * fp.ice_projection(),
+    coasts=True,
+    cmap="seismic",
+    vmin=-max_abs_ice_change,
+    vmax=max_abs_ice_change,
+    colorbar_label="Total Ice+Firn Load Change (kg)",
+)
+ax9.set_title("i) True Total Ice+Firn Load Change")
+fig9.tight_layout()
+
+fig10, ax10, im10 = plot(
+    total_load_posterior * fp.ice_projection(),
+    coasts=True,
+    cmap="seismic",
+    vmin=-max_abs_ice_change,
+    vmax=max_abs_ice_change,
+    colorbar_label="Total Ice+Firn Load Change (kg)",
+)
+ax10.set_title(
+    "j) Posterior Expectation of Total Ice+Firn Load Change"
+)
+fig10.tight_layout()
+
+# %%
+
 fig1.savefig(
     f"{dir}/joint_precon_ice_thickness.png", dpi=600
 )
@@ -615,4 +657,8 @@ fig6.savefig(
 fig7.savefig(f"{dir}/joint_precon_slc.png", dpi=600)
 fig8.savefig(
     f"{dir}/joint_precon_slc_posterior.png", dpi=600
+)
+fig9.savefig(f"{dir}/joint_precon_total_load.png", dpi=600)
+fig10.savefig(
+    f"{dir}/joint_precon_total_load_posterior.png", dpi=600
 )
