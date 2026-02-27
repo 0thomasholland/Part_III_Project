@@ -347,7 +347,7 @@ model_posterior_measure = (
     bayesian_inversion.model_posterior_measure(
         data,
         CGMatrixSolver(
-            callback=progress_callback, maxiter=25
+            callback=progress_callback, maxiter=100
         ),
         preconditioner=precon_inverse_normal_operator,
     )
