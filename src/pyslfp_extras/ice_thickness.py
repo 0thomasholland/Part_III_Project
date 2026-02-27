@@ -281,7 +281,7 @@ class IceSheetChange(IceThicknessGMSLOperators):
         self._firn_gmsl_std = (
             firn_gmsl_std
             if firn_gmsl_std is not None
-            else 0.8 * ice_gmsl_std
+            else self._ice_gmsl_std
         )
         self._gmsl_target_mean = gmsl_target_mean
 
@@ -294,7 +294,7 @@ class IceSheetChange(IceThicknessGMSLOperators):
         self.firn_density = (
             firn_density
             if firn_density is not None
-            else self._fp.ice_density * 0.5
+            else self.ice_density * 0.5
         )
 
     # -----------------------------------------------------------------------
