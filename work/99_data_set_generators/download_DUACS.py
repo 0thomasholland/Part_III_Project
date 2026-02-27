@@ -48,7 +48,7 @@ TIME_START = "1993-01-01"
 TIME_END = "2024-12-31"
 
 # Spherical harmonic truncation degrees to produce
-LMAX_VALUES = [512, 256, 128, 64]
+LMAX_VALUES = [512, 256, 128, 64, 32]
 
 # Preferred variables (in order of preference).
 # The DT2024 reprocessing renamed some variables, so we try candidate names.
