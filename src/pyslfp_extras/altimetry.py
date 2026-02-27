@@ -273,7 +273,7 @@ class GridPoints:
         )
 
     @classmethod
-    def altimetry(
+    def ocean_altimetry(
         cls,
         finger_print: FingerPrint,
         degree_spacing: float = 5.0,

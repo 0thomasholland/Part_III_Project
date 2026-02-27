@@ -76,14 +76,12 @@ def ice_thickness_to_ssh_point_estimations_operator(
     finger_print_operator: LinearOperator,
     altimetry_latitude_range: float = 66.0,
     point_degree_spacing: float = 5.0,
-    parallel_workers: None | int = None,
 ) -> LinearOperator:
     return IceThicknessGMSLOperators(
         finger_print,
         finger_print_operator,
         altimetry_latitude_range=altimetry_latitude_range,
         point_degree_spacing=point_degree_spacing,
-        parallel_workers=parallel_workers,
     ).load_to_ssh_point_estimations_operator
 
 

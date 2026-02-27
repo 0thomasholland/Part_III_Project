@@ -27,14 +27,9 @@ from project.operators import (
     ice_thickness_to_ssh_operator,
 )
 from pygeoinf_extras import expectation, standard_dev
-from pyslfp_extras.helpers import (
-    get_ocean_point_coordinates,
-)
+from pyslfp_extras.altimetry import GridPoints
 from pyslfp_extras.ice_thickness import (
     IceSheetChange,
-)
-from pyslfp_extras.operators import (
-    ocean_point_evaluation_operator,
 )
 
 # %%
@@ -52,30 +47,22 @@ ice_change = IceSheetChange.global_ice(
     ice_gmsl_std=0.001,
     gmsl_target_mean=0.01,
 )
-ice_thickness_measure: GaussianMeasure = (
-    ice_change.ice_thickness_measure
-)
 
-ssh_operator = ice_thickness_to_ssh_operator(
-    finger_print=fp,
-    finger_print_operator=fp_op,
-)
-
-ssh: GaussianMeasure = ice_thickness_measure.affine_mapping(
-    operator=ssh_operator,
-)
+samples = ice_change.sample()
 
 # %%
-fig, ax, im = plot(ssh.sample()*fp.altimetry_projection())
-points = get_ocean_point_coordinates(
+fig, ax, im = plot(
+    samples.total_ssh * fp.altimetry_projection()
+)
+grid_points = GridPoints.ocean_altimetry(
     fp,
-    point_degree_spacing=30.0,
-    altimetry_latitude_range=66.0,
+    degree_spacing=30.0,
+    latitude_range=66.0,
 )
 
 ax.plot(
-    points[1],
-    points[0],
+    grid_points.lons,
+    grid_points.lats,
     "w^",
     transform=ccrs.PlateCarree(),
 )
@@ -84,14 +71,24 @@ ax.plot(
 
 measurement_space = ssh_operator.codomain
 
-point_op = ocean_point_evaluation_operator(
-    fp,
-    measurement_space,
-    point_degree_spacing=30.0,
-    altimetry_latitude_range=66.0,
+point_op = grid_points.point_evaluation_operator(
+    measurement_space
 )
 
 point_measure = ssh.affine_mapping(operator=point_op)
 
 print(point_measure.sample())
 print(point_measure.domain.dim)
+
+# %%
+fig, ax, im = plot(
+    samples.total_thickness * fp.ice_projection()
+)
+ice_grid_points = GridPoints.ice(fp, 10.0)
+
+ax.plot(
+    ice_grid_points.lons,
+    ice_grid_points.lats,
+    "w.",
+    transform=ccrs.PlateCarree(),
+)

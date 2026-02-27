@@ -1,6 +1,4 @@
 # %%
-from time import perf_counter
-from turtle import color
 
 import colorcet as cc
 from matplotlib import pyplot as plt
@@ -131,20 +129,3 @@ plot(
 )
 
 # %%
-t1 = perf_counter()
-a = samples.ice_thickness
-fig = a.plotgmt(
-    projection="Robinson",
-    cmap="abyss",
-    colorbar="bottom",
-)
-fig.show()
-t2 = perf_counter()
-plot(
-    samples.ice_thickness * fp.ice_projection(),
-    cmap="Blues",
-    symmetric=True,
-)
-t3 = perf_counter()
-print(f"GMT: {t2 - t1:.2f} seconds")
-print(f"Matplotlib: {t3 - t2:.2f} seconds")

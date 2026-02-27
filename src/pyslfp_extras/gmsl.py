@@ -27,7 +27,7 @@ from pygeoinf_extras.operators import (
     point_averaging_operator,
 )
 from pyslfp_extras.altimetry import (
-    ocean_point_evaluation_operator,
+    GridPoints,
 )
 
 
@@ -45,7 +45,6 @@ class GMSLOperatorBase(ABC):
         finger_print_operator: LinearOperator,
         altimetry_latitude_range: float = 66.0,
         point_degree_spacing: float = 5.0,
-        parallel_workers: None | int = None,
     ) -> None:
         self._fp = finger_print
         self._op = finger_print_operator
@@ -53,7 +52,6 @@ class GMSLOperatorBase(ABC):
             altimetry_latitude_range
         )
         self._point_degree_spacing = point_degree_spacing
-        self._parallel_workers = parallel_workers
 
     @property
     def finger_print(self) -> FingerPrint:
@@ -70,10 +68,6 @@ class GMSLOperatorBase(ABC):
     @property
     def point_degree_spacing(self) -> float:
         return self._point_degree_spacing
-
-    @property
-    def parallel_workers(self) -> None | int:
-        return self._parallel_workers
 
     @cached_property
     def _altimetry_projection(self) -> SHGrid:
@@ -147,13 +141,11 @@ class GMSLOperatorBase(ABC):
         self,
     ) -> LinearOperator:
         """Load -> SSH evaluated at altimetry sampling points."""
-        point_op = ocean_point_evaluation_operator(
+        point_op = GridPoints.ocean_altimetry(
             self._fp,
-            self._ssh_space,
-            point_degree_spacing=self._point_degree_spacing,
-            altimetry_latitude_range=self._altimetry_latitude_range,
-            parallel_workers=self._parallel_workers,
-        )
+            degree_spacing=self._point_degree_spacing,
+            latitude_range=self._altimetry_latitude_range,
+        ).point_evaluation_operator(self._ssh_space)
         return (
             point_op @ self.load_to_altimetry_ssh_operator
         )
