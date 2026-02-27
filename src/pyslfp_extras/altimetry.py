@@ -18,9 +18,9 @@ class GridPoints:
         Spacing between evaluation points in degrees, by default 5.0.
     threshold : float, optional
         Minimum value from the SH expansion to classify a point as valid,
-        by default 0.5. The projection is a binary mask (0/1), but the SH
-        expansion can produce Gibbs-ringing artefacts near boundaries, so
-        a threshold of 0.5 cleanly separates the two classes.
+        by default 0.5. The projection is a binary mask (0/1), but
+        a threshold of 0.5 cleanly separates the two classes incase of any
+        artifacting.
     """
 
     def __init__(
