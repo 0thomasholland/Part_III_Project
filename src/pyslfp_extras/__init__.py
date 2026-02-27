@@ -4,6 +4,7 @@ Extensions to pyslfp.
 """
 
 from pyslfp_extras.altimetry import (
+    GridPoints,
     altimetry_error_gaussian_measure,
 )
 from pyslfp_extras.gmsl import (

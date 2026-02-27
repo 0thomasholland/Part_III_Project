@@ -1,11 +1,10 @@
-from pygeoinf import (
-    GaussianMeasure,
-    HilbertSpace,
-    LinearOperator,
-)
-from pygeoinf.symmetric_space.sphere import Sobolev
+from __future__ import annotations
+
+import numpy as np
+from pygeoinf import HilbertSpace, LinearOperator
 from pyslfp import FingerPrint
 
+"""
 
 def get_ocean_point_coordinates(
     finger_print: FingerPrint,
@@ -13,7 +12,7 @@ def get_ocean_point_coordinates(
     altimetry_latitude_range: float = 66.0,
     parallel_workers: None | int = None,
 ) -> tuple[list[float], list[float]]:
-    """
+
     Returns the latitude and longitude coordinates of ocean points on the Earth's
     surface, as determined by the provided `FingerPrint`. Points are selected
     based on the ocean and altimetry projections at the specified degree spacing.
@@ -29,7 +28,7 @@ def get_ocean_point_coordinates(
     -------
     tuple[list[float], list[float]]
         A tuple of (latitudes, longitudes) for ocean points
-    """
+
     mask = (
         finger_print.ocean_projection(value=0)
         * finger_print.altimetry_projection(
@@ -96,13 +95,13 @@ def ocean_point_evaluation_operator(
     altimetry_latitude_range: float = 66.0,
     parallel_workers: None | int = None,
 ) -> LinearOperator:
-    """
+
     Constructs a linear operator that evaluates the ocean surface height at
     specific points on the Earth's surface, as determined by the provided
     `FingerPrint`. The operator is designed to only evaluate points that are
     classified as ocean according to the `FingerPrint`'s ocean and altimetry
     projections.
-    """
+
     ocean_coords = get_ocean_point_coordinates(
         finger_print,
         point_degree_spacing=point_degree_spacing,
@@ -116,6 +115,8 @@ def ocean_point_evaluation_operator(
         ocean_coords
     )
     return _op
+
+"""
 
 
 def altimetry_error_gaussian_measure(
@@ -162,3 +163,140 @@ def altimetry_error_gaussian_measure(
         )
 
     return base_measure
+
+
+class GridPoints:
+    """
+    Represents a set of grid points on the Earth's surface filtered by
+    a projection mask.
+
+    Parameters
+    ----------
+    projection : pyshtools.SHGrid
+        A projection grid (e.g. from ``fp.ocean_projection(value=0)``).
+    degree_spacing : float, optional
+        Spacing between evaluation points in degrees, by default 5.0.
+    threshold : float, optional
+        Minimum value from the SH expansion to classify a point as valid,
+        by default 0.5. The projection is a binary mask (0/1), but the SH
+        expansion can produce Gibbs-ringing artefacts near boundaries, so
+        a threshold of 0.5 cleanly separates the two classes.
+    """
+
+    def __init__(
+        self,
+        projection,
+        degree_spacing: float = 5.0,
+        threshold: float = 0.5,
+    ):
+        self._degree_spacing = degree_spacing
+        self._threshold = threshold
+        self._lats, self._lons = self._compute_points(
+            projection
+        )
+
+    def _compute_points(
+        self, projection
+    ) -> tuple[list[float], list[float]]:
+        # Build the regular grid of candidate points.
+        target_lats = np.arange(
+            90,
+            -90 - self._degree_spacing,
+            -self._degree_spacing,
+        )
+        target_lons = np.arange(
+            0, 360, self._degree_spacing
+        )
+        lon_grid, lat_grid = np.meshgrid(
+            target_lons, target_lats
+        )
+        flat_lats = lat_grid.ravel()
+        flat_lons = lon_grid.ravel()
+
+        # Evaluate the projection mask at every candidate point via SH expansion.
+        coeffs = projection.expand()
+        values = coeffs.expand(lat=flat_lats, lon=flat_lons)
+
+        # Filter: projection values near 1 indicate valid points.
+        valid = values >= self._threshold
+
+        return flat_lats[valid].tolist(), flat_lons[
+            valid
+        ].tolist()
+
+    @property
+    def lats(self) -> list[float]:
+        """Latitudes of the filtered grid points."""
+        return self._lats
+
+    @property
+    def lons(self) -> list[float]:
+        """Longitudes of the filtered grid points."""
+        return self._lons
+
+    @property
+    def coords(self) -> list[tuple[float, float]]:
+        """List of (latitude, longitude) tuples for the filtered grid points."""
+        return list(zip(self._lats, self._lons))
+
+    def point_evaluation_operator(
+        self, measurement_space: HilbertSpace
+    ) -> LinearOperator:
+        """
+        Constructs a linear operator that evaluates the surface height at
+        the filtered grid points.
+        """
+        return measurement_space.point_evaluation_operator(
+            self.coords
+        )
+
+    def __len__(self) -> int:
+        return len(self._lats)
+
+    def __repr__(self) -> str:
+        return f"GridPoints(n_points={len(self)}, degree_spacing={self._degree_spacing})"
+
+    # ------------------------------------------------------------------ #
+    #  Factory methods for common projections                             #
+    # ------------------------------------------------------------------ #
+
+    @classmethod
+    def ocean(
+        cls,
+        finger_print: FingerPrint,
+        degree_spacing: float = 5.0,
+    ) -> GridPoints:
+        """Grid points over the ocean."""
+        projection = finger_print.ocean_projection(value=0)
+        return cls(
+            projection, degree_spacing=degree_spacing
+        )
+
+    @classmethod
+    def altimetry(
+        cls,
+        finger_print: FingerPrint,
+        degree_spacing: float = 5.0,
+        latitude_range: float = 66.0,
+    ) -> GridPoints:
+        """Grid points within the altimetry coverage band."""
+        projection = finger_print.altimetry_projection(
+            latitude_max=latitude_range,
+            latitude_min=-latitude_range,
+            value=0,
+        )
+        return cls(
+            projection, degree_spacing=degree_spacing
+        )
+
+    @classmethod
+    def ice(
+        cls,
+        finger_print: FingerPrint,
+        degree_spacing: float = 5.0,
+    ) -> GridPoints:
+        """Grid points over ice regions."""
+        projection = finger_print.ice_projection(value=0)
+        return cls(
+            projection, degree_spacing=degree_spacing
+        )
