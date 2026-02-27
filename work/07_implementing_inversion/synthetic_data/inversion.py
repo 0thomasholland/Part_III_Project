@@ -27,12 +27,10 @@ from project.operators import (
     ice_thickness_to_point_estimated_gmsl_operator,
     ice_thickness_to_ssh_point_estimations_operator,
 )
+from pyslfp_extras.altimetry import GridPoints
 from pyslfp_extras.gmsl import (
     altimetry_gmsl,
     gmsl_from_ice_thickness_operator,
-)
-from pyslfp_extras.helpers import (
-    get_ocean_point_coordinates,
 )
 from pyslfp_extras.ice_thickness import (
     IceSheetChange,
@@ -69,12 +67,10 @@ ice_thickness_to_ssh_point_estimations_op: LinearOperator = ice_thickness_to_ssh
     point_degree_spacing=altimetry_degree_density,
 )
 
-points: tuple[list[float], list[float]] = (
-    get_ocean_point_coordinates(
-        finger_print=fp,
-        point_degree_spacing=altimetry_degree_density,
-        altimetry_latitude_range=66.0,
-    )
+grid_points = GridPoints.ocean_altimetry(
+    fp,
+    degree_spacing=altimetry_degree_density,
+    latitude_range=66.0,
 )
 
 plot(ice_thickness_measure.sample(), symmetric=True)

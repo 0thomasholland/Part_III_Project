@@ -17,12 +17,6 @@ from pyslfp import (
     averaging_operator,
     plot,
 )
-from pyslfp_extras.helpers import (
-    get_ocean_point_coordinates,
-)
-from pyslfp_extras.operators import (
-    ocean_point_evaluation_operator,
-)
 from tqdm import tqdm
 
 from project import (
@@ -34,6 +28,7 @@ from project.operators import (
     ice_thickness_to_ssh_operator,
     ice_thickness_to_ssh_point_estimations_operator,
 )
+from pyslfp_extras.altimetry import GridPoints
 from pyslfp_extras.gmsl import (
     altimetry_gmsl,
     gmsl_from_ice_thickness_operator,
@@ -77,12 +72,10 @@ ice_thickness_to_ssh_point_estimations_op: LinearOperator = ice_thickness_to_ssh
     point_degree_spacing=altimetry_degree_density,
 )
 
-points: tuple[list[float], list[float]] = (
-    get_ocean_point_coordinates(
-        finger_print=fp,
-        point_degree_spacing=altimetry_degree_density,
-        altimetry_latitude_range=66.0,
-    )
+grid_points = GridPoints.ocean_altimetry(
+    fp,
+    degree_spacing=altimetry_degree_density,
+    latitude_range=66.0,
 )
 
 
@@ -107,12 +100,11 @@ error_field_measure: GaussianMeasure = (
 )
 
 error_sampling_points = error_field_measure.affine_mapping(
-    operator=ocean_point_evaluation_operator(
-        finger_print=fp,
-        measurement_space=error_field_measure.domain,
-        point_degree_spacing=altimetry_degree_density,
-        altimetry_latitude_range=66.0,
-    )
+    operator=GridPoints.ocean_altimetry(
+        fp,
+        degree_spacing=altimetry_degree_density,
+        latitude_range=66.0,
+    ).point_evaluation_operator(error_field_measure.domain)
 )
 
 altimetry_error_std = 0.01

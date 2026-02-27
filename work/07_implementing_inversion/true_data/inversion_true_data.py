@@ -28,9 +28,7 @@ from project import (
 from project.operators import (
     ice_thickness_to_ssh_point_estimations_operator,
 )
-from pyslfp_extras.helpers import (
-    get_ocean_point_coordinates,
-)
+from pyslfp_extras.altimetry import GridPoints
 from pyslfp_extras.ice_thickness import (
     IceSheetChange,
 )
@@ -82,16 +80,14 @@ ice_thickness_to_ssh_point_estimations_op: LinearOperator = ice_thickness_to_ssh
     point_degree_spacing=ALTIMETRY_DEGREE_SPACING,
 )
 
-points: tuple[list[float], list[float]] = (
-    get_ocean_point_coordinates(
-        finger_print=fp,
-        point_degree_spacing=ALTIMETRY_DEGREE_SPACING,
-        altimetry_latitude_range=66.0,
-    )
+grid_points = GridPoints.ocean_altimetry(
+    fp,
+    degree_spacing=ALTIMETRY_DEGREE_SPACING,
+    latitude_range=66.0,
 )
 
 print(
-    f"Number of ocean evaluation points: {len(points[0])}"
+    f"Number of ocean evaluation points: {len(grid_points)}"
 )
 
 # %%
@@ -111,13 +107,13 @@ sla_diff = sla_end - sla_start  # metres
 print(f"SLA difference: {YEAR_END} minus {YEAR_START}")
 
 # Extract SLA difference at each ocean point
-n_points = len(points[0])
+n_points = len(grid_points)
 data_array = np.zeros(n_points)
 nan_count = 0
 
 for i in range(n_points):
-    lat = points[0][i]
-    lon = points[1][i]
+    lat = grid_points.lats[i]
+    lon = grid_points.lons[i]
 
     # Convert longitude from [0, 360] to [-180, 180] for DUACS grid
     lon_duacs = lon - 360.0 if lon > 180.0 else lon
@@ -188,12 +184,13 @@ fig_obs, ax_obs = plt.subplots(
 
 # Plot points need PlateCarree longitudes in [-180, 180]
 plot_lons = [
-    lon - 360.0 if lon > 180.0 else lon for lon in points[1]
+    lon - 360.0 if lon > 180.0 else lon
+    for lon in grid_points.lons
 ]
 
 sc = ax_obs.scatter(
     plot_lons,
-    points[0],
+    grid_points.lats,
     c=data_array * 1000,
     cmap="RdBu_r",
     s=10,

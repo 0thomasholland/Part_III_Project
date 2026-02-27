@@ -28,12 +28,10 @@ from project.operators import (
     ice_thickness_to_ssh_operator,
     ice_thickness_to_ssh_point_estimations_operator,
 )
+from pyslfp_extras.altimetry import GridPoints
 from pyslfp_extras.gmsl import (
     altimetry_gmsl,
     gmsl_from_ice_thickness_operator,
-)
-from pyslfp_extras.helpers import (
-    get_ocean_point_coordinates,
 )
 from pyslfp_extras.ice_thickness import (
     IceSheetChange,
@@ -71,12 +69,10 @@ ice_thickness_to_ssh_point_estimations_op: LinearOperator = ice_thickness_to_ssh
     point_degree_spacing=altimetry_degree_density,
 )
 
-points: tuple[list[float], list[float]] = (
-    get_ocean_point_coordinates(
-        finger_print=fp,
-        point_degree_spacing=altimetry_degree_density,
-        altimetry_latitude_range=66.0,
-    )
+grid_points = GridPoints.ocean_altimetry(
+    fp,
+    degree_spacing=altimetry_degree_density,
+    latitude_range=66.0,
 )
 
 plot(ice_thickness_measure.sample(), symmetric=True)
@@ -133,15 +129,13 @@ precon_ice_thickness_measure: GaussianMeasure = (
 
 # Check that the full-resolution ocean points are also ocean points
 # on the lower-resolution preconditioner grid.
-precon_ocean_points = get_ocean_point_coordinates(
-    finger_print=precon_fp,
-    point_degree_spacing=altimetry_degree_density,
-    altimetry_latitude_range=66.0,
+precon_grid_points = GridPoints.ocean_altimetry(
+    precon_fp,
+    degree_spacing=altimetry_degree_density,
+    latitude_range=66.0,
 )
-precon_ocean_set = set(
-    zip(precon_ocean_points[0], precon_ocean_points[1])
-)
-full_ocean_set = set(zip(points[0], points[1]))
+precon_ocean_set = set(precon_grid_points.coords)
+full_ocean_set = set(grid_points.coords)
 points_not_in_precon_ocean = (
     full_ocean_set - precon_ocean_set
 )
@@ -170,7 +164,7 @@ precon_ssh_op = ice_thickness_to_ssh_operator(
 )
 precon_point_eval_op = (
     precon_ssh_op.codomain.point_evaluation_operator(
-        list(zip(points[0], points[1]))
+        grid_points.coords
     )
 )
 precon_forward_op: LinearOperator = (
@@ -346,8 +340,8 @@ fig4, ax4, im4 = plot(
 )
 ax4.set_title("b) Predicted Sea-Level Fingerprint")
 ax4.plot(
-    points[1],  # longitudes
-    points[0],  # latitudes
+    grid_points.lons,
+    grid_points.lats,
     "kx",
     label="Altimetry Point Estimations",
     transform=ccrs.PlateCarree(),
