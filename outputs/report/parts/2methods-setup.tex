@@ -1,9 +1,12 @@
 \subsection{Mathematical Framework}
 
+For most readers, the mathematical framing given below should be sufficient to understand the remainder of the paper, however for full details for the mathematical framework surrounding the underlying python packages can be found see apendix E of Heathcotte and Al-Attar blah TKTK, which lay outside the scope of this report. Other useful texts for a wider background are included in the Mathematical Bibliography (ref TKTK).
 
 % Paragraph: Introduce the function space setting. Explain that fields are  represented as elements of a Sobolev space over the sphere, and why this is appropriate (smoothness, well-defined inner product). Introduce notation.
 
 To represent continuous fields over the sphere (taken to be a unit sphere, $\mathbb{S}^2$, scaled to the dimensions of the Earth) in a mathematically rigorous way, we work within a Sobolev space (\autoref{eq:sobolev}), where the index $s$ controls the smoothness of admissible fields. In practice this means that realisations of the fields are guaranteed to be spatially smooth, which is physically appropriate given the length scales involved. Using a Sobolev space allows for smoothness within the inner product, which results in the Sobolev inner product penalising spatial roughness, providing a natural measure of closeness between fields.
+
+
 
 
 \begin{equation}\label{eq:sobolev}
@@ -146,6 +149,9 @@ Fields can either be rotationally invariant, such that REF is satsified, or spat
     \Delta \text{SSH} = A_{\text{ssh}} \circ A_{\text{fp}} \, L
 \end{equation}
 
+\begin{figure}
+	
+\end{figure}
 
 \subsection{Modelling Ocean Dynamics}
 % Paragraph: Discuss assumptions -- uniform field, or with broader spatial
