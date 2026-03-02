@@ -326,3 +326,7 @@
 - Added new demonstration notebooks as project showcases.
 - Defined GMSL estimator construction and expanded report content.
 
+## 2 March 2026
+
+- Updated notebooks and reorganised material between analysis and demonstration notebooks.
+
