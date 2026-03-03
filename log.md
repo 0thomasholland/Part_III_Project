@@ -320,3 +320,17 @@
 - Implemented factored forward operator for improved computational efficiency.
 - Added report content on mathematical framework and expanded the write-up.
 
+## 28 February 2026
+
+- Iterated on Notebook 01 (Sea Surface Height), refining the SL vs SSH distinction and the error quantification language to report-quality material.
+- Added new demonstration notebooks as project showcases.
+- Defined GMSL estimator construction and expanded report content.
+
+## 2 March 2026
+
+- Updated notebooks and reorganised material between analysis and demonstration notebooks.
+
+## 3 March 2026
+
+- Continued report writing, expanding methods and results sections.
+
