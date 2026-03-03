@@ -330,3 +330,7 @@
 
 - Updated notebooks and reorganised material between analysis and demonstration notebooks.
 
+## 3 March 2026
+
+- Continued report writing, expanding methods and results sections.
+
