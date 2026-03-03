@@ -70,9 +70,7 @@ class IceThicknessGMSLOperators(GMSLOperatorBase):
         ssh_op = sea_surface_height_operator(
             self._fp, self._op.codomain
         )
-        return (
-            ssh_op @ self._op @ self._thickness_to_load_op
-        )
+        return ssh_op @ self._op
 
     @cached_property
     def _gmsl_operator(self) -> LinearOperator:
@@ -359,6 +357,7 @@ class IceSheetChange(IceThicknessGMSLOperators):
                     * self._fp.ocean_area
                 )
             )
+
             _shift = (
                 gmsl_mean / _gmsl_per_unit
                 if _gmsl_per_unit != 0
