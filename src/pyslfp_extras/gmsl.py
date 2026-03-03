@@ -90,7 +90,13 @@ class GMSLOperatorBase(ABC):
     @abstractmethod
     def _load_to_ssh_operator(self) -> LinearOperator:
         """Maps load space -> SSH space."""
-        raise NotImplementedError
+        return (
+            sea_surface_height_operator(
+                self._fp,
+                self._op.codomain,
+            )
+            @ self._op
+        )
 
     @property
     @abstractmethod
