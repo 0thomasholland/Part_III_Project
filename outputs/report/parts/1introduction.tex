@@ -7,6 +7,8 @@ Sea Level (\textbf{SL}), also known as Relative Sea Level, is the difference in 
 Sea Surface Height (\textbf{SSH}), also known as Absolute Sea Level, is defined as the elevation of the sea surface above a reference ellipsoid. Ocean satellite altimetry measures Sea Surface Height, as it measures the height difference between itself on an orbital ellipsoid and the sea surface.
  
  However, the quantity of primary interest is SLC, as this is what is directly relevant to coastal communities and policy-makers.
+ 
+ 
 
 
 % Importance
@@ -58,14 +60,13 @@ by including the physics of the rebound effect and other noise signals belived t
 
 Sophie
 
-\subsection{Sea Level Physics}
+\subsection{Sea level physics}
 
-due to graviatational attraction of the water to the ice. the ice affects the equipotential geoid such that when the ice melts the SL changes to reflect this.
+The sea surface, when ignoring shorter term dynamic effects, lies on an equipotential gravity surface. Ice mass change results in two effects to this equipotential surface, firstly the added water volume shifts the surface from one equipotential level to another, and secondariliy the change in mass results in 
 
-This is can be expressed as
+This can be captured within the following equation
 
 
----
 
 Ocean function is
 \begin{align}
@@ -85,3 +86,21 @@ Where:
 \begin{align*}
 	A &= \int_{\partial M}\mathrm{C}\, dS \\ &= r^2\int_{\mathbb{S}^2}\mathrm{C}\, dS
 \end{align*}
+
+\subsection{Bayesian inference framework}
+
+Calculating ice sheet change from the change ocean altimetry data is an inverse problem. The choice to use a Bayesian inference and is used to solve this inverse problem.
+
+A Bayesian view of probability differs from a frequentists perspective. Frequentist statistics interprets probability as long-run frequency, treating parameters as fixed and data as random, using $p$-values and confidence intervals to accept/reject hypotheses. Conversely, Bayesian statistics treats parameters as random, incorporating prior beliefs and updating them with data to produce a posterior distribution, allowing for direct probability statements about hypotheses. This has the benefit that the posterior distributions give quantifications about the uncertainties of the view of world produced by the method, and that, given suitable uncertainties are quantified within our prior, we can directly understand the uncertainties of our results.
+
+Bayesian inference is framed as using a specific implementation of Bayes' theorem:
+
+\begin{equation}
+	p(\text{model} | \text{data}) = \dfrac{p(\text{data} | \text{model})p(\text{model})}{p(\text{data})}
+\end{equation}
+
+Where the data is the observed data that we collect, or synthetically generate when developing the methods, and the model is the parameters we define across the model space.
+
+ Bayesian inversion is the specific application of this framework to inverse problems, where, rather than seeking a single best-fit solution, it characterises the entire probability distribution of unknown physical parameters from noisy data.
+
+Bayesian inversion is not without its flaws, and as discusses in \textcite{vandeschootBayesianStatisticsModelling2021}, it is important to assess the impact of how imformative priors affect the posterior distribution, as this is a key way in which overly biased results can be introduced.

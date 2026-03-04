@@ -334,3 +334,7 @@
 
 - Continued report writing, expanding methods and results sections.
 
+## 4 March 2026
+
+- Added new figures at correct sizes for the report and continued drafting the manuscript.
+

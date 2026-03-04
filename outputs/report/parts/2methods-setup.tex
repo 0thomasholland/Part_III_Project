@@ -4,7 +4,7 @@ For most readers, the mathematical framing given below should be sufficient to u
 
 % Paragraph: Introduce the function space setting. Explain that fields are  represented as elements of a Sobolev space over the sphere, and why this is appropriate (smoothness, well-defined inner product). Introduce notation.
 
-To represent continuous fields over the sphere (taken to be a unit sphere, $\mathbb{S}^2$, scaled to the dimensions of the Earth) in a mathematically rigorous way, we work within a Sobolev space (\autoref{eq:sobolev}), where the index $s$ controls the smoothness of admissible fields. In practice this means that realisations of the fields are guaranteed to be spatially smooth, which is physically appropriate given the length scales involved. Using a Sobolev space allows for smoothness within the inner product, which results in the Sobolev inner product penalising spatial roughness, providing a natural measure of closeness between fields.
+To represent continuous fields over the sphere (taken to be a unit sphere, $\mathbb{S}^2$, scaled to the dimensions of the Earth) in a mathematically rigorous way, we work within a Sobolev space (\autoref{eq:sobolev}), where the index $s$ controls the smoothness of admissible fields. In practice this means that realisations of the fields are guaranteed to be spatially smooth, which is physically appropriate given the length scales and physical problem involved. For a full explanation see section 2.3.2 of \textcite{heathcoteScaleableBayesianFramework2026}.
 
 
 
@@ -62,7 +62,6 @@ Fields can either be rotationally invariant, such that REF is satsified, or spat
 % Different physical processes dominate in different regions -- dynamic ice
 % loss at margins vs firn compaction in the interior. A spatially uniform
 % prior cannot capture this.
-
 
 
 
@@ -156,3 +155,9 @@ Fields can either be rotationally invariant, such that REF is satsified, or spat
 \subsection{Modelling Ocean Dynamics}
 % Paragraph: Discuss assumptions -- uniform field, or with broader spatial
 % structure. Mention DUACS dataset as a possible constraint.
+
+
+
+A uniform point value scaled heat kernel gaussian measure is generated across the load space, which is then masked to the ocean area. 
+
+A operator which removes the ocean avearge is called to result in the global mean resulting in zero whcih means that the global average water mass change due to ocean dynamics is zero, which is physically consistent.
