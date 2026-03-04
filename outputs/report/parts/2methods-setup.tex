@@ -158,6 +158,11 @@ Fields can either be rotationally invariant, such that REF is satsified, or spat
 
 
 
-A uniform point value scaled heat kernel gaussian measure is generated across the load space, which is then masked to the ocean area. 
+A uniform point value scaled heat kernel gaussian measure is generated across the load space, which is then masked to the ocean area. This measure, as discussed in the ice thickness measure, the covariance of the measure is scaled such that the standard deviation of the point-wise values are equal to the given amplitude \autocite{al-attarPygeoinfPythonLibrary2025}. This means that the field can be scaled to either have uniform standard deviation or to follow. 
+
+For a test case, I took the 
+
+
 
 A operator which removes the ocean avearge is called to result in the global mean resulting in zero whcih means that the global average water mass change due to ocean dynamics is zero, which is physically consistent.
+
