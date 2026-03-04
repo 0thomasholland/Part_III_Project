@@ -87,7 +87,7 @@ Where:
 	A &= \int_{\partial M}\mathrm{C}\, dS \\ &= r^2\int_{\mathbb{S}^2}\mathrm{C}\, dS
 \end{align*}
 
-\subsection{Bayesian inference framework}
+\subsection{Bayesian inference framework}\label{sec:bay}
 
 Calculating ice sheet change from the change ocean altimetry data is an inverse problem. The choice to use a Bayesian inference and is used to solve this inverse problem.
 
@@ -102,5 +102,14 @@ Bayesian inference is framed as using a specific implementation of Bayes' theore
 Where the data is the observed data that we collect, or synthetically generate when developing the methods, and the model is the parameters we define across the model space.
 
  Bayesian inversion is the specific application of this framework to inverse problems, where, rather than seeking a single best-fit solution, it characterises the entire probability distribution of unknown physical parameters from noisy data.
+ 
+Using informative priors blah. 
 
-Bayesian inversion is not without its flaws, and as discusses in \textcite{vandeschootBayesianStatisticsModelling2021}, it is important to assess the impact of how imformative priors affect the posterior distribution, as this is a key way in which overly biased results can be introduced.
+Using informative priors, however, is not without its flaws, and as discussed in \textcite{vandeschootBayesianStatisticsModelling2021}, it is important to assess the impact of how imformative priors affect the posterior distribution, as this is a key way in which overly biased results can be introduced.
+
+There is also a subtle distinction to be made between restricting priors based on knowledge of the physical system and behaviours, as described using informative priors, and restricting , such as using artificial districisation schemes. The former is defensible within a Baysean framework, however the latter is a restriction imposed by compuational or mathematical restriction, and, as discussed in \textcite{stuartInverseProblemsBayesian2010}, can result in artefacts or overly constrained posteriors due to this discretisation.
+ Recently, \textcite{coulsonInvertingSeaSurface2026} have used baysiean inversion however have used a discrete TKTK, the method outlined in this report in arguably an improvement of their method, as results in a TKTK.
+
+
+
+

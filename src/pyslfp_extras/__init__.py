@@ -19,3 +19,6 @@ from pyslfp_extras.ice_thickness import (
 from pyslfp_extras.ocean_dynamics import (
     OceanDynamics,
 )
+from pyslfp_extras.plotting import (
+    plot,
+)

@@ -1,30 +1,15 @@
 \subsection{Bayseian Inversion}
 
+% Breif introduction
 
-% Paragraph: Frame the inversion problem. We have a prior mu, a forward
-% operator A, and observations y with noise covariance C_noise. The 
-% posterior is Gaussian by conjugacy.
+By applying the inversion framework outlined in \autoref{sec:bay}, which is implemented within the \textcite{al-attarPygeoinfPythonLibrary2025}, we can implement the physics outlined previously with the prior distributions built to reflect our prior belief of our knowledge of the system to get result in our posterior belief of the state of the model space.
 
-\begin{equation}
-    p(x | y) \propto p(y | x) \, p(x)
-\end{equation}
+A simple case for this is using a spatially uniform ice thickness change with a single density (so neglecting firn thickness change).
 
-\begin{equation}
-    \mu_{\text{post}} = \mu_{\text{prior}} + 
-    \mathcal{C}_{\text{prior}} A^* 
-    (A \mathcal{C}_{\text{prior}} A^* + \mathcal{C}_{\text{noise}})^{-1}
-    (y - A\mu_{\text{prior}})
-\end{equation}
-
-% Paragraph: Discuss preconditioning and why it is needed for numerical
-% efficiency when the operator is ill-conditioned.
-
+\subsubsection{Joint inversions}
 % Paragraph: Describe the joint inversion -- ice + firn + ocean dynamics
 % inverted simultaneously. Explain why this matters (correlated signals).
 
-
-
-% Paragraph: Describe application to altimetry data and/or DUACS SSH data.
 
 
 Using the various operators above, we can extend this to map from various model spaces to data spaces:
@@ -76,3 +61,17 @@ To minimize the number of finger print calls, this can be expanded to the form:
 \Delta SSH_{\text{OD}}
 \end{bmatrix}
 \end{equation}
+
+% Paragraph: Discuss preconditioning and why it is needed for numerical
+% efficiency when the operator is ill-conditioned.
+
+
+% Paragraph: Describe application to altimetry data and/or DUACS SSH data.
+\subsubsection{Proof of concept with data}
+
+As a showcase of this method and proof of concept, I utilised the CITE to subsample the ocean, which with sensible 
+
+
+\subsubsection{Sensitivity}
+
+% sensitivity of priors
