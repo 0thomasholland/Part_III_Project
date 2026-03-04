@@ -1,4 +1,4 @@
-\documentclass[titlepage, a4paper,12pt]{article}
+\documentclass[titlepage, a4paper,12pt, twoside]{article}
 
 \input{parts/0frontmatter.tex}
 
@@ -9,9 +9,10 @@
 \input{parts/0titles.tex}
 
 \input{parts/0abstract.tex}
-
+\pagestyle{empty}
 \tableofcontents
 \newpage
+\pagestyle{fancy}
 %TC:endignore
 
 \section{Introduction}

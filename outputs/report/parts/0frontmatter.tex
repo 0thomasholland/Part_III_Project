@@ -48,11 +48,29 @@
 \usepackage{hyperref}
 % todo figures
 \usepackage{caption}
+
+\usepackage[margin=2cm, bindingoffset=0.5cm, top=4cm]{geometry}
 \usepackage{subcaption}
+\usepackage{fancyhdr}
+
+\fancyhf{} 
+
+% --- Header Configuration ---
+% E = Even page, O = Odd page
+% L = Left, R = Right
+
+% Even pages (Left side of the spread)
+\fancyhead[LE]{\thepage}          % Page number: Outer
+\fancyhead[RE]{\textit{Thomas Holland}}        % Author: Inner
+
+% Odd pages (Right side of the spread)
+\fancyhead[LO]{\textit{Methods for Estimating Ice Melt Driven Sea Level Change}}       % Short Title: Inner
+\fancyhead[RO]{\thepage}          % Page number: Outer
+
+\renewcommand{\headrulewidth}{0pt} % Removes the horizontal line
 
 \usepackage[T1]{fontenc}
 
-\usepackage[margin=2cm, bindingoffset=0.5cm]{geometry}
 
 \usepackage[backend=bibtex, uniquename=full, maxnames=2, style=authoryear]{biblatex}
 \addbibresource{zotero.bib}

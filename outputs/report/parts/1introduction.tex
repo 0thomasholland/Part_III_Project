@@ -1,14 +1,14 @@
 % Glacial driven sea level change
 
-This report investigates and provides an improved novel method to estimate modern sea level from ice sheet melt, based on sea level physics. 
+This report investigates and provides an improved novel method to estimate modern sea level from ice sheet melt, based on sea level physics.
 
-Sea Level (\textbf{SL}), also known as Relative Sea Level, is the difference in elevation between the sea surface and the solid earth surface. A change in this elevation difference is termed Sea Level Change (\textbf{SLC}). 
+Sea Level (\textbf{SL}), also known as Relative Sea Level, is the difference in elevation between the sea surface and the solid earth surface. A change in this elevation difference is termed Sea Level Change (\textbf{SLC}).
 
 Sea Surface Height (\textbf{SSH}), also known as Absolute Sea Level, is defined as the elevation of the sea surface above a reference ellipsoid. Ocean satellite altimetry measures Sea Surface Height, as it measures the height difference between itself on an orbital ellipsoid and the sea surface.
- 
+
  However, the quantity of primary interest is SLC, as this is what is directly relevant to coastal communities and policy-makers.
- 
- 
+
+
 
 
 % Importance
@@ -35,7 +35,7 @@ take a surface average of SSH and apply correction (?) and call it SLC
 
 errors assocaited with traditional are poorly constrained and come from two main places.
 
-first is there is the intrinsic 
+first is there is the intrinsic
 
 also, other assumptive corrections are needed to account for non-ice driven GMSL changes, such as.
 
@@ -49,7 +49,7 @@ believed that the errors are sigificant and locationally variable
 
 % Solution
 
-By using a framework presented in \textcite{heathcoteScaleableBayesianFramework2026}, it is possible to explore modern ice driven sea level change using the full account of the physics related to the gravitationally consistent sea level changein a infinite-demiensional setting. This allows for novel quantification of the errors assocaited with traditional methods of GMSL 
+By using a framework presented in \textcite{heathcoteScaleableBayesianFramework2026}, it is possible to explore modern ice driven sea level change using the full account of the physics related to the gravitationally consistent sea level changein a infinite-demiensional setting. This allows for novel quantification of the errors assocaited with traditional methods of GMSL
 
 
 REF DA has shown that using a Bayseian inversion method with tide gauge data can lead to more
@@ -60,9 +60,9 @@ by including the physics of the rebound effect and other noise signals belived t
 
 Sophie
 
-\subsection{Sea level physics}
+\subsection{Sea level physics}\label{sec:slp}
 
-The sea surface, when ignoring shorter term dynamic effects, lies on an equipotential gravity surface. Ice mass change results in two effects to this equipotential surface, firstly the added water volume shifts the surface from one equipotential level to another, and secondariliy the change in mass results in 
+The sea surface, when ignoring shorter term dynamic effects, lies on an equipotential gravity surface. Ice mass change results in two effects to this equipotential surface, firstly the added water volume shifts the surface from one equipotential level to another, and secondariliy the change in mass results in
 
 This can be captured within the following equation
 
@@ -79,13 +79,16 @@ Ocean function is
 SLC can then be defined as:
 
 \begin{align}
-	\Delta SL = -\frac{\Delta M_\text{ice}}{\rho_w A} 
+	\Delta SL = -\frac{\Delta M_\text{ice}}{\rho_w A}
 \end{align}
 
 Where:
 \begin{align*}
 	A &= \int_{\partial M}\mathrm{C}\, dS \\ &= r^2\int_{\mathbb{S}^2}\mathrm{C}\, dS
 \end{align*}
+
+
+For Glacial isostatic adjustment, relative sea level history, ice thickness history, and mantle viscosity \citetitle{royICE7G2018} \autocite{royICE7G2018} model is used see \textcite{royGlacialIsostaticAdjustment2015} and \textcite{al-attarPySLFPPythonSea2025} for more details.
 
 \subsection{Bayesian inference framework}\label{sec:bay}
 
@@ -101,15 +104,28 @@ Bayesian inference is framed as using a specific implementation of Bayes' theore
 
 Where the data is the observed data that we collect, or synthetically generate when developing the methods, and the model is the parameters we define across the model space.
 
- Bayesian inversion is the specific application of this framework to inverse problems, where, rather than seeking a single best-fit solution, it characterises the entire probability distribution of unknown physical parameters from noisy data.
- 
-Using informative priors blah. 
+Bayesian inversion is the specific application of this framework to inverse problems, where, rather than seeking a single best-fit solution, it characterizes the entire probability distribution of unknown physical parameters from noisy data. To summarise in a simple case, if we state our prior knowldege of a model space in terms of a Gaussian measure given as:
+
+\begin{equation*}
+	m \sim \mathcal{N}(\bar{m}, \mathcal{C}_m)
+\end{equation*}
+
+Which is suitably pushed forward through our physical system and measured in the data space using a combined forward operator $A$, with some random Gaussian noise associated with the measurements, given as a vector, $n$ with expectation $\bar{n}$ and covariance $\mathcal{C}_n$. This would result in the data space vector, $d$, being:
+
+\begin{align*}
+	d &= Am +z\\
+	\to  d &\sim \mathcal{N}(A\bar{m} + \bar{n},\quad A\mathcal{C}_mA^* + \mathcal{C}_n)
+\end{align*}
+
+Using the form of Bayes' theorem implemented in \textcite{heathcoteScaleableBayesianFramework2026} originally presented in \textcite{stuartInverseProblemsBayesian2010}, the posterior measure of our updated view of the model space given an observation of the data space would be:
+
+\begin{align}
+	m_p = \sim \mathcal{N}(\bar{m}+K() TKTKTK eq33 -> 35
+\end{align}
+
+Using informative priors blah.
 
 Using informative priors, however, is not without its flaws, and as discussed in \textcite{vandeschootBayesianStatisticsModelling2021}, it is important to assess the impact of how imformative priors affect the posterior distribution, as this is a key way in which overly biased results can be introduced.
 
 There is also a subtle distinction to be made between restricting priors based on knowledge of the physical system and behaviours, as described using informative priors, and restricting , such as using artificial districisation schemes. The former is defensible within a Baysean framework, however the latter is a restriction imposed by compuational or mathematical restriction, and, as discussed in \textcite{stuartInverseProblemsBayesian2010}, can result in artefacts or overly constrained posteriors due to this discretisation.
  Recently, \textcite{coulsonInvertingSeaSurface2026} have used baysiean inversion however have used a discrete TKTK, the method outlined in this report in arguably an improvement of their method, as results in a TKTK.
-
-
-
-
