@@ -4,7 +4,7 @@ import numpy as np
 import pyslfp as sl
 from patsy.builtins import Q
 
-lmax = 128
+lmax = 256
 fp = sl.FingerPrint(lmax=lmax)
 fp.set_state_from_ice_ng(
     version=sl.IceModel.ICE7G, date=0.0
@@ -35,7 +35,7 @@ def activator_richards(x, x_min, x_max):
 
     # Parameters for a clean 0-to-1 probability curve
     a = 0.1  # Lower asymptote (Thick ice = 0 probability)
-    k = 1.0  # Upper asymptote (Thin ice = 1 probability)
+    k = 0.9  # Upper asymptote (Thin ice = 1 probability)
     b = 10.0  # Steepness
     m = 0.45  # Threshold (where the drop-off happens)
     nu = 0.75  # Asymmetry (adjusts how 'sharp' the turn is)
@@ -48,25 +48,36 @@ def activator_richards(x, x_min, x_max):
 
 
 input = np.linspace(data.min(), data.max(), 100)
-fig, ax = plt.subplots()
-ax.plot(
-    input,
-    activator_logistic(input, data.min(), data.max()),
-    label="Logistic",
-)
-ax.plot(
-    input,
-    activator_cloglog(input, data.min(), data.max()),
-    label="Cloglog",
-)
+fig, ax = plt.subplots(figsize=(6, 4))
+# ax.plot(
+#     input,
+#     activator_logistic(input, data.min(), data.max()),
+#     label="Logistic",
+# )
+# ax.plot(
+#     input,
+#     activator_cloglog(input, data.min(), data.max()),
+#     label="Cloglog",
+# )
 ax.plot(
     input,
     activator_richards(input, data.min(), data.max()),
-    label="Richard's Curve",
+    label="Ice Melt Function",
+    color="black",
+)
+
+ax.plot(
+    input,
+    1 - activator_richards(input, data.min(), data.max()),
+    label="Firn Melt Function",
+    color="black",
+    linestyle="dashed",
 )
 ax.legend()
 ax.set_xlabel("Input (ice thickness in m)")
-ax.set_ylabel("Output (melt probability)")
+ax.set_ylim(-0.0, 1.0)
+ax.set_ylabel("Output (ice melt probability)")
+fig.savefig("figs/activator_func.png", dpi=600)
 
 # %%
 

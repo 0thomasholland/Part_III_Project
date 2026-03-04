@@ -194,7 +194,7 @@ class IceSheetChange(IceThicknessGMSLOperators):
         def __init__(
             self,
             lower_asymptote: float = 0.1,
-            upper_asymptote: float = 1.0,
+            upper_asymptote: float = 0.9,
             steepness: float = 10.0,
             threshold: float = 0.45,
             asymmetry: float = 0.75,

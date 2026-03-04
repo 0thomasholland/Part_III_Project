@@ -17,19 +17,13 @@ This framework accommodates both deterministic fields, which enter as fixed elem
 
 % Paragraph: Introduce linear operators mapping between fields, and their adjoints. This is the machinery used throughout the forward model.
 
-Linear operators map between fields, with their TKTK 
+Linear operators map between fields, with their adjoints mapping the inverse action of those operators. 
 
 
 
 \begin{align}
     A: X &\rightarrow Y \\
     A^*: Y &\rightarrow X
-\end{align}
-
-Such that:
-
-\begin{align}
-	\braket{Ax,y}_Y = \braket{x, A^*y}_X
 \end{align}
 
 % Paragraph: Introduce Gaussian measures over these spaces. A Gaussian field is characterised by a mean and covariance operator. Connect to the structure -- covariance operators are self-adjoint by definition.
@@ -54,8 +48,13 @@ Fields can either be rotationally invariant, such that REF is satsified, or spat
 	f(\mathbf{x'}) = f(\mathbf{Rx}) = f(\mathbf{x})
 \end{equation}
 
+\subsection{Designing the model space, data space, and suitable operators}
 
-\subsection{Modelling Ice and Firn Thickness Change}
+% explain model space and data space, how can be of single thing or combination
+
+\subsubsection{Modelling Ice and Firn Thickness Change}
+
+
 % -------------------------------------------------------------------------
 
 % Paragraph: Motivate the need for a spatial prior on ice thickness change.
@@ -63,74 +62,100 @@ Fields can either be rotationally invariant, such that REF is satsified, or spat
 % loss at margins vs firn compaction in the interior. A spatially uniform
 % prior cannot capture this.
 
+The starting point for the error quantification and models produced is the ice model space which repesents our prior belief on what the ice sheet thickness change has occured.
 
+As discussed in \autoref{sec:bay}, if there is a scientific 
 
 
 % Paragraph: Introduce the base Gaussian measure using the heat kernel on
 % the sphere. Explain that this gives a rotationally invariant, spatially
 % smooth prior, with the length scale controlling spatial correlation.
 
-\begin{equation}
-    \mathcal{C}_0 = \mathcal{K}_t, \quad t \sim \ell^2
-\end{equation}
 
-% Paragraph: Introduce the generalised Richards curve as the activator
-% function. Define it explicitly. Explain the parameters and what they 
-% control physically. Note that parameters are set heuristically to reflect
-% known glaciological structure, and could in future be constrained empirically.
+A uniform point value scaled heat kernel gaussian measure is generated across the load space, which is then masked to the ice area. This measure is defined such that the covariance of the measure is scaled such that the standard deviation of the point-wise values are equal to the given amplitude \autocite{al-attarPygeoinfPythonLibrary2025}. 
+
+By scaling the ice thickness change according to \autoref{eq:ice_gmsl_scaling}, which acts to scale the ice prior to have the belived standard deviation of the GMSL contirbution of ice melt, this can be satisfactorily used as an ice thickness prior.
 
 \begin{equation}
-    \alpha(h) = a + \frac{k - a}{\left(1 + e^{b(x - m)}\right)^{1/\nu}}
+    \sigma_{\text{gmsl}} = \text{std}(G \circ \mu), 
+    \quad \mathcal{C} \rightarrow \left(\frac{\sigma_{\text{target}}}{\sigma_{\text{gmsl}}}\right)^2 \mathcal{C}
+	\label{eq:ice_gmsl_scaling}
 \end{equation}
 
-% where x is the standardised thickness (x in [0,1]), a is lower asymptote,
-% k upper asymptote, b steepness, m threshold, nu asymmetry parameter
 
-% Paragraph: Explain that the activator modulates the covariance of the 
-% ice thickness field via pointwise spatial multiplication. Thick ice 
-% suppresses ice melt variance; thin marginal ice enhances it. Write out
-% the modified covariance structure.
+However, to consider ice altimetry, the variable density with depth means that thickness change is not linearly related to mass change, and so the simple. 
+
+However, as ice altimetry, which is sensitive to thickness change, and ocean fingerprint measurements, through tide gauge and satellite altimetry which are sensitive to ice mass change, could be used to separate out these changes.
+
+To approximate the system, implemented two independently variable fields, one represent ice thickness change and one representing firn thickness change.
+
+Studies (e.g. REF) have use spatial patterns suggesting that thickness changes that occur near the edges of the ice sheets (in the ablation zone) are more likely to be from denser ice loss, compared to thickness change that occurs in more central, thicker, locations are more likely to be surficial fluctuation in firn. 
+
+To capture this relationship, a probability map was created that converted from ice thickness to probability of ice and firn melt (see \autoref{fig:spatial_ice_function}a), which takes the form of a generalised logistic curve. (\autoref{eq:spatial_prob_func}). Note that parameters are set heuristically to reflect  known glaciological structure and to match the spatial structure shown in other studies \autocites[e.g. ][]{}REF , and could in future be constrained empirically.
+
 
 \begin{equation}
-    \mathcal{C}_{\text{ice}} = W \mathcal{C}_0 W^*, \quad W = \text{diag}(\alpha(h))
+    \alpha(h) = a + \frac{k - a}{\left(1 + e^{b(x - m)}\right)^{1/\nu}}, \quad h \to x \in [0,1] \label{eq:spatial_prob_func}
 \end{equation}
 
-% Paragraph: Introduce the complementary firn field. Firn weights are 
-% 1 - alpha(h), masked to the ice extent. Ice and firn are therefore
-% complementary by construction -- regions of low ice melt probability
-% have high firn probability.
 
-\begin{equation}
-    \mathcal{C}_{\text{firn}} = \tilde{W} \mathcal{C}_0 \tilde{W}^*, 
-    \quad \tilde{W} = \text{diag}(1 - \alpha(h))
-\end{equation}
+
+Where $x$ is the standardised thickness $(x \in [0,1])$, $a$ is lower asymptote, $k$ upper asymptote, $b$ steepness parameter, $m$ inflection threshold, $\nu$ asymmetry parameter.
+
+This is applied to two fields, generated as described previously, by applying a point multiplication operator which results in the point-wise variance being scaled by the probability function (\autoref{eq:spatial_ice_covariance}). \autoref{fig:spatial_ice_function} shows the application of this.
+
+
+\begin{align}
+    \mathcal{C}_{\text{ice}} &= W \mathcal{C}_0 W^*, \quad W = \text{diag}(\alpha(h))\nonumber\\
+    \mathcal{C}_{\text{firn}} &= \tilde{W} \mathcal{C}_0 \tilde{W}^*, \quad \tilde{W} = \text{diag}(1 - \alpha(h))\label{eq:spatial_ice_covariance}
+\end{align}
+
+To map these two height fields into the load space, I used the built in operator for ice load, and developed a complimentary operator for firn load.
+The load operator is defined in pyslfp as the point-wise multiplication of ice thickness change by the ice density (\autoref{eq:load_ice_op}). For firn, this operator is scaled by the firn density, such that the operator point-wise multiplies the change in firn thickness with the firn thickness.
+
+
+\begin{align}
+    \mathcal{L}_{ice}& : L = \rho_{\text{ice}} \odot \Delta h_{\text{ice}}\label{eq:load_ice_op} \\
+    \mathcal{L}_{firn}& = \dfrac{\rho_{\text{firn}}}{\rho_{\text{ice}}} \mathcal{L}_{ice} \to \mathcal{L}_{firn}: L =  \rho_{\text{firn}}\odot \Delta h_{\text{firn}}\label{eq:load_firn_op}
+\end{align}
+
+
+\begin{figure}
+
+	\includegraphics[width=0.5\columnwidth]{ice_figs/activator_func.png}
+	\includegraphics[width=0.5\columnwidth]{figs/ice_figs/state_ice_thickness}
+	
+	
+	\includegraphics[width=0.5\columnwidth]{figs/ice_figs/firn_melt_likelihood}
+	\includegraphics[width=0.5\columnwidth]{figs/ice_figs/ice_melt_likelihood}
+	\includegraphics[width=0.5\columnwidth]{ice_figs/firn_load_variance.png}
+	\includegraphics[width=0.5\columnwidth]{ice_figs/ice_load_variance.png}
+	
+	\caption{a}\label{fig:spatial_ice_function}
+\end{figure}
+
+\begin{figure}
+	\includegraphics[width=0.5\columnwidth]{ice_figs/ice_thickness.png}
+	\includegraphics[width=0.5\columnwidth]{ice_figs/ice_load.png}
+	\includegraphics[width=0.5\columnwidth]{ice_figs/firn_thickness.png}
+	\includegraphics[width=0.5\columnwidth]{ice_figs/firn_load.png}
+	\includegraphics[width=0.5\columnwidth]{ice_figs/total_thickness.png}
+	\includegraphics[width=0.5\columnwidth]{ice_figs/total_load.png}
+	
+	\caption{ Firn and Ice measures geenrated from spatially variable fields.
+	Firn has been scaled to produce the standard deviation equivalent of 10 mm GMSL; Ice has been scaled to produce the standard deviation equivalent of 20 mm GMSL; with firn having a density 0.4 times that of ice.}\label{fig:ice_samples}
+\end{figure}
 
 % Paragraph: Explain the GMSL variance rescaling. The prior amplitude is 
 % set by requiring the implied global mean sea level change to have a 
 % prescribed standard deviation sigma_gmsl. This is a physically meaningful
 % way to set the prior scale rather than an arbitrary choice.
 
-\begin{equation}
-    \sigma_{\text{gmsl}} = \text{std}(G \circ \mu), 
-    \quad \mathcal{C} \rightarrow \left(\frac{\sigma_{\text{target}}}{\sigma_{\text{gmsl}}}\right)^2 \mathcal{C}
-\end{equation}
 
 
-\subsection{Relating Ice Thickness Change to Mass Change}
-
-% Paragraph: Explain that thickness change is converted to surface load via
-% density scaling. Ice and firn use different densities, which enters as a
-% scalar factor on the thickness-to-load operator.
-
-\begin{equation}
-    L = \rho_{\text{ice}} \, A_{\text{load}} \, h_{\text{ice}}, \quad
-    L = \rho_{\text{firn}} \, A_{\text{load}} \, h_{\text{firn}}
-\end{equation}
-
-% Note: rho_firn ~ 0.5 * rho_ice as used in the code
 
 
-\subsection{Sea Surface Height and Sea Level Change}
+\subsubsection{Sea Surface Height and Sea Level Change}
 
 % Paragraph: Background physics (probably already in intro but connect here).
 % The sea level fingerprint relates a surface load change to relative sea 
@@ -152,17 +177,32 @@ Fields can either be rotationally invariant, such that REF is satsified, or spat
 	
 \end{figure}
 
-\subsection{Modelling Ocean Dynamics}
+\subsubsection{Modelling Ocean Dynamics}
 % Paragraph: Discuss assumptions -- uniform field, or with broader spatial
 % structure. Mention DUACS dataset as a possible constraint.
 
 
 
-A uniform point value scaled heat kernel gaussian measure is generated across the load space, which is then masked to the ocean area. This measure, as discussed in the ice thickness measure, the covariance of the measure is scaled such that the standard deviation of the point-wise values are equal to the given amplitude \autocite{al-attarPygeoinfPythonLibrary2025}. This means that the field can be scaled to either have uniform standard deviation or to follow. 
+A uniform point value scaled heat kernel gaussian measure is generated across the load space, which is then masked to the ocean area. This measure, as discussed in the ice thickness measure, the covariance of the measure is scaled such that the standard deviation of the point-wise values are equal to the given amplitude \autocite{al-attarPygeoinfPythonLibrary2025}. This means that the field can be scaled to either have uniform standard deviation or to follow observed magnitudes. 
 
-For a test case, I took the 
+\begin{figure}
+	\missingfigure{ODT spatial figures}
+	\caption{ODT }\label{fig:spatial_odt}
+\end{figure}
+
+
+As an example, to derive spatially variable ocean variance, DUACS dataset downloaded and turned into a scaled field between 0 and 1. This resulted in the pointwise standard deviation being scaled by this factor. See \autoref{fig:spatial_odt}.
 
 
 
-A operator which removes the ocean avearge is called to result in the global mean resulting in zero whcih means that the global average water mass change due to ocean dynamics is zero, which is physically consistent.
+
+
+A operator which removes the ocean average is called to result in the global mean resulting in zero which means that the global average water mass change due to ocean dynamics is zero, which is physically consistent.
+
+When considering the impact of ocean dynamics, it is important to note that the redistribution of mass has an effect on the equipotential surface. As such, whenever calculating the fingerprint, we also pass the load change due to ocean dyanmics. This results in the total change due to ocean dynamics being the combination of the thickness change and the finger print response.
+
+\begin{align}
+	\Delta \text{SL} = \Delta T_{OD} + \mathcal{F \circ L_W}(\Delta T_{OD}) \\
+	\Delta SSH = \Delta T_{OD} + \mathcal{S \circ F \circ L_W}(\Delta T_{OD})
+\end{align}
 

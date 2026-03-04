@@ -6,7 +6,9 @@ import pyslfp as sl
 from dask.dataframe import melt
 from pyshtools import SHGrid
 
-lmax = 128
+from pyslfp_extras.plotting import plot
+
+lmax = 256
 fp = sl.FingerPrint(lmax=lmax)
 fp.set_state_from_ice_ng(
     version=sl.IceModel.ICE7G, date=0.0
@@ -20,10 +22,12 @@ fp_op = fp.as_sobolev_linear_operator(
 
 # plot with colorcet's blues
 
-sl.plot(
-    fp.ice_thickness,
+plot(
+    fp.ice_thickness * fp.ice_projection(),
     cmap=cc.cm.blues,
-)
+    colorbar_label="Ice thickness (m)",
+    tight_layout=True,
+)[0].savefig("figs/state_ice_thickness.png", dpi=600)
 
 # %%
 
@@ -34,7 +38,7 @@ def activator(x, x_min, x_max):
 
     # Parameters for a clean 0-to-1 probability curve
     a = 0.1  # Lower asymptote (Thick ice = 0 probability)
-    k = 1.0  # Upper asymptote (Thin ice = 1 probability)
+    k = 0.9  # Upper asymptote (Thin ice = 1 probability)
     b = 10.0  # Steepness
     m = 0.45  # Threshold (where the drop-off happens)
     nu = 0.75  # Asymmetry (adjusts how 'sharp' the turn is)
@@ -49,20 +53,6 @@ def activator(x, x_min, x_max):
 activator = np.vectorize(activator)
 
 melt_likelihood: SHGrid = fp.ice_thickness.copy()
-# normalise to between 0 and 1
-melt_likelihood: SHGrid = (
-    fp.ice_thickness.max() - melt_likelihood
-) / (fp.ice_thickness.max() - fp.ice_thickness.min())
-
-
-sl.plot(
-    melt_likelihood * fp.ice_projection(), cmap=cc.cm.blues
-)
-
-plt.hist(melt_likelihood.data.flatten(), bins=50)
-
-
-melt_likelihood: SHGrid = fp.ice_thickness.copy()
 
 melt_likelihood.data: SHGrid = activator(
     d := melt_likelihood.data,
@@ -70,8 +60,46 @@ melt_likelihood.data: SHGrid = activator(
     d.max(),
 )
 
-sl.plot(
-    melt_likelihood * fp.ice_projection(), cmap=cc.cm.blues
-)
+plot(
+    melt_likelihood * fp.ice_projection(),
+    cmap=cc.cm.blues,
+    colorbar_label="Ice melt likelihood",
+)[0].savefig("figs/ice_melt_likelihood.png", dpi=600)
+
 
 # %%
+
+
+def activator(x, x_min, x_max):
+    # Standardize input: 0 at min thickness, 1 at max thickness
+    _x = (x - x_min) / (x_max - x_min)
+
+    # Parameters for a clean 0-to-1 probability curve
+    a = 0.1  # Lower asymptote (Thick ice = 0 probability)
+    k = 0.9  # Upper asymptote (Thin ice = 1 probability)
+    b = 10.0  # Steepness
+    m = 0.45  # Threshold (where the drop-off happens)
+    nu = 0.75  # Asymmetry (adjusts how 'sharp' the turn is)
+
+    # Note: We use (_x - M) to make probability drop as thickness increases
+    _x = a + (k - a) / (1 + np.exp(b * (_x - m))) ** (
+        1 / nu
+    )
+    return _x
+
+
+activator = np.vectorize(activator)
+
+melt_likelihood: SHGrid = fp.ice_thickness.copy()
+
+melt_likelihood.data: SHGrid = 1 - activator(
+    d := melt_likelihood.data,
+    d.min(),
+    d.max(),
+)
+
+plot(
+    melt_likelihood * fp.ice_projection(),
+    cmap=cc.cm.blues,
+    colorbar_label="Firn melt likelihood",
+)[0].savefig("figs/firn_melt_likelihood.png", dpi=600)
