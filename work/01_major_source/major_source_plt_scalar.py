@@ -40,15 +40,15 @@ plt.plot(
     label="EAIS Altimetry GMSL % Error",
     color="tab:orange",
 )
-plt.plot(
-    latitudes,
-    wais_errors,
-    label="WAIS Altimetry GMSL % Error",
-    color="tab:green",
-)
-plt.axhline(0, color="black", linestyle="-", linewidth=1)
-plt.axvline(66, color="red", linestyle="--", linewidth=1)
-plt.xlabel("Latitude (degrees)")
+# plt.plot(
+#     latitudes,
+#     wais_errors,
+#     label="WAIS Altimetry GMSL % Error",
+#     color="tab:green",
+# )
+# plt.axhline(0, color="black", linestyle="-", linewidth=1)
+# plt.axvline(66, color="red", linestyle="--", linewidth=1)
+# plt.xlabel("Latitude (degrees)")
 
 plt.ylabel("Relative Error (%) [true - estimated / true]")
 
