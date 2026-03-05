@@ -92,9 +92,9 @@ For Glacial isostatic adjustment, relative sea level history, ice thickness hist
 
 \subsection{Bayesian inference framework}\label{sec:bay}
 
-Calculating ice sheet change from the change ocean altimetry data is an inverse problem. The choice to use a Bayesian inference and is used to solve this inverse problem.
+Calculating ice sheet change from the change in ocean altimetry data is an inverse problem. The choice to use a Bayesian inference and is used to solve this inverse problem.
 
-A Bayesian view of probability differs from a frequentists perspective. Frequentist statistics interprets probability as long-run frequency, treating parameters as fixed and data as random, using $p$-values and confidence intervals to accept/reject hypotheses. Conversely, Bayesian statistics treats parameters as random, incorporating prior beliefs and updating them with data to produce a posterior distribution, allowing for direct probability statements about hypotheses. This has the benefit that the posterior distributions give quantifications about the uncertainties of the view of world produced by the method, and that, given suitable uncertainties are quantified within our prior, we can directly understand the uncertainties of our results.
+A Bayesian view of probability differs from a frequentists' perspective. Frequentist statistics interprets probability as long-run frequency, treating parameters as fixed and data as random, using $p$-values and confidence intervals to accept/reject hypotheses. Conversely, Bayesian statistics treats parameters as random, incorporating prior beliefs and updating them with data to produce a posterior distribution, allowing for direct probability statements about hypotheses. This has the benefit that the posterior distributions give quantifications about the uncertainties of the view of world produced by the method, and that, given suitable uncertainties are quantified within our prior, we can directly understand the uncertainties of our results.
 
 Bayesian inference is framed as using a specific implementation of Bayes' theorem:
 
@@ -104,28 +104,35 @@ Bayesian inference is framed as using a specific implementation of Bayes' theore
 
 Where the data is the observed data that we collect, or synthetically generate when developing the methods, and the model is the parameters we define across the model space.
 
-Bayesian inversion is the specific application of this framework to inverse problems, where, rather than seeking a single best-fit solution, it characterizes the entire probability distribution of unknown physical parameters from noisy data. To summarise in a simple case, if we state our prior knowldege of a model space in terms of a Gaussian measure given as:
+Bayesian inversion is the specific application of this framework to inverse problems, where, rather than seeking a single best-fit solution, it characterizes the entire probability distribution of unknown physical parameters from noisy data. To summarise in a simple case, if we state our prior knowledge of a model space in terms of a Gaussian measure given as:
 
 \begin{equation*}
 	m \sim \mathcal{N}(\bar{m}, \mathcal{C}_m)
 \end{equation*}
 
-Which is suitably pushed forward through our physical system and measured in the data space using a combined forward operator $A$, with some random Gaussian noise associated with the measurements, given as a vector, $n$ with expectation $\bar{n}$ and covariance $\mathcal{C}_n$. This would result in the data space vector, $d$, being:
+Which is suitably pushed forward through our physical system and measured in the data space using a combined forward operator $A$, with some random Gaussian noise associated with the measurements, given as a vector, $n$, with expectation $\bar{n}$ and covariance $\mathcal{C}_n$. This would result in the data space vector, $d$, being:
 
 \begin{align*}
 	d &= Am +z\\
 	\to  d &\sim \mathcal{N}(A\bar{m} + \bar{n},\quad A\mathcal{C}_mA^* + \mathcal{C}_n)
 \end{align*}
 
-Using the form of Bayes' theorem implemented in \textcite{heathcoteScaleableBayesianFramework2026} originally presented in \textcite{stuartInverseProblemsBayesian2010}, the posterior measure of our updated view of the model space given an observation of the data space would be:
+Using the form of Bayes' theorem implemented in \textcite{heathcoteScaleableBayesianFramework2026} originally presented in \textcite{stuartInverseProblemsBayesian2010}, the posterior measure of our updated view of the model space given an observation, $d_{obs}$, of the data space would be:
 
 \begin{align}
-	m_p = \sim \mathcal{N}(\bar{m}+K() TKTKTK eq33 -> 35
+	m_p = \sim \mathcal{N}(\bar{m}+K(d_{obs}-A\bar{m}-\bar{n},\quad (1-KA)\mathcal{C}_{m}))
 \end{align}
+
+Where $K$ is the Kalman gain, which is the information gained by the observation, is given as:
+
+\begin{equation}
+	K = \mathcal{C}_{m}A^*(A\mathcal{C}_{m}A^*+\mathcal{C}_{n})^{-1}
+\end{equation}
 
 Using informative priors blah.
 
 Using informative priors, however, is not without its flaws, and as discussed in \textcite{vandeschootBayesianStatisticsModelling2021}, it is important to assess the impact of how imformative priors affect the posterior distribution, as this is a key way in which overly biased results can be introduced.
 
-There is also a subtle distinction to be made between restricting priors based on knowledge of the physical system and behaviours, as described using informative priors, and restricting , such as using artificial districisation schemes. The former is defensible within a Baysean framework, however the latter is a restriction imposed by compuational or mathematical restriction, and, as discussed in \textcite{stuartInverseProblemsBayesian2010}, can result in artefacts or overly constrained posteriors due to this discretisation.
- Recently, \textcite{coulsonInvertingSeaSurface2026} have used baysiean inversion however have used a discrete TKTK, the method outlined in this report in arguably an improvement of their method, as results in a TKTK.
+There is also a subtle distinction to be made between restricting priors based on knowledge of the physical system and behaviours, as described using informative priors, and restricting , such as using artificial districisation schemes. The former is defensible within a Baysean framework, however the latter is a restriction imposed by computational or mathematical restriction, and, as discussed in \textcite{stuartInverseProblemsBayesian2010}, can result in artefacts or overly constrained posteriors due to this discretization.
+ Recently, \textcite{coulsonInvertingSeaSurface2026} have used Bayesian inversion, however, have used a discrete TKTK, the method outlined in this report in arguably an improvement of their method, as results in a TKTK.
+a

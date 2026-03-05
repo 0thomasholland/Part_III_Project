@@ -4,15 +4,35 @@
 
 By applying the inversion framework outlined in \autoref{sec:bay}, which is implemented within the \textcite{al-attarPygeoinfPythonLibrary2025}, we can implement the physics outlined previously with the prior distributions built to reflect our prior belief of our knowledge of the system to get result in our posterior belief of the state of the model space.
 
-A simple case for this is using a spatially uniform ice thickness change with a single density (so neglecting firn thickness change).
+A simple case for this is setting the model space to be a rotationally invariant ice thickness change with a single density and the data space to be changes in SSH altimetry. This would result in the following form:
+
+\begin{equation}
+	d = A_{ssh} \circ SSH \circ SL \circ L_{ice} (m_{\Delta I}) + n
+\end{equation}
 
 \subsubsection{Joint inversions}
 % Paragraph: Describe the joint inversion -- ice + firn + ocean dynamics
 % inverted simultaneously. Explain why this matters (correlated signals).
 
+The model space would be a direct sum of the ice thickness change, firn thickness change space, and ocean dynamic topography change:
 
+\begin{equation}
+	m = m_{\Delta I} \oplus m_{\Delta F} \oplus m_{\Delta ODT}
+\end{equation}
 
-Using the various operators above, we can extend this to map from various model spaces to data spaces:
+With the data space being the direct sum of SSH altimetry data, tide gauge data, and ice altimetry data:
+
+\begin{equation}
+	d = d_{\Delta SSH} \oplus m_{\Delta TG} \oplus m_{\Delta ISH}
+\end{equation}
+
+It is often the case where multiple model space parameters map to one data space parameter, for example in our case, SSH altimetry points forms the linear equation:
+
+\begin{equation}
+	d_{\Delta SSH} = P_{S}( SSH \circ F (L_I m_{\Delta I} + L_F m_{\Delta F} + L_W m_{\Delta ODT}) + m_{\Delta ODT})
+\end{equation}
+
+Smth smth optimised form as one fingerprint solve, which is the computationally expensive step. However, for forming our forward operator from direct sum, intiialy we can each term in our forward operator direct sum in terms of mapping from one model space to one data space, and then optimise later after conceptualising the process. As such the forward problem can be written as:
 
 \begin{align}
 \begin{bmatrix}
@@ -33,8 +53,7 @@ Using the various operators above, we can extend this to map from various model 
 \end{bmatrix}
 \end{align}
 
-Where xyz
-To minimize the number of finger print calls, this can be expanded to the form:
+Then to optomise this to reduce the number of fingerprint calls, we can factorise this matrix into sparse matricies, shown in \autoref{eq:factorised_joint}. This reduced each iteration time, with a speed up of $3\times$.
 
 \begin{equation}
 =
@@ -59,7 +78,7 @@ To minimize the number of finger print calls, this can be expanded to the form:
 \Delta T_{\text{Ice}} \\
 \Delta T_{\text{Firn}} \\
 \Delta SSH_{\text{OD}}
-\end{bmatrix}
+\end{bmatrix}\label{eq:factorised_joint}
 \end{equation}
 
 % Paragraph: Discuss preconditioning and why it is needed for numerical
