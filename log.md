@@ -338,3 +338,8 @@
 
 - Added new figures at correct sizes for the report and continued drafting the manuscript.
 
+## 5 March 2026
+
+- Ran Monte Carlo z-score comparison using the parallel inversion framework with joblib. Key result: 60.5% of Bayesian posterior z-scores fall within 1σ compared to 14.6% for the naïve altimetry proxy, with z-score statistics of 0.07 ± 1.21 versus 0.23 ± 4.20.
+- Renamed analysis folders for clarity and continued report writing.
+
