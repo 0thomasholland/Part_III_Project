@@ -47,7 +47,7 @@ fp_op = fp.as_sobolev_linear_operator(
 
 # generate prior dataset
 
-altimetry_degree_density = 2.0
+altimetry_degree_density = 10.0
 
 ice_change = IceSheetChange.global_ice(
     finger_print=fp,
