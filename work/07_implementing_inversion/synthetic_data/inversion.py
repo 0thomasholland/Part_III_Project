@@ -1,7 +1,9 @@
 # %%
 import cartopy.crs as ccrs
 import colorcet as cc
+import matplotlib.pyplot as plt
 import numpy as np
+import seaborn as sns
 from pygeoinf import (
     CGMatrixSolver,
     GaussianMeasure,
@@ -15,7 +17,6 @@ from pyslfp import (
     FingerPrint,
     IceModel,
     averaging_operator,
-    plot,
 )
 from tqdm import tqdm
 
@@ -27,6 +28,7 @@ from project.operators import (
     ice_thickness_to_point_estimated_gmsl_operator,
     ice_thickness_to_ssh_point_estimations_operator,
 )
+from pygeoinf_extras import standard_dev
 from pyslfp_extras.altimetry import GridPoints
 from pyslfp_extras.gmsl import (
     altimetry_gmsl,
@@ -35,6 +37,13 @@ from pyslfp_extras.gmsl import (
 from pyslfp_extras.ice_thickness import (
     IceSheetChange,
 )
+from pyslfp_extras.plotting import plot
+
+sns.set_theme("paper")
+sns.set_style("ticks")
+palette = sns.color_palette("deep")
+blue = palette[0]
+orange = palette[1]
 
 fp = FingerPrint(lmax=128)
 fp.set_state_from_ice_ng(version=IceModel.ICE7G, date=0.0)
@@ -47,24 +56,24 @@ fp_op = fp.as_sobolev_linear_operator(
 
 # generate prior dataset
 
-altimetry_degree_density = 10.0
+altimetry_degree_density = 5.0
 
 ice_change = IceSheetChange.global_ice(
     finger_print=fp,
     finger_print_operator=fp_op,
     length_scale=0.1 * fp.mean_sea_floor_radius,
     pattern=IceSheetChange.ThicknessWeightedPattern(),
-    ice_gmsl_std=0.005,  # gmsl std = 5mm
+    ice_gmsl_std=0.01,  # gmsl std = 5mm
+    point_degree_spacing=altimetry_degree_density,
 )
 ice_thickness_measure: GaussianMeasure = (
-    ice_change.ice_thickness_measure
+    ice_change.ice_thickness
 )
 
-ice_thickness_to_ssh_point_estimations_op: LinearOperator = ice_thickness_to_ssh_point_estimations_operator(
-    finger_print=fp,
-    finger_print_operator=fp_op,
-    altimetry_latitude_range=66.0,
-    point_degree_spacing=altimetry_degree_density,
+
+ice_thickness_to_ssh_point_estimations_op: LinearOperator = (
+    ice_change.load_to_ssh_point_estimations_operator
+    @ ice_change.ice_thickness_to_load_operator
 )
 
 grid_points = GridPoints.ocean_altimetry(
@@ -72,6 +81,7 @@ grid_points = GridPoints.ocean_altimetry(
     degree_spacing=altimetry_degree_density,
     latitude_range=66.0,
 )
+
 
 plot(ice_thickness_measure.sample(), symmetric=True)
 
@@ -83,7 +93,7 @@ data_space = (
 
 # %%
 
-altimetry_std_dev = 0.01
+altimetry_std_dev = 0.001
 data_error_measure = (
     GaussianMeasure.from_standard_deviation(
         data_space, altimetry_std_dev
@@ -186,11 +196,12 @@ fig2_1, ax2_1, im2_1 = plot(
 )
 ax2_1.set_title("Difference")
 
+
 # %%
 
-ice_thickness_to_slc_op = ice_thickness_to_slc_operator(
-    finger_print=fp,
-    finger_print_operator=fp_op,
+ice_thickness_to_slc_op = (
+    ice_change.load_to_slc_operator
+    @ ice_change.ice_thickness_to_load_operator
 )
 
 sea_level_posterior = ice_thickness_to_slc_op(
@@ -200,24 +211,23 @@ sea_level_posterior = ice_thickness_to_slc_op(
 sea_level_true = ice_thickness_to_slc_op(model_true)
 
 ocean_mask = fp.ocean_projection()
-max_abs_sl_change = (
-    np.nanmax(
-        np.abs(
-            np.concatenate(
-                [
-                    (
-                        sea_level_true * ocean_mask
-                    ).data.flatten(),
-                    (
-                        sea_level_posterior * ocean_mask
-                    ).data.flatten(),
-                ]
-            )
-        )
-    )
-    * 1000
-    * fp.length_scale
-)
+# max_abs_sl_change = (
+#     np.nanmax(
+#         np.abs(
+#             np.concatenate(
+#                 [
+#                     (
+#                         sea_level_true * ocean_mask
+#                     ).data.flatten(),
+#                     (
+#                         sea_level_posterior * ocean_mask
+#                     ).data.flatten(),
+#                 ]
+#             )
+#         )
+#     )
+#     * 1000
+# )
 
 
 # --- Plot 3: The "True" Sea-Level Field ---
@@ -225,8 +235,8 @@ fig3, ax3, im13 = plot(
     1000 * sea_level_true * ocean_mask * fp.length_scale,
     coasts=True,
     cmap="seismic",
-    vmin=-max_abs_sl_change,
-    vmax=max_abs_sl_change,
+    # vmin=-max_abs_sl_change,
+    # vmax=max_abs_sl_change,
     colorbar_label="Sea Level Change (mm)",
 )
 ax3.set_title("a) True Sea-Level Fingerprint")
@@ -241,10 +251,7 @@ ax3.set_title("a) True Sea-Level Fingerprint")
 
 # --- Plot 4: The Sea-Level Field Predicted by the Inversion ---
 fig4, ax4, im4 = plot(
-    1000
-    * sea_level_posterior
-    * fp.ocean_projection()
-    * fp.length_scale,
+    1000 * sea_level_posterior * fp.ocean_projection(),
     coasts=True,
     cmap="seismic",
     vmin=-max_abs_sl_change,
@@ -300,15 +307,97 @@ GMSL_posterior_measure = (
     model_posterior_measure.affine_mapping(operator=B)
 )
 
-# Plot the PDFs
-fig, ax = plot_1d_distributions(
-    GMSL_posterior_measure,
-    # prior_measures=GMSL_prior_measure,
-    true_value=GMSL_true[0],
-    xlabel="GMSL Change (mm)",
-    title="Global Mean Sea Level Change Inference from GRACE Data",
+ssh_esimation = (
+    ice_change.load_to_estimated_gmsl_operator(
+        ice_change.ice_thickness_to_load_operator(
+            model_true
+        )
+    )[0]
+    * 1000
 )
 
+ssh_esimation_alt = (
+    ice_change.load_to_point_estimated_gmsl_operator(
+        ice_change.ice_thickness_to_load_operator(
+            model_true
+        )
+    )[0]
+    * 1000
+)
+
+# make two plots next to each other, one the includes the prior and posterior distributions, with vertical lines for true values and ssh estimation (with the two pdfs on different y scales)
+# the other is the same but without the prior distribution
+#
+prior_expectation = GMSL_prior_measure.expectation[0]
+posterior_expectation = GMSL_posterior_measure.expectation[
+    0
+]
+
+prior_std_dev = standard_dev(GMSL_prior_measure)
+posterior_std_dev = standard_dev(GMSL_posterior_measure)
+
+x1_range = np.linspace(
+    prior_expectation - 5 * prior_std_dev,
+    prior_expectation + 5 * prior_std_dev,
+    1000,
+)
+x2_range = np.linspace(
+    posterior_expectation - 6 * posterior_std_dev,
+    posterior_expectation + 6 * posterior_std_dev,
+    1000,
+)
+
+
+def gaussian(x, mean, std_dev):
+    return (
+        1
+        / (std_dev * np.sqrt(2 * np.pi))
+        * np.exp(-0.5 * ((x - mean) / std_dev) ** 2)
+    )
+
+
+prior_func = gaussian(
+    x1_range, prior_expectation, prior_std_dev
+)
+posterior_func = gaussian(
+    x2_range, posterior_expectation, posterior_std_dev
+)
+
+fig, ax1 = plt.subplots(1, 1, figsize=(6, 4))
+# two y scale, one for prior and one for posterior
+
+ax1.plot(
+    x2_range,
+    posterior_func,
+    label=f"Posterior Distribution\n(mean={posterior_expectation:.2f} mm, std={posterior_std_dev:.2f} mm)",
+    color="blue",
+)
+ax1.axvline(
+    GMSL_true,
+    color="black",
+    linestyle="--",
+    label=f"True GMSL ({GMSL_true[0]:.2f} mm)",
+)
+
+ax1.get_yaxis().set_visible(False)
+ax1.axvline(
+    ssh_esimation_alt,
+    color="red",
+    label=f"SSH Estimation ({ssh_esimation_alt:.2f} mm)",
+)
+
+ax1.set_title(
+    "Prior and Posterior Distributions of GMSL Contribution"
+)
+ax1.legend()
+
+plt.tight_layout()
+plt.savefig("gmsl_contribution_distributions.png", dpi=600)
+plt.show()
+
+# %%
+
+plot(model_true)
 # %%
 
 GLI_weighting_function = (
