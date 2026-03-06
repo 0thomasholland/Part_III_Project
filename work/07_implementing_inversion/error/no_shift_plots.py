@@ -128,50 +128,6 @@ ax.legend()
 plt.show()
 fig.savefig("bias_comparison_contour.png", dpi=600)
 
-# %%
-# sns contour plot
-
-max_val = max(
-    np.abs(df["gmsl_true"] - df["ssh_estimation"]).max(),
-    np.abs(df["gmsl_true"] - df["posterior_mean"]).max(),
-)
-
-fig, ax = plt.subplots(figsize=(7, 7))
-
-
-ax.scatter(
-    df["gmsl_true"] - df["ssh_estimation"],
-    df["gmsl_true"] - df["posterior_mean"],
-    alpha=0.2,
-    color="black",
-    label="Data Points",
-)
-
-ax.errorbar(
-    df["gmsl_true"] - df["ssh_estimation"],
-    df["gmsl_true"] - df["posterior_mean"],
-    yerr=df["posterior_std_dev"],
-    fmt="none",
-    ecolor="red",
-    alpha=0.3,
-    label="Posterior Std Dev",
-)
-
-ax.set_xlabel(
-    "Old Method (SSH) Bias [True GMSL - SSH Estimation] (mm)"
-)
-ax.set_ylabel(
-    "New Method (Bayesian) Bias [True GMSL - Posterior Mean] (mm)"
-)
-ax.set_xlim(-max_val * 1.1, max_val * 1.1)
-ax.set_ylim(-max_val * 1.1, max_val * 1.1)
-ax.axhline(0, color="k", linestyle="--", alpha=0.2)
-ax.axvline(0, color="k", linestyle="--", alpha=0.2)
-ax.legend()
-ax.set_title(
-    "Method Biases: Old Method (SSH) vs. New Method (Bayesian)"
-)
-plt.show()
 
 # %%
 # sns contour plot
@@ -254,7 +210,91 @@ number_points = 1402
 old_method_error = altimetry_std_dev / np.sqrt(
     number_points
 )
-print(f"Old method error: {old_method_error:.4f} mm")
+print(f"Old method error: {old_method_error} mm")
+# %%
+# sns contour plot
+
+z_score_posterior = (
+    df["gmsl_true"] - df["posterior_mean"]
+) / df["posterior_std_dev"]
+z_score_ssh = (
+    df["gmsl_true"] - df["ssh_estimation"]
+) / old_method_error
+
+max_val = max(
+    np.abs(z_score_ssh).max(),
+    np.abs(z_score_posterior).max(),
+)
+
+fig, ax = plt.subplots(figsize=(7, 7))
+
+# KDE Plot
+sns.kdeplot(
+    x=z_score_ssh,
+    y=z_score_posterior,
+    cmap=colors.error_cmap,
+)
+
+# Scatter Plot
+ax.scatter(
+    x=z_score_ssh,
+    y=z_score_posterior,
+    alpha=0.2,
+    color=colors.primary_error,
+    label="Inversion run",
+    marker=".",
+)
+
+# Axis Labels with Dynamic Coloring
+ax.set_xlabel(
+    "Old Method (SSH) z-score",
+    color=colors.old_method,
+    fontweight="bold",
+)
+ax.set_ylabel(
+    "New Method (Bayesian) z-score",
+    color=colors.new_method,
+    fontweight="bold",
+)
+
+# Limits and Guides
+ax.set_xlim(-max_val * 1.1, max_val * 1.1)
+ax.set_ylim(-max_val * 1.1, max_val * 1.1)
+ax.axhline(
+    0,
+    color=colors.new_method,
+    linestyle="--",
+    alpha=0.5,
+    label="Zero New Method Bias",
+)
+ax.axvline(
+    0,
+    color=colors.old_method,
+    linestyle="--",
+    alpha=0.5,
+    label="Zero Old Method Bias",
+)
+
+# Title with mixed colors requires a bit of a trick if you want
+# different words to have different colors.
+# For a standard single-color title:
+ax.set_title(
+    f"Methods z-score: Old vs. New (no. inversion = {len(df)})",
+    color=colors.true,
+    fontweight="bold",
+)
+
+ax.xaxis.label.set_color(colors.old_method)
+ax.tick_params(axis="x", colors=colors.old_method)
+
+ax.yaxis.label.set_color(colors.new_method)
+ax.tick_params(axis="y", colors=colors.new_method)
+
+ax.legend()
+plt.show()
+fig.savefig("z_score_comparison_contour.png", dpi=600)
+
+
 # %%
 
 # Pre-calculating required metrics
