@@ -343,3 +343,10 @@
 - Ran Monte Carlo z-score comparison using the parallel inversion framework with joblib. Key result: 60.5% of Bayesian posterior z-scores fall within 1σ compared to 14.6% for the naïve altimetry proxy, with z-score statistics of 0.07 ± 1.21 versus 0.23 ± 4.20.
 - Renamed analysis folders for clarity and continued report writing.
 
+## 6 March 2026
+
+- Extended Monte Carlo framework with shifted-truth capability: the synthetic truth is shifted from the prior mean by a specified GMSL offset, enabling study of inversion performance under prior–truth mismatch.
+- Expanded explanatory prose in Notebook 06 (Simple Inversion) and began planning additional sensitivity tests for Notebook 07.
+- Set up method validation framework and added sensitivity analysis notebook.
+- Implemented z-score diagnostic computation and continued expanding the report.
+
