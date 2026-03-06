@@ -21,6 +21,7 @@ from pyslfp import (
 from tqdm import tqdm
 
 from project import (
+    colors,
     error_plot,
     ice_thickness_to_slc_operator,
 )
@@ -28,7 +29,10 @@ from project.operators import (
     ice_thickness_to_point_estimated_gmsl_operator,
     ice_thickness_to_ssh_point_estimations_operator,
 )
-from pygeoinf_extras import standard_dev
+from pygeoinf_extras import expectation, standard_dev
+from pygeoinf_extras.operators import (
+    point_averaging_operator,
+)
 from pyslfp_extras.altimetry import GridPoints
 from pyslfp_extras.gmsl import (
     altimetry_gmsl,
@@ -45,7 +49,8 @@ palette = sns.color_palette("deep")
 blue = palette[0]
 orange = palette[1]
 
-fp = FingerPrint(lmax=128)
+
+fp = FingerPrint(lmax=256)
 fp.set_state_from_ice_ng(version=IceModel.ICE7G, date=0.0)
 
 fp_op = fp.as_sobolev_linear_operator(
@@ -168,6 +173,7 @@ fig1, ax1, im1 = plot(
     colorbar_label="Ice Thickness Change (mm)",
 )
 ax1.set_title("a) True Ice Thickness Change")
+fig1.savefig("true_ice_thickness_change.png", dpi=600)
 
 # --- Plot 2: The Posterior Expectation (Our Best Estimate) ---
 fig2, ax2, im2 = plot(
@@ -184,6 +190,11 @@ fig2, ax2, im2 = plot(
 ax2.set_title(
     "b) Posterior Expectation (Inferred from Data)"
 )
+fig2.savefig(
+    "posterior_expectation_ice_thickness_change.png",
+    dpi=600,
+)
+
 
 fig2_1, ax2_1, im2_1 = plot(
     1000
@@ -297,7 +308,7 @@ B = averaging_operator(
 )
 
 # Get the true GMSL
-GMSL_true = B(model_true)
+GMSL_true = B(model_true)[0]
 
 # Push forward the posterior to the GMSL space.
 GMSL_prior_measure = ice_thickness_measure.affine_mapping(
@@ -325,6 +336,19 @@ ssh_esimation_alt = (
     * 1000
 )
 
+data_space = (
+    ice_thickness_to_ssh_point_estimations_op.codomain
+)
+F = point_averaging_operator(data_space)
+
+averaged_error = data_error_measure.affine_mapping(
+    operator=F
+)
+
+print(standard_dev(averaged_error) * 1000)
+
+ssh_std = standard_dev(averaged_error) * 1000
+
 # make two plots next to each other, one the includes the prior and posterior distributions, with vertical lines for true values and ssh estimation (with the two pdfs on different y scales)
 # the other is the same but without the prior distribution
 #
@@ -335,6 +359,8 @@ posterior_expectation = GMSL_posterior_measure.expectation[
 
 prior_std_dev = standard_dev(GMSL_prior_measure)
 posterior_std_dev = standard_dev(GMSL_posterior_measure)
+
+print(posterior_std_dev)
 
 x1_range = np.linspace(
     prior_expectation - 5 * prior_std_dev,
@@ -363,28 +389,56 @@ posterior_func = gaussian(
     x2_range, posterior_expectation, posterior_std_dev
 )
 
+ssh_func = gaussian(x2_range, ssh_esimation_alt, ssh_std)
+
+y_max = max(
+    prior_func.max(),
+    posterior_func.max(),
+    ssh_func.max(),
+)
+# %%
 fig, ax1 = plt.subplots(1, 1, figsize=(6, 4))
 # two y scale, one for prior and one for posterior
+
+ax1.axvline(
+    GMSL_true,
+    color=colors.true,
+    linestyle="--",
+    label=f"True GMSL ({GMSL_true:.2f} mm)",
+)
 
 ax1.plot(
     x2_range,
     posterior_func,
-    label=f"Posterior Distribution\n(mean={posterior_expectation:.2f} mm, std={posterior_std_dev:.2f} mm)",
-    color="blue",
-)
-ax1.axvline(
-    GMSL_true,
-    color="black",
-    linestyle="--",
-    label=f"True GMSL ({GMSL_true[0]:.2f} mm)",
+    label=f"Posterior Distribution\n(mean={posterior_expectation:.2f} mm, std={posterior_std_dev:.2e} mm)",
+    color=colors.new_method,
 )
 
-ax1.get_yaxis().set_visible(False)
+ax1.plot(
+    x2_range,
+    ssh_func,
+    label=f"Altimetry Point Estimation\n(mean={ssh_esimation_alt:.2f} mm, std={ssh_std:.2e} mm)",
+    color=colors.old_method,
+)
+
 ax1.axvline(
     ssh_esimation_alt,
-    color="red",
-    label=f"SSH Estimation ({ssh_esimation_alt:.2f} mm)",
+    color=colors.old_method,
+    linestyle="--",
+    # label=f"Altimetry Estimation ({ssh_esimation_alt:.2f} mm)",
 )
+
+ax1.axvline(
+    posterior_expectation,
+    color=colors.new_method,
+    linestyle="--",
+    # label=f"Prior Mean ({prior_expectation:.2f} mm)",
+)
+
+
+ax1.get_yaxis().set_visible(False)
+# ax1.set_xlabel("GMSL Contribution (mm)")
+ax1.set_ylim(-0.1, y_max * 1.1)
 
 ax1.set_title(
     "Prior and Posterior Distributions of GMSL Contribution"
@@ -392,67 +446,18 @@ ax1.set_title(
 ax1.legend()
 
 plt.tight_layout()
-plt.savefig("gmsl_contribution_distributions.png", dpi=600)
+plt.savefig(
+    "gmsl_contribution_distributions_b.png", dpi=600
+)
 plt.show()
 
 # %%
 
-plot(model_true)
-# %%
+# print how many sigma the posterior is away from the true value, and how many sigma the altimetry estimation is away from the true value
 
-GLI_weighting_function = (
-    -fp.ice_density
-    * fp.one_minus_ocean_function
-    * fp.greenland_projection(value=0)
-    * 1000
-    * fp.length_scale
-    / (fp.water_density * fp.ocean_area)
+print(
+    f"Posterior is {(GMSL_true - posterior_expectation) / posterior_std_dev:.2f} sigma away from true value."
 )
-WAI_weighting_function = (
-    -fp.ice_density
-    * fp.one_minus_ocean_function
-    * fp.west_antarctic_projection(value=0)
-    * 1000
-    * fp.length_scale
-    / (fp.water_density * fp.ocean_area)
-)
-EAI_weighting_function = (
-    -fp.ice_density
-    * fp.one_minus_ocean_function
-    * fp.east_antarctic_projection(value=0)
-    * 1000
-    * fp.length_scale
-    / (fp.water_density * fp.ocean_area)
-)
-
-C = averaging_operator(
-    model_space,
-    [
-        GLI_weighting_function,
-        WAI_weighting_function,
-        EAI_weighting_function,
-    ],
-)
-
-property_true = C(model_true)
-property_posterior_measure = (
-    model_posterior_measure.affine_mapping(operator=C)
-)
-
-
-property_true = C(model_true)
-property_posterior_measure = (
-    model_posterior_measure.affine_mapping(operator=C)
-)
-
-# Visualise the distribution using a corner plot
-plot_corner_distributions(
-    property_posterior_measure,
-    true_values=property_true,
-    labels=[
-        "Greenland Contribution (mm)",
-        "West Antarctica Contribution (mm)",
-        "East Antarctica Contribution (mm)",
-    ],
-    title="Joint Posterior Distributions of GMSL Contributions from Major Ice Sheets",
+print(
+    f"Altimetry estimation is {(GMSL_true - ssh_esimation_alt) / ssh_std:.2f} sigma away from true value."
 )

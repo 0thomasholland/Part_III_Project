@@ -1,0 +1,336 @@
+# %% [markdown]
+# # Bayesian Inversion Visualization Suite
+# This script processes the results of the parallel inversion runs.
+
+# %%
+import pathlib
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import seaborn as sns
+from scipy.stats import norm
+
+from project import colors
+
+
+def gaussian(x, mean, std_dev):
+    return (
+        1
+        / (std_dev * np.sqrt(2 * np.pi))
+        * np.exp(-0.5 * ((x - mean) / std_dev) ** 2)
+    )
+
+
+# %% [markdown]
+# ## 1. Load Data
+# Loads the consolidated master file from your disk.
+
+# %%
+master_file = "master_results.csv"
+
+if pathlib.Path(master_file).exists():
+    df = pd.read_csv(master_file)
+else:
+    # Placeholder for testing if file doesn't exist yet
+    print(
+        "Master file not found. Generating synthetic plotting data..."
+    )
+    n_samples = 100
+    true_vals = np.random.uniform(2.0, 5.0, n_samples)
+    df = pd.DataFrame(
+        {
+            "gmsl_true": true_vals,
+            "posterior_mean": true_vals
+            + np.random.normal(0, 0.2, n_samples),
+            "posterior_std_dev": np.random.uniform(
+                0.15, 0.25, n_samples
+            ),
+            "ssh_estimation": true_vals
+            + np.random.normal(0, 0.5, n_samples),
+        }
+    )
+# filter the dataframe so that it keeps shift values of zero or nan
+# df = df[df["shift"].isna() | (df["shift"] == 0)]
+
+# %%
+# sns contour plot
+max_val = max(
+    np.abs(df["gmsl_true"] - df["ssh_estimation"]).max(),
+    np.abs(df["gmsl_true"] - df["posterior_mean"]).max(),
+)
+
+fig, ax = plt.subplots(figsize=(7, 7))
+
+# KDE Plot
+sns.kdeplot(
+    x=df["gmsl_true"] - df["ssh_estimation"],
+    y=df["gmsl_true"] - df["posterior_mean"],
+    cmap=colors.error_cmap,
+)
+
+# Scatter Plot
+ax.scatter(
+    df["gmsl_true"] - df["ssh_estimation"],
+    df["gmsl_true"] - df["posterior_mean"],
+    alpha=0.2,
+    color=colors.primary_error,
+    label="Inversion run",
+    marker=".",
+)
+
+# Axis Labels with Dynamic Coloring
+ax.set_xlabel(
+    "Old Method (SSH) Bias [True GMSL - SSH Estimation] (mm)",
+    color=colors.old_method,
+    fontweight="bold",
+)
+ax.set_ylabel(
+    "New Method (Bayesian) Bias [True GMSL - Posterior Mean] (mm)",
+    color=colors.new_method,
+    fontweight="bold",
+)
+
+# Limits and Guides
+ax.set_xlim(-max_val * 1.1, max_val * 1.1)
+ax.set_ylim(-max_val * 1.1, max_val * 1.1)
+ax.axhline(
+    0,
+    color=colors.new_method,
+    linestyle="--",
+    alpha=0.5,
+    label="Zero New Method Bias",
+)
+ax.axvline(
+    0,
+    color=colors.old_method,
+    linestyle="--",
+    alpha=0.5,
+    label="Zero Old Method Bias",
+)
+
+# Title with mixed colors requires a bit of a trick if you want
+# different words to have different colors.
+# For a standard single-color title:
+ax.set_title(
+    f"Method Biases: Old vs. New (no. inversion = {len(df)})",
+    color=colors.true,
+    fontweight="bold",
+)
+
+ax.xaxis.label.set_color(colors.old_method)
+ax.tick_params(axis="x", colors=colors.old_method)
+
+ax.yaxis.label.set_color(colors.new_method)
+ax.tick_params(axis="y", colors=colors.new_method)
+
+ax.legend()
+plt.show()
+fig.savefig("bias_comparison_contour.png", dpi=600)
+
+# %%
+# sns contour plot
+
+max_val = max(
+    np.abs(df["gmsl_true"] - df["ssh_estimation"]).max(),
+    np.abs(df["gmsl_true"] - df["posterior_mean"]).max(),
+)
+
+fig, ax = plt.subplots(figsize=(7, 7))
+
+
+ax.scatter(
+    df["gmsl_true"] - df["ssh_estimation"],
+    df["gmsl_true"] - df["posterior_mean"],
+    alpha=0.2,
+    color="black",
+    label="Data Points",
+)
+
+ax.errorbar(
+    df["gmsl_true"] - df["ssh_estimation"],
+    df["gmsl_true"] - df["posterior_mean"],
+    yerr=df["posterior_std_dev"],
+    fmt="none",
+    ecolor="red",
+    alpha=0.3,
+    label="Posterior Std Dev",
+)
+
+ax.set_xlabel(
+    "Old Method (SSH) Bias [True GMSL - SSH Estimation] (mm)"
+)
+ax.set_ylabel(
+    "New Method (Bayesian) Bias [True GMSL - Posterior Mean] (mm)"
+)
+ax.set_xlim(-max_val * 1.1, max_val * 1.1)
+ax.set_ylim(-max_val * 1.1, max_val * 1.1)
+ax.axhline(0, color="k", linestyle="--", alpha=0.2)
+ax.axvline(0, color="k", linestyle="--", alpha=0.2)
+ax.legend()
+ax.set_title(
+    "Method Biases: Old Method (SSH) vs. New Method (Bayesian)"
+)
+plt.show()
+
+# %%
+# sns contour plot
+max_val = max(
+    np.abs(df["gmsl_true"] - df["ssh_estimation"]).max(),
+    np.abs(df["gmsl_true"] - df["posterior_mean"]).max(),
+)
+
+fig, ax = plt.subplots(figsize=(7, 7))
+
+# sns scatter plot, where hue is one color if true value is postiive, and another color if true value is negative
+
+sns.scatterplot(
+    x=df["gmsl_true"] - df["ssh_estimation"],
+    y=df["gmsl_true"] - df["posterior_mean"],
+    hue=df["gmsl_true"] > 0,
+    palette=[colors.true, colors.primary_error],
+    alpha=1,
+)
+
+# kdes for both case
+
+sns.kdeplot(
+    x=df[df["gmsl_true"] > 0]["gmsl_true"]
+    - df[df["gmsl_true"] > 0]["ssh_estimation"],
+    y=df[df["gmsl_true"] > 0]["gmsl_true"]
+    - df[df["gmsl_true"] > 0]["posterior_mean"],
+    cmap=colors.error_cmap,
+    label="True GMSL > 0",
+)
+
+sns.kdeplot(
+    x=df[df["gmsl_true"] <= 0]["gmsl_true"]
+    - df[df["gmsl_true"] <= 0]["ssh_estimation"],
+    y=df[df["gmsl_true"] <= 0]["gmsl_true"]
+    - df[df["gmsl_true"] <= 0]["posterior_mean"],
+    cmap="Greys",
+    label="True GMSL <= 0",
+)
+
+# Axis Labels with Dynamic Coloring
+ax.set_xlabel(
+    "Old Method (SSH) Bias [True GMSL - SSH Estimation] (mm)",
+    color=colors.old_method,
+    fontweight="bold",
+)
+ax.set_ylabel(
+    "New Method (Bayesian) Bias [True GMSL - Posterior Mean] (mm)",
+    color=colors.new_method,
+    fontweight="bold",
+)
+
+# Limits and Guides
+ax.set_xlim(-max_val * 1.1, max_val * 1.1)
+ax.set_ylim(-max_val * 1.1, max_val * 1.1)
+
+# Title with mixed colors requires a bit of a trick if you want
+# different words to have different colors.
+# For a standard single-color title:
+ax.set_title(
+    f"Method Biases: Old vs. New (no. inversion = {len(df)})",
+    color=colors.true,
+    fontweight="bold",
+)
+
+ax.xaxis.label.set_color(colors.old_method)
+ax.tick_params(axis="x", colors=colors.old_method)
+
+ax.yaxis.label.set_color(colors.new_method)
+ax.tick_params(axis="y", colors=colors.new_method)
+
+ax.legend()
+plt.show()
+
+# %%
+
+print(np.mean(df["posterior_std_dev"]))
+altimetry_std_dev = 0.001 * 1000
+number_points = 1402
+old_method_error = altimetry_std_dev / np.sqrt(
+    number_points
+)
+print(f"Old method error: {old_method_error:.4f} mm")
+# %%
+
+# Pre-calculating required metrics
+df["error_ssh"] = df["ssh_estimation"] - df["gmsl_true"]
+df["error_bayesian"] = (
+    df["posterior_mean"] - df["gmsl_true"]
+)
+
+df["abs_error_ssh"] = df["error_ssh"].abs()
+df["abs_error_bayesian"] = df["error_bayesian"].abs()
+
+df["pct_error_bayesian"] = (
+    df["error_bayesian"] / df["gmsl_true"]
+) * 100
+
+# %% [markdown]
+# ## 1. Residual Comparison (Method 1 vs Method 2)
+# Calculating the difference of the methods from the true value.
+# This shows which method is more "centered" on zero.
+
+# %%
+plt.figure(figsize=(10, 5))
+sns.kdeplot(
+    df["error_ssh"],
+    fill=True,
+    label="Old Method (SSH) Bias",
+    color=colors.old_method,
+)
+sns.kdeplot(
+    df["error_bayesian"],
+    fill=True,
+    label="New Method (Bayesian) Bias",
+    color=colors.new_method,
+)
+
+# calculate the mean of the new method biases
+
+mean = df["error_bayesian"].mean()
+# plot a "hypothetical" gaussian with that mean and the std dev as the new method std dev
+
+std_dev = df["posterior_std_dev"].mean()
+
+# x = np.linspace(mean - 4 * std_dev, mean + 4 * std_dev, 100)
+# y = gaussian(x, mean, std_dev)
+# plt.plot(
+#     x,
+#     y,
+#     label="Hypothetical Gaussian Centered in Bias",
+#     color=colors.new_method,
+#     linestyle="--",
+# )
+
+plt.axvline(
+    0, color=colors.true, linestyle="--", label="Zero Bias"
+)
+plt.title(
+    f"Distribution of Residuals (Estimate - Truth) [n={len(df)}]"
+)
+plt.xlabel("Error (mm)")
+plt.ylabel("Density")
+plt.legend()
+plt.show()
+
+
+# Calculate the number of times that the new method is within one sigma of the true value, compared to the old method
+within_one_sigma_bayesian = (
+    df["abs_error_bayesian"] <= df["posterior_std_dev"]
+).sum()
+within_one_sigma_ssh = (
+    df["abs_error_ssh"]
+    <= altimetry_std_dev / np.sqrt(number_points)
+).sum()
+
+print(
+    f"New method within 1 sigma: {within_one_sigma_bayesian} / {len(df)} ({within_one_sigma_bayesian / len(df) * 100:.1f}%)"
+)
+print(
+    f"Old method within 1 sigma: {within_one_sigma_ssh} / {len(df)} ({within_one_sigma_ssh / len(df) * 100:.1f}%)"
+)

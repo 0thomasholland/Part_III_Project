@@ -4,6 +4,7 @@ This package provides tools for analyzing sea level changes using
 Gaussian measures and pyslfp FingerPrint objects.
 """
 
+from project import colors
 from project.factored_forward_operator import (
     build_factored_forward_operator,
 )
@@ -19,6 +20,7 @@ from project.stats import (
 )
 
 __all__ = [
+    "colors",
     "cohens_d_effect_size",
     "kullback_leibler_divergence",
     "wasserstein_distance",

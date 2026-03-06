@@ -24,7 +24,7 @@ from pyslfp_extras.ice_thickness import (
     IceSheetChange,
 )
 
-fp = FingerPrint(lmax=128)
+fp = FingerPrint(lmax=256)
 fp.set_state_from_ice_ng(version=IceModel.ICE7G, date=0.0)
 
 fp_op = fp.as_sobolev_linear_operator(
@@ -35,6 +35,7 @@ fp_op = fp.as_sobolev_linear_operator(
 
 # generate prior dataset
 
+shift = 0.0
 altimetry_degree_density = 5.0
 ice_gmsl_target = 0.01
 
@@ -172,6 +173,7 @@ def inversion_func() -> str:
             "number_of_grid_points": len(
                 number_grid_points
             ),
+            "shift": shift,
         }
 
         with open(file_path, "wb") as f:
@@ -184,7 +186,7 @@ def inversion_func() -> str:
 
 
 # Total number of random samples you want to collect
-TOTAL_SAMPLES = 48
+TOTAL_SAMPLES = 70
 
 if __name__ == "__main__":
     # n_jobs should be roughly (Total RAM / Max RAM used by one inversion)
