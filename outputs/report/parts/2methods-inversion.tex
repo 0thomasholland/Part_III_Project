@@ -29,11 +29,27 @@ Using the Bayseian inversion framework, we are able to generate the posterior mo
 \subsubsection{Comparison with previous method}
 \texttt{See notebook: \citetitle{thomasholland06SimpleInversionipynb2026}}
 
-we collapse the full spatial sea-level fingerprints to a single scalar: the global mean sea level (GMSL) contribution. This is accomplished by applying the GMSL projection operator — a spatially uniform averaging kernel, appropriately area-weighted — to both the posterior distribution and the true field.
+We collapse the full spatial sea-level fingerprints to a single scalar: the global mean sea level (GMSL) contribution. This is accomplished by applying the GMSL projection operator, a spatially uniform averaging kernel, appropriately area-weighted, to both the posterior distribution and the true field. This generates a true GMSL value, $\Delta GMSL^{true}$, and the methods estimate, $\Delta GMSL^{bay}$:
+
+\begin{align}
+	\Delta GMSL^{true} &= G m_{\Delta I}^\dagger \\
+	\Delta GMSL^{bay} &= G m_{\Delta I}^{p}
+\end{align}
 
 For comparison, I also computed an old method GMSL estimate obtained by treating the raw altimetry observations as a direct proxy for sea-level change, without any inversion step, as described in \autoref{}. This method propergates through the altimetry error used in our inversion, $n$, with the assumption that this is the only source of error associated with this method or that other sources of error are consistent to both methods and thus moot.
 
-The inversions can be run multiple times smth smth repeateablitiy and validates the method. The L2
+\begin{equation}
+  \Delta GMSL^{alt} = \dfrac{1}{\mathbf{Len}[d_{obs}]}\sum^{\mathbf{Len}[d_{obs}]}_{i=1} d_{obs,\,i}
+\end{equation}
+
+The $z$-score can be calcualted for each method:
+
+\begin{align}
+	z^{bay} &= \dfrac{\Delta GMSL^{true} - \mathbb{E}[\Delta GMSL^{bay}]}{\mathbb{SD}[\Delta GMSL^{bay}]} \\
+	z^{alt} &= \dfrac{\Delta GMSL^{true} - \mathbb{E}[\Delta GMSL^{alt}]}{\mathbb{SD}[\Delta GMSL^{alt}]}
+\end{align}
+
+The inversions can be run multiple times smth smth repeateablitiy and validates the method. The $z$-score can be averaged and compared
 
 \subsubsection{Sensitivity tests}
 \texttt{See notebook: \citetitle{thomasholland07InversionSensitivityipynb2026}}
