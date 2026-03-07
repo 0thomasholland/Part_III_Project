@@ -1,11 +1,33 @@
 \subsection{Error Quantification}
 
-% Paragraph: Major sources of uncertainty -- ice thickness prior, firn 
-% density, length scale, activator parameters.
+The objective of this error quantification to interrogate how varying model parameters affect then error of the old method, and how these vary.
+
+In estimating the error associated with using sea surface height change as a proxy for global mean sea level change, we adopt a best-case assumption of dense, uniform sampling  across the altimetry domain $\Omega$. In this limit, the discrete sum over altimetry measurement points converges to a continuous surface integral so that the estimated global mean sea level reduces to the true spatial average of the field:
+
+\begin{equation}
+    \frac{1}{|\Omega|}\sum_{i=1}^{N} \eta(\mathbf{x}_i)\, \delta A_i
+    \;\xrightarrow{N \to \infty}\;
+    \frac{1}{|\Omega|}\int_{\Omega} \eta(\mathbf{x})\, \mathrm{d}S(\mathbf{x}).\label{eq:altimetry_equation}
+\end{equation}
+
+This constitutes a best-case scenario for the estimation error: any realistic altimetry network, with finite and non-uniform spatial coverage, will perform no better than this ideal limit. By framing the error analysis in terms of this continuous average rather than a specific satellite configuration, the resulting error bounds are independent of the particular sampling geometry and reflect a fundamental lower bound on the approximation error inherent to the method itself.
+
+Practically, working directly with the surface integral also avoids the need to generate and store a large list of altimetry sample points, reducing computational overhead and making the error estimation tractable for global-scale calculations.
+
+To demonstrate and confirm this, a test was run to see how the effects of changing the altimetry resolution. Resolutions within the range of those needed for inversions (2 to 20 deg grid spacing) to resolutions typically provided by altiemtery measures (5 to 0.25 deg grid spacing) were tested and compared against whole field SSH averages.
+
+\subsubsection{Altimetry range across all ice sheet}
+
+To test how altimetry changed affects
+
+\subsubsection{Altimetry range across major ice sheets}
 
 
 
+\subsubsection{Altimetry measurement error}
 
+Scales like:
 
-% Paragraph: Discuss how errors from ice and firn mix in the total field,
-% since they are constructed to be complementary but not independent.
+\begin{equation}
+	\sigma_{alt} = \dfrac{\sigma_{n}}{\sqrt{N}}
+\end{equation}
