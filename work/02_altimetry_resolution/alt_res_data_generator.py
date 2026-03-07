@@ -79,7 +79,7 @@ results: dict[str, tuple[float, float]] = {
 # %%
 
 
-def process_spacing(spacing: float) -> None:
+for spacing in altimetry_spacing:
     print(f"Processing spacing: {spacing}")
     grid = GridPoints.ocean_altimetry(fp, spacing, 66.0)
     print(f"Grid points: {len(grid.coords)}")
@@ -93,6 +93,7 @@ def process_spacing(spacing: float) -> None:
     gmsl_estimate = ice_thickness_measure.affine_mapping(
         operator=gmsl_operator @ thickness_to_ssh_op
     )
+    print("Done with estimate, calculating stats...")
     results[f"{spacing}"] = (
         expectation(gmsl_estimate),
         standard_dev(gmsl_estimate),
@@ -100,13 +101,6 @@ def process_spacing(spacing: float) -> None:
     print(
         f"Spacing: {spacing}, Expectation: {results[f'{spacing}'][0]}, Std: {results[f'{spacing}'][1]}"
     )
-    return None
-
-
-Parallel(n_jobs=-1, verbose=11)(
-    delayed(process_spacing)(spacing)
-    for spacing in altimetry_spacing
-)
 
 
 # %%

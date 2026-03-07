@@ -34,11 +34,14 @@
 \usepackage[english]{babel}
 \usepackage{rotating}
 \usepackage{url}
+\usepackage{hyperref}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{amsfonts}
 \usepackage{braket}
-\usepackage{todonotes}
+\usepackage[obeyFinal]{todonotes}
+
+\setuptodonotes{inline, size=\tiny}
 
 \usepackage{graphicx}
 \graphicspath{{figs/}}
@@ -79,9 +82,4 @@
 \usepackage{tabularx}
 \renewcommand{\tabularxcolumn}[1]{>{\raggedright\arraybackslash}p{#1}}
 
-\let\oldparagraph\paragraph
-\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}\\}
-
-\let\stdsection\section
-\renewcommand
-\section{\newpage\stdsection}
+\AddToHook{cmd/section/before}{\clearpage}

@@ -87,7 +87,7 @@ class GridPoints:
         the filtered grid points.
         """
         return measurement_space.point_evaluation_operator(
-            self.coords
+            self.coords, matrix_free=True, parallel=True
         )
 
     def __len__(self) -> int:
