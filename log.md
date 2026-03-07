@@ -350,3 +350,8 @@
 - Set up method validation framework and added sensitivity analysis notebook.
 - Implemented z-score diagnostic computation and continued expanding the report.
 
+## 7 March 2026
+
+- Developed mathematical justification for approximating discrete altimetry measurements as a continuous surface integral, deriving the Riemann sum convergence argument. Key theoretical result: the continuous integral provides a fundamental lower bound on approximation error, is computationally cheaper, and is independent of specific sampling geometry.
+- Added simplified joint inversion implementation and continued report development.
+
