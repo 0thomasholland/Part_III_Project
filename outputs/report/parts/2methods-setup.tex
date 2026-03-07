@@ -50,7 +50,63 @@ Fields can either be rotationally invariant, such that REF is satsified, or spat
 
 \subsection{Designing the model space, data space, and suitable operators}
 
-% explain model space and data space, how can be of single thing or combination
+\subsubsection{Sea Surface Height operator}
+
+
+Sea level problem had be implemented in \cite{al-attarPySLFPPythonSea2025} using the recent advancements made in \textcite{al-attarReciprocitySensitivityKernels2023} related to calculating of the adjoint of the sea level fingerprint equation.
+
+As discussed in \autoref{sec:slp}, the relation between SSHC and SLC is given in \autoref{eq:slc_ssh_eq}. As the finger print code implemented in \cite{al-attarPySLFPPythonSea2025} returns the displacement field when calculating the SLC, it is fairly trivial to implement this operator, which acts on the total response space of the fingerprint operator to return the SSHC field (\autoref{eq:sshc_op}).
+
+\begin{equation}
+	\Delta SSH = \Delta SL + \hat{r}\mathbf{u} \label{eq:slc_ssh_eq}
+\end{equation}
+
+\begin{equation}
+    \Delta \text{SSH} = A_{\text{ssh}} \circ A_{\text{fp}} \, L \label{eq:sshc_op}
+\end{equation}
+
+\begin{figure}
+
+\end{figure}
+
+
+
+\subsubsection{Point sampling}
+
+Three altimetry sampling methods are required for ocean alteimtry and ice altimerry sampling.
+
+These are defined at user defined grid spacings, which are then masked to the relevant areas. A point evaluation operator is created that samples a intermediatory space to generate a data space.
+
+\todo{EQUATION}
+
+\subsubsection{GMSL operators}
+
+\todo{CHECK EQUATIONS}
+
+True GMSL can be calculated from a simple mass balance from ice change accounting for the density difference, and if we assume that the shape of the coastlines is constant, this takes the form:
+
+\begin{equation}
+    \Delta GMSL = \frac{\rho_W}{A_{ocean} \rho_I} \int_{\Omega} \Delta T(\mathbf{x})\, \mathrm{d}S(\mathbf{x}) \label{eq:gmsl_integral}
+\end{equation}
+
+A SSH based GMSL estimate can be calculated by calcualting a surface integral of the SSHC field over the oceans:
+
+\begin{equation}
+    \Delta GMSL^{SSH} = \frac{1}{|\Omega|}\int_{\Omega} \Delta SSH(\mathbf{x})\, \mathrm{d}S(\mathbf{x}) \label{eq:gmsl_ssh_integral}
+\end{equation}
+
+A SSH altimetry based GMSL can be calculated by a surface integral of the SSHC over the oceans within a defined latitudinal range:
+
+\begin{equation}
+    \Delta GMSL^{SSH} = \frac{1}{|\Omega|}\int_{\Omega} \Delta SSH(\mathbf{x})\, \mathrm{d}S(\mathbf{x}) \label{eq:gmsl_ssh_alt_integral}
+\end{equation}
+
+A SSH point altimetry based GMSL estimate can be calculated by sampling the SSHC field at the altimetry points and taking the average, which although is more compuatiaonally costly, is more consistent with the altimetry method and allows for the error to be calculated in a more consistent way:
+
+\begin{equation}
+    \Delta GMSL^{SSH} = \frac{1}{N}\sum_{i=1}^{N} \Delta SSH(\mathbf{x}_i) \label{eq:gmsl_ssh_point}
+\end{equation}
+
 
 \subsubsection{Modelling Ice and Firn Thickness Change}\label{sec:ice_thickness_priors}
 
@@ -152,27 +208,6 @@ The load operator is defined in pyslfp as the point-wise multiplication of ice t
 % way to set the prior scale rather than an arbitrary choice.
 
 
-
-
-
-\subsubsection{Sea Surface Height operator}
-
-
-Sea level problem had be implemented in \cite{al-attarPySLFPPythonSea2025} using the recent advancements made in \textcite{al-attarReciprocitySensitivityKernels2023} related to calculating of the adjoint of the sea level fingerprint equation.
-
-As discussed in \autoref{sec:slp}, the relation between SSHC and SLC is given in \autoref{eq:slc_ssh_eq}. As the finger print code implemented in \cite{al-attarPySLFPPythonSea2025} returns the displacement field when calculating the SLC, it is fairly trivial to implement this operator, which acts on the total response space of the fingerprint operator to return the SSHC field (\autoref{eq:sshc_op}).
-
-\begin{equation}
-	\Delta SSH = \Delta SL + \hat{r}\mathbf{u} \label{eq:slc_ssh_eq}
-\end{equation}
-
-\begin{equation}
-    \Delta \text{SSH} = A_{\text{ssh}} \circ A_{\text{fp}} \, L \label{eq:sshc_op}
-\end{equation}
-
-\begin{figure}
-
-\end{figure}
 
 \subsubsection{Modelling Ocean Dynamics}
 % Paragraph: Discuss assumptions -- uniform field, or with broader spatial
