@@ -2,7 +2,7 @@
 
 % Breif introduction
 
-By applying the inversion framework outlined in \autoref{sec:bay}, which is implemented within the \textcite{al-attarPygeoinfPythonLibrary2025}, we can implement the physics outlined previously with the prior distributions built to reflect our prior belief of our knowledge of the system to get result in our posterior belief of the state of the model space.
+By applying the inversion framework outlined in \autoref{sec:bay}, which is implemented within the \citetitle{al-attarPygeoinfPythonLibrary2025}, we can implement the physics outlined previously with the prior distributions built to reflect our prior belief of our knowledge of the system to get result in our posterior belief of the state of the model space.
 
 
 
@@ -36,7 +36,7 @@ We collapse the full spatial sea-level fingerprints to a single scalar: the glob
 	\Delta GMSL^{bay} &= G m_{\Delta I}^{p} \label{eq:bay-gmsl-model}
 \end{align}
 
-For comparison, I also computed an old method GMSL estimate obtained by treating the raw altimetry observations as a direct proxy for sea-level change, without any inversion step, as described in \autoref{}. This method propergates through the altimetry error used in our inversion, $n$, with the assumption that this is the only source of error associated with this method or that other sources of error are consistent to both methods and thus moot.
+For comparison, I also computed an old method GMSL estimate obtained by treating the raw altimetry observations as a direct proxy for sea-level change, without any inversion step, as described in \autoref{}. This method propergates through the altimetry error used in our inversion, $n$, with the assumption that other sources of error are consistent to both methods, for example the errors assocaited with data cleaning steps, and thus moot.
 
 \begin{equation}
   \Delta GMSL^{alt} \sim \mathcal{N}\left(\dfrac{1}{\mathbf{Len}[d_{obs}]}\sum^{\mathbf{Len}[d_{obs}]}_{i=1} d_{obs,\,i},\, \mathcal{C}_n\right) \label{eq:alt-gmsl-model}
@@ -96,7 +96,7 @@ It is often the case where multiple model space parameters map to one data space
 	d_{\Delta SSH} = P_{S}( SSH \circ F (L_I m_{\Delta I} + L_F m_{\Delta F} + L_W m_{\Delta ODT}) + m_{\Delta ODT})
 \end{equation}
 
-Smth smth optimised form as one fingerprint solve, which is the computationally expensive step. However, for forming our forward operator from direct sum, intiialy we can each term in our forward operator direct sum in terms of mapping from one model space to one data space, and then optimise later after conceptualising the process. As such the forward problem can be written as:
+The forward operator for the joint inversion can be written as a block matrix, with each block being the mapping of the respective model space parameter to the respective data space parameter. This results in the following form:
 
 \begin{align}
 \begin{bmatrix}
@@ -117,7 +117,7 @@ Smth smth optimised form as one fingerprint solve, which is the computationally 
 \end{bmatrix}
 \end{align}
 
-Then to optimise this to reduce the number of fingerprint calls, we can factorise this matrix into sparse matrices, shown in \autoref{eq:factorised_joint}. This reduced each iteration time, with a speed-up of $3\times$.
+However, this is computationally inefficient, as it requires six independent calls to the fingerprint numerical solver. To optimise this forward operator to reduce the number of fingerprint calls, we can factorise this matrix into sparse matrices, shown in \autoref{eq:factorised_joint}. This reduced each iteration time, with a speed-up of $3\times$.
 
 \begin{equation}
 =
