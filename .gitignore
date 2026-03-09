@@ -81,3 +81,5 @@ __pypackages__/
 *.nc
 
 scratch/
+
+uv.lock
