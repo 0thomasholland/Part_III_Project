@@ -355,3 +355,8 @@
 - Developed mathematical justification for approximating discrete altimetry measurements as a continuous surface integral, deriving the Riemann sum convergence argument. Key theoretical result: the continuous integral provides a fundamental lower bound on approximation error, is computationally cheaper, and is independent of specific sampling geometry.
 - Added simplified joint inversion implementation and continued report development.
 
+## 9 March 2026
+
+- Reviewed report structure: identified placeholder sections and mapped out the natural results arc (synthetic twin experiment, sensitivity analysis, real DUACS data application).
+- Replaced Poetry with uv for dependency management.
+

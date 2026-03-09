@@ -63,7 +63,7 @@ melt_likelihood.data: SHGrid = activator(
 plot(
     melt_likelihood * fp.ice_projection(),
     cmap=cc.cm.blues,
-    colorbar_label="Ice melt likelihood",
+    colorbar_label="Ice melt pointwise standard deviation field",
 )[0].savefig("figs/ice_melt_likelihood.png", dpi=600)
 
 
@@ -101,5 +101,5 @@ melt_likelihood.data: SHGrid = 1 - activator(
 plot(
     melt_likelihood * fp.ice_projection(),
     cmap=cc.cm.blues,
-    colorbar_label="Firn melt likelihood",
+    colorbar_label="Firn melt pointwise standard deviation field",
 )[0].savefig("figs/firn_melt_likelihood.png", dpi=600)

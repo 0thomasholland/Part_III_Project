@@ -1,61 +1,17 @@
-\subsection{Mathematical Framework}\label{sec:maths_background}
-
-For most readers, the mathematical framing given below should be sufficient to understand the remainder of the paper, however for full details for the mathematical framework surrounding the underlying python packages can be found see apendix E of Heathcotte and Al-Attar blah TKTK, which lay outside the scope of this report. Other useful texts for a wider background are included in the Mathematical Bibliography (ref TKTK).
-
-% Paragraph: Introduce the function space setting. Explain that fields are  represented as elements of a Sobolev space over the sphere, and why this is appropriate (smoothness, well-defined inner product). Introduce notation.
-
-To represent continuous fields over the sphere (taken to be a unit sphere, $\mathbb{S}^2$, scaled to the dimensions of the Earth) in a mathematically rigorous way, we work within a Sobolev space (\autoref{eq:sobolev}), where the index $s$ controls the smoothness of admissible fields. In practice this means that realisations of the fields are guaranteed to be spatially smooth, which is physically appropriate given the length scales and physical problem involved. For a full explanation see section 2.3.2 of \textcite{heathcoteScaleableBayesianFramework2026}.
-
-
-
-
-\begin{equation}\label{eq:sobolev}
-    h \in H^s(\mathbb{S}^2)
-\end{equation}
-
-This framework accommodates both deterministic fields, which enter as fixed elements of $H^s(\mathcal{S}^2)$, and Gaussian random fields, which are represented as probability measures over the same space, allowing uncertainty to be propagated consistently through the forward model and for Linear Operators to be functions on both types.
-
-% Paragraph: Introduce linear operators mapping between fields, and their adjoints. This is the machinery used throughout the forward model.
-
-Linear operators map between fields, with their adjoints mapping the inverse action of those operators.
-
-
-
-\begin{align}
-    A: X &\rightarrow Y \\
-    A^*: Y &\rightarrow X
-\end{align}
-
-% Paragraph: Introduce Gaussian measures over these spaces. A Gaussian field is characterised by a mean and covariance operator. Connect to the structure -- covariance operators are self-adjoint by definition.
-
-The Gaussian fields over spaces are defined by their mean value and covariance, which in the context of this framework are a vector and linear operator matrix respectively.
-
-\begin{equation}
-    \mu = \mathcal{N}(\mathbf{m}, \mathcal{C}), \quad \mathcal{C} = \mathcal{C}^*
-\end{equation}
-
-Linear operators can act on these Gaussians such:
-
-\begin{align}
-	A&: X \rightarrow Y\\
-	\mu_X &= \mathcal{N}(\mathbf{m}, \mathcal{C}) \in X \\
-	A \mu &= \mathcal{N}(A\mathbf{m}, A\mathcal{C}A^*) \in Y
-\end{align}
-
-Fields can either be rotationally invariant, such that REF is satsified, or spatially variant, such that there is
-
-\begin{equation}
-	f(\mathbf{x'}) = f(\mathbf{Rx}) = f(\mathbf{x})
-\end{equation}
+To quantify the error of using sea surface height change as a proxy for global mean sea level change, and to develop a new method that utilises the Bayesiean framework, it is necessary to design a suitable model space, data space, and operators that map between these spaces in a way that is consistent with the underlying physics and the available data and then proceed with testing the method and quantifying the error of the old method. Then, once this has been understood, the new method can be applied and tested.
 
 \subsection{Designing the model space, data space, and suitable operators}
 
+Under this mathematical framework, it is possible to define model spaces and data spaces that are suitable for the problem at hand, and to design linear operators that map between these spaces in a way that is consistent with the underlying physics and the available data.
+
 \subsubsection{Sea Surface Height operator}
 
+\texttt{See notebook: \citetitle{thomasholland01SeaSurface2026}}
 
-Sea level problem had be implemented in \cite{al-attarPySLFPPythonSea2025} using the recent advancements made in \textcite{al-attarReciprocitySensitivityKernels2023} related to calculating of the adjoint of the sea level fingerprint equation.
 
-As discussed in \autoref{sec:slp}, the relation between SSHC and SLC is given in \autoref{eq:slc_ssh_eq}. As the finger print code implemented in \cite{al-attarPySLFPPythonSea2025} returns the displacement field when calculating the SLC, it is fairly trivial to implement this operator, which acts on the total response space of the fingerprint operator to return the SSHC field (\autoref{eq:sshc_op}).
+Sea level problem had been implemented in \citetitle{al-attarPySLFPPythonSea2025} using the recent advancements made in \textcite{al-attarReciprocitySensitivityKernels2023} related to calculating of the adjoint of the sea level fingerprint equation.
+
+As discussed in \autoref{sec:slp}, the relation between SSHC and SLC is given in \autoref{eq:slc_ssh_eq}. As the finger print code implemented in \citename{al-attarPySLFPPythonSea2025} returns the displacement field when calculating the SLC, it is fairly trivial to implement an operator that maps from SLC to SSHC, which acts on the total response space of the fingerprint operator to return the SSHC field (\autoref{eq:sshc_op}).
 
 \begin{equation}
 	\Delta SSH = \Delta SL + \hat{r}\mathbf{u} \label{eq:slc_ssh_eq}
@@ -73,15 +29,17 @@ As discussed in \autoref{sec:slp}, the relation between SSHC and SLC is given in
 
 \subsubsection{Point sampling}
 
+\texttt{See notebook: \citetitle{thomasholland05AltimetrySamplingipynb2026}}
+
 Three altimetry sampling methods are required for ocean alteimtry and ice altimerry sampling.
 
 These are defined at user defined grid spacings, which are then masked to the relevant areas. A point evaluation operator is created that samples a intermediatory space to generate a data space.
 
-\todo{EQUATION}
+\todo{equations and sort this out a bit better}
 
 \subsubsection{GMSL operators}
 
-\todo{CHECK EQUATIONS}
+\todo{Check equations and better define notation}
 
 True GMSL can be calculated from a simple mass balance from ice change accounting for the density difference, and if we assume that the shape of the coastlines is constant, this takes the form:
 
@@ -98,19 +56,19 @@ A SSH based GMSL estimate can be calculated by calcualting a surface integral of
 A SSH altimetry based GMSL can be calculated by a surface integral of the SSHC over the oceans within a defined latitudinal range:
 
 \begin{equation}
-    \Delta GMSL^{SSH} = \frac{1}{|\Omega|}\int_{\Omega} \Delta SSH(\mathbf{x})\, \mathrm{d}S(\mathbf{x}) \label{eq:gmsl_ssh_alt_integral}
+    \Delta GMSL^{alt} = \frac{1}{|\Omega_{alt}|}\int_{\Omega_{alt}} \Delta SSH(\mathbf{x})\, \mathrm{d}S(\mathbf{x}) \label{eq:gmsl_ssh_alt_integral}
 \end{equation}
 
 A SSH point altimetry based GMSL estimate can be calculated by sampling the SSHC field at the altimetry points and taking the average, which although is more compuatiaonally costly, is more consistent with the altimetry method and allows for the error to be calculated in a more consistent way:
 
 \begin{equation}
-    \Delta GMSL^{SSH} = \frac{1}{N}\sum_{i=1}^{N} \Delta SSH(\mathbf{x}_i) \label{eq:gmsl_ssh_point}
+    \Delta GMSL^{point} = \frac{1}{N}\sum_{i=1}^{N} \Delta SSH(\mathbf{x}_i) \label{eq:gmsl_ssh_point}
 \end{equation}
 
 
 \subsubsection{Modelling Ice and Firn Thickness Change}\label{sec:ice_thickness_priors}
 
-
+\texttt{See notebook: \citetitle{thomasholland04IceFirnipynb2026}}
 % -------------------------------------------------------------------------
 
 % Paragraph: Motivate the need for a spatial prior on ice thickness change.
@@ -128,7 +86,8 @@ As discussed in \autoref{sec:bay}, if there is a scientific
 % smooth prior, with the length scale controlling spatial correlation.
 
 
-A uniform point value scaled heat kernel gaussian measure is generated across the load space, which is then masked to the ice area. This measure is defined such that the covariance of the measure is scaled such that the standard deviation of the point-wise values are equal to the given amplitude \autocite{al-attarPygeoinfPythonLibrary2025}.
+A uniform point value scaled heat kernel gaussian measure is generated across the load space, which is then masked to the ice area. This measure is defined such that the covariance of the measure is scaled such that the standard deviation of the point-wise values are equal to the given amplitude \autocite{dal-attarPygeoinfsymmetric_spacePackageDocumentation2025}.
+
 
 By scaling the ice thickness change according to \autoref{eq:ice_gmsl_scaling}, which acts to scale the ice prior to have the belived standard deviation of the GMSL contirbution of ice melt, this can be satisfactorily used as an ice thickness prior.
 
@@ -210,8 +169,7 @@ The load operator is defined in pyslfp as the point-wise multiplication of ice t
 
 
 \subsubsection{Modelling Ocean Dynamics}
-% Paragraph: Discuss assumptions -- uniform field, or with broader spatial
-% structure. Mention DUACS dataset as a possible constraint.
+\texttt{See notebook: \citetitle{thomasholland03OceanDynamicsipynb2026}}
 
 
 
