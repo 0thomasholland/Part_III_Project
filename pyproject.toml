@@ -2,11 +2,12 @@
 name = "Part_III_Project"
 version = "0.1.0"
 description = ""
+requires-python = ">=3.14"
 readme = "README.md"
-requires-python = "~=3.12.0"
 authors = [
   { name = "Thomas Holland", email = "101332229+0thomasholland@users.noreply.github.com" },
 ]
+# Core dependencies for the project to run
 dependencies = [
   "matplotlib",
   "mpltern",
@@ -14,60 +15,56 @@ dependencies = [
   "pandas",
   "pygeoinf",
   "pyslfp",
-  "jupyter",
-  "ipykernel",
-  "jupytext",
-  "ruff",
   "statsmodels",
   "ty",
   "pynvim",
+  "copernicusmarine>=2.3.0,<3.0.0",
+  "xarray>=2026.1.0,<2027.0.0",
+  "netcdf4>=1.7.4,<2.0.0",
+  "h5py>=3.15.1,<4.0.0",
+  "colorcet>=3.1.0,<4.0.0",
+  "dill>=0.4.1,<0.5.0",
+  "pygmt>=0.18.0,<0.19.0",
+  "seaborn>=0.13.2,<0.14.0",
+]
+
+[dependency-groups]
+# Tools for development, notebooks, and linting
+dev = [
+  "jupyter",
+  "ipykernel",
+  "jupytext",
   "jupyter-client",
   "notebook",
-  "copernicusmarine (>=2.3.0,<3.0.0)",
-  "xarray (>=2026.1.0,<2027.0.0)",
-  "netcdf4 (>=1.7.4,<2.0.0)",
-  "h5py (>=3.15.1,<4.0.0)",
-  "colorcet (>=3.1.0,<4.0.0)",
-  "dill (>=0.4.1,<0.5.0)",
-  "pygmt (>=0.18.0,<0.19.0)",
-  "seaborn (>=0.13.2,<0.14.0)",
+  "ruff",
 ]
 
 [build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["uv-build>=0.1"]
+build-backend = "uv_build"
 
-[tool.poetry]
-packages = [
-  { include = "project", from = "src" },
-  { include = "pyslfp_extras", from = "src" },
-  { include = "pygeoinf_extras", from = "src" },
-]
+[tool.uv]
+package = true
+
+[tool.uv.build-backend]
+module-name = ["project", "pygeoinf_extras", "pyslfp_extras"]
 
 [tool.ruff]
-target-version = "py312"
 line-length = 60
 src = ["src"]
 
 [tool.ruff.lint]
-select = [
-  "F",   # Pyflakes (correctness)
-  "E",   # pycodestyle errors
-  "W",   # pycodestyle warnings
-  "I",   # isort (import sorting)
-  "B",   # flake8-bugbear (catches common bugs like mutable defaults)
-  "UP",  # pyupgrade (upgrades code to modern Python 3.12 syntax)
-  "SIM", # flake8-simplify (helps you write cleaner code)
-  "N",   # pep8-naming (enforces standard function/class names)
-]
-extend-select = [
-  "ANN", # flake8-annotations (type hints)
-  "TID", # flake8-tidy-imports (cleaner import structures)
-  "RUF", # Ruff-specific rules (ambiguous characters, etc.)
-]
+select = ["F", "E", "W", "I", "B", "UP", "SIM", "N"]
+extend-select = ["ANN", "TID", "RUF", "S", "ARG", "PTH", "C4", "RET", "PT"]
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["ANN201", "ANN204"]
-"tests/*" = ["ANN"]                  # Don't require strict types in tests
+"tests/*" = ["ANN"]
 
 [tool.ty]
+python-version = "3.14"
+exclude = [
+    ".venv",
+    ".git",
+    "outputs"
+]
