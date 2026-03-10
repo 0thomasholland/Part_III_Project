@@ -8,7 +8,7 @@ By applying the inversion framework outlined in \autoref{sec:bay}, which is impl
 
 \subsubsection{Simple inversion}
 
-\texttt{See notebook: \citetitle{thomasholland06SimpleInversionipynb2026}}
+\notebookcite{thomasholland06SimpleInversionipynb2026}
 
 A simple case for this is setting the model space to be a rotationally invariant ice thickness change with a single density and the data space to be changes in SSH altimetry. This would result in the following form:
 
@@ -27,7 +27,7 @@ Where the noise covariance, $\mathcal{C}_n$, reflects the measurement uncertaint
 Using the Bayseian inversion framework, we are able to generate the posterior model space parameters (?!?), $m_{\Delta I}^{p}$, which can be compared to the used to inspect the new inversion method. Such inspections can include simple visual inspection of the posterior model expectation, which captures ???, with the true field. Both of these can be pushed forward through the sea level operator to obtain their respective sea level fingerprints, also propagating their uncertainty.
 
 \subsubsection{Comparison with previous method}
-\texttt{See notebook: \citetitle{thomasholland06SimpleInversionipynb2026}}
+\notebookcite{thomasholland06SimpleInversionipynb2026}
 
 We collapse the full spatial sea-level fingerprints to a single scalar: the global mean sea level (GMSL) contribution. This is accomplished by applying the GMSL projection operator, a spatially uniform averaging kernel, appropriately area-weighted, to both the posterior distribution and the true field. This generates a true GMSL value, $\Delta GMSL^{true}$, and the inversion method's estimate, $\Delta GMSL^{bay}$:
 
@@ -52,7 +52,7 @@ The $z$-score can be calculated for each method:
 The inversions can be run multiple times smth smth repeatability and validates the method. The $z$-score can be averaged and compared across multiple runs.
 
 \subsubsection{Sensitivity tests}
-\texttt{See notebook: \citetitle{thomasholland07InversionSensitivityipynb2026}}
+\notebookcite{thomasholland07InversionSensitivityipynb2026}
 
 Using similar methods to those described in \textcite{heathcoteScaleableBayesianFramework2026} for testing the inversion sensitivity to changing parameters.
 

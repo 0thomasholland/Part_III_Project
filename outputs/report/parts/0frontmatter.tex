@@ -27,40 +27,70 @@
 %TC:break thebibliography 0 0
 %TC:break references 0 0
 
-\usepackage{lipsum}
-
-\usepackage{csquotes}
-\usepackage{svg}
+% ==========================================
+% 1. ENCODING & LANGUAGE
+% ==========================================
+\usepackage[T1]{fontenc}
 \usepackage[english]{babel}
-\usepackage{rotating}
-\usepackage{url}
-\usepackage{hyperref}
+\usepackage{csquotes} % Highly recommended when using babel + biblatex
+
+% ==========================================
+% 2. TYPOGRAPHY & LAYOUT
+% ==========================================
+\usepackage[margin=2cm, bindingoffset=0.5cm, top=4cm]{geometry}
+\usepackage{fancyhdr}
+\usepackage{microtype} % ADDED: Dramatically improves text justification and reduces overfull hboxes
+
+% ==========================================
+% 3. MATH & SCIENCE
+% ==========================================
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{amsfonts}
 \usepackage{braket}
-\usepackage[obeyFinal]{todonotes}
+\usepackage{cases}
 
-\setuptodonotes{inline, size=\tiny}
-
+% ==========================================
+% 4. GRAPHICS, FIGURES & TABLES
+% ==========================================
 \usepackage{graphicx}
 \graphicspath{{figs/}}
-
-\usepackage{cases}
+\usepackage{svg}
 \usepackage{float}
-\usepackage{hyperref}
-% todo figures
 \usepackage{caption}
-
-\usepackage[margin=2cm, bindingoffset=0.5cm, top=4cm]{geometry}
 \usepackage{subcaption}
-\usepackage{fancyhdr}
+\usepackage{rotating}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\renewcommand{\tabularxcolumn}[1]{>{\raggedright\arraybackslash}p{#1}}
 
+% ==========================================
+% 5. UTILITIES
+% ==========================================
+\usepackage{lipsum}
+\usepackage[obeyFinal]{todonotes}
+\setuptodonotes{inline, size=\tiny}
+
+% ==========================================
+% 6. BIBLIOGRAPHY (BIBER)
+% ==========================================
+\usepackage[backend=biber, uniquename=full, maxnames=2, style=authoryear]{biblatex}
+\addbibresource{zotero.bib}
+
+% ==========================================
+% 7. HYPERREF (Must generally be loaded last)
+% ==========================================
+\usepackage{xurl} % ADDED: Better URL line-breaking than the standard url package
+\usepackage[colorlinks=true, linkcolor=black, citecolor=black, urlcolor=blue]{hyperref}
+
+% ==========================================
+% CONFIGURATIONS & CUSTOM COMMANDS
+% ==========================================
+
+% --- Header Configuration ---
+\pagestyle{fancy} % FIXED: Without this, your custom headers won't actually appear!
 \fancyhf{}
 \setlength{\headheight}{15pt}
-% --- Header Configuration ---
-% E = Even page, O = Odd page
-% L = Left, R = Right
 
 % Even pages (Left side of the spread)
 \fancyhead[LE]{\thepage}          % Page number: Outer
@@ -72,14 +102,12 @@
 
 \renewcommand{\headrulewidth}{0pt} % Removes the horizontal line
 
-\usepackage[T1]{fontenc}
-
-
-\usepackage[backend=bibtex, uniquename=full, maxnames=2, style=authoryear]{biblatex}
-\addbibresource{zotero.bib}
-
-\usepackage{booktabs}
-\usepackage{tabularx}
-\renewcommand{\tabularxcolumn}[1]{>{\raggedright\arraybackslash}p{#1}}
-
+% --- Section Formatting ---
 \AddToHook{cmd/section/before}{\clearpage}
+
+% --- Custom Notebook Citation Command ---
+\DeclareCiteCommand{\notebookcite}
+  {}
+  {\texttt{See notebook: \iffieldundef{url}{\printfield{title}}{\href{\thefield{url}}{\printfield{title}}}}}
+  {}
+  {}
