@@ -360,3 +360,8 @@
 - Reviewed report structure: identified placeholder sections and mapped out the natural results arc (synthetic twin experiment, sensitivity analysis, real DUACS data application).
 - Replaced Poetry with uv for dependency management.
 
+## 10 March 2026
+
+- Wrote up the z-score comparison section and refined associated figures. Developed the physical interpretation of the traditional method's overconfidence (a standard deviation of 4.20 meaning the uncertainty intervals are nearly meaningless).
+- Improved cross-referencing between the report and supporting notebooks.
+
