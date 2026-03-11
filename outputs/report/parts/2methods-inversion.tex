@@ -77,6 +77,10 @@ In addition to the above tests from \textcite{heathcoteScaleableBayesianFramewor
 
 \subsubsection{Joint inversion using ice and firn thickness}
 
+\begin{equation}
+	m = \thicknesschange{i} \oplus \thicknesschange{f}
+\end{equation}
+
 
 
 \subsubsection{Joint inversion using ice, firn, and ocean dynamic changes}
@@ -86,7 +90,7 @@ In addition to the above tests from \textcite{heathcoteScaleableBayesianFramewor
 The model space would be a direct sum of the ice thickness change, firn thickness change space, and ocean dynamic topography change:
 
 \begin{equation}
-	m = m_{\Delta I} \oplus m_{\Delta F} \oplus m_{\Delta ODT}
+	m = \thicknesschange{i} \oplus \thicknesschange{f} \oplus \thicknesschange{odt}
 \end{equation}
 
 With the data space being the direct sum of SSH altimetry data, tide gauge data, and ice altimetry data:
