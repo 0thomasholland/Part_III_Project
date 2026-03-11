@@ -200,6 +200,7 @@ print("=" * 52)
 # %%
 # -----------------------------------------------------------------------------
 # 7.  Plot the three Gaussians on a shared axis
+# # plot the residuals in subplot below
 # -----------------------------------------------------------------------------
 all_mus = [mu_c, mu_u, mu_aw]
 all_sds = [sd_c, sd_u, sd_aw]
@@ -209,7 +210,9 @@ x_lo = min(m - 4 * s for m, s in zip(all_mus, all_sds))
 x_hi = max(m + 4 * s for m, s in zip(all_mus, all_sds))
 xs = np.linspace(x_lo, x_hi, 1000)
 
-fig, ax = plt.subplots(figsize=(6, 5))
+fig, (ax1, ax2) = plt.subplots(
+    2, 1, figsize=(7, 8), sharex=True, height_ratios=[3, 1]
+)
 
 styles = [
     ("Continuous (area integral)", "tab:green", "-"),
@@ -220,7 +223,7 @@ styles = [
 for (label, color, ls), mu, sd in zip(
     styles, all_mus, all_sds
 ):
-    ax.plot(
+    ax1.plot(
         xs * 1e3,
         norm.pdf(xs, loc=mu, scale=sd) / 1e3,
         color=color,
@@ -231,41 +234,67 @@ for (label, color, ls), mu, sd in zip(
         f"σ = {sd * 1e3:.4f} mm",
     )
 
-ax.axvline(
+ax1.axvline(
     all_mus[0] * 1e3,
-    color="tab:green",
+    color="tab:red",
     linestyle=":",
     alpha=0.7,
 )
-ax.axvline(
+ax1.axvline(
     all_mus[1] * 1e3,
     color="tab:orange",
     linestyle=":",
     alpha=0.7,
 )
-ax.axvline(
+ax1.axvline(
     all_mus[2] * 1e3,
     color="tab:blue",
     linestyle=":",
     alpha=0.7,
 )
 
-ax.set_xlabel("GMSL estimate  [mm]")
-ax.set_ylabel("Probability density  [mm⁻¹]")
-ax.set_title(
+ax1.set_xlabel("GMSL estimate  [mm]")
+ax1.set_ylabel("Probability density  [mm⁻¹]")
+ax1.set_title(
     "Point Altimetry Sampling Errors\n"
     f"({DEGREE_SPACING}° grid, "
     f"±{LATITUDE_RANGE}° altimetry band)"
 )
+
+ax2.plot(
+    xs * 1e3,
+    norm.pdf(xs, loc=mu_c, scale=sd_c) / 1e3
+    - norm.pdf(xs, loc=mu_u, scale=sd_u) / 1e3,
+    color="tab:orange",
+    linestyle="--",
+    linewidth=1.5,
+    label="Unweighted - Continuous",
+)
+ax2.plot(
+    xs * 1e3,
+    norm.pdf(xs, loc=mu_c, scale=sd_c) / 1e3
+    - norm.pdf(xs, loc=mu_aw, scale=sd_aw) / 1e3,
+    color="tab:blue",
+    linestyle="--",
+    linewidth=1.5,
+    label="Area-weighted - Continuous",
+)
+ax2.axhline(0, color="black", linestyle=":", alpha=0.7)
+ax2.set_xlabel("GMSL estimate  [mm]")
+ax2.set_ylabel("PDF difference  [mm⁻¹]")
+ax2.set_title("Difference in Probability Densities")
+
 plt.legend(
     loc="upper left", bbox_to_anchor=(0, 1.02, 1.0, -1.15)
 )
-ax.grid(True, linestyle=":", alpha=0.5)
+ax1.grid(True, linestyle=":", alpha=0.5)
 plt.tight_layout()
 fig.savefig("gmsl_averaging_comparison.png", dpi=600)
 plt.show()
 #
-## %%
+
+
+# %%
 
 # %%
 # -----------------------------------------------------------------------------
@@ -308,7 +337,7 @@ x_hi_r = max(
 xs_r = np.linspace(x_lo_r, x_hi_r, 1000)
 
 # overlap: fraction of peak height between successive baselines
-OVERLAP = 0.3
+OVERLAP = 0.1
 
 # peak PDF height (mm⁻¹) — used to set a uniform row spacing
 max_pdf = max(
@@ -381,3 +410,41 @@ ax.spines["top"].set_visible(False)
 plt.tight_layout()
 fig.savefig("gmsl_averaging_comparison_ridge.png", dpi=600)
 plt.show()
+
+# %%
+# box plot of the three distributions side by side, with the mean as a point and the std as the box
+
+fig, ax = plt.subplots(figsize=(6, 5))
+box_width = 0.6
+for i, (label, mu, sd, color) in enumerate(styles_ridge):
+    ax.bar(
+        i,
+        0,
+        width=box_width,
+        color=color,
+        alpha=0.35,
+        edgecolor=color,
+        linewidth=1.8,
+    )
+    ax.errorbar(
+        i,
+        mu,
+        yerr=sd,
+        color=color,
+        fmt="o",
+        capsize=5,
+        label=f"{label}\nμ={mu * 1e3:.3f} mm  σ={sd * 1e3:.3f} mm",
+    )
+ax.set_ylim(x_lo_r, x_hi_r)
+ax.set_xticks(range(len(styles)))
+ax.set_xticklabels(
+    [s[0] for s in styles], rotation=45, ha="right"
+)
+ax.set_ylabel("GMSL estimate  [mm]")
+ax.set_title(
+    "Box Plot — GMSL Averaging Comparison\n"
+    f"({DEGREE_SPACING}° grid, ±{LATITUDE_RANGE}° altimetry band)"
+)
+ax.grid(axis="y", linestyle=":", alpha=0.4)
+plt.legend(loc="upper left", bbox_to_anchor=(1, 1))
+plt.tight_layout()

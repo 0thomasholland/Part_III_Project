@@ -341,40 +341,38 @@ class IceSheetChange(IceThicknessGMSLOperators):
             self._fp, self._load_space
         )
 
+        _shaped_op = _ice_proj_op @ _weight_op
+        _current_gmsl_op = gmsl_operator @ _shaped_op
+
         _gmsl_std_current = standard_dev(
-            _base.affine_mapping(operator=gmsl_operator)
+            _base.affine_mapping(operator=_current_gmsl_op)
         )
         _std_scale = gmsl_std / _gmsl_std_current
 
         if gmsl_mean != 0.0:
-            _gmsl_per_unit = self._fp.integrate(
-                -density
-                * self._fp.one_minus_ocean_function
-                * weights
-                * self._fp.length_scale
-                / (
-                    self._fp.water_density
-                    * self._fp.ocean_area
+            _unit_vector = (
+                self._load_space.project_function(
+                    lambda _: 1.0
                 )
             )
+            _mean_direction = _shaped_op(_unit_vector)
+            _gmsl_per_unit = gmsl_operator(_mean_direction)[
+                0
+            ]
 
             _shift = (
                 gmsl_mean / _gmsl_per_unit
                 if _gmsl_per_unit != 0
                 else 0.0
             )
-            _shift_vector = (
-                self._load_space.project_function(
-                    lambda _: _shift
-                )
-            )
+            _shift_vector = _shift * _mean_direction
         else:
             _shift_vector = None
 
         return _base.affine_mapping(
-            operator=_std_scale * _weight_op,
+            operator=_std_scale * _shaped_op,
             translation=_shift_vector,
-        ).affine_mapping(operator=_ice_proj_op)
+        )
 
     # -----------------------------------------------------------------------
     # Thickness Measures
