@@ -74,15 +74,21 @@
 % ==========================================
 % 6. BIBLIOGRAPHY (BIBER)
 % ==========================================
-\usepackage[backend=biber, uniquename=full, maxnames=2, style=authoryear]{biblatex}
+\usepackage[backend=biber, uniquename=full, maxnames=2, style=authoryear, backref=true]{biblatex}
 \addbibresource{zotero.bib}
 
 % ==========================================
 % 7. HYPERREF (Must generally be loaded last)
 % ==========================================
 \usepackage{xurl} % ADDED: Better URL line-breaking than the standard url package
-\usepackage[colorlinks=true, linkcolor=black, citecolor=black, urlcolor=blue]{hyperref}
+\usepackage{xcolor}
+\definecolor{darkblue}{rgb}{0, 0, 0.5}
 
+\usepackage[
+  colorlinks=true,
+  allcolors=black,
+  urlcolor=darkblue
+]{hyperref}
 % ==========================================
 % CONFIGURATIONS & CUSTOM COMMANDS
 % ==========================================
@@ -97,7 +103,7 @@
 \fancyhead[RE]{\textit{Thomas Holland}}        % Author: Inner
 
 % Odd pages (Right side of the spread)
-\fancyhead[LO]{\textit{Methods for Estimating Ice Melt Driven Sea Level Change}}       % Short Title: Inner
+\fancyhead[LO]{\textit{Methods for Estimating Ice Melt-Driven Sea Level Change}}       % Short Title: Inner
 \fancyhead[RO]{\thepage}          % Page number: Outer
 
 \renewcommand{\headrulewidth}{0pt} % Removes the horizontal line

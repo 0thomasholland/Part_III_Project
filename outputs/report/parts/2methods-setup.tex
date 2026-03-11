@@ -11,14 +11,14 @@ Under this mathematical framework, it is possible to define model spaces and dat
 
 Sea level problem had been implemented in \citetitle{al-attarPySLFPPythonSea2025} using the recent advancements made in \textcite{al-attarReciprocitySensitivityKernels2023} related to calculating of the adjoint of the sea level fingerprint equation.
 
-As discussed in \autoref{sec:slp}, the relation between SSHC and SLC is given in \autoref{eq:slc_ssh_eq}. As the finger print code implemented in \citename{al-attarPySLFPPythonSea2025} returns the displacement field when calculating the SLC, it is fairly trivial to implement an operator that maps from SLC to SSHC, which acts on the total response space of the fingerprint operator to return the SSHC field (\autoref{eq:sshc_op}).
+As discussed in \autoref{sec:slp}, the relation between SSHC and SLC is given in \autoref{eq:slc_ssh_eq}. As the finger print code implemented in \citetitle{al-attarPySLFPPythonSea2025} returns the displacement field when calculating the SLC, it is fairly trivial to implement an operator that maps from SLC to SSHC, which acts on the total response space of the fingerprint operator to return the SSHC field (\autoref{eq:sshc_op}).
 
 \begin{equation}
 	\Delta SSH = \Delta SL + \hat{r}\mathbf{u} \label{eq:slc_ssh_eq}
 \end{equation}
 
 \begin{equation}
-    \Delta \text{SSH} = A_{\text{ssh}} \circ A_{\text{fp}} \, L \label{eq:sshc_op}
+    \Delta \text{SSH} = \operatorsshc \circ \operatorslc \, L \label{eq:sshc_op}
 \end{equation}
 
 \begin{figure}
@@ -44,25 +44,25 @@ These are defined at user defined grid spacings, which are then masked to the re
 True GMSL can be calculated from a simple mass balance from ice change accounting for the density difference, and if we assume that the shape of the coastlines is constant, this takes the form:
 
 \begin{equation}
-    \Delta GMSL = \frac{\rho_W}{A_{ocean} \rho_I} \int_{\Omega} \Delta T(\mathbf{x})\, \mathrm{d}S(\mathbf{x}) \label{eq:gmsl_integral}
+    \gmslc: \operatorgmsl{\text{true}} = \frac{\rho_W}{A_{ocean} \rho_I} \int_{\Omega} \thicknesschange{I} (\mathbf{x})\, \mathrm{d}S(\mathbf{x}) \label{eq:gmsl_integral}
 \end{equation}
 
 A SSH based GMSL estimate can be calculated by calcualting a surface integral of the SSHC field over the oceans:
 
 \begin{equation}
-    \Delta GMSL^{SSH} = \frac{1}{|\Omega|}\int_{\Omega} \Delta SSH(\mathbf{x})\, \mathrm{d}S(\mathbf{x}) \label{eq:gmsl_ssh_integral}
+    \gmslc^{\sshc}: \operatorgmsl{\sshc} = \frac{1}{|\Omega|}\int_{\Omega} \sshc(\mathbf{x})\, \mathrm{d}S(\mathbf{x}) \label{eq:gmsl_ssh_integral}
 \end{equation}
 
 A SSH altimetry based GMSL can be calculated by a surface integral of the SSHC over the oceans within a defined latitudinal range:
 
 \begin{equation}
-    \Delta GMSL^{alt} = \frac{1}{|\Omega_{alt}|}\int_{\Omega_{alt}} \Delta SSH(\mathbf{x})\, \mathrm{d}S(\mathbf{x}) \label{eq:gmsl_ssh_alt_integral}
+    \gmslc^{\altimetry}: \operatorgmsl{\altimetry} = \frac{1}{|\Omega_{\altimetry}|}\int_{\Omega_{\altimetry}} \sshc(\mathbf{x})\, \mathrm{d}S(\mathbf{x}) \label{eq:gmsl_ssh_alt_integral}
 \end{equation}
 
-A SSH point altimetry based GMSL estimate can be calculated by sampling the SSHC field at the altimetry points and taking the average, which although is more compuatiaonally costly, is more consistent with the altimetry method and allows for the error to be calculated in a more consistent way:
+A SSH point altimetry based GMSL estimate can be calculated by sampling the SSHC field at the altimetry points and taking the average, which although is more computationally costly, is more consistent with the altimetry method and allows for the error to be calculated in a more consistent way:
 
 \begin{equation}
-    \Delta GMSL^{point} = \frac{1}{N}\sum_{i=1}^{N} \Delta SSH(\mathbf{x}_i) \label{eq:gmsl_ssh_point}
+    \gmslc^{\text{point}}: \operatorgmsl{\text{point}} = \frac{1}{N}\sum_{i=1}^{N} \Delta SSH(\mathbf{x}_i) \label{eq:gmsl_ssh_point}
 \end{equation}
 
 
@@ -92,8 +92,8 @@ A uniform point value scaled heat kernel gaussian measure is generated across th
 By scaling the ice thickness change according to \autoref{eq:ice_gmsl_scaling}, which acts to scale the ice prior to have the belived standard deviation of the GMSL contirbution of ice melt, this can be satisfactorily used as an ice thickness prior.
 
 \begin{equation}
-    \sigma_{\text{gmsl}} = \text{std}(G \circ \mu),
-    \quad \mathcal{C} \rightarrow \left(\frac{\sigma_{\text{target}}}{\sigma_{\text{gmsl}}}\right)^2 \mathcal{C}
+    \sigma_{\text{gmsl}}  = \text{std}(\operatorgmsl{\text{true}} \circ \mu),
+    \quad \covariance{\thicknesschange{i}} \rightarrow \left(\frac{\sigma_{\text{target}}}{\sigma_{\text{gmsl}}}\right)^2 \covariance{\thicknesschange{i}}
 	\label{eq:ice_gmsl_scaling}
 \end{equation}
 
@@ -110,7 +110,7 @@ To capture this relationship, a probability map was created that converted from 
 
 
 \begin{equation}
-    \alpha(h) = a + \frac{k - a}{\left(1 + e^{b(x - m)}\right)^{1/\nu}}, \quad h \to x \in [0,1] \label{eq:spatial_prob_func}
+    \alpha(T_i) = a + \frac{k - a}{\left(1 + e^{b(x - m)}\right)^{1/\nu}}, \quad T_i \to x \in [0,1] \label{eq:spatial_prob_func}
 \end{equation}
 
 
@@ -121,8 +121,8 @@ This is applied to two fields, generated as described previously, by applying a 
 
 
 \begin{align}
-    \mathcal{C}_{\text{ice}} &= W \mathcal{C}_0 W^*, \quad W = \text{diag}(\alpha(h))\nonumber\\
-    \mathcal{C}_{\text{firn}} &= \tilde{W} \mathcal{C}_0 \tilde{W}^*, \quad \tilde{W} = \text{diag}(1 - \alpha(h))\label{eq:spatial_ice_covariance}
+    \covariance_{\thicknesschange{i}}    &= W \mathcal{C}_0 W^*, \quad W = \text{diag}(\alpha(T_i))\label{eq:spatial_ice_covariance} \\
+    \covariance_{\thicknesschange{f}} &= \tilde{W} \mathcal{C}_0 \tilde{W}^*, \quad \tilde{W} = \text{diag}(1 - \alpha(T_i))\label{eq:spatial_ice_covariance}
 \end{align}
 
 To map these two height fields into the load space, I used the built in operator for ice load, and developed a complimentary operator for firn load.
@@ -130,8 +130,8 @@ The load operator is defined in pyslfp as the point-wise multiplication of ice t
 
 
 \begin{align}
-    \mathcal{L}_{ice}& : L = \rho_{\text{ice}} \odot \Delta h_{\text{ice}}\label{eq:load_ice_op} \\
-    \mathcal{L}_{firn}& = \dfrac{\rho_{\text{firn}}}{\rho_{\text{ice}}} \mathcal{L}_{ice} \to \mathcal{L}_{firn}: L =  \rho_{\text{firn}}\odot \Delta h_{\text{firn}}\label{eq:load_firn_op}
+    \operatorloadice &= \rho_{i} \odot \thicknesschange{i}\label{eq:load_ice_op} \\
+    \operatorloadfirn &= \dfrac{\rho_{\text{firn}}}{\rho_{\text{ice}}}\operatorloadice \implies \operatorloadfirn = \rho_{\text{firn}} \odot \thicknesschange{f}  \label{eq:load_firn_op}
 \end{align}
 
 
@@ -196,6 +196,6 @@ A operator which removes the ocean average is called to result in the global mea
 When considering the impact of ocean dynamics, it is important to note that the redistribution of mass has an effect on the equipotential surface. As such, whenever calculating the fingerprint, we also pass the load change due to ocean dynamics. This results in the total change due to ocean dynamics being the combination of the thickness change and the finger print response.
 
 \begin{align}
-	\Delta \text{SL} = \Delta T_{OD} + \mathcal{F \circ L_W}(\Delta T_{OD}) \\
-	\Delta SSH = \Delta T_{OD} + \mathcal{S \circ F \circ L_W}(\Delta T_{OD})
+	\slc &= \thicknesschange{OD} + \operatorslc \circ \operatorloadwater(\thicknesschange{OD}) \\
+	\sshc &= \thicknesschange{OD} + \operatorsshc \circ \operatorslc \circ \operatorloadwater(\thicknesschange{OD})
 \end{align}
