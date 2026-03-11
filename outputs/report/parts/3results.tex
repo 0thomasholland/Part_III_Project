@@ -1,42 +1,49 @@
 \subsection{Error Quantification}
 
-\subsubsection{Error Variations from Major Ice Sheets with Altimetry Latitude}
+\subsubsection{Per-source proxy errors}
 
-Within the first demonstration of error shown in \autoref{fig:simple_load_to_obs},
-The synthetic experiment yields a true GMSL change of 9.951 mm with a standard deviation of 0.998 mm. Estimating GMSL by forming the area-weighted average of SSHC over the altimetry-observable ocean produces a value of 9.831 mm with a standard deviation of 0.988 mm, corresponding to a percentage error of approximately 1.34\% relative to the true value.
+\autoref{fig:simple_major_source} shows the relative error of estimating GMSL from the area-weighted average of SSHC over the altimetry-observable ocean, for uniform melt scenarios normalised to 1~mm of true GMSL change from each major ice sheet independently.
 
-The distributions of the true and estimated GMSL are visually near-identical, with the estimated distribution shifted slightly negatively relative to the true, and the error distribution is approximately centred just below zero, confirming a small but consistent negative bias in the SSHC-based estimate. The spatial distribution of the error expectation field (SLC - SSHC) reveals a strongly negative signal at high southern latitudes proximal to Antarctica, reaching approximately -15 mm, with a weaker negative signal near Greenland, while the remainder of the open ocean remains close to zero. The pointwise standard deviation of the error field exhibits a qualitatively similar spatial pattern, ranging from approximately 0.75 mm across the open ocean to 2.75 mm near the Antarctic margins. Regional averaging over Northern Europe yields a larger discrepancy between the SLC- and SSHC-based estimates than is observed at the global scale, consistent with the spatially heterogeneous structure seen in the error fields.
-
-\begin{figure}
-\centering
-\includegraphics[width=0.45\columnwidth]{01-SSH/load.png}
-
-\includegraphics[width=0.45\columnwidth]{01-SSH/slc.png}
-\includegraphics[width=0.45\columnwidth]{01-SSH/ssh.png}
-
-	\hfill\includegraphics[width=0.45\columnwidth]{01-SSH/obs.png}\hspace{0.05\columnwidth}
-
-	\includegraphics[width=0.8\columnwidth]{01-SSH/global_error_plt.png}
-	\caption{Rotationally invariant ice thickness change mapped to the ice sheets, standardised to 10mm $\pm$ 1mm GMSL increase with }
-	\label{fig:simple_load_to_obs}
-	\todo{pretify these, and inlcude error fields}
-\end{figure}
-
-\autoref{fig:simple_major_source} shows the results of scalar field error to compare with \textcite{lickleyBiasEstimatesGlobal2018}. At normal altimetry ranges ($60-75^\circ$), the GrIS contribution is underestimated by SSH altimetry by 5-8\%, with EAIS contribution being underestimated by 0-2\%. WAIS is variably biased from overestimation of 2.2\% to underestimation of 0.4\%.
+At the standard altimetry latitude range of $60$--$75^\circ$, the GrIS contribution is underestimated by 5--8\%, the EAIS contribution is underestimated by 0--2\%, and the WAIS contribution ranges from a 2.2\% overestimation to a 0.4\% underestimation depending on the latitude cutoff. The GrIS error increases monotonically with the latitude of the altimetry boundary, while the EAIS error remains comparatively flat across the tested range. The WAIS error changes sign near $40^\circ$, transitioning from a slight overestimation at lower latitudes to a slight underestimation at higher latitudes.
 
 \begin{figure}[!h]
 	\includegraphics[width=\columnwidth]{major_source_altimetry_errors_scalar.png}
-	\caption{A}\label{fig:simple_major_source}
+	\caption{Relative error of GMSL estimation using SSHC as a proxy for SLC, shown as a function of altimetry latitude cutoff for uniform melt from GIS, EAIS, and WAIS, each normalised to 1~mm true GMSL change. Dashed line indicates the typical altimetry range of $\pm66^\circ$.}\label{fig:simple_major_source}
 \end{figure}
 
-\autoref{fig:gaussian_uniform} futhers this within the context of Guassian distributions.
+\subsubsection{Spatial structure of the proxy error}
+
+To illustrate how the proxy error manifests spatially, \autoref{fig:simple_load_to_obs} shows the output fields from a single synthetic scenario in which a rotationally invariant ice thickness change is drawn from a Gaussian measure standardised to $10, \sigma = 1$~mm GMSL change. The ice load field, its corresponding SLC and SSHC fields, and the observed SSHC within the $\pm66^\circ$ altimetry band are shown.
+
+The resulting true GMSL is 9.951~mm with a standard deviation of 0.998~mm. The SSHC-based estimate yields 9.831~mm with a standard deviation of 0.988~mm, corresponding to a percentage error of approximately 1.34\%. The error distribution is centred just below zero, confirming a small but consistent negative bias.
+
+The spatial distribution of the error expectation field (SLC $-$ SSHC) shows a strongly negative signal at high southern latitudes proximal to Antarctica, reaching approximately $-15$~mm, with a weaker negative signal near Greenland. The remainder of the open ocean is close to zero. The pointwise standard deviation of the error field follows a qualitatively similar spatial pattern, ranging from approximately 0.75~mm across the open ocean to 2.75~mm near the Antarctic margins.
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.45\columnwidth]{01-SSH/load.png}
+\includegraphics[width=0.45\columnwidth]{01-SSH/slc.png}
+\includegraphics[width=0.45\columnwidth]{01-SSH/ssh.png}
+	\hfill\includegraphics[width=0.45\columnwidth]{01-SSH/obs.png}\hspace{0.05\columnwidth}
+	\includegraphics[width=0.8\columnwidth]{01-SSH/global_error_plt.png}
+	\caption{Synthetic error quantification scenario. Top row: rotationally invariant ice thickness change (left) and resulting SLC field (right). Middle row: corresponding SSHC field (left) and observed SSHC within the $\pm66^\circ$ altimetry band (right). Bottom: distributions of the true and estimated GMSL, and the estimation error.}
+	\label{fig:simple_load_to_obs}
+	\todo{prettify these, and include error fields}
+\end{figure}
+
+\subsubsection{Error under source uncertainty}
+
+\autoref{fig:gaussian_uniform} extends the per-source analysis by showing the GMSL estimation error when the ice source distribution is represented as a Gaussian measure rather than a fixed field. The figure shows the true and estimated GMSL distributions, together with the error distribution, at altimetry latitude cutoffs of $66^\circ$ and $80^\circ$.
+
+At $66^\circ$, the estimated GMSL distribution is shifted slightly below the true distribution, with the error distribution centred near zero but with a small negative bias. At $80^\circ$, the separation between the true and estimated distributions increases, and the error distribution widens and shifts further from zero, reflecting the larger proxy error incurred when the altimetry domain extends closer to the ice sheets.
 
 \begin{figure}[!h]
 	\includegraphics[width=\columnwidth]{figs/double_distribution_66_80}
-	\caption{A}\label{fig:gaussian_uniform}\todo{fig size and colors}
+	\caption{True and estimated GMSL distributions, with corresponding error distributions, at altimetry latitude cutoffs of $66^\circ$ (top) and $80^\circ$ (bottom), for a rotationally invariant Gaussian ice thickness prior standardised to 10~mm $\pm$ 1~mm GMSL change.}\label{fig:gaussian_uniform}
+	\todo{fig size and colors}
 \end{figure}
 
-
+Over multiple runs, this pattern varies as the GMSL estimation error varies with the underlying ice source distribution parameters. However, the general trend of a bias and increasing error with higher latitude cutoffs is consistent across runs, confirming the systematic nature of the proxy error under source uncertainty.
 
 
 \subsection{Inversion for Ice Thickness Change from Ocean Altimetry}

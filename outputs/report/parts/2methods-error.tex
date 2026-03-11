@@ -1,8 +1,10 @@
 \subsection{Error Quantification}
 
-The objective of this error quantification to interrogate how varying model parameters affect then error of the old method, and how these vary.
+The objective of this section is to quantify the systematic error introduced by using sea surface height change (SSHC) as a proxy for sea level change (SLC) when estimating global mean sea level (GMSL) from satellite altimetry. This error arises because SSHC and SLC differ by the solid-earth deformation and geoid perturbation terms, which are spatially heterogeneous functions of the ice load distribution. We first establish the idealised setting for the analysis, then characterise the error for known ice sources, and finally generalise to the case where the source distribution is itself uncertain.
 
-In estimating the error associated with using sea surface height change as a proxy for global mean sea level change, we adopt a best-case assumption of dense, uniform sampling  across the altimetry domain $\Omega$. In this limit, the discrete sum over altimetry measurement points converges to a continuous surface integral so that the estimated global mean sea level reduces to the true spatial average of the field:
+\subsubsection{Idealised altimetry limit}
+
+In estimating this proxy error, we adopt a best-case assumption of dense, uniform sampling across the altimetry domain $\Omega$. In this limit, the discrete sum over altimetry measurement points converges to a continuous surface integral so that the estimated global mean sea level reduces to the true spatial average of the field:
 
 \begin{equation}
     \frac{1}{|\Omega|}\sum_{i=1}^{N} \eta(\mathbf{x}_i)\, \delta A_i
@@ -10,21 +12,24 @@ In estimating the error associated with using sea surface height change as a pro
     \frac{1}{|\Omega|}\int_{\Omega} \eta(\mathbf{x})\, \mathrm{d}S(\mathbf{x}).\label{eq:altimetry_equation}
 \end{equation}
 
-This constitutes a best-case scenario for the estimation error: any realistic altimetry network, with finite and non-uniform spatial coverage, will perform no better than this ideal limit. By framing the error analysis in terms of this continuous average rather than a specific satellite configuration, the resulting error bounds are independent of the particular sampling geometry and reflect a fundamental lower bound on the approximation error inherent to the method itself.
-
-Practically, working directly with the surface integral also avoids the need to generate and store a large list of altimetry sample points, reducing computational overhead and making the error estimation tractable for global-scale calculations.
-
-
-To demonstrate and confirm this, a test was run to see how the effects of changing the altimetry resolution. Resolutions within the range of those needed for inversions (2 to 20 deg grid spacing) to resolutions typically provided by altimetry measures (5 to 0.25 deg grid spacing) were tested and compared against whole field SSH averages.
+This constitutes a best-case scenario for the estimation error: any realistic altimetry network, with finite and non-uniform spatial coverage, will perform no better than this ideal limit. By framing the error analysis in terms of this continuous average rather than a specific satellite configuration, the resulting error bounds are independent of the particular sampling geometry and reflect a fundamental lower bound on the approximation error inherent to the method itself. To confirm this, altimetry resolutions ranging from 0.25 to 20 degree grid spacing were tested and shown to converge to the continuous surface integral, validating the use of this idealised limit throughout the subsequent analysis.
 
 \notebookcite{thomasholland05AltimetrySamplingipynb2026}
 
-To first demonstrate the systematic error introduced by using SSHC as a proxy for SLC when estimating GMSL from satellite altimetry. A synthetic ice sheet change scenario is constructed as a Gaussian measure over ice thickness, propagated through the sea level fingerprint operator to yield both the true SLC field and its corresponding SSHC field. GMSL is then estimated by forming the area-weighted average of SSHC over the altimetry-observable ocean (latitudes within ±66°), and compared against the true GMSL obtained from the area-weighted average of SLC.
+\subsubsection{Per-source error characterisation}
 
+To build physical intuition for the proxy error, we first consider the case where the ice source is known. Uniform melt scenarios are constructed independently for each of the three major ice sheets (GIS, WAIS, and EAIS), each normalised to produce 1~mm of true GMSL change. For each scenario, the ice load is propagated through the sea level fingerprint operator to yield the corresponding SLC and SSHC fields. GMSL is then estimated by forming the area-weighted average of SSHC over the altimetry-observable ocean, and the percentage error relative to the true mass-balance GMSL is calculated directly.
+
+By varying the latitudinal extent of the altimetry domain, the dependence of this error on altimetry coverage can be traced for each ice sheet independently. This serves both to characterise the source-dependent structure of the proxy bias and to cross-validate against the results of \textcite{lickleyBiasEstimatesGlobal2018}, who demonstrated a similar latitude dependence using a different framework.
+\notebookcite{thomasholland02MajorSourcesipynb2026}
+
+The key result from this analysis is that the proxy error differs in both sign and magnitude across ice sources: Greenland melt leads to a systematic underestimation of GMSL, while West Antarctic sources produce a smaller bias of variable sign. This source dependence means that the SSHC proxy error cannot be corrected by a single scalar factor --- the correction would itself depend on the unknown spatial distribution of ice loss.
+
+\subsubsection{Error under source uncertainty}
+
+In practice, the spatial distribution of ice loss is not known a priori, and so the proxy error inherits this uncertainty. To quantify the error in this more realistic setting, a synthetic ice sheet change scenario is constructed as a Gaussian measure over ice thickness, representing our prior uncertainty about the spatial pattern of mass loss. This measure is propagated through the sea level fingerprint operator to yield distributions over both the true SLC field and its corresponding SSHC field.
+
+GMSL is then estimated by forming the area-weighted average of SSHC over the altimetry-observable ocean (latitudes within $\pm66\degree$), and compared against the true GMSL obtained from the mass-balance calculation. Because the ice source is now a random variable, the proxy error is itself a random variable with its own expectation and variance, and the spatial structure of the error field can be examined pointwise.
 \notebookcite{thomasholland01SeaSurface2026}
 
-One of the objectives is to extend and cross validate this framework's result with that from \textcite{lickleyBiasEstimatesGlobal2018} demonstrating the error between SLC and SSHC. As such, I tested how altimetry error changes with altimetry latitude range. This is important as the altimetry error is expected to be higher at higher latitudes due to the increased variability in sea surface height and the presence of ice sheets which, when there is a change in mass causes a rebound effect, increasing the difference in SSHC and SLC.
-
-To further investigate the impact of ice sheet variability on altimetry error, I also tested how the error changes when the ice melt is restricted to the major ice sheets (GIS, WAIS, and EAIS). This was done with a uniform melt across each ice sheet, normalised to result in 1 mm of true GMSL change, so that the percentage error using SSHC altimetry could be trivially calculated.
-
-\notebookcite{thomasholland02MajorSourcesipynb2026}
+This generalises the per-source analysis: the deterministic errors computed for individual ice sheets are recovered as special cases, while the stochastic formulation captures the additional uncertainty that arises when the source distribution is unknown. The resulting error statistics provide the baseline against which the Bayesian inversion method, developed in the following section, can be compared.

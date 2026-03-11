@@ -4,10 +4,22 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
+from project import colors
+
 sns.set_style("ticks")
 sns.color_palette("colorblind")
 sns.set_context("paper")
 
+plt.rcParams.update(
+    {
+        "font.family": "serif",
+        "font.serif": [
+            "Bitstream Charter",
+            "Charter",
+        ],  # Will look for these on your system
+        "text.usetex": False,  # Use Matplotlib's internal math engine (mathtext)
+    }
+)
 
 # %% import data
 
@@ -25,45 +37,14 @@ wais_errors_abs = np.abs(wais_errors)
 
 print(data)
 
-# %% plot data
-
-plt.figure(figsize=(10, 6))
-plt.plot(
-    latitudes,
-    gis_errors,
-    label="GIS Altimetry GMSL % Error",
-    color="tab:blue",
-)
-plt.plot(
-    latitudes,
-    eais_errors,
-    label="EAIS Altimetry GMSL % Error",
-    color="tab:orange",
-)
-# plt.plot(
-#     latitudes,
-#     wais_errors,
-#     label="WAIS Altimetry GMSL % Error",
-#     color="tab:green",
-# )
-# plt.axhline(0, color="black", linestyle="-", linewidth=1)
-# plt.axvline(66, color="red", linestyle="--", linewidth=1)
-# plt.xlabel("Latitude (degrees)")
-
-plt.ylabel("Relative Error (%) [true - estimated / true]")
-
-plt.title(
-    "Altimetry GMSL Estimation Errors from Major Ice Sheet Sources"
-)
-plt.legend()
-plt.grid()
-plt.savefig(
-    "major_source_altimetry_errors_scalar.png", dpi=600
-)
-plt.show()
 
 # %%
 # same as above but with seaborn, using pandas dataframe
+#
+# use
+# colors.eais
+# colors.wais
+# colors.gis
 
 df = pd.DataFrame(
     {
@@ -75,7 +56,7 @@ df = pd.DataFrame(
         ),
         "Source": np.concatenate(
             [
-                ["GrIS"] * len(latitudes),
+                ["GIS"] * len(latitudes),
                 ["EAIS"] * len(latitudes),
                 ["WAIS"] * len(latitudes),
             ]
@@ -83,19 +64,20 @@ df = pd.DataFrame(
     }
 )
 
+
 plt.figure(figsize=(6.5, 4))
 sns.lineplot(
     data=df,
     x="Latitude",
     y="Relative Error (%)",
     hue="Source",
-    palette="colorblind",
+    palette=[colors.gis, colors.eais, colors.wais],
 )
 plt.axhline(0, color="black", linestyle="-", linewidth=1)
 plt.legend(title="Source")
 plt.axvline(
     66,
-    color="red",
+    color=colors.primary_error,
     linestyle="--",
     linewidth=1,
     label="Typical altimetry range",
@@ -105,7 +87,7 @@ plt.fill_between(
     x=[60, 75],
     y1=-10,
     y2=10,
-    color="red",
+    color=colors.primary_error,
     alpha=0.1,
     # label="Typical altimetry range",
 )
