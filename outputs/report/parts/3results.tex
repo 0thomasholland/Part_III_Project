@@ -157,7 +157,7 @@ The longer length scales resulted in a shorter CG solve time, which is expected 
 % GMSL offset = 50.0 mm: prior z = 4.83 (mean = 50.00 mm, std = 10.00 mm), posterior z = -1.12 (mean = 1.56 mm, std = 0.10 mm)
 
 
-\autoref{fig:sensitivity-offset} shows the results of varying the offset of the prior distribution compared to the true field, which is equivalent to adding a uniform thickness across the ice field in the prior distribution or the true value being outside the support of the prior distribution. The results show that even with 50 mm of offset (compared to the true value of 1 mm), the posterior distribution still contains the true value and outperforms the altimetry method (z-score of -1.12 compared to altimetry's z-score of 1.49). The posteriors all have similar widths, with the means all close to the true value, showing that the method is robust to large offsets in the prior mean.
+\autoref{fig:sensitivity-offset} shows the results of varying the offset of the prior distribution compared to the true field. This effect is equivalent to the true value being outside the support of the prior distribution. The results show that even with 50 mm of offset (compared to the true value of 1.67~mm), the posterior distribution still contains the true value and outperforms the altimetry method (z-score of -1.12 compared to altimetry's z-score of 1.49). The posteriors all have similar widths, with the means all close to the true value, showing that the method is robust to large offsets in the prior mean.
 
 
 The offset had no effect on the iterations required for the CG solve.
@@ -193,7 +193,8 @@ The offset had no effect on the iterations required for the CG solve.
 
 \autoref{fig:sensitivity-variance} shows the results of varying the variance of the prior distribution compared to the true field, which is equivalent to changing our confidence in the prior distribution's mean value. A higher variance means we are less confident in the prior mean, while a lower variance means we are more confident in the prior mean.
 
-The higher variance resulted in a much longer CG solve time, which is expected as the less confident prior allows for a wider range of possible solutions, making it harder for the solver to converge (0.5x: 47 iterations, 2.0x: 197 iterations, 5.0x: 610 iterations).
+\todo{check}
+The higher variance resulted in a much longer CG solve time, which is expected as ???, making it harder for the solver to converge (0.5x: 47 iterations, 2.0x: 197 iterations, 5.0x: 610 iterations).
 
 \begin{figure}
   \begin{center}
@@ -205,4 +206,4 @@ The higher variance resulted in a much longer CG solve time, which is expected a
 
 \end{figure}
 
-\subsection{Joint inversion for Ice and Firn Thickness from Ocean and Ice Altimetry}
+\subsection{Joint inversion using ice, firn, and ocean dynamic changes}

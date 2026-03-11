@@ -109,9 +109,11 @@ By scaling the ice thickness change according to \autoref{eq:ice_gmsl_scaling}, 
 
 \begin{equation}
     \sigma_{\text{gmsl}}  = \text{std}(\operatorgmsl{\text{true}} \circ \mu),
-    \quad \covariance{\thicknesschange{i}} \rightarrow \left(\frac{\sigma_{\text{target}}}{\sigma_{\text{gmsl}}}\right)^2 \covariance{\thicknesschange{i}}
+    \quad \covariance{\thicknesschange{i}} = \left(\frac{\sigma_{\text{target}}}{\sigma_{\text{gmsl}}}\right)^2 \covariance{0}
 	\label{eq:ice_gmsl_scaling}
 \end{equation}
+
+\todo{better this equation}
 
 
 However, to consider ice altimetry, the variable density with depth means that thickness change is not linearly related to mass change, and so the simple.
@@ -126,7 +128,7 @@ To capture this relationship, a probability map was created that converted from 
 
 
 \begin{equation}
-    \alpha(T_i) = a + \frac{k - a}{\left(1 + e^{b(x - m)}\right)^{1/\nu}}, \quad T_i \to x \in [0,1] \label{eq:spatial_prob_func}
+    \alpha(x) = a + \frac{k - a}{\left(1 + e^{b(x - m)}\right)^{1/\nu}}, \quad T_i \to x \in [0,1] \label{eq:spatial_prob_func}
 \end{equation}
 
 
