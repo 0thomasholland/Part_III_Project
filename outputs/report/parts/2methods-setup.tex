@@ -137,12 +137,11 @@ This is applied to two fields, generated as described previously, by applying a 
 
 
 \begin{align}
-    \covariance{\thicknesschange{i}}    &= W \covariance{0} W^*, \quad W = \text{diag}(\alpha(T_i))\label{eq:spatial_ice_covariance} \\
-
+    \covariance{\thicknesschange{i}} &= W \covariance{0} W^*, \quad W = \text{diag}(\alpha(T_i))\label{eq:spatial_ice_covariance} \\
     \covariance{\thicknesschange{f}} &= \tilde{W} \covariance{0} \tilde{W}^*, \quad \tilde{W} = \text{diag}(1 - \alpha(T_i)) \label{eq:spatial_firn_covariance}
 \end{align}
 
-To map these two height fields into the load space, I used the built in operator for ice load, and developed a complimentary operator for firn load.
+To map these two height fields into the load space, I used the built-in operator for ice load, and developed a complimentary operator for firn load.
 The load operator is defined in pyslfp as the point-wise multiplication of ice thickness change by the ice density (\autoref{eq:load_ice_op}). For firn, this operator is scaled by the firn density, such that the operator point-wise multiplies the change in firn thickness with the firn thickness.
 
 
