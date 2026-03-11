@@ -42,7 +42,7 @@ At $66^\circ$, the estimated GMSL distribution is shifted slightly below the tru
 	\caption{True and estimated GMSL distributions, with corresponding error distributions, at altimetry latitude cutoffs of $66^\circ$ (top) and $80^\circ$ (bottom), for a rotationally invariant Gaussian ice thickness prior standardised to 10~mm $\pm$ 1~mm GMSL change.}\label{fig:gaussian_uniform}
 \end{figure}
 
-Over multiple runs, this pattern varies as the GMSL estimation error varies with the underlying ice source distribution parameters. However, the general trend of a bias and increasing error with higher latitude cutoffs is consistent across runs, confirming the systematic nature of the proxy error under source uncertainty.
+Over multiple runs, I found qualativlhy, this pattern varies as the GMSL estimation error varies with the underlying ice source distribution parameters. However, the general trend of a bias and increasing error with higher latitude cutoffs is consistent across runs, confirming the systematic nature of the proxy error under source uncertainty.
 
 
 \subsection{Inversion for Ice Thickness Change from Ocean Altimetry}
@@ -115,10 +115,18 @@ This section is run at a spherical harmonic truncation of 128 for computational 
 % Length scale: 2547200.0 km
 % CG solve: 52it [00:20,  2.59it/s, ||x||=1.27e+04]
 %   Inversion complete
+%
+% Z-scores for GMSL Sensitivity to Prior Length Scale, true length scale: 636.80 km
+% Altimetry: z = 1.49 (estimate = 1.79 mm, std = 0.08 mm)
+% Length scale = 0.5x (318.40 km): prior z = -0.17 (mean = 0.00 mm, std = 10.00 mm), posterior z = -0.82 (mean = 1.58 mm, std = 0.11 mm)
+% Length scale = 1.5x (955.20 km): prior z = -0.17 (mean = 0.00 mm, std = 10.00 mm), posterior z = -0.37 (mean = 1.64 mm, std = 0.09 mm)
+% Length scale = 4.0x (2547.20 km): prior z = -0.17 (mean = 0.00 mm, std = 10.00 mm), posterior z = 0.20 (mean = 1.69 mm, std = 0.08 mm)
 
-\autoref{fig:sensitivity-lengthscale} shows the results of varying the length scale over which ice sheet thickness variations are expected to occur within the prior distribution. The length scales did not affect the GMSL estimation much, with the posteriors all containing the true value and outperforming the simple altimetry method, and the longer length scales resulting in slightly narrower posterior distributions centred closer to the true value.
+\autoref{fig:sensitivity-lengthscale} shows the results of varying the length scale over which ice sheet thickness variations are expected to occur within the prior distribution. The length scales did not affect the GMSL estimation much (z-scores of -0.82, -0.37, and 0.20 for length scales of 318.4 km, 955.2 km, and 2547.2 km respectively compared to the altimetry method's z-score of 1.49), with the posteriors all containing the true value and outperforming the simple altimetry method, and the longer length scales resulting in slightly narrower posterior distributions centred closer to the true value.
 
 Shorter length scales did not result in more noise, and recovered the correct structure of length scales correctly, although some artifacts are visible in eastern Greenland. The longer length scales smoothed out the spatial structure as expected but still recovered the true field well, with the posterior expectation showing a similar spatial structure to the true field, albeit with some smoothing.
+
+The longer length scales resulted in a shorter CG solve time, which is expected as the smoother fields are easier to recover (318400.0 km: 108 iterations, 955200.0 km: 74 iterations, 2547200.0 km: 52 iterations).
 
 \begin{figure}
   \begin{center}
@@ -141,9 +149,18 @@ Shorter length scales did not result in more noise, and recovered the correct st
 % GMSL target mean: 50.0 mm
 % CG solve: 76it [00:29,  2.58it/s, ||x||=1.25e+04]
 %   Inversion complete
+%
+% Z-scores for GMSL Sensitivity to Prior Mean Offset
+% Altimetry: z = 1.49 (estimate = 1.79 mm, std = 0.08 mm)
+% GMSL offset = 1.0 mm: prior z = -0.07 (mean = 1.00 mm, std = 10.00 mm), posterior z = -0.68 (mean = 1.61 mm, std = 0.10 mm)
+% GMSL offset = 10.0 mm: prior z = 0.83 (mean = 10.00 mm, std = 10.00 mm), posterior z = -0.68 (mean = 1.61 mm, std = 0.10 mm)
+% GMSL offset = 50.0 mm: prior z = 4.83 (mean = 50.00 mm, std = 10.00 mm), posterior z = -1.12 (mean = 1.56 mm, std = 0.10 mm)
 
 
-\autoref{fig:sensitivity-offset} shows the results of varying the offset of the prior distribution compared to the true field, which is equivalent to adding a uniform thickness across the ice field in the prior distribution.
+\autoref{fig:sensitivity-offset} shows the results of varying the offset of the prior distribution compared to the true field, which is equivalent to adding a uniform thickness across the ice field in the prior distribution or the true value being outside the support of the prior distribution. The results show that even with 50 mm of offset (compared to the true value of 1 mm), the posterior distribution still contains the true value and outperforms the altimetry method (z-score of -1.12 compared to altimetry's z-score of 1.49). The posteriors all have similar widths, with the means all close to the true value, showing that the method is robust to large offsets in the prior mean.
+
+
+The offset had no effect on the iterations required for the CG solve.
 
 \begin{figure}
   \begin{center}
@@ -166,10 +183,17 @@ Shorter length scales did not result in more noise, and recovered the correct st
 % Std multiplier: 5.0
 % CG solve: 610it [03:45,  2.71it/s, ||x||=1.25e+04]
 %   Inversion complete
+%
+% Z-scores for GMSL Sensitivity to Prior Covariance Amplitude
+% Altimetry: z = 1.49 (estimate = 1.79 mm, std = 0.08 mm)
+% Std multiplier = x0.5: prior z = -0.33 (mean = 0.00 mm, std = 5.00 mm), posterior z = 0.22 (mean = 1.69 mm, std = 0.09 mm)
+% Std multiplier = x2.0: prior z = -0.08 (mean = 0.00 mm, std = 20.00 mm), posterior z = -1.60 (mean = 1.51 mm, std = 0.10 mm)
+% Std multiplier = x5.0: prior z = -0.03 (mean = 0.00 mm, std = 50.00 mm), posterior z = -1.30 (mean = 1.43 mm, std = 0.19 mm)
 
 
 \autoref{fig:sensitivity-variance} shows the results of varying the variance of the prior distribution compared to the true field, which is equivalent to changing our confidence in the prior distribution's mean value. A higher variance means we are less confident in the prior mean, while a lower variance means we are more confident in the prior mean.
 
+The higher variance resulted in a much longer CG solve time, which is expected as the less confident prior allows for a wider range of possible solutions, making it harder for the solver to converge (0.5x: 47 iterations, 2.0x: 197 iterations, 5.0x: 610 iterations).
 
 \begin{figure}
   \begin{center}
