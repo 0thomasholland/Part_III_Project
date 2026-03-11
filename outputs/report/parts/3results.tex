@@ -87,15 +87,98 @@ The old method is only within 1 sigma of the true value in 14.6\% of runs, while
 
 \subsection{Sensitivity tests}
 
+\notebookcite{thomasholland07InversionSensitivityipynb2026}
+
+This section is run at a spherical harmonic truncation of 128 for computational speed, but this is not expected to affect the results of the sensitivity tests, which are focused on the relative changes in the inversion results as the parameters are varied, rather than the absolute values of the inversion results.
+
+\autoref{fig:sensitivity-true-inversion} shows the true ice thickness change field used in the sensitivity tests, which is a single sample drawn from the prior distribution as described in \autoref{sec:sensitivity-method}. It also shows the results for an inversion where the Baysiean prior is the distribution from which the true field was drawn, which is the ideal case for the inversion method. The posterior distribution contains the true field well, and that there is good spatial recovery of the ice thickness change within the posterior expectation.
+
 \begin{figure}
   \begin{center}
-  \includegraphics[width=0.8\columnwidth]{sensitivity_tests/7-1_length_scale.png}
+  \includegraphics[width=0.9\columnwidth]{sensitivity_tests/7-0_baseline_inversion.png}
   \end{center}
 
 	\caption{}
-	\label{fig:sensitivity-tests_lengthscale}
+	\label{fig:sensitivity-true-inversion}
 
 \end{figure}
 
+
+% Length scale: 318400.0 km
+% CG solve: 108it [00:40,  2.67it/s, ||x||=1.25e+04]
+%   Inversion complete
+
+% Length scale: 955200.0 km
+% CG solve: 74it [00:28,  2.64it/s, ||x||=1.25e+04]
+%   Inversion complete
+
+% Length scale: 2547200.0 km
+% CG solve: 52it [00:20,  2.59it/s, ||x||=1.27e+04]
+%   Inversion complete
+
+\autoref{fig:sensitivity-lengthscale} shows the results of varying the length scale over which ice sheet thickness variations are expected to occur within the prior distribution. The length scales did not affect the GMSL estimation much, with the posteriors all containing the true value and outperforming the simple altimetry method, and the longer length scales resulting in slightly narrower posterior distributions centred closer to the true value.
+
+Shorter length scales did not result in more noise, and recovered the correct structure of length scales correctly, although some artifacts are visible in eastern Greenland. The longer length scales smoothed out the spatial structure as expected but still recovered the true field well, with the posterior expectation showing a similar spatial structure to the true field, albeit with some smoothing.
+
+\begin{figure}
+  \begin{center}
+  \includegraphics[width=0.9\columnwidth]{sensitivity_tests/7-1_length_scale.png}
+  \end{center}
+
+	\caption{}
+	\label{fig:sensitivity-lengthscale}
+
+\end{figure}
+
+% GMSL target mean: 1.0 mm
+% CG solve: 82it [00:31,  2.64it/s, ||x||=1.25e+04]
+%   Inversion complete
+
+% GMSL target mean: 10.0 mm
+% CG solve: 80it [00:30,  2.59it/s, ||x||=1.25e+04]
+%   Inversion complete
+
+% GMSL target mean: 50.0 mm
+% CG solve: 76it [00:29,  2.58it/s, ||x||=1.25e+04]
+%   Inversion complete
+
+
+\autoref{fig:sensitivity-offset} shows the results of varying the offset of the prior distribution compared to the true field, which is equivalent to adding a uniform thickness across the ice field in the prior distribution.
+
+\begin{figure}
+  \begin{center}
+  \includegraphics[width=0.9\columnwidth]{sensitivity_tests/7-2_mean_translation.png}
+  \end{center}
+
+	\caption{}
+	\label{fig:sensitivity-offset}
+
+\end{figure}
+
+% Std multiplier: 0.5
+% CG solve: 47it [00:18,  2.61it/s, ||x||=1.26e+04]
+%   Inversion complete
+
+% Std multiplier: 2.0
+% CG solve: 197it [01:13,  2.69it/s, ||x||=1.25e+04]
+%   Inversion complete
+
+% Std multiplier: 5.0
+% CG solve: 610it [03:45,  2.71it/s, ||x||=1.25e+04]
+%   Inversion complete
+
+
+\autoref{fig:sensitivity-variance} shows the results of varying the variance of the prior distribution compared to the true field, which is equivalent to changing our confidence in the prior distribution's mean value. A higher variance means we are less confident in the prior mean, while a lower variance means we are more confident in the prior mean.
+
+
+\begin{figure}
+  \begin{center}
+  \includegraphics[width=0.9\columnwidth]{sensitivity_tests/7-3_covariance_scaling.png}
+  \end{center}
+
+	\caption{}
+	\label{fig:sensitivity-variance}
+
+\end{figure}
 
 \subsection{Joint inversion for Ice and Firn Thickness from Ocean and Ice Altimetry}
