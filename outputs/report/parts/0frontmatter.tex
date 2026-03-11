@@ -1,3 +1,6 @@
+% ==========================================
+% 0. TEXCOUNT CONFIGURATIONS
+% ==========================================
 %TC:macro \cite [option:ignore]
 %TC:macro \citep [option:ignore]
 %TC:macro \citet [option:ignore]
@@ -28,21 +31,24 @@
 %TC:break references 0 0
 
 % ==========================================
-% 1. ENCODING & LANGUAGE
+% 1. ENCODING, LANGUAGE & FONTS
 % ==========================================
 \usepackage[T1]{fontenc}
 \usepackage[english]{babel}
-\usepackage{csquotes} % Highly recommended when using babel + biblatex
+\usepackage{csquotes}
+
+\usepackage{XCharter}            % Text font
+\usepackage[xcharter]{newtxmath} % Matching math
 
 % ==========================================
 % 2. TYPOGRAPHY & LAYOUT
 % ==========================================
 \usepackage[margin=2cm, bindingoffset=0.5cm, top=4cm]{geometry}
 \usepackage{fancyhdr}
-\usepackage{microtype} % ADDED: Dramatically improves text justification and reduces overfull hboxes
+\usepackage{microtype} % High-quality justification
 
 % ==========================================
-% 3. MATH & SCIENCE
+% 3. MATH & SCIENCE UTILITIES
 % ==========================================
 \usepackage{amsmath}
 \usepackage{amssymb}
@@ -65,22 +71,19 @@
 \renewcommand{\tabularxcolumn}[1]{>{\raggedright\arraybackslash}p{#1}}
 
 % ==========================================
-% 5. UTILITIES
+% 5. UTILITIES & BIBLIOGRAPHY
 % ==========================================
 \usepackage{lipsum}
 \usepackage[obeyFinal]{todonotes}
 \setuptodonotes{inline, size=\tiny}
 
-% ==========================================
-% 6. BIBLIOGRAPHY (BIBER)
-% ==========================================
 \usepackage[backend=biber, uniquename=full, maxnames=2, style=authoryear, backref=true]{biblatex}
 \addbibresource{zotero.bib}
 
 % ==========================================
-% 7. HYPERREF (Must generally be loaded last)
+% 6. HYPERREF & URLS (Load late for compatibility)
 % ==========================================
-\usepackage{xurl} % ADDED: Better URL line-breaking than the standard url package
+\usepackage{xurl}
 \usepackage{xcolor}
 \definecolor{darkblue}{rgb}{0, 0, 0.5}
 
@@ -89,24 +92,25 @@
   allcolors=black,
   urlcolor=darkblue
 ]{hyperref}
+
 % ==========================================
-% CONFIGURATIONS & CUSTOM COMMANDS
+% 7. CONFIGURATIONS & CUSTOM COMMANDS
 % ==========================================
 
 % --- Header Configuration ---
-\pagestyle{fancy} % FIXED: Without this, your custom headers won't actually appear!
+\pagestyle{fancy}
 \fancyhf{}
 \setlength{\headheight}{15pt}
 
-% Even pages (Left side of the spread)
-\fancyhead[LE]{\thepage}          % Page number: Outer
-\fancyhead[RE]{\textit{Thomas Holland}}        % Author: Inner
+% Even pages (Left side)
+\fancyhead[LE]{\thepage}
+\fancyhead[RE]{\textit{Thomas Holland}}
 
-% Odd pages (Right side of the spread)
-\fancyhead[LO]{\textit{Methods for Estimating Ice Melt-Driven Sea Level Change}}       % Short Title: Inner
-\fancyhead[RO]{\thepage}          % Page number: Outer
+% Odd pages (Right side)
+\fancyhead[LO]{\textit{Methods for Estimating Ice Melt-Driven Sea Level Change}}
+\fancyhead[RO]{\thepage}
 
-\renewcommand{\headrulewidth}{0pt} % Removes the horizontal line
+\renewcommand{\headrulewidth}{0pt}
 
 % --- Section Formatting ---
 \AddToHook{cmd/section/before}{\clearpage}
@@ -117,3 +121,7 @@
   {\texttt{See notebook: \iffieldundef{url}{\printfield{title}}{\href{\thefield{url}}{\printfield{title}}}}}
   {}
   {}
+
+% ==========================================
+% END OF PREAMBLE
+% ==========================================

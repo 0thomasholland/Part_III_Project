@@ -19,9 +19,11 @@ To demonstrate and confirm this, a test was run to see how the effects of changi
 
 \notebookcite{thomasholland05AltimetrySamplingipynb2026}
 
-One of the objectives is to extend and cross validate this framework's result with that from \textcite{lickleyBiasEstimatesGlobal2018} demonstrating the error between SLC and SSHC. As such, I tested how altimetry error changes with altimetry latitude range. This is important as the altimetry error is expected to be higher at higher latitudes due to the increased variability in sea surface height and the presence of ice sheets which, when there is a change in mass causes a rebound effect, increasing the difference in SSHC and SLC.
+To first demonstrate the systematic error introduced by using SSHC as a proxy for SLC when estimating GMSL from satellite altimetry. A synthetic ice sheet change scenario is constructed as a Gaussian measure over ice thickness, propagated through the sea level fingerprint operator to yield both the true SLC field and its corresponding SSHC field. GMSL is then estimated by forming the area-weighted average of SSHC over the altimetry-observable ocean (latitudes within ±66°), and compared against the true GMSL obtained from the area-weighted average of SLC.
 
 \notebookcite{thomasholland01SeaSurface2026}
+
+One of the objectives is to extend and cross validate this framework's result with that from \textcite{lickleyBiasEstimatesGlobal2018} demonstrating the error between SLC and SSHC. As such, I tested how altimetry error changes with altimetry latitude range. This is important as the altimetry error is expected to be higher at higher latitudes due to the increased variability in sea surface height and the presence of ice sheets which, when there is a change in mass causes a rebound effect, increasing the difference in SSHC and SLC.
 
 To further investigate the impact of ice sheet variability on altimetry error, I also tested how the error changes when the ice melt is restricted to the major ice sheets (GIS, WAIS, and EAIS). This was done with a uniform melt across each ice sheet, normalised to result in 1 mm of true GMSL change, so that the percentage error using SSHC altimetry could be trivially calculated.
 

@@ -39,31 +39,47 @@ These are defined at user defined grid spacings, which are then masked to the re
 
 \subsubsection{GMSL operators}
 
-\todo{Check equations and better define notation}
-
-True GMSL can be calculated from a simple mass balance from ice change accounting for the density difference, and if we assume that the shape of the coastlines is constant, this takes the form:
+True GMSL can be calculated from a simple mass balance from ice change, across the ice field domain $\Omega_I$, accounting for the density difference, and if we assume that the shape of the coastlines is constant, this takes the form:
 
 \begin{equation}
-    \gmslc: \operatorgmsl{\text{true}} = \frac{\rho_W}{A_{ocean} \rho_I} \int_{\Omega} \thicknesschange{I} (\mathbf{x})\, \mathrm{d}S(\mathbf{x}) \label{eq:gmsl_integral}
+    \gmslc: \operatorgmsl{\text{true}} = \frac{\rho_W}{A_{ocean} \rho_I} \int_{\Omega_I} \thicknesschange{I} (\mathbf{x})\, \mathrm{d}S(\mathbf{x}) \label{eq:gmsl_integral}
 \end{equation}
 
-A SSH based GMSL estimate can be calculated by calcualting a surface integral of the SSHC field over the oceans:
+A SSH based GMSL estimate can be calculated by calculating a surface integral of the SSHC field over the oceans:
 
 \begin{equation}
     \gmslc^{\sshc}: \operatorgmsl{\sshc} = \frac{1}{|\Omega|}\int_{\Omega} \sshc(\mathbf{x})\, \mathrm{d}S(\mathbf{x}) \label{eq:gmsl_ssh_integral}
 \end{equation}
 
-A SSH altimetry based GMSL can be calculated by a surface integral of the SSHC over the oceans within a defined latitudinal range:
+Where $|\Omega| = \int_{\Omega} \mathrm{d}S(\mathbf{x})$ is the total surface area of the ocean domain, $\Omega$.
+A SSH altimetry based GMSL can be calculated by a surface integral of the SSHC over the oceans within a defined latitudinal range, which represents what is sampled by satelite altimeters:
 
 \begin{equation}
     \gmslc^{\altimetry}: \operatorgmsl{\altimetry} = \frac{1}{|\Omega_{\altimetry}|}\int_{\Omega_{\altimetry}} \sshc(\mathbf{x})\, \mathrm{d}S(\mathbf{x}) \label{eq:gmsl_ssh_alt_integral}
 \end{equation}
 
-A SSH point altimetry based GMSL estimate can be calculated by sampling the SSHC field at the altimetry points and taking the average, which although is more computationally costly, is more consistent with the altimetry method and allows for the error to be calculated in a more consistent way:
+Where $|\Omega_{\altimetry}| = \int_{\Omega_{\altimetry}} \mathrm{d}S(\mathbf{x})$ is the total surface area of the ocean within the altimetry coverage domain, $\Omega_{\altimetry}$.
+Note that the normalisation by $|\Omega_{\altimetry}|$ rather than the full ocean area $|\Omega|$ implicitly assumes that the SSH anomaly outside the altimetry coverage is representative of the global mean, which is an approximation inherent to all altimetry-based GMSL estimates.
+
+A SSH point altimetry based GMSL estimate can be calculated by sampling the SSHC field at the altimetry points. A naive arithmetic mean of the form
 
 \begin{equation}
-    \gmslc^{\text{point}}: \operatorgmsl{\text{point}} = \frac{1}{N}\sum_{i=1}^{N} \Delta SSH(\mathbf{x}_i) \label{eq:gmsl_ssh_point}
+    % \gmslc^{\text{point}}: \operatorgmsl{\text{point, naive}} =
+    \frac{1}{N}\sum_{i=1}^{N} \sshc(\mathbf{x}_i)\label{eq:gmsl_ssh_point_naive}
 \end{equation}
+
+is biased whenever the observation points are not uniformly distributed with respect to surface area. On a regular latitude-longitude grid, point density scales as $\cos^{-1}(\lambda)$, so polar regions are overrepresented. A $\cos(\lambda)$-weighted scheme corrects for this by replacing the uniform weights with $w_i = \cos(\lambda_i) / \sum_j \cos(\lambda_j)$, giving the area-weighted point estimator:
+
+\begin{equation}
+    \gmslc^{\text{point}}: \operatorgmsl{\text{point}} = \sum_{i=1}^{N} w_i \, \sshc(\mathbf{x}_i), \qquad w_i = \frac{\cos(\lambda_i)}{\sum_j \cos(\lambda_j)} \label{eq:gmsl_ssh_point}
+\end{equation}
+
+This weighted estimator converges to $\operatorgmsl{\altimetry}$ as $N \to \infty$ and grid spacing tends to zero, since the discrete sum approximates the spherical surface integral with the correct area element $R^2 \cos(\lambda) \, \mathrm{d}\phi \, \mathrm{d}\lambda$, providing a natural consistency check between the two approaches. The error assocaited with the point methods (\autoref{eq:gmsl_ssh_point_naive} and \autoref{eq:gmsl_ssh_point}) compared to the integral method (\autoref{eq:gmsl_ssh_alt_integral}) is shown in \autoref{fig:point_alt_errors}.
+
+\begin{figure}
+	\includegraphics[width=6in]{figs/gmsl_averaging_comparison_ridge.png}
+\caption{}\label{fig:point_alt_errors}
+\end{figure}
 
 
 \subsubsection{Modelling Ice and Firn Thickness Change}\label{sec:ice_thickness_priors}
@@ -121,8 +137,9 @@ This is applied to two fields, generated as described previously, by applying a 
 
 
 \begin{align}
-    \covariance_{\thicknesschange{i}}    &= W \mathcal{C}_0 W^*, \quad W = \text{diag}(\alpha(T_i))\label{eq:spatial_ice_covariance} \\
-    \covariance_{\thicknesschange{f}} &= \tilde{W} \mathcal{C}_0 \tilde{W}^*, \quad \tilde{W} = \text{diag}(1 - \alpha(T_i))\label{eq:spatial_ice_covariance}
+    \covariance{\thicknesschange{i}}    &= W \covariance{0} W^*, \quad W = \text{diag}(\alpha(T_i))\label{eq:spatial_ice_covariance} \\
+
+    \covariance{\thicknesschange{f}} &= \tilde{W} \covariance{0} \tilde{W}^*, \quad \tilde{W} = \text{diag}(1 - \alpha(T_i)) \label{eq:spatial_firn_covariance}
 \end{align}
 
 To map these two height fields into the load space, I used the built in operator for ice load, and developed a complimentary operator for firn load.
