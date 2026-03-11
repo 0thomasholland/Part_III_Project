@@ -409,29 +409,41 @@ def double_distribution_plot(
         ax=(ax5, ax6),
     )
 
+    # Share x-range between the two error plots (ax4 and ax6, right column)
+    x_min_err = min(ax4.get_xlim()[0], ax6.get_xlim()[0])
+    x_max_err = max(ax4.get_xlim()[1], ax6.get_xlim()[1])
+    ax4.set_xlim(x_min_err, x_max_err)
+    ax6.set_xlim(x_min_err, x_max_err)
+
+    # Share x-range between the two distribution plots (ax3 and ax5, left column)
+    x_min_dist = min(ax3.get_xlim()[0], ax5.get_xlim()[0])
+    x_max_dist = max(ax3.get_xlim()[1], ax5.get_xlim()[1])
+    ax3.set_xlim(x_min_dist, x_max_dist)
+    ax5.set_xlim(x_min_dist, x_max_dist)
+
     # add vertical lines on the first two axes for the sample values
 
     ax1.axvline(
         sample_values[0],
-        color="black",
+        color="grey",
         linestyle="--",
         label=f"Sample Latitude {sample_values[0]}˚",
     )
     ax1.axvline(
         sample_values[1],
-        color="black",
-        linestyle="--",
+        color="grey",
+        linestyle="-.",
         label=f"Sample Latitude {sample_values[1]}˚",
     )
     ax2.axvline(
         sample_values[0],
-        color="black",
+        color="grey",
         linestyle="--",
         label=f"Sample Latitude {sample_values[0]}˚",
     )
     ax2.axvline(
         sample_values[1],
-        color="black",
+        color="grey",
         linestyle="-.",
         label=f"Sample Latitude {sample_values[1]}˚",
     )

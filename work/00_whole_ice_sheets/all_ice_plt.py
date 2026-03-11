@@ -211,7 +211,7 @@ fig, (ax1, ax2, ax3, ax4, ax5, ax6) = (
             latitudes_subset, 0.001 * 1e3
         ),  # convert to mm
         sample_values=(66.0, 80.0),
-        figsize=(7, 10),
+        figsize=(7, 9),
         estimate_mean=estimate_means_subset,
         estimate_std=estimate_stds_subset,
         error_mean=error_means_subset,
