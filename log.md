@@ -365,3 +365,10 @@
 - Wrote up the z-score comparison section and refined associated figures. Developed the physical interpretation of the traditional method's overconfidence (a standard deviation of 4.20 meaning the uncertainty intervals are nearly meaningless).
 - Improved cross-referencing between the report and supporting notebooks.
 
+## 11 March 2026
+
+- Drafted GMSL estimation equations, the traditional altimetry estimate formulation, and z-score formulas. Resolved narrative structure for the error quantification section into three parts: idealised limit, per-source scalar errors, and error under source uncertainty.
+- Dealt with the AI use statement for the declaration page, prompted by updated departmental policy.
+- Updated sensitivity test implementations and corresponding results sections.
+- Generated updated figures for sensitivity analysis and notebook demonstrations.
+

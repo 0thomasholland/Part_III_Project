@@ -37,15 +37,51 @@ Something something mixing linear - linear version??
 \subsection{Inversion for Ice Thickness Change from Ocean Altimetry}
 
 
+\begin{figure}[!h]
+
+\end{figure}
+
 \subsection{Method comparison}
+
+% A single representative inversion example, using figure 2 - note the posterior is well-centred on the true value, the altimetry estimate is biased low, both are tight distributions
+
+With a prior ice thickness distribution with spatial thickness variability and standardised to a GMSL contribution of 0 mm with standard deviation of 10 mm and ocean altimetry sampling of 5.0 degrees, the following results were calculated. The true data was synthetically drawn from the prior distribution, this being consistent with a well calibrated Bayesian inversion prior.
+
+\autoref{fig:gmsl_contribution_distributions} shows the posterior distribution of ice-driven GMSL from an inversion, with the old method's estimate is also given. The Bayesian inversion's distribution contains the true value (vertical dashed line) and is much narrower than the old method's distribution, which is biased low and does not contain the true value.
+
+\autoref{fig:z_score_method_comparison} shows the z-score distribution of the true value under the predicted distribution for both methods across 261 runs. The Bayesian inversion's z-scores cluster tightly around zero, indicating that it is unbiased and has well-calibrated uncertainty quantification. In contrast, the old method's z-scores show a broader distribution with a horizontal elongation, suggesting that it has larger variance and may be systematically biased.
+
+The z-score statistics for the new method show a mean of 0.07 and a standard deviation of 1.21, while the old method has a mean of 0.23 and a standard deviation of 4.20. The new method's mean z-score near zero indicates that it is unbiased, with estimates centred on the true value on average. The standard deviation of z-scores near one suggests that the new method's uncertainty quantification is well-calibrated, meaning it is neither overconfident nor underconfident. In contrast, the old method's higher mean and much larger standard deviation indicate that it is biased and has poorly calibrated uncertainty quantification, often being overconfident in its estimates.
+
+The old method is only within 1 sigma of the true value in 14.6\% of runs, while the new method is within 1 sigma in 60.5\% of runs.
+
+\begin{figure}[!h]
+	\begin{center}
+		\includegraphics[width=0.6\columnwidth]{gmsl_contribution_distributions.png}
+	\end{center}
+	\caption{.}
+	\label{fig:gmsl_contribution_distributions}
+\end{figure}
+
+\begin{figure}[!h]
+	\begin{center}
+		\includegraphics[width=0.47\columnwidth]{z_score_comparison_contour.png}
+		\includegraphics[width=0.5\columnwidth]{z_score_comparison_kde.png}
+	\end{center}
+	\caption{Comparison of the error of the new Bayesian inversion method with the old  method, using the z-score of the true value under the predicted distribution. The new method shows a more accurate and precise estimation of the true value, with a higher density of points around the z-score of 0 and a narrower distribution overall.}
+	\label{fig:z_score_method_comparison}
+\end{figure}
+
 
 
 \subsection{Sensitivity tests}
 
 \begin{figure}
-	\includegraphics[width=\columnwidth]{sensitivity_tests/7-2_mean_translation.png}
+  \begin{center}
+  \includegraphics[width=\columnwidth]{sensitivity_tests/7-2_mean_translation.png}
 	\includegraphics[width=\columnwidth]{sensitivity_tests/7-3_covariance_scaling.png}
 	\includegraphics[width=\columnwidth]{sensitivity_tests/7-1_length_scale.png}
+  \end{center}
 
 	\caption{}
 	\label{fig:sensitivity-tests}
