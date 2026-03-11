@@ -4,6 +4,8 @@ from matplotlib.figure import Figure
 from matplotlib.pyplot import subplots
 from pygeoinf import GaussianMeasure
 
+from project import colors
+
 
 def error_plot_from_metrics(
     true_measure: tuple[float, float],
@@ -14,9 +16,10 @@ def error_plot_from_metrics(
     true_label: str = "True Distribution",
     est_label: str = "Estimated Distribution",
     error_label: str = "Error Distribution",
-    true_color: str = "blue",
-    est_color: str = "orange",
+    true_color: str | None = None,
+    est_color: str | None = None,
     ax1_title: str = "",
+    show_legend: bool = True,
     ax1_xlabel: str = "Value",
     ax2_title: str = "Error Distribution",
     ax2_xlabel: str = "Error",
@@ -30,6 +33,11 @@ def error_plot_from_metrics(
     else:
         ax1, ax2 = ax
         fig = ax1.get_figure()
+
+    if true_color is None:
+        true_color = colors.true
+    if est_color is None:
+        est_color = colors.old_method
 
     true_mean = true_measure[0]
     true_std = true_measure[1]
@@ -62,7 +70,8 @@ def error_plot_from_metrics(
         x_1, true_pdf, label=true_label, color=true_color
     )
     ax1.plot(x_1, est_pdf, label=est_label, color=est_color)
-    ax1.legend()
+    if show_legend:
+        ax1.legend()
     ax1.set_title(ax1_title)
     ax1.set_xlabel(ax1_xlabel)
 
@@ -74,12 +83,18 @@ def error_plot_from_metrics(
     error_pdf = (
         1 / (error_std * (2 * np.pi) ** 0.5)
     ) * np.exp(-0.5 * ((x_2 - error_mean) / error_std) ** 2)
-    ax2.plot(x_2, error_pdf, label="Error", color="red")
-    ax2.legend()
+    ax2.plot(
+        x_2,
+        error_pdf,
+        label="Error",
+        color=colors.primary_error,
+    )
+    if show_legend:
+        ax2.legend()
     if show_bias:
         ax2.axvline(
             error_mean,
-            color="black",
+            color=colors.primary_error,
             linestyle="--",
             label=f"Error Expectation ({error_mean:.4f})",
         )
@@ -97,8 +112,8 @@ def error_plot(
     true_label: str = "True Distribution",
     est_label: str = "Estimated Distribution",
     error_label: str = "Error Distribution",
-    true_color: str = "blue",
-    est_color: str = "orange",
+    true_color: str | None = None,
+    est_color: str | None = None,
     ax1_title: str = "",
     ax1_xlabel: str = "Value",
     ax2_title: str = "Error Distribution",
@@ -165,8 +180,8 @@ def error_latitude_plot(
     true_label: str = "True Distribution",
     estimate_label: str = "Estimated Distribution",
     error_label: str = "Error Distribution",
-    true_color: str = "tab:blue",
-    estimate_color: str = "tab:orange",
+    true_color: str | None = None,
+    estimate_color: str | None = None,
     ax1_title: str = "",
     ax1_ylabel: str = "Value",
     ax2_title: str = "Error Distribution",
@@ -175,6 +190,7 @@ def error_latitude_plot(
     error_100_value: float | None = None,
     error_100_value_name: str | None = None,
     ax: tuple[Axes, Axes] | None = None,
+    show_legend: bool = True,
 ) -> tuple[Figure, tuple[Axes, Axes]]:
     # If axes provided, use them; otherwise create new figure
     if ax is None:
@@ -183,6 +199,12 @@ def error_latitude_plot(
     else:
         ax1, ax2 = ax
         fig = ax1.get_figure()
+
+    if true_color is None:
+        true_color = colors.true
+
+    if estimate_color is None:
+        estimate_color = colors.old_method
 
     # Left plot: True and Estimated GMSL
     ax1.plot(
@@ -197,7 +219,7 @@ def error_latitude_plot(
         (true_mean + 2 * true_std),
         color=true_color,
         alpha=0.3,
-        label="±2 Std Dev",
+        label=f"{true_label}±2 Std Dev",
     )
     ax1.plot(
         latitude,
@@ -211,27 +233,28 @@ def error_latitude_plot(
         estimate_mean + 2 * estimate_std,
         color=estimate_color,
         alpha=0.3,
-        label="±2 Std Dev",
+        label=f"{estimate_label}±2 Std Dev",
     )
     ax1.set_xlabel("Latitude (˚)")
     ax1.set_ylabel(ax1_ylabel)
     ax1.set_title(ax1_title)
-    ax1.legend()
+    if show_legend:
+        ax1.legend()
 
     # Right plot: Estimation Error
     ax2.plot(
         latitude,
         error_mean,
         label=error_label,
-        color="tab:red",
+        color=colors.primary_error,
     )
     ax2.fill_between(
         latitude,
         error_mean - 2 * error_std,
         error_mean + 2 * error_std,
-        color="tab:red",
+        color=colors.primary_error,
         alpha=0.3,
-        label="±2 Std Dev",
+        label=f"{error_label}±2 Std Dev",
     )
     ax2.set_xlabel("Latitude (˚)")
     ax2.set_ylabel(ax2_ylabel)
@@ -255,8 +278,8 @@ def error_latitude_plot(
             ax2_sec.set_ylabel(
                 f"Error as % of {error_100_value_name}"
             )
-
-    ax2.legend()
+    if show_legend:
+        ax2.legend()
 
     return fig, (ax1, ax2)
 
@@ -270,13 +293,13 @@ def double_distribution_plot(
     error_mean: list[float] | np.ndarray,
     error_std: list[float] | np.ndarray,
     show_bias: bool = False,
-    figsize: tuple[int, int] = (16, 18),
+    figsize: tuple[int, int] = (6, 10),
     sample_values: tuple[float, float] = (np.nan, np.nan),
     true_label: str = "True Distribution",
     estimate_label: str = "Estimated Distribution",
     error_label: str = "Error Distribution",
-    true_color: str = "tab:blue",
-    estimate_color: str = "tab:orange",
+    true_color: str | None = None,
+    estimate_color: str | None = None,
     ax1_title: str = "",
     ax1_ylabel: str = "Value",
     ax2_title: str = "Error Distribution",
@@ -287,6 +310,11 @@ def double_distribution_plot(
 ]:
     fig, axes = subplots(3, 2, figsize=figsize)
     ax1, ax2, ax3, ax4, ax5, ax6 = axes.flatten()
+
+    if true_color is None:
+        true_color = colors.true
+    if estimate_color is None:
+        estimate_color = colors.old_method
 
     fig.suptitle(suptitle)
 
@@ -311,6 +339,7 @@ def double_distribution_plot(
         ax2_title,
         ax2_ylabel,
         ax=(ax1, ax2),
+        show_legend=False,
     )
 
     # third and fourth axes are the distributions at sample_values[0]
@@ -340,6 +369,7 @@ def double_distribution_plot(
         true_color,
         estimate_color,
         f"Distributions at Latitude {actual_lat_0:.1f}˚",
+        False,
         "Value",
         f"Error Distribution at Latitude {actual_lat_0:.1f}˚",
         "Error",
@@ -372,6 +402,7 @@ def double_distribution_plot(
         true_color,
         estimate_color,
         f"Distributions at Latitude {actual_lat_1:.1f}˚",
+        False,
         "Value",
         f"Error Distribution at Latitude {actual_lat_1:.1f}˚",
         "Error",
@@ -401,8 +432,33 @@ def double_distribution_plot(
     ax2.axvline(
         sample_values[1],
         color="black",
-        linestyle="--",
+        linestyle="-.",
         label=f"Sample Latitude {sample_values[1]}˚",
     )
+    # Collect handles and labels from ALL axes in the figure
+    handles, labels = [], []
+    for axis in fig.axes:
+        ax_handles, ax_labels = (
+            axis.get_legend_handles_labels()
+        )
+        handles.extend(ax_handles)
+        labels.extend(ax_labels)
+
+    # Filter out duplicates by keeping the first occurrence of each label
+    by_label = dict(zip(labels, handles))
+
+    # 2. Add the legend
+    fig.legend(
+        by_label.values(),
+        by_label.keys(),
+        ncol=3,
+        loc="lower center",
+        bbox_to_anchor=(0.5, 0.0),
+    )
+
+    # 3. Adjust layout carefully
+    # tight_layout doesn't always "see" the legend.
+    # Use rect to leave room at the bottom [left, bottom, right, top]
+    fig.tight_layout(rect=[0, 0.1, 1, 1])
 
     return fig, (ax1, ax2, ax3, ax4, ax5, ax6)

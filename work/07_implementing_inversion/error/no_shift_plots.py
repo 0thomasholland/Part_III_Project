@@ -226,7 +226,7 @@ max_val = max(
     np.abs(z_score_posterior).max(),
 )
 
-fig, ax = plt.subplots(figsize=(7, 7))
+fig, ax = plt.subplots(figsize=(4.5, 4.5))
 
 # KDE Plot
 sns.kdeplot(
@@ -337,15 +337,16 @@ mean = df["error_bayesian"].mean()
 
 std_dev = df["posterior_std_dev"].mean()
 
-# x = np.linspace(mean - 4 * std_dev, mean + 4 * std_dev, 100)
-# y = gaussian(x, mean, std_dev)
-# plt.plot(
-#     x,
-#     y,
-#     label="Hypothetical Gaussian Centered in Bias",
-#     color=colors.new_method,
-#     linestyle="--",
-# )
+x = np.linspace(mean - 4 * std_dev, mean + 4 * std_dev, 100)
+y = gaussian(x, mean, std_dev)
+plt.plot(
+    x,
+    y,
+    label="Hypothetical Gaussian Centered in Bias",
+    color=colors.new_method,
+    linestyle="--",
+)
+
 
 plt.axvline(
     0, color=colors.true, linestyle="--", label="Zero Bias"
@@ -373,4 +374,51 @@ print(
 )
 print(
     f"Old method within 1 sigma: {within_one_sigma_ssh} / {len(df)} ({within_one_sigma_ssh / len(df) * 100:.1f}%)"
+)
+# %%
+# do the residuals plot but with z scores instead of raw errors
+sns.set_context("paper")
+sns.set_style("white")
+fig, ax = plt.subplots(figsize=(4.5, 3.0))
+sns.kdeplot(
+    z_score_ssh,
+    fill=True,
+    label="Old Method (SSH)",
+    color=colors.old_method,
+)
+sns.kdeplot(
+    z_score_posterior,
+    fill=True,
+    label="New Method (Bayesian)",
+    color=colors.new_method,
+)
+plt.axvline(
+    0,
+    color=colors.true,
+    linestyle="--",
+    label="Zero z-score",
+)
+plt.title(
+    f"Distribution of z-scores [(Estimate - Truth) / Std Dev] [n={len(df)}]"
+)
+plt.xlabel("z-score")
+plt.ylabel("Density")
+plt.legend(loc="upper left")
+plt.tight_layout()
+plt.show()
+fig.savefig("z_score_comparison_kde.png", dpi=600)
+
+# %%
+# calcualte the mean z score for both, and also the standard deviation of the z score
+mean_z_score_bayesian = z_score_posterior.mean()
+std_z_score_bayesian = z_score_posterior.std()
+
+mean_z_score_ssh = z_score_ssh.mean()
+std_z_score_ssh = z_score_ssh.std()
+
+print(
+    f"New method z-score: mean = {mean_z_score_bayesian:.2f}, std dev = {std_z_score_bayesian:.2f}"
+)
+print(
+    f"Old method z-score: mean = {mean_z_score_ssh:.2f}, std dev = {std_z_score_ssh:.2f}"
 )

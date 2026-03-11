@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import inspect
+
 import numpy as np
 from pygeoinf import HilbertSpace, LinearOperator
 from pyslfp import FingerPrint
@@ -85,9 +87,26 @@ class GridPoints:
         """
         Constructs a linear operator that evaluates the surface height at
         the filtered grid points.
+
+        Passes ``matrix_free=True, parallel=True`` only when the space's
+        ``point_evaluation_operator`` accepts those keyword arguments.
+        Not all Sobolev space implementations expose the matrix-free path
+        (e.g. the abstract ABC in pygeoinf does not), so we inspect the
+        signature before forwarding the kwargs.
         """
+        sig = inspect.signature(
+            measurement_space.point_evaluation_operator
+        )
+        if "matrix_free" in sig.parameters:
+            return (
+                measurement_space.point_evaluation_operator(
+                    self.coords,
+                    matrix_free=True,
+                    parallel=True,
+                )
+            )
         return measurement_space.point_evaluation_operator(
-            self.coords, matrix_free=True, parallel=True
+            self.coords
         )
 
     def __len__(self) -> int:

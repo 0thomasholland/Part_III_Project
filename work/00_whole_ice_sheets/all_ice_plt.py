@@ -1,10 +1,27 @@
 # %%
 import matplotlib.pyplot as plt
 import numpy as np
+import seaborn as sns
 
+from project import colors
 from project.plots import (
     double_distribution_plot,
     error_latitude_plot,
+)
+
+sns.set_style("ticks")
+sns.color_palette("colorblind")
+sns.set_context("paper")
+
+plt.rcParams.update(
+    {
+        "font.family": "serif",
+        "font.serif": [
+            "Bitstream Charter",
+            "Charter",
+        ],  # Will look for these on your system
+        "text.usetex": False,  # Use Matplotlib's internal math engine (mathtext)
+    }
 )
 
 # %%
@@ -26,7 +43,7 @@ ax1.plot(
     latitudes_scalar,
     relative_errors_scalar,
     label="Relative Error",
-    color="tab:blue",
+    color=colors.primary_error,
 )
 ax1.set_xlabel("Latitude (˚)")
 ax1.set_ylabel("Relative Error")
@@ -82,7 +99,7 @@ for gmsl_mean in unique_gmsl_means:
             latitudes_subset,
             error_means_subset,
             label=f"Estimation error for GMSL Mean: {gmsl_mean}, Std: {gmsl_std}",
-            color="tab:orange",
+            color=colors.primary_error,
         )
         # ax.scatter(
         #     latitudes_subset,
@@ -92,7 +109,7 @@ for gmsl_mean in unique_gmsl_means:
             latitudes_subset,
             error_means_subset - 2 * error_stds_subset,
             error_means_subset + 2 * error_stds_subset,
-            color="tab:orange",
+            color=colors.primary_error,
             alpha=0.3,
             label="±2 Std Dev",
         )
@@ -194,11 +211,15 @@ fig, (ax1, ax2, ax3, ax4, ax5, ax6) = (
             latitudes_subset, 0.001 * 1e3
         ),  # convert to mm
         sample_values=(66.0, 80.0),
+        figsize=(7, 10),
         estimate_mean=estimate_means_subset,
         estimate_std=estimate_stds_subset,
         error_mean=error_means_subset,
         error_std=error_stds_subset,
         suptitle="GMSL Distributions at 66˚ and 80˚ Latitude\n(GMSL Mean: 10 mm, Std: 1 mm)",
+        true_label="True GMSL",
+        estimate_label="Altimetry Estimated GMSL",
+        error_label="Estimation Error",
     )
 )
 
