@@ -34,24 +34,24 @@ Using the Bayseian inversion framework, we are able to generate the posterior mo
 \subsubsection{Comparison with previous method}
 \notebookcite{thomasholland06SimpleInversionipynb2026}
 
-We collapse the full spatial sea-level fingerprints to a single scalar: the global mean sea level (GMSL) contribution. This is accomplished by applying the GMSL projection operator, a spatially uniform averaging kernel, appropriately area-weighted, to both the posterior distribution and the true field. This generates a true GMSL value, $\Delta GMSL^{true}$, and the inversion method's estimate, $\Delta GMSL^{bay}$:
+We collapse the full spatial sea-level fingerprints to a single scalar: the global mean sea level (GMSL) contribution. This is accomplished by applying the GMSL projection operator, a spatially uniform averaging kernel, appropriately area-weighted, to both the posterior distribution and the true field. This generates a true GMSL value, $\gmslctrue$, and the inversion method's estimate, $\gmslcbay$:
 
 \begin{align}
-	\Delta GMSL^{true} &= G m_{\Delta I}^\dagger \label{eq:true-gmsl-model} \\
-	\Delta GMSL^{bay} &= G m_{\Delta I}^{p} \label{eq:bay-gmsl-model}
+	\gmslctrue &= G m_{\Delta I}^\dagger \label{eq:true-gmsl-model} \\
+	\gmslcbay &= G m_{\Delta I}^{p} \label{eq:bay-gmsl-model}
 \end{align}
 
 For comparison, I also computed an old method GMSL estimate obtained by treating the raw altimetry observations as a direct proxy for sea-level change, without any inversion step, as described in \autoref{}. This method propergates through the altimetry error used in our inversion, $n$, with the assumption that other sources of error are consistent to both methods, for example the errors assocaited with data cleaning steps, and thus moot.
 
 \begin{equation}
- \Delta GMSL^{alt} \sim \mathcal{N} \left( \frac{1}{|\Omega|} \sum_{i=1}^{N} d_{obs,i}\, \delta A_i,\, \covariance{n} \right) \label{eq:alt-gmsl-model}
+ \gmslcalt \sim \mathcal{N} \left( \frac{1}{|\Omega|} \sum_{i=1}^{N} d_{obs,i}\, \delta A_i,\, \covariance{n} \right) \label{eq:alt-gmsl-model}
 \end{equation}
 
 I calculated the $z$-score using the calcualted expectation and standard deviations, $\mu$ and $\sigma$ respectly, for both the old altimetry method and the new inversion method, to compare the performance of the two methods in estimating the true GMSL change:
 
 \begin{align}
-    z^{bay} &= \frac{\Delta GMSL^{true} - \mu_{\text{bay}}}{\sigma_{\text{bay}}} \\[7pt]
-    z^{alt} &= \frac{\Delta GMSL^{true} - \mu_{\text{alt}}}{\sigma_{\text{alt}}}
+    z^{bay} &= \frac{\gmslctrue - \mu_{\text{bay}}}{\sigma_{\text{bay}}} \\[7pt]
+    z^{alt} &= \frac{\gmslctrue - \mu_{\text{alt}}}{\sigma_{\text{alt}}}
 \end{align}
 
 The inversions can be run multiple times to generate a distribution of $z$-scores for each method, which can be compared to show the improvement of the new method over the old method.
@@ -61,7 +61,7 @@ The inversions can be run multiple times to generate a distribution of $z$-score
 
 Using similar methods to those described in \textcite{heathcoteScaleableBayesianFramework2026} for testing the inversion sensitivity to changing parameters.
 
-Intially, an inversion scenario is set up similar to the simple inversion, with a fixed truth ice state, $m_{\Delta I}^\dagger$. This allows for the altimetry estimation measure, $\Delta GMSL^{alt}$ (see \autoref{eq:alt-gmsl-model}), to be formed upfront as a comparison metric alongside the true GMSL change value, $\Delta GMSL^{true}$ (see \autoref{eq:true-gmsl-model}). Inversions of the true field were run with priors generated with systematically varied parameters of interest.
+Intially, an inversion scenario is set up similar to the simple inversion, with a fixed truth ice state, $m_{\Delta I}^\dagger$. This allows for the altimetry estimation measure, $\gmslcalt$ (see \autoref{eq:alt-gmsl-model}), to be formed upfront as a comparison metric alongside the true GMSL change value, $\gmslctrue$ (see \autoref{eq:true-gmsl-model}). Inversions of the true field were run with priors generated with systematically varied parameters of interest.
 
 To test for the sensitivity of the ice length scale prior model, various length scales to use for the prior were selected around the true field, which was generated at 10\% of the mean sea floor radius $\approx 636.8$.
 
@@ -94,7 +94,7 @@ With the data space being the direct sum of SSH altimetry data, tide gauge data,
 It is often the case where multiple model space parameters map to one data space parameter, for example in our case, SSH altimetry points forms the linear equation:
 
 \begin{equation}
-	d_{\Delta SSH} = P_{S}( SSH \circ F (L_I m_{\Delta I} + L_F m_{\Delta F} + L_W m_{\Delta ODT}) + m_{\Delta ODT})
+	d_{\Delta SSH} = \operatorpointocean( \operatorsshc \circ \operatorslc (\operatorloadice m_{\Delta I} + \operatorloadfirn m_{\Delta F} + \operatorloadwater \odtchange) + \odtchange)
 \end{equation}
 
 The forward operator for the joint inversion can be written as a block matrix, with each block being the mapping of the respective model space parameter to the respective data space parameter. This results in the following form:
@@ -107,14 +107,14 @@ The forward operator for the joint inversion can be written as a block matrix, w
 \end{bmatrix}
 &\nonumber\\&=
 \begin{bmatrix}
-	\mathbf{P_S S F L_I} & \mathbf{P_S S F L_F} & \mathbf{P_S(S F L_W + 1)} \\
-	\mathbf{P_T F L_I} & \mathbf{P_T F L_I} & \mathbf{P_T (F L_W + 1)}\\
-	\mathbf{P_I} & \mathbf{P_I} & \mathbf{0}
+	\operatorpointocean \operatorsshc \operatorslc \operatorloadice & \operatorpointocean \operatorsshc \operatorslc \operatorloadfirn & \operatorpointocean(\operatorsshc \operatorslc \operatorloadwater + 1) \\
+	\operatorpointtg \operatorslc \operatorloadice & \operatorpointtg \operatorslc \operatorloadice & \operatorpointtg(\operatorslc \operatorloadwater + 1)\\
+	\operatorpointice & \operatorpointice & \mathbf{0}
 \end{bmatrix}
 \begin{bmatrix}
-	\Delta T_\text{Ice}\\
-	\Delta T_\text{Firn}\\
-	\Delta SSH_\text{OD}
+	\thicknesschange{\text{Ice}}\\
+	\thicknesschange{\text{Firn}}\\
+	\odtchange
 \end{bmatrix}
 \end{align}
 
@@ -123,12 +123,12 @@ However, this is computationally inefficient, as it requires six independent cal
 \begin{equation}
 =
 	\begin{bmatrix}
-\mathbf{P_S S} & \mathbf{P_S} & 0 & 0 \\
-\mathbf{P_T} & \mathbf{P_T} & 0 & 0 \\
-0 & 0 & \mathbf{P_I} & \mathbf{P_I}
+\operatorpointocean \operatorsshc & \operatorpointocean & 0 & 0 \\
+\operatorpointtg & \operatorpointtg & 0 & 0 \\
+0 & 0 & \operatorpointice & \operatorpointice
 \end{bmatrix}
 \begin{bmatrix}
-\mathbf{F} & 0 & 0 & 0 \\
+\operatorslc & 0 & 0 & 0 \\
 0 & \mathbf{1} & 0 & 0 \\
 0 & 0 & \mathbf{1} & 0 \\
 0 & 0 & 0 & \mathbf{1}
@@ -140,9 +140,9 @@ However, this is computationally inefficient, as it requires six independent cal
 0 & \mathbf{1} & 0
 \end{bmatrix}
 \begin{bmatrix}
-\Delta T_{\text{Ice}} \\
-\Delta T_{\text{Firn}} \\
-\Delta SSH_{\text{OD}}
+\thicknesschange{\text{Ice}} \\
+\thicknesschange{\text{Firn}} \\
+\odtchange
 \end{bmatrix}\label{eq:factorised_joint}
 \end{equation}
 

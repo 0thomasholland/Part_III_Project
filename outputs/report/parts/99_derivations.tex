@@ -47,24 +47,24 @@ We have the forward operator matrix:
 
 \begin{equation}
     M = \begin{bmatrix}
-        \mathbf{P}_S \operatorslc \operatorloadice & \mathbf{P}_S \operatorslc \operatorloadfirn & \mathbf{P}_S(\operatorslc \operatorloadwater + 1) \\
-        \mathbf{P}_T \mathbf{F} \operatorloadice & \mathbf{P}_T \mathbf{F} \operatorloadfirn & \mathbf{P}_T(\mathbf{F} \operatorloadwater + 1) \\
-        \mathbf{P}_I & \mathbf{P}_I & 0
+        \operatorpointocean \operatorsshc \operatorslc \operatorloadice & \operatorpointocean \operatorsshc \operatorslc \operatorloadfirn & \operatorpointocean(\operatorsshc \operatorslc \operatorloadwater + 1) \\
+        \operatorpointtg \operatorslc \operatorloadice & \operatorpointtg \operatorslc \operatorloadfirn & \operatorpointtg(\operatorslc \operatorloadwater + 1) \\
+        \operatorpointice & \operatorpointice & 0
     \end{bmatrix}
 \end{equation}
 
-Which maps the model space vector $\mathbf{x} = (\thicknesschange{Ice},\, \thicknesschange{Firn},\, \Delta SSH_{OD})$ to the data space vector $d = (d_{\Delta SSH},\, d_{\Delta TG},\, d_{\Delta ISH})$.
+Which maps the model space vector $\mathbf{x} = (\thicknesschange{Ice},\, \thicknesschange{Firn},\, \odtchange)$ to the data space vector $d = (d_{\Delta SSH},\, d_{\Delta TG},\, d_{\Delta ISH})$.
 
-This is an inefficient operator, as it requires six independent calls to the fingerprint numerical solver $\mathbf{F}$, which is the most computationally expensive part of the forward model, due to its numerical implementation.
+This is an inefficient operator, as it requires six independent calls to the fingerprint numerical solver $\operatorslc$, which is the most computationally expensive part of the forward model, due to its numerical implementation.
 
-We can factorise this matrix into three sparse matrices $A$, $B$, and $C$ such that $M = ABC$, where $B$ contains only one call to $\mathbf{F}$, thus reducing the number of fingerprint calls from six to one. The derivation of this factorisation proceeds in three steps:
+We can factorise this matrix into three sparse matrices $A$, $B$, and $C$ such that $M = ABC$, where $B$ contains only one call to $\operatorslc$, thus reducing the number of fingerprint calls from six to one. The derivation of this factorisation proceeds in three steps:
 
 \textbf{Step 1: Isolate the fingerprint structure}
 
-Notice that $\mathbf{F}$ appears applied to $\operatorloadice$, $\operatorloadfirn$, $\operatorloadwater$
+Notice that $\operatorslc$ appears applied to $\operatorloadice$, $\operatorloadfirn$, $\operatorloadwater$
 in rows 1 and 2, but never in row 3. This suggests introducing an intermediate quantity
-$\mathbf{u} = \mathbf{F}\mathbf{L}\,\mathbf{x}$ where $\mathbf{L}$ collects the load operators,
-so that $\mathbf{F}$ is called only once. Define
+$\mathbf{u} = \operatorslc\mathbf{L}\,\mathbf{x}$ where $\mathbf{L}$ collects the load operators,
+so that $\operatorslc$ is called only once. Define
 
 \begin{equation}
     C = \begin{bmatrix}
@@ -76,13 +76,13 @@ so that $\mathbf{F}$ is called only once. Define
 \end{equation}
 
 where the bottom three rows simply route the state variables
-$(\thicknesschange{Ice},\, \thicknesschange{Firn},\, \Delta SSH_{OD})$ to slots that will be
+$(\thicknesschange{Ice},\, \thicknesschange{Firn},\, \odtchange)$ to slots that will be
 used by the outer operators. The action of $C$ on $\mathbf{x}$ gives the intermediate vector
 
 \begin{equation}
     C\mathbf{x} = \begin{pmatrix}
-        \operatorloadice\,\thicknesschange{Ice} + \operatorloadfirn\,\thicknesschange{Firn} + \operatorloadwater\,\Delta SSH_{OD} \\
-        \Delta SSH_{OD} \\
+        \operatorloadice\,\thicknesschange{Ice} + \operatorloadfirn\,\thicknesschange{Firn} + \operatorloadwater\,\odtchange \\
+        \odtchange \\
         \thicknesschange{Ice} \\
         \thicknesschange{Firn}
     \end{pmatrix}
@@ -90,12 +90,12 @@ used by the outer operators. The action of $C$ on $\mathbf{x}$ gives the interme
 
 \textbf{Step 2: Apply the fingerprint operator selectively}
 
-We want $\mathbf{F}$ applied to only the first component of $C\mathbf{x}$, leaving the rest
+We want $\operatorslc$ applied to only the first component of $C\mathbf{x}$, leaving the rest
 unchanged. This is exactly what a block-diagonal operator achieves:
 
 \begin{equation}
     B = \begin{bmatrix}
-        \mathbf{F} & 0 & 0 & 0 \\
+        \operatorslc & 0 & 0 & 0 \\
         0 & 1 & 0 & 0 \\
         0 & 0 & 1 & 0 \\
         0 & 0 & 0 & 1
@@ -106,16 +106,16 @@ so that
 
 \begin{equation}
     BC\mathbf{x} = \begin{pmatrix}
-        \mathbf{F}(\operatorloadice\,\thicknesschange{Ice} + \operatorloadfirn\,\thicknesschange{Firn} + \operatorloadwater\,\Delta SSH_{OD}) \\
-        \Delta SSH_{OD} \\
+        \operatorslc(\operatorloadice\,\thicknesschange{Ice} + \operatorloadfirn\,\thicknesschange{Firn} + \operatorloadwater\,\odtchange) \\
+        \odtchange \\
         \thicknesschange{Ice} \\
         \thicknesschange{Firn}
     \end{pmatrix}
 \end{equation}
 
-Linearity of $\mathbf{F}$ then distributes the first component into
-$\mathbf{F}\operatorloadice\,\thicknesschange{Ice} + \mathbf{F}\operatorloadfirn\,\thicknesschange{Firn}
-+ \mathbf{F}\operatorloadwater\,\Delta SSH_{OD}$, which is precisely the fingerprint contribution
+Linearity of $\operatorslc$ then distributes the first component into
+$\operatorslc\operatorloadice\,\thicknesschange{Ice} + \operatorslc\operatorloadfirn\,\thicknesschange{Firn}
++ \operatorslc\operatorloadwater\,\odtchange$, which is precisely the fingerprint contribution
 needed in rows 1 and 2 of $M$.
 
 \textbf{Step 3: Recover the original rows by projection}
@@ -123,23 +123,23 @@ needed in rows 1 and 2 of $M$.
 It remains to map the four-component vector $BC\mathbf{x}$ back to the three observation types.
 Reading off what each row of $M$ requires:
 \begin{itemize}
-    \item Row 1 needs $\mathbf{P}_S S$ acting on the fingerprint result, plus $\mathbf{P}_S$ acting on $\Delta SSH_{OD}$ directly.
-    \item Row 2 needs $\mathbf{P}_T$ acting on the fingerprint result, plus $\mathbf{P}_T$ acting on $\Delta SSH_{OD}$ directly.
-    \item Row 3 needs $\mathbf{P}_I$ acting on $\thicknesschange{Ice}$ and $\thicknesschange{Firn}$, with no fingerprint contribution.
+    \item Row 1 needs $\operatorpointocean \operatorsshc$ acting on the fingerprint result, plus $\operatorpointocean$ acting on $\odtchange$ directly.
+    \item Row 2 needs $\operatorpointtg$ acting on the fingerprint result, plus $\operatorpointtg$ acting on $\odtchange$ directly.
+    \item Row 3 needs $\operatorpointice$ acting on $\thicknesschange{Ice}$ and $\thicknesschange{Firn}$, with no fingerprint contribution.
 \end{itemize}
 
 This gives
 
 \begin{equation}
     A = \begin{bmatrix}
-        \mathbf{P}_S S & \mathbf{P}_S & 0 & 0 \\
-        \mathbf{P}_T & \mathbf{P}_T & 0 & 0 \\
-        0 & 0 & \mathbf{P}_I & \mathbf{P}_I
+        \operatorpointocean \operatorsshc & \operatorpointocean & 0 & 0 \\
+        \operatorpointtg & \operatorpointtg & 0 & 0 \\
+        0 & 0 & \operatorpointice & \operatorpointice
     \end{bmatrix}
 \end{equation}
 
 \textbf{Conclusion}
 
 Combining the three steps, $M = ABC$, where each factor has a clear role: $C$ computes the
-total load and routes state variables, $B$ applies $\mathbf{F}$ exactly once to the combined
+total load and routes state variables, $B$ applies $\operatorslc$ exactly once to the combined
 load, and $A$ projects the result onto the three observation spaces. \qed

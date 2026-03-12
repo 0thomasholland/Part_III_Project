@@ -4,11 +4,17 @@
 \newcommand{\gmslc}{\Delta \mathrm{GMSL}}
 \newcommand{\gmsl}{\mathrm{GMSL}}
 \newcommand{\altimetry}{\mathrm{ALT}}
+\newcommand{\odtchange}{\Delta \mathrm{SSH}_{\mathrm{OD}}}
+
+% gmsl estimate variants
+\newcommand{\gmslctrue}{\Delta \mathrm{GMSL}^{\mathrm{true}}}
+\newcommand{\gmslcbay}{\Delta \mathrm{GMSL}^{\mathrm{bay}}}
+\newcommand{\gmslcalt}{\Delta \mathrm{GMSL}^{\mathrm{alt}}}
 
 \newcommand{\covariance}[1]{\mathcal{C}_{#1}}
 \newcommand{\thicknesschange}[1]{\Delta T_{#1}}
 \newcommand{\masschange}[1]{\Delta M_{#1}}
-\newcommand{\operator}[2]{\mathbf{{#1}}_{#2}}
+\newcommand{\operator}[2]{\operatorname{{#1}}_{{#2}}}
 
 % covariances
 
@@ -24,3 +30,8 @@
 \newcommand{\operatorloadfirn}{\operator{L}{f}}
 \newcommand{\operatorgmsl}[1]{\operator{G}{#1}}
 \newcommand{\operatoraltimetry}[1]{\operator{A}{#1}}
+
+% point-sampling operators (altimetry subscript variants)
+\newcommand{\operatorpointocean}{\operatoraltimetry{S}}
+\newcommand{\operatorpointtg}{\operatoraltimetry{T}}
+\newcommand{\operatorpointice}{\operatoraltimetry{I}}
