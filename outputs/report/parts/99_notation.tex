@@ -1,0 +1,198 @@
+% ============================================================
+%  Mathematical Notation
+% ============================================================
+
+\subsection*{Physical fields and scalar quantities}
+
+\begin{tabular}{@{}lp{10cm}@{}}
+    \toprule
+    \textbf{Symbol} & \textbf{Description} \\
+    \midrule
+    $\mathrm{SL}(\mathbf{x})$   & Sea level (relative sea level) at position $\mathbf{x}$ \\
+    $\mathrm{SSH}(\mathbf{x})$  & Sea surface height at position $\mathbf{x}$ \\
+    $\slc$                       & Sea level change \\
+    $\sshc$                      & Sea surface height change \\
+    $\gmsl$                      & Global mean sea level \\
+    $\gmslc$                     & Global mean sea level change \\
+    $\gmslctrue$                 & True (mass-balance) GMSL change \\
+    $\gmslcbay$                  & Bayesian inversion estimate of GMSL change \\
+    $\gmslcalt$                  & Altimetry-based estimate of GMSL change \\
+    $\odtchange$                 & Ocean dynamic topography change \\
+    $\mathrm{C}(\mathbf{x})$    & Ocean function; 1 on ocean, 0 on land \\
+    $\mathrm{I}(\mathbf{x})$    & Ice thickness at position $\mathbf{x}$ \\
+    \bottomrule
+\end{tabular}
+
+\vspace{1em}
+
+\subsection*{Model space variables}
+
+\begin{tabular}{@{}lp{10cm}@{}}
+    \toprule
+    \textbf{Symbol} & \textbf{Description} \\
+    \midrule
+    $\thicknesschange{i}$              & Ice thickness change field \\
+    $\thicknesschange{f}$              & Firn thickness change field \\
+    $\thicknesschange{odt}$            & Ocean dynamic topography thickness change field \\
+    $\thicknesschange{Ice}$            & Ice thickness change (block-matrix notation) \\
+    $\thicknesschange{Firn}$           & Firn thickness change (block-matrix notation) \\
+    $\masschange{i}$                   & Ice mass change \\
+    $m$                                & Generic model space element \\
+    $\bar{m}$                          & Prior mean of model space element \\
+    $m_p$                              & Posterior model space element \\
+    $m_{\Delta I}^{\dagger}$           & True (synthetic) ice thickness field \\
+    $m_{\Delta I}^{p}$                 & Posterior ice thickness field \\
+    $\mathbf{x}$                       & State vector; also used as a position on the sphere \\
+    \bottomrule
+\end{tabular}
+
+\vspace{1em}
+
+\subsection*{Densities, areas, and physical constants}
+
+\begin{tabular}{@{}lp{10cm}@{}}
+    \toprule
+    \textbf{Symbol} & \textbf{Description} \\
+    \midrule
+    $\rho_w$            & Density of water \\
+    $\rho_i$            & Density of ice \\
+    $\rho_{\text{firn}}$& Density of firn \\
+    $A$                 & Total ocean surface area \\
+    $A_{\text{ocean}}$  & Total ocean surface area (mass-balance form) \\
+    $R$                 & Radius of the Earth \\
+    $r$                 & Radial coordinate \\
+    $\hat{r}$           & Radial unit vector \\
+    $\mathbf{u}$        & Solid-earth displacement vector \\
+    \bottomrule
+\end{tabular}
+
+\vspace{1em}
+
+\subsection*{Domains and geometry}
+
+\begin{tabular}{@{}lp{10cm}@{}}
+    \toprule
+    \textbf{Symbol} & \textbf{Description} \\
+    \midrule
+    $\mathbb{S}^2$              & Unit two-sphere (used as a model for the Earth's surface) \\
+    $\Omega$                    & Ocean domain (full altimetry-observable ocean) \\
+    $\Omega_{\altimetry}$       & Ocean domain within satellite altimetry coverage \\
+    $\Omega_I$                  & Ice field domain \\
+    $|\Omega|$                  & Surface area of domain $\Omega$ \\
+    $\phi$                      & Longitude \\
+    $\lambda$                   & Latitude \\
+    $dA$                        & Surface area element \\
+    $dS$                        & Surface area element (spherical) \\
+    $\Delta\phi,\,\Delta\lambda$& Grid spacing in longitude and latitude \\
+    $N$                         & Number of discrete sampling points \\
+    $w_i$                       & Area-weighting coefficient for point $i$; $w_i = \cos\lambda_i / \sum_j \cos\lambda_j$ \\
+    \bottomrule
+\end{tabular}
+
+\vspace{1em}
+
+\subsection*{Function spaces}
+
+\begin{tabular}{@{}lp{10cm}@{}}
+    \toprule
+    \textbf{Symbol} & \textbf{Description} \\
+    \midrule
+    $H^s(\mathbb{S}^2)$     & Sobolev space of index $s$ on the sphere \\
+    $s$                      & Sobolev smoothness index \\
+    $h, k$                   & Elements of $H^s(\mathbb{S}^2)$ \\
+    $X,\, Y$                 & Generic Hilbert spaces \\
+    $\braket{\cdot,\cdot}_Y$ & Inner product on space $Y$ \\
+    $\phi$                   & Continuous linear functional $\phi: H^s(\mathbb{S}^2) \to \mathbb{R}$ \\
+    \bottomrule
+\end{tabular}
+
+\vspace{1em}
+
+\subsection*{Operators}
+
+\begin{tabular}{@{}lp{10cm}@{}}
+    \toprule
+    \textbf{Symbol} & \textbf{Description} \\
+    \midrule
+    $\operatorslc$                          & Sea level fingerprint operator; maps load change to sea level change \\
+    $\operatorsshc$                         & Sea surface height change operator; maps load change to SSHC \\
+    $\operatorloadice$                      & Ice load operator; point-wise multiplication by $\rho_i$ \\
+    $\operatorloadfirn$                     & Firn load operator; point-wise multiplication by $\rho_{\text{firn}}$ \\
+    $\operatorloadwater$                    & Water load operator \\
+    $\operatorgmsl{\cdot}$                  & GMSL averaging operator \\
+    $\operatorgmsl{\text{true}}$            & Mass-balance GMSL operator (integral over ice domain) \\
+    $\operatorgmsl{\sshc}$                  & Full-ocean SSHC averaging operator \\
+    $\operatorgmsl{\altimetry}$             & Altimetry-domain SSHC averaging operator \\
+    $\operatorgmsl{\text{point}}$           & Area-weighted point GMSL estimator \\
+    $\operatoraltimetry{\cdot}$             & General altimetry point-sampling operator \\
+    $\operatorpointocean$                   & SSH ocean altimetry point-sampling operator \\
+    $\operatorpointtg$                      & Tide gauge point-sampling operator \\
+    $\operatorpointice$                     & Ice altimetry point-sampling operator \\
+    $A$                                     & Generic forward operator; $A: X \to Y$ \\
+    $A^*$                                   & Adjoint of operator $A$; $A^*: Y \to X$ \\
+    $\alpha(\mathbf{x})$                    & Spatial ice/firn partitioning function (generalised logistic curve) \\
+    $W$                                     & Diagonal weighting operator; $W = \operatorname{diag}(\alpha(T_i))$ \\
+    \bottomrule
+\end{tabular}
+
+\vspace{1em}
+
+\subsection*{Probabilistic quantities}
+
+\begin{tabular}{@{}lp{10cm}@{}}
+    \toprule
+    \textbf{Symbol} & \textbf{Description} \\
+    \midrule
+    $\mu$                           & Gaussian measure; also used as prior measure \\
+    $\mathcal{N}(m, \mathcal{C})$   & Gaussian measure with mean $m$ and covariance operator $\mathcal{C}$ \\
+    $\mathcal{C}$                   & Generic covariance operator \\
+    $\covariance{0}$                & Base (heat-kernel) covariance operator \\
+    $\covariance{m}$                & Prior model covariance operator \\
+    $\covariance{n}$                & Noise / observation covariance operator \\
+    $\covariance{\thicknesschange{i}}$ & Covariance operator for ice thickness change \\
+    $\covariance{\thicknesschange{f}}$ & Covariance operator for firn thickness change \\
+    $d$                             & Data space vector \\
+    $d_{\text{obs}}$                & Observed data vector \\
+    $d_{\Delta\mathrm{SSH}}$        & SSH altimetry data vector \\
+    $d_{\Delta\mathrm{TG}}$         & Tide gauge data vector \\
+    $d_{\Delta\mathrm{ISH}}$        & Ice surface height altimetry data vector \\
+    $n$                             & Observation noise vector; $n \sim \mathcal{N}(0, \covariance{n})$ \\
+    $K$                             & Kalman gain matrix \\
+    $z$                             & $z$-score of the true value under a predicted distribution \\
+    $\sigma_{\text{target}}$        & Target standard deviation of GMSL contribution \\
+    $\sigma_{\text{gmsl}}$          & Implied GMSL standard deviation of a thickness change prior \\
+    $p(\cdot|\cdot)$                & Conditional probability density \\
+    \bottomrule
+\end{tabular}
+
+\vspace{1em}
+
+\subsection*{Block-matrix and joint inversion}
+
+\begin{tabular}{@{}lp{10cm}@{}}
+    \toprule
+    \textbf{Symbol} & \textbf{Description} \\
+    \midrule
+    $\oplus$        & Direct sum of model or data spaces \\
+    $M$             & Full joint forward operator matrix \\
+    $A,\,B,\,C$     & Sparse factor matrices in the factorisation $M = ABC$ \\
+    $\mathbf{L}$    & Combined load operator matrix \\
+    \bottomrule
+\end{tabular}
+
+\vspace{1em}
+
+\subsection*{Ice/firn partitioning function parameters}
+
+\begin{tabular}{@{}lp{10cm}@{}}
+    \toprule
+    \textbf{Symbol} & \textbf{Description} \\
+    \midrule
+    $x$     & Standardised ice thickness value; $x \in [0,1]$ \\
+    $a$     & Lower asymptote of the generalised logistic curve \\
+    $k$     & Upper asymptote of the generalised logistic curve \\
+    $b$     & Steepness parameter of the generalised logistic curve \\
+    $m$     & Inflection threshold of the generalised logistic curve \\
+    $\nu$   & Asymmetry parameter of the generalised logistic curve \\
+    \bottomrule
+\end{tabular}
