@@ -43,9 +43,7 @@ Which then leads to the final expression for the GMSL approximation as a weighte
 
 \subsection{Joint operator factorisation}\label{sec:joint_operator_factorisation}
 
-\textbf{Starting point}
-
-We have the forward operator matrix
+We have the forward operator matrix:
 
 \begin{equation}
     M = \begin{bmatrix}
@@ -54,6 +52,12 @@ We have the forward operator matrix
         \mathbf{P}_I & \mathbf{P}_I & 0
     \end{bmatrix}
 \end{equation}
+
+Which maps the model space vector $\mathbf{x} = (\thicknesschange{Ice},\, \thicknesschange{Firn},\, \Delta SSH_{OD})$ to the data space vector $d = (d_{\Delta SSH},\, d_{\Delta TG},\, d_{\Delta ISH})$.
+
+This is an inefficient operator, as it requires six independent calls to the fingerprint numerical solver $\mathbf{F}$, which is the most computationally expensive part of the forward model, due to its numerical implementation.
+
+We can factorise this matrix into three sparse matrices $A$, $B$, and $C$ such that $M = ABC$, where $B$ contains only one call to $\mathbf{F}$, thus reducing the number of fingerprint calls from six to one. The derivation of this factorisation proceeds in three steps:
 
 \textbf{Step 1: Isolate the fingerprint structure}
 
