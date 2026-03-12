@@ -1,10 +1,17 @@
 
 \newcommand{\sshc}{\Delta \mathrm{SSH}}
 \newcommand{\slc}{\Delta \mathrm{SL}}
+\newcommand{\SL}{\mathrm{SL}}
+\newcommand{\SSH}{\mathrm{SSH}}
 \newcommand{\gmslc}{\Delta \mathrm{GMSL}}
 \newcommand{\gmsl}{\mathrm{GMSL}}
 \newcommand{\altimetry}{\mathrm{ALT}}
 \newcommand{\odtchange}{\Delta \mathrm{SSH}_{\mathrm{OD}}}
+
+
+\newcommand{\densityice}{\rho_i}
+\newcommand{\densitywater}{\rho_w}
+\newcommand{\densityfirn}{\rho_f}
 
 % gmsl estimate variants
 \newcommand{\gmslctrue}{\Delta \mathrm{GMSL}^{\mathrm{true}}}
@@ -16,10 +23,9 @@
 \newcommand{\masschange}[1]{\Delta M_{#1}}
 \newcommand{\operator}[2]{\operatorname{{#1}}_{{#2}}}
 
-% covariances
+\newcommand{\thicknesschangeice}{\thicknesschange{I}}
+\newcommand{\thicknesschangefirn}{\thicknesschange{F}}
 
-
-% mass changes
 
 
 % operators
@@ -29,7 +35,7 @@
 \newcommand{\operatorloadice}{\operator{L}{i}}
 \newcommand{\operatorloadfirn}{\operator{L}{f}}
 \newcommand{\operatorgmsl}[1]{\operator{G}{#1}}
-\newcommand{\operatoraltimetry}[1]{\operator{A}{#1}}
+\newcommand{\operatoraltimetry}[1]{\operator{A}{\mathrm{#1}}}
 
 % point-sampling operators (altimetry subscript variants)
 \newcommand{\operatorpointocean}{\operatoraltimetry{S}}

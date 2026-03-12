@@ -60,7 +60,67 @@ as includes physical aspects of the problem built into the problem
 
 by including the physics of the rebound effect and other noise signals belived to increase accuracy
 
-\subsection{Sea level physics}\label{sec:slp}
+\subsection{Sea level physics in relation to ice sheet change}\label{sec:slp}
+
+This will act as an introduction to how Sea Level is affected by ice sheet change.
+
+SL defines the sea surface as an equipotential surface:
+
+\begin{equation}
+	\Phi(\mathbf{x} + \SL \hat{\mathbf{r}}) = \Phi_0 \label{eq:sea_level_equipotential}
+\end{equation}
+
+When this is perturbed by an ice thickness change, $\thicknesschangeice$, three things occur simultaneously: the gravitational potential itself changes, by $\phi$; the solid Earth surface, $\mathbf{x}$, moves radially, by $\mathrm{u}$; the value of the potential at the ocean surface shifts, from $\Phi_0$ to $\Phi_0 + \Phi_g$. This results in the SL changing, from $\SL$ to $\SL + \Delta \SL$, to maintain the equipotential condition. This can be captured within the following equation:
+
+\begin{equation}
+	(\Phi + \phi)(\mathbf{x} + \mathbf{u} + (\SL + \slc)\mathbf{\hat{r}}) = \Phi_0 + \Phi_g
+\end{equation}
+
+If we apply a first order Taylor expansion to the left-hand side, we get
+
+\begin{equation}
+  \Phi(\mathbf{x} + \SL \hat{\mathbf{r}}) + \phi + \nabla \Phi \cdot (\mathbf{u} + \slc \hat{\mathbf{r}}) = \Phi_0 + \Phi_g
+\end{equation}
+
+
+which can be simplfied: using \autoref{eq:sea_level_equipotential} we can cancel these terms from both sides; $\nabla\Phi$ represents the gravitational acceleration vector with its radial magnitude is $g$, therefore $\nabla\Phi \cdot \mathbf{\hat{r}} = g$; term $u \cdot \nabla\Phi$ represents the potential change due to the vertical motion of the solid surface:
+
+\begin{equation}
+	\phi + u \cdot \nabla\Phi + g \slc = \Phi_g
+\end{equation}
+
+Which we can rearrange to get the change in sea level:
+
+\begin{equation}
+	\slc = -\frac{1}{g}(u \cdot \nabla\Phi + \phi) + \frac{\Phi_g}{g} \label{eq:sl-equation}
+\end{equation}
+
+When discussing SSH, we need to account for the fact that SSH is the height of the sea surface above a reference ellipsoid, which is not an equipotential surface. This means that the change in SSH, $\sshc$, is related to the change in SL, $\slc$, by:
+
+\begin{equation}
+  \sshc = \slc + \frac{1}{g}(\mathbf{u} \cdot \nabla\Phi + \phi) \label{eq:sshc_slc_relation}
+\end{equation}
+
+where $\frac{1}{g}(\mathbf{u} \cdot \nabla\Phi)$ accounts for the vertical crustal motion and $\frac{1}{g}\phi$ accounts for the change in gravitational potential. Using \autoref{eq:sl-equation} this results in:
+
+\begin{equation}
+  \sshc = \frac{\Phi_g}{g}
+\end{equation}
+
+
+
+If we have an ice load, $\zeta$, which is due to the change in ice thickness, $\thicknesschangeice$ with density $\densityice$, then the ice load is:
+
+\begin{equation}
+	\zeta = \densityice (1-C) \thicknesschange{I}
+\end{equation}
+
+Where $1 - C$ accounts for the possibility of floating ice and C is the ocean function, which is 1 if the point is ocean and 0 if the point is land. This means that the ice load only applies to points where there is no floating ice, as floating ice does not contribute to the load on the solid earth.
+
+
+
+
+
 \todo{fix this}
 The sea surface, when ignoring shorter term dynamic effects, lies on an equipotential gravity surface. Ice mass change results in two effects to this equipotential surface, firstly the added water volume shifts the surface from one equipotential level to another, and secondariliy the change in mass results in
 
