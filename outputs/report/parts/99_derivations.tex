@@ -1,0 +1,141 @@
+\subsection{Derivation of the relationship between GMSL approximation and SSHC}\label{sec:point_gmsl_derivation}
+
+The motivation of this section is to derive the mathematical relationship between the GMSL approximation and the SSHC values across the altimetry domain, which is used in the traditional method of estimating GMSL change from ocean altimetry data. By defining weights for each datapoint based on their latitude, we can express the GMSL approximation as a weighted sum of the SSHC values using an averaging operator built into \citetitle{al-attarPygeoinfPythonLibrary2025}.
+
+To find the GMSL approximation with regards to SSHC, from \autoref{eq:gmsl_ssh_integral} and \autoref{eq:gmsl_ssh_alt_integral}, we start by considering the integral of the SSHC across a section of the Earth's surface, which we denote as $\Omega$ which has an area of $|\Omega|$:
+
+
+\begin{equation}
+    \gmslc = \dfrac{1}{|\Omega|}\int_\Omega \sshc(\phi, \lambda) \, dA \label{eq:gmsl_sshc_integral}
+\end{equation}
+
+Where $\sshc(\phi, \lambda)$ is the sea surface height change at a given longitude $\phi$ and latidue $\lambda$. With a spherical radius of $R$, the area, $dA$, is non-uniform in size and shrinks towards the poles, and can be expressed as:
+
+\begin{align}
+    dA &= (R\cos \lambda d\phi)(R d\lambda) \\
+    &= R^2 \cos \lambda \, d\phi \, d\lambda
+\end{align}
+
+When we take discrete samples across a uniform grid, with spacings of $\Delta \phi$ and $\Delta \lambda$, we convert \autoref{eq:gmsl_sshc_integral} into a double summation over N points:
+
+\begin{equation}
+  \gmslc \approx \dfrac{\sum^N_{i=1}\sshc(\mathbf{x}_i)\cdot(R^2\cos \lambda_i \Delta \phi \Delta \lambda)}{\sum^N_{j=1}(R^2 \cos \lambda_j\Delta \phi\Delta \lambda)}
+\end{equation}
+
+Which can simplify to:
+
+\begin{equation}
+  \gmslc \approx \sum^N_{i=1}\sshc(\mathbf{x}_i)\cdot\dfrac{\cos \lambda_i}{\sum^N_{j=1}\cos \lambda_j}
+\end{equation}
+
+Which for ease within an averaging quadrature scheme, we can define the weights for each width, $w_i$, as a ratio of it's local cosine width to the sum of all the cosine widths of the avaliable data points:
+
+\begin{equation}
+    w_i = \dfrac{\cos \lambda_i}{\sum^N_{j=1}\cos \lambda_j}
+\end{equation}
+
+Which then leads to the final expression for the GMSL approximation as a weighted sum of the SSHC values across the altimetry domain:
+
+\begin{equation}
+    \gmslc \approx \sum^N_{i=1} w_i \sshc(\mathbf{x}_i)
+\end{equation}
+
+
+\subsection{Joint operator factorisation}\label{sec:joint_operator_factorisation}
+
+\textbf{Starting point}
+
+We have the forward operator matrix
+
+\begin{equation}
+    M = \begin{bmatrix}
+        \mathbf{P}_S \operatorslc \operatorloadice & \mathbf{P}_S \operatorslc \operatorloadfirn & \mathbf{P}_S(\operatorslc \operatorloadwater + 1) \\
+        \mathbf{P}_T \mathbf{F} \operatorloadice & \mathbf{P}_T \mathbf{F} \operatorloadfirn & \mathbf{P}_T(\mathbf{F} \operatorloadwater + 1) \\
+        \mathbf{P}_I & \mathbf{P}_I & 0
+    \end{bmatrix}
+\end{equation}
+
+\textbf{Step 1: Isolate the fingerprint structure}
+
+Notice that $\mathbf{F}$ appears applied to $\operatorloadice$, $\operatorloadfirn$, $\operatorloadwater$
+in rows 1 and 2, but never in row 3. This suggests introducing an intermediate quantity
+$\mathbf{u} = \mathbf{F}\mathbf{L}\,\mathbf{x}$ where $\mathbf{L}$ collects the load operators,
+so that $\mathbf{F}$ is called only once. Define
+
+\begin{equation}
+    C = \begin{bmatrix}
+        \operatorloadice & \operatorloadfirn & \operatorloadwater \\
+        0 & 0 & 1 \\
+        1 & 0 & 0 \\
+        0 & 1 & 0
+    \end{bmatrix}
+\end{equation}
+
+where the bottom three rows simply route the state variables
+$(\thicknesschange{Ice},\, \thicknesschange{Firn},\, \Delta SSH_{OD})$ to slots that will be
+used by the outer operators. The action of $C$ on $\mathbf{x}$ gives the intermediate vector
+
+\begin{equation}
+    C\mathbf{x} = \begin{pmatrix}
+        \operatorloadice\,\thicknesschange{Ice} + \operatorloadfirn\,\thicknesschange{Firn} + \operatorloadwater\,\Delta SSH_{OD} \\
+        \Delta SSH_{OD} \\
+        \thicknesschange{Ice} \\
+        \thicknesschange{Firn}
+    \end{pmatrix}
+\end{equation}
+
+\textbf{Step 2: Apply the fingerprint operator selectively}
+
+We want $\mathbf{F}$ applied to only the first component of $C\mathbf{x}$, leaving the rest
+unchanged. This is exactly what a block-diagonal operator achieves:
+
+\begin{equation}
+    B = \begin{bmatrix}
+        \mathbf{F} & 0 & 0 & 0 \\
+        0 & 1 & 0 & 0 \\
+        0 & 0 & 1 & 0 \\
+        0 & 0 & 0 & 1
+    \end{bmatrix}
+\end{equation}
+
+so that
+
+\begin{equation}
+    BC\mathbf{x} = \begin{pmatrix}
+        \mathbf{F}(\operatorloadice\,\thicknesschange{Ice} + \operatorloadfirn\,\thicknesschange{Firn} + \operatorloadwater\,\Delta SSH_{OD}) \\
+        \Delta SSH_{OD} \\
+        \thicknesschange{Ice} \\
+        \thicknesschange{Firn}
+    \end{pmatrix}
+\end{equation}
+
+Linearity of $\mathbf{F}$ then distributes the first component into
+$\mathbf{F}\operatorloadice\,\thicknesschange{Ice} + \mathbf{F}\operatorloadfirn\,\thicknesschange{Firn}
++ \mathbf{F}\operatorloadwater\,\Delta SSH_{OD}$, which is precisely the fingerprint contribution
+needed in rows 1 and 2 of $M$.
+
+\textbf{Step 3: Recover the original rows by projection}
+
+It remains to map the four-component vector $BC\mathbf{x}$ back to the three observation types.
+Reading off what each row of $M$ requires:
+\begin{itemize}
+    \item Row 1 needs $\mathbf{P}_S S$ acting on the fingerprint result, plus $\mathbf{P}_S$ acting on $\Delta SSH_{OD}$ directly.
+    \item Row 2 needs $\mathbf{P}_T$ acting on the fingerprint result, plus $\mathbf{P}_T$ acting on $\Delta SSH_{OD}$ directly.
+    \item Row 3 needs $\mathbf{P}_I$ acting on $\thicknesschange{Ice}$ and $\thicknesschange{Firn}$, with no fingerprint contribution.
+\end{itemize}
+
+This gives
+
+\begin{equation}
+    A = \begin{bmatrix}
+        \mathbf{P}_S S & \mathbf{P}_S & 0 & 0 \\
+        \mathbf{P}_T & \mathbf{P}_T & 0 & 0 \\
+        0 & 0 & \mathbf{P}_I & \mathbf{P}_I
+    \end{bmatrix}
+\end{equation}
+
+\textbf{Conclusion}
+
+Combining the three steps, $M = ABC$, where each factor has a clear role: $C$ computes the
+total load and routes state variables, $B$ applies $\mathbf{F}$ exactly once to the combined
+load, and $A$ projects the result onto the three observation spaces. \qed
