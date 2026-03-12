@@ -44,12 +44,14 @@ As a proposed solution, a method is developed using the framework presented in \
 By implementing the Bayesian framework, it is possible to improve the accuracy of SLC estimates using satellite altimetry data, and also recover the spatial structure of the ice melt that drove the observed sea level change.
 
 
-\Textcite{coulsonDetectionSeaLevel2022} recently claimed to have found evidence for a significant ice driven SLC signal in the altimetry record. Up until their efforts, there was difficulty using the sparse measurements to seperate the ocean dynamic variability from an ice-driven fingerprint signal.
+\Textcite{coulsonDetectionSeaLevel2022} recently claimed to have found evidence for a significant ice driven SLC signal in the altimetry record. Up until their efforts, there was difficulty using the sparse measurements to separate the ocean dynamic variability from an ice-driven fingerprint signal.
 
 
 \subsection{Sea level physics in relation to ice sheet change}\label{sec:slp}
 
 I shall be working under the assumptions that the timescales for modern ice-driven sea level change are short enough that the Earth's response to the ice mass change is elastic, after accounting for GIA, and that the fingerprint problem is suitably linear with small changes in sea level resulting in no appreciable change in the shoreline geometry \autocite{al-attarReciprocitySensitivityKernels2023}.
+
+For Glacial isostatic adjustment, \citetitle{al-attarPySLFPPythonSea2025} uses \citetitle{royICE7G2018} \autocite{royICE7G2018} model is used \autocite{royGlacialIsostaticAdjustment2015}
 
 The elastic assumption is broadly valid for modern ice-driven sea level change, as the timescales of interest are on the order of decades to centuries, which is short compared to the timescales of viscoelastic response of the Earth. However, it has been suggested that beneath West Antartica this assumption could fall down due to lower viscosities \autocites{kaufmannLateralViscosityVariations2005}.
 
@@ -58,6 +60,8 @@ SL defines the sea surface as an equipotential surface:
 \begin{equation}
 	\Phi(\mathbf{x} + \SL \hat{\mathbf{r}}) = \Phi_0 \label{eq:sea_level_equipotential}
 \end{equation}
+
+\todo{move this to derivations}
 
 When this is perturbed by an ice thickness change, $\thicknesschangeice$, four things occur simultaneously: the gravitational potential itself changes, by $\phi$; the centrifugal potential changes due to perturbations in the Earth's rotation vector, by $\psi$; the solid Earth surface, $\mathbf{x}$, moves radially, by $\mathbf{u}$; and the value of the potential at the ocean surface shifts, from $\Phi_0$ to $\Phi_0 + \Phi_g$. This results in the SL changing, from $\SL$ to $\SL + \slc$, because the sea surface must adapt to an equipotential of the combined gravitational and centrifugal potentials. This can be captured within the following equation:
 
@@ -111,36 +115,3 @@ If we have an ice load, $\zeta$, which is due to the change in ice thickness, $\
 \end{equation}
 
 Where $1 - C$ accounts for the possibility of floating ice and C is the ocean function, which is 1 if the point is ocean and 0 if the point is land. This means that the ice load only applies to points where there is no floating ice, as floating ice does not contribute to the load on the solid earth.
-
-
-
-
-
-\todo{fix this}
-The sea surface, when ignoring shorter term dynamic effects, lies on an equipotential gravity surface. Ice mass change results in two effects to this equipotential surface, firstly the added water volume shifts the surface from one equipotential level to another, and secondariliy the change in mass results in
-
-This can be captured within the following equation
-
-
-
-Ocean function is
-\begin{align}
-	\mathrm{C}(\mathbf{x})= \begin{cases}
-		1, &\quad\rho_w\mathrm{SL}(x)-\rho_i\mathrm{I}(x)>0 \\
-		0, &\quad\rho_w\mathrm{SL}(x)-\rho_i\mathrm{I}(x)\le0
-			\end{cases}
-\end{align}
-
-SLC can then be defined as:
-
-\begin{align}
-	\Delta SL = -\frac{\Delta M_\text{ice}}{\rho_w A}
-\end{align}
-
-Where:
-\begin{align*}
-	A &= \int_{\partial M}\mathrm{C}\, dS \\ &= r^2\int_{\mathbb{S}^2}\mathrm{C}\, dS
-\end{align*}
-
-
-For Glacial isostatic adjustment, relative sea level history, ice thickness history, and mantle viscosity \citetitle{royICE7G2018} \autocite{royICE7G2018} model is used see \textcite{royGlacialIsostaticAdjustment2015} and \textcite{al-attarPySLFPPythonSea2025} for more details.
