@@ -74,6 +74,8 @@ is biased whenever the observation points are not uniformly distributed with res
     \gmslc^{\text{point}}: \operatorgmsl{\text{point}} = \sum_{i=1}^{N} w_i \, \sshc(\mathbf{x}_i), \qquad w_i = \frac{\cos(\lambda_i)}{\sum_j \cos(\lambda_j)} \label{eq:gmsl_ssh_point}
 \end{equation}
 
+The full derivation of this quadriture scheme is given in \autoref{sec:point_gmsl_derivation}.
+
 This weighted estimator converges to $\operatorgmsl{\altimetry}$ as $N \to \infty$ and grid spacing tends to zero, since the discrete sum approximates the spherical surface integral with the correct area element $R^2 \cos(\lambda) \, \mathrm{d}\phi \, \mathrm{d}\lambda$, providing a natural consistency check between the two approaches. The error assocaited with the point methods (\autoref{eq:gmsl_ssh_point_naive} and \autoref{eq:gmsl_ssh_point}) compared to the integral method (\autoref{eq:gmsl_ssh_alt_integral}) is shown in \autoref{fig:point_alt_errors}.
 
 \begin{figure}

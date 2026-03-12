@@ -118,7 +118,7 @@ The forward operator for the joint inversion can be written as a block matrix, w
 \end{bmatrix}
 \end{align}
 
-However, this is computationally inefficient, as it requires six independent calls to the fingerprint numerical solver. To optimise this forward operator to reduce the number of fingerprint calls, we can factorise this matrix into sparse matrices, shown in \autoref{eq:factorised_joint}. This reduced each iteration time, with a speed-up of $3\times$.
+However, this is computationally inefficient, as it requires six independent calls to the fingerprint numerical solver. To optimise this forward operator to reduce the number of fingerprint calls, we can factorise this matrix into sparse matrices (see \autoref{sec:joint_operator_factorisation}), shown in \autoref{eq:factorised_joint}. This reduced each iteration time, with a speed-up of $3\times$.
 
 \begin{equation}
 =
