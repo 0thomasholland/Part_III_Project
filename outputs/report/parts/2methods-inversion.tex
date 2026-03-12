@@ -44,14 +44,14 @@ We collapse the full spatial sea-level fingerprints to a single scalar: the glob
 For comparison, I also computed an old method GMSL estimate obtained by treating the raw altimetry observations as a direct proxy for sea-level change, without any inversion step, as described in \autoref{}. This method propergates through the altimetry error used in our inversion, $n$, with the assumption that other sources of error are consistent to both methods, for example the errors assocaited with data cleaning steps, and thus moot.
 
 \begin{equation}
-  \Delta GMSL^{alt} \sim \mathcal{N}\left(\dfrac{1}{\mathbf{Len}[d_{obs}]}\sum^{\mathbf{Len}[d_{obs}]}_{i=1} d_{obs,\,i},\, \mathcal{C}_n\right) \label{eq:alt-gmsl-model}
+ \Delta GMSL^{alt} \sim \mathcal{N} \left( \frac{1}{|\Omega|} \sum_{i=1}^{N} d_{obs,i}\, \delta A_i,\, \covariance{n} \right) \label{eq:alt-gmsl-model}
 \end{equation}
 
-The $z$-score can be calculated for each method:
+I calculated the $z$-score using the calcualted expectation and standard deviations, $\mu$ and $\sigma$ respectly, for both the old altimetry method and the new inversion method, to compare the performance of the two methods in estimating the true GMSL change:
 
 \begin{align}
-	z^{bay} &= \dfrac{\Delta GMSL^{true} - \mathbb{E}[\Delta GMSL^{bay}]}{\mathbb{SD}[\Delta GMSL^{bay}]} \\
-	z^{alt} &= \dfrac{\Delta GMSL^{true} - \mathbb{E}[\Delta GMSL^{alt}]}{\mathbb{SD}[\Delta GMSL^{alt}]}
+    z^{bay} &= \frac{\Delta GMSL^{true} - \mu_{\text{bay}}}{\sigma_{\text{bay}}} \\[7pt]
+    z^{alt} &= \frac{\Delta GMSL^{true} - \mu_{\text{alt}}}{\sigma_{\text{alt}}}
 \end{align}
 
 The inversions can be run multiple times to generate a distribution of $z$-scores for each method, which can be compared to show the improvement of the new method over the old method.
