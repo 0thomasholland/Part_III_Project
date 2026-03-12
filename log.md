@@ -372,3 +372,9 @@
 - Updated sensitivity test implementations and corresponding results sections.
 - Generated updated figures for sensitivity analysis and notebook demonstrations.
 
+## 12 March 2026
+
+- Added mathematical derivations for the forward operators to the report.
+- Updated mathematical equations to use custom-defined LaTeX commands for consistency.
+- Pinned code version dependencies and continued report revisions.
+

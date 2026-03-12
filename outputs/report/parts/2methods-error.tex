@@ -12,7 +12,7 @@ In estimating this proxy error, we adopt a best-case assumption of dense, unifor
     \frac{1}{|\Omega|}\int_{\Omega} \eta(\mathbf{x})\, \mathrm{d}S(\mathbf{x}).\label{eq:altimetry_equation}
 \end{equation}
 
-This constitutes a best-case scenario for the estimation error: any realistic altimetry network, with finite and non-uniform spatial coverage, will perform no better than this ideal limit. By framing the error analysis in terms of this continuous average rather than a specific satellite configuration, the resulting error bounds are independent of the particular sampling geometry and reflect a fundamental lower bound on the approximation error inherent to the method itself. To confirm this, altimetry resolutions ranging from 0.25 to 20 degree grid spacing were tested and shown to converge to the continuous surface integral, validating the use of this idealised limit throughout the subsequent analysis.
+This constitutes a best-case scenario for the estimation error: any realistic altimetry network, with finite and non-uniform spatial coverage, will perform no better than this ideal limit. By framing the error analysis in terms of this continuous average rather than a specific satellite configuration, the resulting error bounds are independent of the particular sampling geometry and reflect a fundamental lower bound on the approximation error inherent to the method itself.
 
 \notebookcite{thomasholland05AltimetrySamplingipynb2026}
 
@@ -29,7 +29,7 @@ The key result from this analysis is that the proxy error differs in both sign a
 
 In practice, the spatial distribution of ice loss is not known a priori, and so the proxy error inherits this uncertainty. To quantify the error in this more realistic setting, a synthetic ice sheet change scenario is constructed as a Gaussian measure over ice thickness, representing our prior uncertainty about the spatial pattern of mass loss. This measure is propagated through the sea level fingerprint operator to yield distributions over both the true SLC field and its corresponding SSHC field.
 
-GMSL is then estimated by forming the area-weighted average of SSHC over the altimetry-observable ocean (latitudes within $\pm66\degree$), and compared against the true GMSL obtained from the mass-balance calculation. Because the ice source is now a random variable, the proxy error is itself a random variable with its own expectation and variance, and the spatial structure of the error field can be examined pointwise.
+GMSL is then estimated by forming the area-weighted average of SSHC over the altimetry-observable ocean (latitudes within $\pm 66^\circ$), and compared against the true GMSL obtained from the mass-balance calculation. Because the ice source is now a random variable, the proxy error is itself a random variable with its own expectation and variance, and the spatial structure of the error field can be examined pointwise.
 \notebookcite{thomasholland01SeaSurface2026}
 
 This generalises the per-source analysis: the deterministic errors computed for individual ice sheets are recovered as special cases, while the stochastic formulation captures the additional uncertainty that arises when the source distribution is unknown. The resulting error statistics provide the baseline against which the Bayesian inversion method, developed in the following section, can be compared.
