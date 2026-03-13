@@ -7,7 +7,7 @@
 At the standard altimetry latitude range of $60$--$75^\circ$, the GrIS contribution is underestimated by 5--8\%, the EAIS contribution is underestimated by 0--2\%, and the WAIS contribution ranges from a 2.2\% overestimation to a 0.4\% underestimation depending on the latitude cutoff. The GrIS error increases monotonically with the latitude of the altimetry boundary, while the EAIS error remains comparatively flat across the tested range. The WAIS error changes sign near $40^\circ$, transitioning from a slight overestimation at lower latitudes to a slight underestimation at higher latitudes.
 
 \begin{figure}[!h]
-	\includegraphics[width=\columnwidth]{major_source_altimetry_errors_scalar.png}
+	\includegraphics[width=\columnwidth]{major_source_altimetry_errors_scalar.pdf}
 	\caption{Relative error of GMSL estimation using SSHC as a proxy for SLC, shown as a function of altimetry latitude cutoff for uniform melt from GIS, EAIS, and WAIS, each normalised to 1~mm true GMSL change. Dashed line indicates the typical altimetry range of $\pm66^\circ$.}\label{fig:simple_major_source}
 \end{figure}
 
@@ -38,7 +38,7 @@ The spatial distribution of the error expectation field (SLC $-$ SSHC) shows a s
 At $66^\circ$, the estimated GMSL distribution is shifted slightly below the true distribution, with the error distribution centred near zero but with a small negative bias. At $80^\circ$, the separation between the true and estimated distributions increases, and the error distribution widens and shifts further from zero, reflecting the larger proxy error incurred when the altimetry domain extends closer to the ice sheets.
 
 \begin{figure}[!h]
-	\includegraphics[width=\columnwidth]{figs/double_distribution_66_80}
+	\includegraphics[width=\columnwidth]{double_distribution_66_80.pdf}
 	\caption{True and estimated GMSL distributions, with corresponding error distributions, at altimetry latitude cutoffs of $66^\circ$ (top) and $80^\circ$ (bottom), for a rotationally invariant Gaussian ice thickness prior standardised to 10~mm $\pm$ 1~mm GMSL change.}\label{fig:gaussian_uniform}
 \end{figure}
 
@@ -76,8 +76,8 @@ The old method is only within 1 sigma of the true value in 14.6\% of runs, while
 
 \begin{figure}[!h]
 	\begin{center}
-		\includegraphics[width=0.47\columnwidth]{z_score_comparison_contour.png}
-		\includegraphics[width=0.5\columnwidth]{z_score_comparison_kde.png}
+		\includegraphics[width=0.47\columnwidth]{z_score_comparison_contour.pdf}
+		\includegraphics[width=0.5\columnwidth]{z_score_comparison_kde.pdf}
 	\end{center}
 	\caption{Comparison of the error of the new Bayesian inversion method with the old  method, using the z-score of the true value under the predicted distribution. The new method shows a more accurate and precise estimation of the true value, with a higher density of points around the z-score of 0 and a narrower distribution overall.}
 	\label{fig:z_score_method_comparison}
