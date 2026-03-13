@@ -2,6 +2,9 @@
 # Source: notebooks/01 - Sea Surface Height.ipynb
 
 # ---- Notebook code cell 1 ----
+from pathlib import Path
+
+import matplotlib.pyplot as plt
 from pyslfp import (
     FingerPrint,
     IceModel,
@@ -14,6 +17,26 @@ from project import error_plot
 import numpy as np
 
 np.random.seed(120101)
+
+SCRIPT_DIR = Path(__file__).resolve().parent
+FIGURES_DIR = SCRIPT_DIR / "figures"
+FIGURES_DIR.mkdir(parents=True, exist_ok=True)
+plt.show = lambda *args, **kwargs: None
+print = lambda *args, **kwargs: None
+
+
+def _save_all_figures(prefix):
+    for index, figure_number in enumerate(
+        plt.get_fignums(), start=1
+    ):
+        fig = plt.figure(figure_number)
+        fig.savefig(
+            FIGURES_DIR / f"{prefix}_{index:02d}.pdf",
+            dpi=600,
+            bbox_inches="tight",
+        )
+    plt.close("all")
+
 
 # ---- Notebook code cell 2 ----
 fp = FingerPrint(lmax=512)
@@ -96,7 +119,7 @@ ice_change = IceSheetChange.global_ice(
 )
 ice_thickness_measure = ice_change.ice_thickness
 
-plot(ice_thickness_measure.expectation(), symmetric=True)
+plot(ice_thickness_measure.expectation, symmetric=True)
 
 # ---- Notebook code cell 8 ----
 true_gmsl = ice_thickness_measure.affine_mapping(
@@ -279,3 +302,5 @@ plot(
     colorbar_label="Error Sample Pointwise Std: SLC - SSH (mm)",
     cmap="Reds",
 )
+
+_save_all_figures("01_sea_surface_height")

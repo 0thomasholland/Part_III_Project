@@ -41,9 +41,22 @@ fig_format = "pdf"
 SCRIPT_DIR = Path(__file__).resolve().parent
 FIGURES_DIR = SCRIPT_DIR / "figures"
 FIGURES_DIR.mkdir(parents=True, exist_ok=True)
+plt.show = lambda *args, **kwargs: None
+print = lambda *args, **kwargs: None
 
-print(f"Script directory: {SCRIPT_DIR}")
-print(f"Figures will be saved to: {FIGURES_DIR}")
+
+def _save_all_figures(prefix):
+    for index, figure_number in enumerate(
+        plt.get_fignums(), start=1
+    ):
+        fig = plt.figure(figure_number)
+        fig.savefig(
+            FIGURES_DIR / f"{prefix}_{index:02d}.pdf",
+            dpi=600,
+            bbox_inches="tight",
+        )
+    plt.close("all")
+
 
 # ---- Notebook code cell 2 ----
 lmax = 128
@@ -750,3 +763,5 @@ plot_gmsl_sensitivity(
     filename="7-3_covariance_scaling",
     inversion_results=posterior_measures_cov,
 )
+
+_save_all_figures("07_inversion_sensitivity")
