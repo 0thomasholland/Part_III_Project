@@ -2,6 +2,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+from project import colors
 from project.plots import (
     error_latitude_plot,
 )
@@ -53,7 +54,7 @@ ax1.grid()
 # %%
 
 fig1.savefig(
-    "figures/major_source_altimetry_errors_scalar.png",
+    "figures/major_source_altimetry_errors_scalar.pdf",
     dpi=600,
 )
 plt.close(fig1)
@@ -101,7 +102,11 @@ true_gmsl_stds = true_gmsl_stds.reshape(
     n_sources, n_latitudes, n_means, n_stds
 )
 
-source_labels = {"gis": "GIS", "wais": "WAIS", "eais": "EAIS"}
+source_labels = {
+    "gis": "GIS",
+    "wais": "WAIS",
+    "eais": "EAIS",
+}
 source_colors = {
     "gis": "tab:blue",
     "wais": "tab:green",
@@ -138,13 +143,17 @@ for mi, gmsl_mean in enumerate(gmsl_target_means):
                 label=f"{source_labels[source]} +/-2 Std Dev",
             )
         # make array like latitudes that is full of gmsl mean and std
-        gmsl_means = np.full_like(altimetry_latitudes, gmsl_mean * 1e3)
-        gmsl_stds = np.full_like(altimetry_latitudes, gmsl_std)
+        gmsl_means = np.full_like(
+            altimetry_latitudes, gmsl_mean * 1e3
+        )
+        gmsl_stds = np.full_like(
+            altimetry_latitudes, gmsl_std
+        )
         ax.plot(
             altimetry_latitudes,
             gmsl_means,
             label="True GMSL Mean",
-            color="grey"
+            color="grey",
         )
         ax.fill_between(
             x=altimetry_latitudes,
@@ -164,7 +173,7 @@ for mi, gmsl_mean in enumerate(gmsl_target_means):
         ax.grid(alpha=0.3)
 
         fig.savefig(
-            f"figures/major_source_gauss_errors_combined_mean_{gmsl_mean}_std_{gmsl_std}.png",
+            f"figures/major_source_gauss_errors_combined_mean_{gmsl_mean}_std_{gmsl_std}.pdf",
             dpi=600,
         )
         plt.close(fig)
@@ -214,7 +223,7 @@ for mi, gmsl_mean in enumerate(gmsl_target_means):
                 error_100_value_name=f"1 GMSL Std Dev ({gmsl_std * 1000:.1f} mm)",
             )
             fig.savefig(
-                f"figures/major_source_gauss_{source}_mean_{gmsl_mean}_std_{gmsl_std}.png",
+                f"figures/major_source_gauss_{source}_mean_{gmsl_mean}_std_{gmsl_std}.pdf",
                 dpi=600,
             )
             plt.close(fig)
@@ -241,14 +250,12 @@ ax.axvline(
 )
 ax.set_xlabel("Latitude (degrees)")
 ax.set_ylabel("Error Std Dev (% of GMSL Std Dev)")
-ax.set_title(
-    "Fractional GMSL Estimation Error by Source"
-)
+ax.set_title("Fractional GMSL Estimation Error by Source")
 ax.legend()
 ax.grid(alpha=0.3)
 
 fig.savefig(
-    "figures/major_source_gauss_fractional_error.png",
+    "figures/major_source_gauss_fractional_error.pdf",
     dpi=600,
 )
 plt.close(fig)

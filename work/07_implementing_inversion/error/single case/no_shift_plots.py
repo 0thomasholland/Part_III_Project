@@ -126,7 +126,7 @@ ax.tick_params(axis="y", colors=colors.new_method)
 
 ax.legend()
 plt.show()
-fig.savefig("bias_comparison_contour.png", dpi=600)
+fig.savefig("bias_comparison_contour.pdf", dpi=600)
 
 
 # %%
@@ -292,7 +292,7 @@ ax.tick_params(axis="y", colors=colors.new_method)
 
 ax.legend()
 plt.show()
-fig.savefig("z_score_comparison_contour.png", dpi=600)
+fig.savefig("z_score_comparison_contour.pdf", dpi=600)
 
 
 # %%
@@ -377,8 +377,7 @@ print(
 )
 # %%
 # do the residuals plot but with z scores instead of raw errors
-sns.set_context("paper")
-sns.set_style("white")
+colors.apply_style()
 fig, ax = plt.subplots(figsize=(4.5, 3.0))
 sns.kdeplot(
     z_score_ssh,
@@ -406,7 +405,7 @@ plt.ylabel("Density")
 plt.legend(loc="upper left")
 plt.tight_layout()
 plt.show()
-fig.savefig("z_score_comparison_kde.png", dpi=600)
+fig.savefig("z_score_comparison_kde.pdf", dpi=600)
 
 # %%
 # calcualte the mean z score for both, and also the standard deviation of the z score

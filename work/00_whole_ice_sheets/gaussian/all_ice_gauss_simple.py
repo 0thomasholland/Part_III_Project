@@ -167,4 +167,4 @@ fig, (ax1, ax2) = error_plot(
     show_bias=True,
 )
 plt.tight_layout()
-plt.savefig("gmsl_estimation_error.png", dpi=300)
+plt.savefig("gmsl_estimation_error.pdf", dpi=600)

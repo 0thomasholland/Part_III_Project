@@ -43,8 +43,6 @@ from pyslfp_extras.ice_thickness import (
 )
 from pyslfp_extras.plotting import plot
 
-sns.set_theme("paper")
-sns.set_style("ticks")
 palette = sns.color_palette("deep")
 blue = palette[0]
 orange = palette[1]
@@ -173,7 +171,7 @@ fig1, ax1, im1 = plot(
     colorbar_label="Ice Thickness Change (mm)",
 )
 ax1.set_title("a) True Ice Thickness Change")
-fig1.savefig("true_ice_thickness_change.png", dpi=600)
+fig1.savefig("true_ice_thickness_change.pdf", dpi=600)
 
 # --- Plot 2: The Posterior Expectation (Our Best Estimate) ---
 fig2, ax2, im2 = plot(
@@ -191,7 +189,7 @@ ax2.set_title(
     "b) Posterior Expectation (Inferred from Data)"
 )
 fig2.savefig(
-    "posterior_expectation_ice_thickness_change.png",
+    "posterior_expectation_ice_thickness_change.pdf",
     dpi=600,
 )
 
@@ -447,7 +445,7 @@ ax1.legend()
 
 plt.tight_layout()
 plt.savefig(
-    "gmsl_contribution_distributions_b.png", dpi=600
+    "gmsl_contribution_distributions_b.pdf", dpi=600
 )
 plt.show()
 

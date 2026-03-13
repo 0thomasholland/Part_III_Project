@@ -446,7 +446,7 @@ plt.title("Convergence of CG Solver")
 plt.xlabel("Iteration")
 plt.ylabel("Norm of Solution ($||x_k||$)")
 plt.grid(True, which="both", ls="-", alpha=0.5)
-plt.savefig("figs/joint_precon_cg_convergence.png", dpi=600)
+plt.savefig("figs/joint_precon_cg_convergence.pdf", dpi=600)
 
 model_posterior_expectation = (
     model_posterior_measure.expectation
@@ -676,7 +676,7 @@ fig8.tight_layout()
 
 # %%
 
-fig1.savefig("figs/joint_precon_ice_thickness.png", dpi=600)
+fig1.savefig("figs/joint_precon_ice_thickness.pdf", dpi=600)
 fig2.savefig(
     "figs/joint_precon_ice_thickness_posterior.png", dpi=600
 )
@@ -687,9 +687,9 @@ fig4.savefig(
     "figs/joint_precon_firn_thickness_posterior.png",
     dpi=600,
 )
-fig5.savefig("figs/joint_precon_odt_height.png", dpi=600)
+fig5.savefig("figs/joint_precon_odt_height.pdf", dpi=600)
 fig6.savefig(
     "figs/joint_precon_odt_height_posterior.png", dpi=600
 )
-fig7.savefig("figs/joint_precon_slc.png", dpi=600)
-fig8.savefig("figs/joint_precon_slc_posterior.png", dpi=600)
+fig7.savefig("figs/joint_precon_slc.pdf", dpi=600)
+fig8.savefig("figs/joint_precon_slc_posterior.pdf", dpi=600)
