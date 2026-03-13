@@ -42,8 +42,8 @@ fp_op = fp.as_sobolev_linear_operator(
     2, fp.mean_sea_floor_radius * 0.1
 )
 
-dir = "figs_fac_5"
-measure_error_std = 0.0005
+dir = "figs1"
+measure_error_std = 0.001
 
 ice = IceSheetChange.global_ice(
     finger_print=fp,
@@ -359,7 +359,7 @@ pbar.close()
 print("")
 print("Inversion complete.")
 
-plt.figure(figsize=(8, 5))
+plt.figure(figsize=(3, 2))
 plt.semilogy(
     residuals, marker="o", linestyle="-", markersize=3
 )
@@ -368,7 +368,7 @@ plt.xlabel("Iteration")
 plt.ylabel("Norm of Solution ($||x_k||$)")
 plt.grid(True, which="both", ls="-", alpha=0.5)
 plt.savefig(
-    f"{dir}/joint_precon_cg_convergence.png", dpi=600
+    f"{dir}/joint_precon_cg_convergence.pdf", dpi=600
 )
 
 model_posterior_expectation = (
@@ -423,6 +423,8 @@ fig1, ax1, im1 = plot(
     cmap="seismic",
     vmin=-max_abs_ice_change,
     vmax=max_abs_ice_change,
+    figsize=(3, 2),
+    gridlines=False,
     colorbar_label="Ice Thickness Change (mm)",
 )
 ax1.set_title("a) True Ice Thickness Change")
@@ -437,6 +439,8 @@ fig2, ax2, im2 = plot(
     cmap="seismic",
     vmin=-max_abs_ice_change,
     vmax=max_abs_ice_change,
+    figsize=(3, 2),
+    gridlines=False,
     colorbar_label="Ice Thickness Change (mm)",
 )
 ax2.set_title(
@@ -469,6 +473,8 @@ fig3, ax3, im3 = plot(
     cmap="seismic",
     vmin=-max_abs_firn_change,
     vmax=max_abs_firn_change,
+    figsize=(3, 2),
+    gridlines=False,
     colorbar_label="Firn Thickness Change (mm)",
 )
 ax3.set_title("c) True Firn Thickness Change")
@@ -483,6 +489,8 @@ fig4, ax4, im4 = plot(
     cmap="seismic",
     vmin=-max_abs_firn_change,
     vmax=max_abs_firn_change,
+    figsize=(3, 2),
+    gridlines=False,
     colorbar_label="Firn Thickness Change (mm)",
 )
 ax4.set_title(
@@ -515,6 +523,8 @@ fig5, ax5, im5 = plot(
     cmap="seismic",
     vmin=-max_abs_odt_height_change,
     vmax=max_abs_odt_height_change,
+    figsize=(3, 2),
+    gridlines=False,
     colorbar_label="ODT Height Change (mm)",
 )
 ax5.set_title("e) True Ocean Height Change")
@@ -529,6 +539,8 @@ fig6, ax6, im6 = plot(
     cmap="seismic",
     vmin=-max_abs_odt_height_change,
     vmax=max_abs_odt_height_change,
+    figsize=(3, 2),
+    gridlines=False,
     colorbar_label="ODT Height Change (mm)",
 )
 ax6.set_title(
@@ -576,6 +588,8 @@ fig7, ax7, im7 = plot(
     cmap="seismic",
     vmin=-max_abs_sl_change,
     vmax=max_abs_sl_change,
+    figsize=(3, 2),
+    gridlines=False,
     colorbar_label="Sea Level Change (mm)",
 )
 ax7.set_title("g) True Sea-Level Change")
@@ -590,6 +604,8 @@ fig8, ax8, im8 = plot(
     cmap="seismic",
     vmin=-max_abs_sl_change,
     vmax=max_abs_sl_change,
+    figsize=(3, 2),
+    gridlines=False,
     colorbar_label="Sea Level Change (mm)",
 )
 ax8.set_title(
@@ -618,6 +634,8 @@ fig9, ax9, im9 = plot(
     cmap="seismic",
     vmin=-max_abs_ice_change,
     vmax=max_abs_ice_change,
+    figsize=(3, 2),
+    gridlines=False,
     colorbar_label="Total Ice+Firn Load Change (kg)",
 )
 ax9.set_title("i) True Total Ice+Firn Load Change")
@@ -629,6 +647,8 @@ fig10, ax10, im10 = plot(
     cmap="seismic",
     vmin=-max_abs_ice_change,
     vmax=max_abs_ice_change,
+    figsize=(3, 2),
+    gridlines=False,
     colorbar_label="Total Ice+Firn Load Change (kg)",
 )
 ax10.set_title(
@@ -639,28 +659,28 @@ fig10.tight_layout()
 # %%
 
 fig1.savefig(
-    f"{dir}/joint_precon_ice_thickness.png", dpi=600
+    f"{dir}/joint_precon_ice_thickness.pdf", dpi=600
 )
 fig2.savefig(
-    f"{dir}/joint_precon_ice_thickness_posterior.png",
+    f"{dir}/joint_precon_ice_thickness_posterior.pdf",
     dpi=600,
 )
 fig3.savefig(
-    f"{dir}/joint_precon_firn_thickness.png", dpi=600
+    f"{dir}/joint_precon_firn_thickness.pdf", dpi=600
 )
 fig4.savefig(
-    f"{dir}/joint_precon_firn_thickness_posterior.png",
+    f"{dir}/joint_precon_firn_thickness_posterior.pdf",
     dpi=600,
 )
 fig5.savefig(f"{dir}/joint_precon_odt_height.pdf", dpi=600)
 fig6.savefig(
-    f"{dir}/joint_precon_odt_height_posterior.png", dpi=600
+    f"{dir}/joint_precon_odt_height_posterior.pdf", dpi=600
 )
 fig7.savefig(f"{dir}/joint_precon_slc.pdf", dpi=600)
 fig8.savefig(
-    f"{dir}/joint_precon_slc_posterior.png", dpi=600
+    f"{dir}/joint_precon_slc_posterior.pdf", dpi=600
 )
 fig9.savefig(f"{dir}/joint_precon_total_load.pdf", dpi=600)
 fig10.savefig(
-    f"{dir}/joint_precon_total_load_posterior.png", dpi=600
+    f"{dir}/joint_precon_total_load_posterior.pdf", dpi=600
 )
