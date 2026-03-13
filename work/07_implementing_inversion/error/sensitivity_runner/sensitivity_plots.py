@@ -181,16 +181,16 @@ def plot_true_vs_case_z_kde_grid(
                 ax=ax,
             )
 
-        sns.scatterplot(
-            data=subset,
-            x="accurate_posterior_z",
-            y="posterior_z",
-            s=14,
-            color="black",
-            alpha=0.45,
-            ax=ax,
-            legend=False,
-        )
+        # sns.scatterplot(
+        #     data=subset,
+        #     x="accurate_posterior_z",
+        #     y="posterior_z",
+        #     s=14,
+        #     color="black",
+        #     alpha=0.45,
+        #     ax=ax,
+        #     legend=False,
+        # )
 
         ax.plot(
             [lim_low, lim_high],
