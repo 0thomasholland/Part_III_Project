@@ -27,11 +27,6 @@ from pyslfp import (
 )
 
 from project import colors
-from pygeoinf_extras import standard_dev
-from pygeoinf_extras.operators import (
-    point_averaging_area_weighted_operator,
-)
-from pyslfp_extras.altimetry import GridPoints
 from pyslfp_extras.ice_thickness import IceSheetChange
 from pyshtools import SHGrid
 
@@ -108,15 +103,6 @@ B = averaging_operator(
     model_space, [GMSL_weighting_function]
 )
 
-# Area-weighted operator for altimetric GMSL comparison
-altimetry_points = GridPoints.ocean_altimetry(
-    fp,
-    degree_spacing=altimetry_degree_density,
-)
-F = point_averaging_area_weighted_operator(
-    data_space, np.asarray(altimetry_points.lats)
-)
-
 print(
     f"Forward operator: {model_space.dim} -> {data_space.dim}"
 )
@@ -151,13 +137,6 @@ model_true, data = forward_problem.synthetic_model_and_data(
 # --- True GMSL ---
 GMSL_true = B(model_true)[0]
 print(f"True GMSL contribution: {GMSL_true:.4f} mm")
-
-# --- Area-weighted altimetry point estimate ---
-ssh_point_values = truth_forward_op(model_true)
-ssh_estimation_alt = F(ssh_point_values)[0] * 1000
-print(
-    f"Area-weighted altimetry estimation: {ssh_estimation_alt:.4f} mm"
-)
 
 # ---- Notebook code cell 4 ----
 fig, ax, im = plot(
@@ -212,9 +191,6 @@ def run_inversion(ice_change: IceSheetChange):
 
 
 # ---- Notebook code cell 6 ----
-from jsonschema.benchmarks.subcomponents import v
-
-
 def plot_shgrid_robinson_on_ax(
     shgrid: SHGrid,
     ax,
@@ -283,6 +259,27 @@ def gaussian_measure_summary(
     return z_score, mean, std_dev
 
 
+def centered_x_range_from_measures(
+    measures: list[GaussianMeasure],
+    truth: float,
+    sigma_width: float = 4.0,
+) -> tuple[float, float]:
+    """Build a symmetric x-range centered on truth, wide enough for all measures."""
+    half_width = 0.0
+    for measure in measures:
+        mean = measure.expectation[0]
+        std_dev = np.sqrt(
+            measure.covariance.matrix(dense=True)[0, 0]
+        )
+        half_width = max(
+            half_width,
+            abs(mean - truth) + sigma_width * std_dev,
+        )
+
+    half_width = max(half_width, 1e-6)
+    return truth - half_width, truth + half_width
+
+
 def plot_gmsl_sensitivity(
     prior_measures,
     posterior_measures,
@@ -302,14 +299,15 @@ def plot_gmsl_sensitivity(
         m.affine_mapping(operator=B)
         for m in posterior_measures
     ]
-    # Calculate altimetry point estimation error
-    averaged_error = data_error_measure.affine_mapping(
-        operator=F
-    )
-    ssh_std = standard_dev(averaged_error) * 1000
-    altimetry_z = scalar_z_score(
-        ssh_estimation_alt, GMSL_true, ssh_std
-    )
+
+    if fixed_x_range is not None:
+        x_lo, x_hi = fixed_x_range
+    else:
+        x_lo, x_hi = centered_x_range_from_measures(
+            GMSL_posts,
+            GMSL_true,
+        )
+    x = np.linspace(x_lo, x_hi, 500)
 
     n_panels = len(param_values)
     fig = plt.figure(figsize=(7, 9))
@@ -361,36 +359,7 @@ def plot_gmsl_sensitivity(
             )
         )
 
-        if fixed_x_range is not None:
-            x = np.linspace(*fixed_x_range, 500)
-        else:
-            x_lo = min(
-                post_mean - 4 * post_std,
-                ssh_estimation_alt - 4 * ssh_std,
-                GMSL_true - 0.2 * abs(GMSL_true),
-            )
-            x_hi = max(
-                post_mean + 4 * post_std,
-                ssh_estimation_alt + 4 * ssh_std,
-                GMSL_true + 0.2 * abs(GMSL_true),
-            )
-            x = np.linspace(x_lo, x_hi, 500)
-
         ax_pdf.get_yaxis().set_visible(False)
-
-        alt_pdf = stats.norm.pdf(
-            x, ssh_estimation_alt, ssh_std
-        )
-        ax_pdf.fill_between(
-            x, alt_pdf, color=colors.old_method, alpha=0.25
-        )
-        ax_pdf.plot(
-            x,
-            alt_pdf,
-            color=colors.old_method,
-            lw=2,
-            label="Altimetry",
-        )
 
         post_pdf = stats.norm.pdf(x, post_mean, post_std)
         ax_pdf.fill_between(
@@ -448,11 +417,6 @@ def plot_gmsl_sensitivity(
     plt.show()
 
     print(f"\nZ-scores for {suptitle}")
-    print(
-        "  "
-        f"Altimetry: z = {altimetry_z:.2f} "
-        f"(estimate = {ssh_estimation_alt:.2f} mm, std = {ssh_std:.2f} mm)"
-    )
     for (
         param_value,
         prior_z,
@@ -484,13 +448,6 @@ post_std_true = np.sqrt(
 )
 
 # ---- Notebook code cell 8 ----
-averaged_error = data_error_measure.affine_mapping(
-    operator=F
-)
-ssh_std = standard_dev(averaged_error) * 1000
-altimetry_z_true = scalar_z_score(
-    ssh_estimation_alt, GMSL_true, ssh_std
-)
 prior_gmsl_true = prior_true.affine_mapping(operator=B)
 prior_z_true, prior_mean_true, prior_std_true = (
     gaussian_measure_summary(prior_gmsl_true, GMSL_true)
@@ -501,22 +458,13 @@ prior_z_true, prior_mean_true, prior_std_true = (
     posterior_std_true,
 ) = gaussian_measure_summary(GMSL_post_true, GMSL_true)
 
-x = np.linspace(
-    min(
-        GMSL_true - 4 * ssh_std,
-        ssh_estimation_alt - 4 * ssh_std,
-        post_mean_true - 4 * post_std_true,
-    ),
-    max(
-        GMSL_true + 4 * ssh_std,
-        ssh_estimation_alt + 4 * ssh_std,
-        post_mean_true + 4 * post_std_true,
-    ),
-    500,
+x_lo_true, x_hi_true = centered_x_range_from_measures(
+    [GMSL_post_true],
+    GMSL_true,
 )
+x = np.linspace(x_lo_true, x_hi_true, 500)
 
 post_pdf = stats.norm.pdf(x, post_mean_true, post_std_true)
-alt_pdf = stats.norm.pdf(x, ssh_estimation_alt, ssh_std)
 
 fig = plt.figure(figsize=(7, 5), constrained_layout=True)
 gs = fig.add_gridspec(
@@ -537,16 +485,6 @@ ax_post = fig.add_subplot(
     gs[2:4, 1], projection=ccrs.Robinson()
 )
 
-ax_pdf.fill_between(
-    x, alt_pdf, color=colors.old_method, alpha=0.25
-)
-ax_pdf.plot(
-    x,
-    alt_pdf,
-    color=colors.old_method,
-    lw=2,
-    label="Altimetry",
-)
 ax_pdf.fill_between(
     x, post_pdf, color=colors.new_method, alpha=0.25
 )
@@ -630,11 +568,6 @@ fig.savefig(
 plt.show()
 
 print("\nZ-scores for accurate-prior inversion")
-print(
-    "  "
-    f"Altimetry: z = {altimetry_z_true:.2f} "
-    f"(estimate = {ssh_estimation_alt:.2f} mm, std = {ssh_std:.2f} mm)"
-)
 print(
     "  "
     f"Prior: z = {prior_z_true:.2f} "
