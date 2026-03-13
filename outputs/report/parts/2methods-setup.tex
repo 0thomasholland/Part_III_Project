@@ -35,7 +35,7 @@ In order to build data spaces, it is necessary to design operators that map from
 
 For this, \citetitle{al-attarPygeoinfPythonLibrary2025} uses a Linear Operator form of a Dirac delta function, which acts to sample the input field at the given points, and return a vector of the sampled values.
 
-In order to simulate tide gauge data, ocean statelite, and ice altimetry data, I implemented three different point sampling operators, each validaing points from a tide gauge dataset, gridded data at regular degree spacing masked to oceans, and the same masked for ice shelfs, respectively. These operators are used to map from the continuous fields of sea level change and ice thickness change to the discrete observations that represent those made by satellite altimeters and tide gauges.
+In order to simulate tide gauge data, ocean statelite, and ice altimetry data, I implemented three different point sampling operators, each validating points from a tide gauge dataset, gridded data at regular degree spacing masked to oceans, and the same masked for ice shelves, respectively. These operators are used to map from the continuous fields of sea level change and ice thickness change to the discrete observations that represent those made by satellite altimeters and tide gauges.
 
 \begin{align}
   \operatoraltimetry{\cdot}: H^s(\mathbb{S}^2) \to \mathbb{R}^N, \\ (\operatoraltimetry{}\, f)_i = \delta_{\mathbf{x}_i}(f) = f(\mathbf{x}_i),\quad i = 1, \dots, N
