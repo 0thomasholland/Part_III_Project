@@ -135,7 +135,7 @@ def plot_true_vs_case_z_kde_grid(
     fig, axes = plt.subplots(
         nrows,
         ncols,
-        figsize=(3 * ncols, 3 * nrows),
+        figsize=(3.25 * ncols, 3 * nrows),
         squeeze=False,
         sharex=True,
         sharey=True,
@@ -271,7 +271,7 @@ def plot_grouped_ridge_kde(
     x_max = float(x_data.max())
     x_pad = (x_max - x_min) * 0.08 if x_max > x_min else 1.0
 
-    fig, ax = plt.subplots(figsize=(7, 6))
+    fig, ax = plt.subplots(figsize=(6.5, 6))
     palette = sns.color_palette("crest", n_colors=len(rows))
 
     for idx, row in enumerate(rows):
