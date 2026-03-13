@@ -82,41 +82,35 @@ def _ordered_sweep_types(df: pd.DataFrame) -> list[str]:
     return ordered
 
 
-def _accurate_prior_z_scores_by_setup(
+def _accurate_prior_posterior_z_by_setup(
     df: pd.DataFrame,
 ) -> pd.Series:
-    # Accurate prior: zero-mean and truth std.
-    setup = (
-        df[
-            [
-                "setup_index",
-                "gmsl_true_mm",
-                "truth_gmsl_std_nd",
-            ]
-        ]
-        .drop_duplicates(subset=["setup_index"])
-        .copy()
-        .set_index("setup_index")
-    )
-    std_mm = setup["truth_gmsl_std_nd"] * 1000.0
-    return (0.0 - setup["gmsl_true_mm"]) / std_mm
+    accurate = df.loc[
+        df["sweep_type"] == "accurate_prior",
+        ["setup_index", "posterior_z"],
+    ].drop_duplicates(subset=["setup_index"])
+    return accurate.set_index("setup_index")["posterior_z"]
 
 
 def plot_true_vs_case_z_kde_grid(
     df: pd.DataFrame,
     *,
-    case_z_col: str = "prior_z",
-    output_name: str = "kde_grid_true_vs_case_z.pdf",
-    title: str = "KDE Grid: Accurate Prior z vs Tweaked-Parameter z",
+    output_name: str = "kde_grid_accurate_vs_tweaked_posterior_z.pdf",
+    title: str = "Accurate-Prior Posterior z vs Tweaked-Parameter Posterior z",
 ) -> None:
-    z_true_by_setup = _accurate_prior_z_scores_by_setup(df)
-
-    plot_df = df.copy()
-    plot_df["true_prior_z"] = plot_df["setup_index"].map(
-        z_true_by_setup
+    accurate_z_by_setup = (
+        _accurate_prior_posterior_z_by_setup(df)
     )
+
+    # Exclude accurate_prior rows from the grid panels.
+    plot_df = df.loc[
+        df["sweep_type"] != "accurate_prior"
+    ].copy()
+    plot_df["accurate_posterior_z"] = plot_df[
+        "setup_index"
+    ].map(accurate_z_by_setup)
     plot_df = plot_df.dropna(
-        subset=["true_prior_z", case_z_col]
+        subset=["accurate_posterior_z", "posterior_z"]
     )
     if plot_df.empty:
         return
@@ -136,19 +130,22 @@ def plot_true_vs_case_z_kde_grid(
     if not cases:
         return
 
-    ncols = 4
+    ncols = 2
     nrows = math.ceil(len(cases) / ncols)
     fig, axes = plt.subplots(
         nrows,
         ncols,
-        figsize=(3.4 * ncols, 3.4 * nrows),
+        figsize=(3 * ncols, 3 * nrows),
         squeeze=False,
         sharex=True,
         sharey=True,
     )
 
     combined = pd.concat(
-        [plot_df["true_prior_z"], plot_df[case_z_col]],
+        [
+            plot_df["accurate_posterior_z"],
+            plot_df["posterior_z"],
+        ],
         ignore_index=True,
     )
     lim_low = float(combined.min())
@@ -174,8 +171,8 @@ def plot_true_vs_case_z_kde_grid(
         if len(subset) >= 3:
             sns.kdeplot(
                 data=subset,
-                x="true_prior_z",
-                y=case_z_col,
+                x="accurate_posterior_z",
+                y="posterior_z",
                 fill=True,
                 thresh=0.05,
                 levels=12,
@@ -186,8 +183,8 @@ def plot_true_vs_case_z_kde_grid(
 
         sns.scatterplot(
             data=subset,
-            x="true_prior_z",
-            y=case_z_col,
+            x="accurate_posterior_z",
+            y="posterior_z",
             s=14,
             color="black",
             alpha=0.45,
@@ -210,8 +207,8 @@ def plot_true_vs_case_z_kde_grid(
             f"{sweep_type}={sweep_value:g}",
             fontsize=9,
         )
-        ax.set_xlabel("Accurate prior z-score")
-        ax.set_ylabel("Tweaked-parameter z-score")
+        ax.set_xlabel("Accurate-prior posterior z")
+        ax.set_ylabel("Tweaked-parameter posterior z")
 
     total_axes = nrows * ncols
     for idx in range(len(cases), total_axes):
@@ -234,6 +231,9 @@ def plot_grouped_ridge_kde(
     df: pd.DataFrame,
     *,
     metric_col: str = "posterior_bias_mm",
+    output_name: str = "ridge_kde_all.pdf",
+    x_label: str = "Posterior bias (mm)",
+    title: str = "Ridge KDE Across All Sensitivity Cases",
 ) -> None:
     sweep_order = _ordered_sweep_types(df)
     if not sweep_order:
@@ -271,7 +271,7 @@ def plot_grouped_ridge_kde(
     x_max = float(x_data.max())
     x_pad = (x_max - x_min) * 0.08 if x_max > x_min else 1.0
 
-    fig, ax = plt.subplots(figsize=(10, 7))
+    fig, ax = plt.subplots(figsize=(7, 6))
     palette = sns.color_palette("crest", n_colors=len(rows))
 
     for idx, row in enumerate(rows):
@@ -321,11 +321,12 @@ def plot_grouped_ridge_kde(
             linewidth=0.7,
         )
 
-        label = (
-            f"{row['sweep_type']}={row['sweep_value']:g}"
+        sweep_label = str(row["sweep_type"]).replace(
+            "_", " "
         )
+        label = f"{sweep_label}: {row['sweep_value']:g}"
         ax.text(
-            x_min - x_pad * 0.4,
+            x_min - x_pad * 0.8,
             row["base_y"] + 0.08,
             label,
             ha="right",
@@ -358,28 +359,13 @@ def plot_grouped_ridge_kde(
     ax.set_xlim(x_min - x_pad * 0.6, x_max + x_pad)
     ax.set_ylim(-0.2, current_y - group_gap + ridge_height)
     ax.set_yticks([])
-    ax.set_xlabel("Posterior bias (mm)")
+    ax.set_xlabel(x_label)
     ax.set_ylabel("")
-    ax.set_title("Ridge KDE Across All Sensitivity Cases")
-
-    accurate_prior_z = _accurate_prior_z_scores_by_setup(df)
-    ax.text(
-        0.5,
-        1.03,
-        (
-            "Accurate prior z-score "
-            f"(mean={accurate_prior_z.mean():.3f}, "
-            f"median={accurate_prior_z.median():.3f})"
-        ),
-        transform=ax.transAxes,
-        ha="center",
-        va="bottom",
-        fontsize=10,
-    )
+    ax.set_title(title)
 
     _save_figure(
         fig,
-        FIGURES_DIR / "ridge_kde_all.pdf",
+        FIGURES_DIR / output_name,
     )
 
 
@@ -393,13 +379,21 @@ def main() -> None:
     df = _wide_to_long(pd.read_csv(master_path))
     _require_data(df)
 
-    plot_grouped_ridge_kde(df)
-    plot_true_vs_case_z_kde_grid(
+    plot_grouped_ridge_kde(
         df,
-        case_z_col="prior_z",
-        output_name="kde_grid_accurate_prior_vs_tweaked_z.pdf",
-        title="KDE Grid: Accurate Prior z vs Tweaked-Parameter z",
+        metric_col="posterior_bias_mm",
+        output_name="ridge_kde_all_bias.pdf",
+        x_label="Posterior bias (mm)",
+        title="Ridge KDE Across All Sensitivity Cases (Bias)",
     )
+    plot_grouped_ridge_kde(
+        df,
+        metric_col="posterior_z",
+        output_name="ridge_kde_all_z_score.pdf",
+        x_label="Posterior z-score",
+        title=f"Ridge KDE Across All Sensitivity Cases (z-score) [n={df.shape[0]}]",
+    )
+    plot_true_vs_case_z_kde_grid(df)
 
 
 if __name__ == "__main__":
