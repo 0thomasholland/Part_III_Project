@@ -35,9 +35,22 @@ fig_format = "pdf"
 SCRIPT_DIR = Path(__file__).resolve().parent
 FIGURES_DIR = SCRIPT_DIR / "figures"
 FIGURES_DIR.mkdir(parents=True, exist_ok=True)
+plt.show = lambda *args, **kwargs: None
+print = lambda *args, **kwargs: None
 
-print(f"Script directory: {SCRIPT_DIR}")
-print(f"Figures will be saved to: {FIGURES_DIR}")
+
+def _save_all_figures(prefix):
+    for index, figure_number in enumerate(
+        plt.get_fignums(), start=1
+    ):
+        fig = plt.figure(figure_number)
+        fig.savefig(
+            FIGURES_DIR / f"{prefix}_{index:02d}.pdf",
+            dpi=600,
+            bbox_inches="tight",
+        )
+    plt.close("all")
+
 
 # ---- Notebook code cell 2 ----
 lmax = 128
@@ -377,3 +390,5 @@ print(
 print(
     f"Altimetry estimation is {(GMSL_true - ssh_estimation_alt) / ssh_std:.2e} sigma away from true value."
 )
+
+_save_all_figures("06_simple_inversion")

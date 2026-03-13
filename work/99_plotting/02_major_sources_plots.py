@@ -5,6 +5,7 @@
 from pathlib import Path
 
 import numpy as np
+
 np.random.seed(120102)
 import pandas as pd
 import seaborn as sns
@@ -15,6 +16,26 @@ from pyslfp import FingerPrint, IceModel, plot
 from project import colors
 from pygeoinf_extras.stats import expectation, standard_dev
 from pyslfp_extras.ice_thickness import IceSheetChange
+
+SCRIPT_DIR = Path(__file__).resolve().parent
+FIGURES_DIR = SCRIPT_DIR / "figures"
+FIGURES_DIR.mkdir(parents=True, exist_ok=True)
+plt.show = lambda *args, **kwargs: None
+print = lambda *args, **kwargs: None
+
+
+def _save_all_figures(prefix):
+    for index, figure_number in enumerate(
+        plt.get_fignums(), start=1
+    ):
+        fig = plt.figure(figure_number)
+        fig.savefig(
+            FIGURES_DIR / f"{prefix}_{index:02d}.pdf",
+            dpi=600,
+            bbox_inches="tight",
+        )
+    plt.close("all")
+
 
 SOURCE_COLOURS = {
     "GIS": colors.gis,
@@ -92,6 +113,7 @@ def resolve_scalar_data_path(filename):
             if candidate.exists():
                 return candidate
     raise FileNotFoundError(filename)
+
 
 # ---- Notebook code cell 2 ----
 fp = FingerPrint(lmax=96)
@@ -300,3 +322,5 @@ plt.grid(alpha=0.3)
 plt.legend()
 sns.despine()
 plt.show()
+
+_save_all_figures("02_major_sources")

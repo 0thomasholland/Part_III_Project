@@ -2,9 +2,12 @@
 # Source: notebooks/05 - Altimetry Sampling.ipynb
 
 # ---- Notebook code cell 1 ----
+from pathlib import Path
+
 import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
 import numpy as np
+
 np.random.seed(120105)
 import seaborn as sns
 from scipy.stats import norm
@@ -21,6 +24,26 @@ from pygeoinf_extras.stats import expectation, standard_dev
 from pyslfp_extras.altimetry import GridPoints
 from pyslfp_extras.ice_thickness import IceSheetChange
 from pyslfp_extras.plotting import plot
+
+SCRIPT_DIR = Path(__file__).resolve().parent
+FIGURES_DIR = SCRIPT_DIR / "figures"
+FIGURES_DIR.mkdir(parents=True, exist_ok=True)
+plt.show = lambda *args, **kwargs: None
+print = lambda *args, **kwargs: None
+
+
+def _save_all_figures(prefix):
+    for index, figure_number in enumerate(
+        plt.get_fignums(), start=1
+    ):
+        fig = plt.figure(figure_number)
+        fig.savefig(
+            FIGURES_DIR / f"{prefix}_{index:02d}.pdf",
+            dpi=600,
+            bbox_inches="tight",
+        )
+    plt.close("all")
+
 
 # ---- Notebook code cell 2 ----
 lmax = 128
@@ -448,13 +471,13 @@ ax.set_title("Mean Estimation Error (SLC \u2212 SSH)")
 plt.show()
 
 fig, ax, im = plot(
-    error.sample_pointwise_std(20)
+    error.sample_pointwise_variance(20)
     * 1000
     * fp.ocean_projection(),
-    colorbar_label="Error Sample Pointwise Std: SLC \u2212 SSH (mm)",
+    colorbar_label="Error Sample Pointwise Variance: SLC \u2212 SSH (mm)",
     cmap="Reds",
 )
-ax.set_title(
-    "Pointwise Standard Deviation of Estimation Error"
-)
+ax.set_title("Pointwise Variance of Estimation Error")
 plt.show()
+
+_save_all_figures("05_altimetry_sampling")
