@@ -31,9 +31,30 @@ As discussed in \autoref{sec:slp}, the relation between SSHC and SLC is given in
 
 \notebookcite{thomasholland05AltimetrySamplingipynb2026}
 
-Three altimetry sampling methods are required for ocean alteimtry and ice altimerry sampling.
+In order to build data spaces, it is necessary to design operators that map from the continuous fields to the discrete observations that represent those made by satellite altimeters and tide gauges.
 
-These are defined at user defined grid spacings, which are then masked to the relevant areas. A point evaluation operator is created that samples a intermediatory space to generate a data space.
+For this, \citetitle{al-attarPygeoinfPythonLibrary2025} uses a Linear Operator form of a Dirac delta function, which acts to sample the input field at the given points, and return a vector of the sampled values.
+
+In order to simulate tide gauge data, ocean statelite, and ice altimetry data, I implemented three different point sampling operators, each validaing points from a tide gauge dataset, gridded data at regular degree spacing masked to oceans, and the same masked for ice shelfs, respectively. These operators are used to map from the continuous fields of sea level change and ice thickness change to the discrete observations that represent those made by satellite altimeters and tide gauges.
+
+\begin{equation}
+  \operatoraltimetry{\cdot}: H^s(\mathbb{S}^2) \to \mathbb{R}^N, \\ (\operatoraltimetry{\cdot}\, f)_i = \delta_{\mathbf{x}_i}(f) = f(\mathbf{x}_i),\quad i = 1, \dots, N
+\end{equation}
+
+with condition $s > \frac{n}{2}$
+
+If G is a regular latitude-longitude grid with spacings (Delta phi, Delta lambda), then the masked point set for domain Omega is:
+
+\begin{equation}
+  \mathcal{P}_\Omega = \left\{ \mathbf{x}_i \in \mathcal{G}(\Delta\phi, \Delta\lambda) \;\middle|\; \mathbf{x}_i \in \Omega \right\}
+\end{equation}
+
+\begin{align}
+  \operatorpointocean: \quad \Omega &= \Omega_{\text{ocean}} \cap \Omega_{\altimetry} \\
+  \operatorpointice: \quad \Omega &= \Omega_{\text{ice}} \\
+  \operatorpointtg: \quad \mathcal{P} &= \{\mathbf{x}_1, \dots, \mathbf{x}_{N_{tg}}\}
+  \subset \partial\Omega_{\text{ocean}}
+\end{align}
 
 \todo{equations and sort this out a bit better}
 
@@ -76,12 +97,7 @@ is biased whenever the observation points are not uniformly distributed with res
 
 The full derivation of this quadriture scheme is given in \autoref{sec:point_gmsl_derivation}.
 
-This weighted estimator converges to $\operatorgmsl{\altimetry}$ as $N \to \infty$ and grid spacing tends to zero, since the discrete sum approximates the spherical surface integral with the correct area element $R^2 \cos(\lambda) \, \mathrm{d}\phi \, \mathrm{d}\lambda$, providing a natural consistency check between the two approaches. The error assocaited with the point methods (\autoref{eq:gmsl_ssh_point_naive} and \autoref{eq:gmsl_ssh_point}) compared to the integral method (\autoref{eq:gmsl_ssh_alt_integral}) is shown in \autoref{fig:point_alt_errors}.
-
-\begin{figure}
-	\includegraphics[width=6in]{figs/gmsl_averaging_comparison_ridge.png}
-\caption{}\label{fig:point_alt_errors}
-\end{figure}
+This weighted estimator converges to $\operatorgmsl{\altimetry}$ as $N \to \infty$ and grid spacing tends to zero, since the discrete sum approximates the spherical surface integral with the correct area element $R^2 \cos(\lambda) \, \mathrm{d}\phi \, \mathrm{d}\lambda$, providing a natural consistency check between the two approaches.
 
 
 \subsubsection{Modelling Ice and Firn Thickness Change}\label{sec:ice_thickness_priors}

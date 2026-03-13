@@ -109,10 +109,10 @@ for gmsl_mean in unique_gmsl_means:
 
         # %%
 
-        fig.savefig(
-            f"figures/all_ice_sheets_gauss_errors_gmslmean_{gmsl_mean}_std_{gmsl_std}.pdf",
-            dpi=600,
-        )
+        # fig.savefig(
+        #     f"figures/all_ice_sheets_gauss_errors_gmslmean_{gmsl_mean}_std_{gmsl_std}.pdf",
+        #     dpi=600,
+        # )
         plt.close(fig)
 
 # %%
@@ -161,10 +161,11 @@ for gmsl_mean in unique_gmsl_means:
             * 1000,  # convert to mm
             error_100_value_name=f"1 GMSL Std Dev ({gmsl_std * 1000:.1f} mm)",
         )
-        fig.savefig(
-            f"figures/all_ice_sheets_gauss_gmslmean_{gmsl_mean}_std_{gmsl_std}.pdf",
-            dpi=600,
-        )
+        # fig.savefig(
+        #     f"figures/all_ice_sheets_gauss_gmslmean_{gmsl_mean}_std_{gmsl_std}.pdf",
+        #     dpi=600,
+        # )
+        plt.close(fig)
 
 
 # %%
