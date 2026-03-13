@@ -91,6 +91,16 @@ The old method is only within 1 sigma of the true value in 14.6\% of runs, while
 
 This section is run at a spherical harmonic truncation of 128 for computational speed, but this is not expected to affect the results of the sensitivity tests, which are focused on the relative changes in the inversion results as the parameters are varied, rather than the absolute values of the inversion results.
 
+\the\columnwidth
+
+\begin{figure}[h!]
+	\includegraphics[width=\columnwidth]{ridge_kde_all_z_score.pdf}
+	\caption{}
+	\label{fig:sensitivity-z_score}
+\end{figure}
+
+
+
 \autoref{fig:sensitivity-true-inversion} shows the true ice thickness change field used in the sensitivity tests, which is a single sample drawn from the prior distribution as described in \autoref{sec:sensitivity-method}. It also shows the results for an inversion where the Baysiean prior is the distribution from which the true field was drawn, which is the ideal case for the inversion method. The posterior distribution contains the true field well, and that there is good spatial recovery of the ice thickness change within the posterior expectation.
 
 
@@ -165,7 +175,6 @@ The offset had no effect on the iterations required for the CG solve.
 
 \autoref{fig:sensitivity-variance} shows the results of varying the variance of the prior distribution compared to the true field, which is equivalent to changing our confidence in the prior distribution's mean value. A higher variance means we are less confident in the prior mean, while a lower variance means we are more confident in the prior mean.
 
-\todo{check}
-The higher variance resulted in a much longer CG solve time, which is expected as ???, making it harder for the solver to converge (0.5x: 47 iterations, 2.0x: 197 iterations, 5.0x: 610 iterations).
+The higher variance resulted in a much longer CG solve time, which is expected as it becomes a poorly conditioned problem, making it harder for the solver to converge (0.5x: 47 iterations, 2.0x: 197 iterations, 5.0x: 610 iterations).
 
 \subsection{Joint inversion using ice, firn, and ocean dynamic changes}
