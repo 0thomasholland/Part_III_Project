@@ -43,14 +43,18 @@
 \printbibliography
 
 \appendix
+\renewcommand{\thefigure}{A\arabic{figure}}
+\setcounter{figure}{0}
+
+\section{Supplementary figures}
+\input{parts/99_supplementary.tex}
+
+\section{Derivations}
+\input{parts/99_derivations.tex}
 
 \section{Mathematical notation}
 \input{parts/99_notation.tex}
 
-\section{Supplementary figures}
-
-\section{Derivations}
-\input{parts/99_derivations.tex}
 
 %TC:endignore
 \end{document}

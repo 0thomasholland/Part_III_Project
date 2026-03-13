@@ -93,16 +93,6 @@ This section is run at a spherical harmonic truncation of 128 for computational 
 
 \autoref{fig:sensitivity-true-inversion} shows the true ice thickness change field used in the sensitivity tests, which is a single sample drawn from the prior distribution as described in \autoref{sec:sensitivity-method}. It also shows the results for an inversion where the Baysiean prior is the distribution from which the true field was drawn, which is the ideal case for the inversion method. The posterior distribution contains the true field well, and that there is good spatial recovery of the ice thickness change within the posterior expectation.
 
-\begin{figure}
-  \begin{center}
-  \includegraphics[width=0.9\columnwidth]{sensitivity_tests/7-0_baseline_inversion.png}
-  \end{center}
-
-	\caption{}
-	\label{fig:sensitivity-true-inversion}
-
-\end{figure}
-
 
 % Length scale: 318400.0 km
 % CG solve: 108it [00:40,  2.67it/s, ||x||=1.25e+04]
@@ -128,15 +118,6 @@ Shorter length scales did not result in more noise, and recovered the correct st
 
 The longer length scales resulted in a shorter CG solve time, which is expected as the smoother fields are easier to recover (318400.0 km: 108 iterations, 955200.0 km: 74 iterations, 2547200.0 km: 52 iterations).
 
-\begin{figure}
-  \begin{center}
-  \includegraphics[width=0.9\columnwidth]{sensitivity_tests/7-1_length_scale.png}
-  \end{center}
-
-	\caption{}
-	\label{fig:sensitivity-lengthscale}
-
-\end{figure}
 
 % GMSL target mean: 1.0 mm
 % CG solve: 82it [00:31,  2.64it/s, ||x||=1.25e+04]
@@ -162,15 +143,6 @@ The longer length scales resulted in a shorter CG solve time, which is expected 
 
 The offset had no effect on the iterations required for the CG solve.
 
-\begin{figure}
-  \begin{center}
-  \includegraphics[width=0.9\columnwidth]{sensitivity_tests/7-2_mean_translation.png}
-  \end{center}
-
-	\caption{}
-	\label{fig:sensitivity-offset}
-
-\end{figure}
 
 % Std multiplier: 0.5
 % CG solve: 47it [00:18,  2.61it/s, ||x||=1.26e+04]
@@ -195,15 +167,5 @@ The offset had no effect on the iterations required for the CG solve.
 
 \todo{check}
 The higher variance resulted in a much longer CG solve time, which is expected as ???, making it harder for the solver to converge (0.5x: 47 iterations, 2.0x: 197 iterations, 5.0x: 610 iterations).
-
-\begin{figure}
-  \begin{center}
-  \includegraphics[width=0.9\columnwidth]{sensitivity_tests/7-3_covariance_scaling.png}
-  \end{center}
-
-	\caption{}
-	\label{fig:sensitivity-variance}
-
-\end{figure}
 
 \subsection{Joint inversion using ice, firn, and ocean dynamic changes}
