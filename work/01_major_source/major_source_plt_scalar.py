@@ -6,21 +6,6 @@ import seaborn as sns
 
 from project import colors
 
-sns.set_style("ticks")
-sns.color_palette("colorblind")
-sns.set_context("paper")
-
-plt.rcParams.update(
-    {
-        "font.family": "serif",
-        "font.serif": [
-            "Bitstream Charter",
-            "Charter",
-        ],  # Will look for these on your system
-        "text.usetex": False,  # Use Matplotlib's internal math engine (mathtext)
-    }
-)
-
 # %% import data
 
 data = np.load("major_source_altimetry_errors_scalar.npz")
@@ -100,7 +85,7 @@ plt.title(
 )
 plt.grid()
 plt.savefig(
-    "figures/major_source_altimetry_errors_scalar.png",
+    "figures/major_source_altimetry_errors_scalar.pdf",
     dpi=600,
 )
 plt.show()

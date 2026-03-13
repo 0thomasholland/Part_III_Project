@@ -489,7 +489,7 @@ fig6.savefig(
     f"{dir}/joint_inversion_odt_height_posterior.png",
     dpi=600,
 )
-fig7.savefig(f"{dir}/joint_inversion_slc.png", dpi=600)
+fig7.savefig(f"{dir}/joint_inversion_slc.pdf", dpi=600)
 fig8.savefig(
     f"{dir}/joint_inversion_slc_posterior.png", dpi=600
 )

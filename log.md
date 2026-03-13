@@ -378,3 +378,11 @@
 - Updated mathematical equations to use custom-defined LaTeX commands for consistency.
 - Pinned code version dependencies and continued report revisions.
 
+## 13 March 2026
+
+- Debugged sensitivity analysis plotting: fixed z-score KDE grid where the x-axis was computing a prior z-score rather than reading posterior_z values. Developed the point sampling subsubsection clarifying its scope as the upstream step of mapping continuous fields to discrete measurements.
+- Added new error computation runner with improved plotting system.
+- Removed the altimetry comparison from sensitivity plots to focus the narrative.
+- Added worker recycling to the parallel computation framework for stability.
+- Implemented new sensitivity test prior configurations.
+

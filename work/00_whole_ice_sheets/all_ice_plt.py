@@ -9,20 +9,7 @@ from project.plots import (
     error_latitude_plot,
 )
 
-sns.set_style("ticks")
 sns.color_palette("colorblind")
-sns.set_context("paper")
-
-plt.rcParams.update(
-    {
-        "font.family": "serif",
-        "font.serif": [
-            "Bitstream Charter",
-            "Charter",
-        ],  # Will look for these on your system
-        "text.usetex": False,  # Use Matplotlib's internal math engine (mathtext)
-    }
-)
 
 # %%
 
@@ -54,7 +41,7 @@ ax1.set_title(
 # %%
 
 fig1.savefig(
-    "figures/all_ice_sheets_altimetry_errors.png", dpi=600
+    "figures/all_ice_sheets_altimetry_errors.pdf", dpi=600
 )
 plt.close(fig1)
 
@@ -123,7 +110,7 @@ for gmsl_mean in unique_gmsl_means:
         # %%
 
         fig.savefig(
-            f"figures/all_ice_sheets_gauss_errors_gmslmean_{gmsl_mean}_std_{gmsl_std}.png",
+            f"figures/all_ice_sheets_gauss_errors_gmslmean_{gmsl_mean}_std_{gmsl_std}.pdf",
             dpi=600,
         )
         plt.close(fig)
@@ -175,7 +162,7 @@ for gmsl_mean in unique_gmsl_means:
             error_100_value_name=f"1 GMSL Std Dev ({gmsl_std * 1000:.1f} mm)",
         )
         fig.savefig(
-            f"figures/all_ice_sheets_gauss_gmslmean_{gmsl_mean}_std_{gmsl_std}.png",
+            f"figures/all_ice_sheets_gauss_gmslmean_{gmsl_mean}_std_{gmsl_std}.pdf",
             dpi=600,
         )
 
@@ -224,7 +211,7 @@ fig, (ax1, ax2, ax3, ax4, ax5, ax6) = (
 )
 
 fig.savefig(
-    "figures/double_distribution_66_80.png",
+    "figures/double_distribution_66_80.pdf",
     dpi=600,
 )
 plt.close(fig)

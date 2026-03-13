@@ -1,3 +1,5 @@
+import matplotlib.pyplot as plt
+import seaborn as sns
 from matplotlib.colors import LinearSegmentedColormap
 
 gis = "#5CB85C"
@@ -27,3 +29,24 @@ ocean_dynamics = "#4CAF50"
 data_params = "#FF5722"
 ice_altimetry = "#3F51B5"
 ocean_altimetry = "#FF9800"
+
+
+def apply_style() -> None:
+    """Apply the canonical project plot style.
+
+    Sets seaborn theme/style and matplotlib rcParams for fonts.
+    Called automatically when this module is imported.
+    """
+    sns.set_style("ticks")
+    sns.set_context("paper")
+    plt.rcParams.update(
+        {
+            "font.family": "serif",
+            "font.serif": ["Bitstream Charter", "Charter"],
+            "text.usetex": False,
+            "figure.figsize": (6, 4),
+        }
+    )
+
+
+apply_style()

@@ -406,7 +406,7 @@ plt.title("Convergence of CG Solver")
 plt.xlabel("Iteration")
 plt.ylabel("Norm of Solution ($||x_k||$)")
 plt.grid(True, which="both", ls="-", alpha=0.5)
-plt.savefig("figs/joint_precon_cg_convergence.png", dpi=600)
+plt.savefig("figs/joint_precon_cg_convergence.pdf", dpi=600)
 
 model_posterior_expectation = (
     model_posterior_measure.expectation
@@ -589,7 +589,7 @@ fig8.tight_layout()
 
 # %%
 
-fig1.savefig("figs/joint_precon_ice_thickness.png", dpi=600)
+fig1.savefig("figs/joint_precon_ice_thickness.pdf", dpi=600)
 fig2.savefig(
     "figs/joint_precon_ice_thickness_posterior.png", dpi=600
 )
@@ -600,8 +600,8 @@ fig4.savefig(
     "figs/joint_precon_firn_thickness_posterior.png",
     dpi=600,
 )
-fig7.savefig("figs/joint_precon_slc.png", dpi=600)
-fig8.savefig("figs/joint_precon_slc_posterior.png", dpi=600)
+fig7.savefig("figs/joint_precon_slc.pdf", dpi=600)
+fig8.savefig("figs/joint_precon_slc_posterior.pdf", dpi=600)
 
 # %%
 
@@ -720,7 +720,7 @@ ax12.set_title(
 )
 fig12.tight_layout()
 
-fig11.savefig("figs/joint_precon_total_load.png", dpi=600)
+fig11.savefig("figs/joint_precon_total_load.pdf", dpi=600)
 fig12.savefig(
     "figs/joint_precon_total_load_posterior.png", dpi=600
 )
@@ -1012,4 +1012,4 @@ fig, axes = plot_corner_distributions(
     labels=["Ice GMSL (mm)", "Firn GMSL (mm)"],
     title="Joint Posterior Distribution of Ice vs Firn GMSL Contributions",
 )
-fig.savefig("figs/joint_precon_gmsl_tradeoff.png", dpi=600)
+fig.savefig("figs/joint_precon_gmsl_tradeoff.pdf", dpi=600)

@@ -25,6 +25,7 @@ import numpy as np
 from pyslfp import FingerPrint, IceModel
 from scipy.stats import norm
 
+from project import colors
 from pygeoinf_extras.operators import (
     point_averaging_area_weighted_operator,
     point_averaging_operator,
@@ -32,17 +33,6 @@ from pygeoinf_extras.operators import (
 from pygeoinf_extras.stats import expectation, standard_dev
 from pyslfp_extras.altimetry import GridPoints
 from pyslfp_extras.ice_thickness import IceSheetChange
-
-plt.rcParams.update(
-    {
-        "font.family": "serif",
-        "font.serif": [
-            "Bitstream Charter",
-            "Charter",
-        ],  # Will look for these on your system
-        "text.usetex": False,  # Use Matplotlib's internal math engine (mathtext)
-    }
-)
 
 # %%
 # -----------------------------------------------------------------------------
@@ -289,7 +279,7 @@ plt.legend(
 )
 ax1.grid(True, linestyle=":", alpha=0.5)
 plt.tight_layout()
-fig.savefig("gmsl_averaging_comparison.png", dpi=600)
+fig.savefig("gmsl_averaging_comparison.pdf", dpi=600)
 plt.show()
 #
 
@@ -408,7 +398,7 @@ ax.spines["left"].set_visible(False)
 ax.spines["right"].set_visible(False)
 ax.spines["top"].set_visible(False)
 plt.tight_layout()
-fig.savefig("gmsl_averaging_comparison_ridge.png", dpi=600)
+fig.savefig("gmsl_averaging_comparison_ridge.pdf", dpi=600)
 plt.show()
 
 # %%

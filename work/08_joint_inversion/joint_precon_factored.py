@@ -652,15 +652,15 @@ fig4.savefig(
     f"{dir}/joint_precon_firn_thickness_posterior.png",
     dpi=600,
 )
-fig5.savefig(f"{dir}/joint_precon_odt_height.png", dpi=600)
+fig5.savefig(f"{dir}/joint_precon_odt_height.pdf", dpi=600)
 fig6.savefig(
     f"{dir}/joint_precon_odt_height_posterior.png", dpi=600
 )
-fig7.savefig(f"{dir}/joint_precon_slc.png", dpi=600)
+fig7.savefig(f"{dir}/joint_precon_slc.pdf", dpi=600)
 fig8.savefig(
     f"{dir}/joint_precon_slc_posterior.png", dpi=600
 )
-fig9.savefig(f"{dir}/joint_precon_total_load.png", dpi=600)
+fig9.savefig(f"{dir}/joint_precon_total_load.pdf", dpi=600)
 fig10.savefig(
     f"{dir}/joint_precon_total_load_posterior.png", dpi=600
 )
