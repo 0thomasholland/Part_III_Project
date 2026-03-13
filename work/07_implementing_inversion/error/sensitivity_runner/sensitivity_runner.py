@@ -30,6 +30,9 @@ OUTPUT_DIR = (
 TOTAL_SETUPS = 12
 START_INDEX = 0
 N_JOBS = -1
+# Recycle worker processes after this many setup tasks.
+# Use 1 to restart after each setup; use None to disable recycling.
+MAX_TASKS_PER_CHILD = 1
 
 L_MAX = 128
 ALTIMETRY_DEGREE_DENSITY = 5.0
@@ -380,10 +383,17 @@ def _worker(setup_index: int) -> str:
 def main() -> None:
     stop_index = START_INDEX + TOTAL_SETUPS
 
+    backend_kwargs: dict[str, int] = {}
+    if MAX_TASKS_PER_CHILD is not None:
+        backend_kwargs["maxtasksperchild"] = int(
+            MAX_TASKS_PER_CHILD
+        )
+
     results = Parallel(
         n_jobs=N_JOBS,
         backend="multiprocessing",
         verbose=11,
+        backend_kwargs=backend_kwargs,
     )(
         delayed(_worker)(setup_index)
         for setup_index in range(START_INDEX, stop_index)
