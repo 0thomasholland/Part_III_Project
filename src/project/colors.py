@@ -42,7 +42,7 @@ def apply_style() -> None:
     plt.rcParams.update(
         {
             "font.family": "serif",
-            "font.serif": ["STIX Two Text"],
+            "font.serif": ["Bitstream Charter", "Charter"],
             "text.usetex": False,
             "figure.figsize": (6, 4),
         }
