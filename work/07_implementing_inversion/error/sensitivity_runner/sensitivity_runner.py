@@ -1,4 +1,5 @@
 import pickle
+import random
 import time
 import uuid
 from pathlib import Path
@@ -45,6 +46,15 @@ STD_MULTIPLIERS = np.array([0.5, 2.0], dtype=float)
 ACCURATE_PRIOR_MARKER = 1.0
 
 CG_MAXITER = 1000
+BASE_RANDOM_SEED = 20260313
+
+
+def _seed_worker_rng(setup_index: int) -> int:
+    """Seed Python and NumPy RNGs per setup for reproducible diversity."""
+    seed = BASE_RANDOM_SEED + int(setup_index)
+    random.seed(seed)
+    np.random.seed(seed)
+    return seed
 
 
 def scalar_z_score(
@@ -268,12 +278,15 @@ def run_inversion_case(
 
 def _worker(setup_index: int) -> str:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    seed = _seed_worker_rng(setup_index)
 
     file_path = OUTPUT_DIR / (
         f"sensitivity_{setup_index:05d}_{uuid.uuid4().hex}.pkl"
     )
     print(
-        f"Worker {setup_index} starting, will save to {file_path.name}"
+        "Worker "
+        f"{setup_index} starting (seed={seed}), "
+        f"will save to {file_path.name}"
     )
     try:
         setup = build_truth_setup(setup_index=setup_index)
