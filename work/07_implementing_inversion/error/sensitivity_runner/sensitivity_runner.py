@@ -27,8 +27,8 @@ from pyslfp_extras.ice_thickness import IceSheetChange
 OUTPUT_DIR = (
     Path(__file__).resolve().parent / "inversion_results"
 )
-TOTAL_SETUPS = 12
-START_INDEX = 0
+TOTAL_SETUPS = 160
+START_INDEX = 161
 N_JOBS = -1
 # Recycle worker processes after this many setup tasks.
 # Use 1 to restart after each setup; use None to disable recycling.
@@ -391,7 +391,8 @@ def main() -> None:
 
     results = Parallel(
         n_jobs=N_JOBS,
-        backend="multiprocessing",
+        backend="loky",
+	batch_size=1,
         verbose=11,
         backend_kwargs=backend_kwargs,
     )(
