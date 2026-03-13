@@ -1,0 +1,1458 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.3 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{nyt/global//global/global/global}
+    \entry{al-attarReciprocitySensitivityKernels2023}{article}{}{}
+      \name{author}{5}{}{%
+        {{un=0,uniquepart=base,hash=03f0f6c7118003878e28acd52ea087f2}{%
+           family={Al-Attar},
+           familyi={A\bibinithyphendelim A\bibinitperiod},
+           given={D},
+           giveni={D\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=a335f1d86701e72779de56a8d4aac250}{%
+           family={Syvret},
+           familyi={S\bibinitperiod},
+           given={F},
+           giveni={F\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=1e4ff89ffd66cbcb3e782f0294d2db8c}{%
+           family={Crawford},
+           familyi={C\bibinitperiod},
+           given={O},
+           giveni={O\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=d02ba29dd0907e5100089ee14ae91250}{%
+           family={Mitrovica},
+           familyi={M\bibinitperiod},
+           given={J\bibnamedelima X},
+           giveni={J\bibinitperiod\bibinitdelim X\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=c60d332cbbe7af15d35d2d4359c83492}{%
+           family={Lloyd},
+           familyi={L\bibinitperiod},
+           given={A\bibnamedelima J},
+           giveni={A\bibinitperiod\bibinitdelim J\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{6e5516190ed0c80ba15fed1d0775270d}
+      \strng{fullhash}{91859e5857faefbb01ff7a21942c93c6}
+      \strng{fullhashraw}{91859e5857faefbb01ff7a21942c93c6}
+      \strng{bibnamehash}{6e5516190ed0c80ba15fed1d0775270d}
+      \strng{authorbibnamehash}{6e5516190ed0c80ba15fed1d0775270d}
+      \strng{authornamehash}{6e5516190ed0c80ba15fed1d0775270d}
+      \strng{authorfullhash}{91859e5857faefbb01ff7a21942c93c6}
+      \strng{authorfullhashraw}{91859e5857faefbb01ff7a21942c93c6}
+      \field{sortinit}{A}
+      \field{sortinithash}{2f401846e2029bad6b3ecc16d50031e2}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Reciprocity theorems are established for the elastic sea level fingerprint problem including rotational feedbacks. In their simplest form, these results show that the sea level change at a location x due to melting a unit point mass of ice at x′ is equal to the sea level change at x′ due to melting a unit point mass of ice at x. This identity holds irrespective of the shoreline geometry or of lateral variations in elastic Earth structure. Using the reciprocity theorems, sensitivity kernels for sea level and related observables with respect to the ice load can be readily derived. It is notable that calculation of the sensitivity kernels is possible using standard fingerprint codes, though for some types of observable a slight generalization to the fingerprint problem must be considered. These results are of use within coastal hazard assessment and have a range of applications within studies of modern-day sea level change. To illustrate the latter point, we use sensitivity kernels to investigate two widely used methods for estimating, respectively, ice sheet mass loss from satellite gravity, and rates of global mean sea level rise from satellite altimetry. Though our analysis is idealized in some respects, we identify systematic errors of order 5 per cent due to the use of simplified sea level physics. Crucially, calculation of the relevant sensitivity kernels provides not only a means for understanding sources of bias in existing methods, but will aid in the design of new and improved data-assimilation techniques.}
+      \field{day}{2}
+      \field{issn}{0956-540X, 1365-246X}
+      \field{journaltitle}{Geophysical Journal International}
+      \field{langid}{english}
+      \field{month}{11}
+      \field{number}{1}
+      \field{title}{Reciprocity and Sensitivity Kernels for Sea Level Fingerprints}
+      \field{volume}{236}
+      \field{year}{2023}
+      \field{dateera}{ce}
+      \field{pages}{362\bibrangedash 378}
+      \range{pages}{17}
+      \verb{doi}
+      \verb 10.1093/gji/ggad434
+      \endverb
+      \verb{file}
+      \verb /Users/th/Zotero/storage/LL2V7GEJ/Al-Attar et al. - 2023 - Reciprocity and sensitivity kernels for sea level fingerprints.pdf
+      \endverb
+    \endentry
+    \entry{al-attarPygeoinfPythonLibrary2025}{software}{}{}
+      \name{author}{2}{}{%
+        {{un=2,uniquepart=given,hash=965d0bfebbdddafdee25c0ddfbfa80b8}{%
+           family={Al-Attar},
+           familyi={A\bibinithyphendelim A\bibinitperiod},
+           given={David},
+           giveni={D\bibinitperiod},
+           givenun=2}}%
+        {{un=0,uniquepart=base,hash=521bcd5cbc1b2f1758852ff3ad01c39a}{%
+           family={Heathcote},
+           familyi={H\bibinitperiod},
+           given={Daniel},
+           giveni={D\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{location}{1}{%
+        {Github}%
+      }
+      \strng{namehash}{05ca4b3b74815243aaaf673644904d00}
+      \strng{fullhash}{05ca4b3b74815243aaaf673644904d00}
+      \strng{fullhashraw}{05ca4b3b74815243aaaf673644904d00}
+      \strng{bibnamehash}{05ca4b3b74815243aaaf673644904d00}
+      \strng{authorbibnamehash}{05ca4b3b74815243aaaf673644904d00}
+      \strng{authornamehash}{05ca4b3b74815243aaaf673644904d00}
+      \strng{authorfullhash}{05ca4b3b74815243aaaf673644904d00}
+      \strng{authorfullhashraw}{05ca4b3b74815243aaaf673644904d00}
+      \field{extraname}{1}
+      \field{sortinit}{A}
+      \field{sortinithash}{2f401846e2029bad6b3ecc16d50031e2}
+      \field{extradate}{1}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{abstract}{A python library for solving linear inverse and inference problems}
+      \field{day}{15}
+      \field{hour}{19}
+      \field{minute}{51}
+      \field{month}{10}
+      \field{origday}{16}
+      \field{orighour}{14}
+      \field{origminute}{26}
+      \field{origmonth}{8}
+      \field{origsecond}{45}
+      \field{origtimezone}{Z}
+      \field{origyear}{2024}
+      \field{second}{38}
+      \field{shorttitle}{Pygeoinf}
+      \field{timezone}{Z}
+      \field{title}{Pygeoinf: {{A Python Library}} for {{Geophysical Inference}}}
+      \field{urlday}{25}
+      \field{urlmonth}{10}
+      \field{urlyear}{2025}
+      \field{year}{2025}
+      \field{dateera}{ce}
+      \field{origdateera}{ce}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://github.com/da380/pygeoinf
+      \endverb
+      \verb{url}
+      \verb https://github.com/da380/pygeoinf
+      \endverb
+    \endentry
+    \entry{al-attarPySLFPPythonSea2025}{software}{}{}
+      \name{author}{2}{}{%
+        {{un=2,uniquepart=given,hash=965d0bfebbdddafdee25c0ddfbfa80b8}{%
+           family={Al-Attar},
+           familyi={A\bibinithyphendelim A\bibinitperiod},
+           given={David},
+           giveni={D\bibinitperiod},
+           givenun=2}}%
+        {{un=0,uniquepart=base,hash=521bcd5cbc1b2f1758852ff3ad01c39a}{%
+           family={Heathcote},
+           familyi={H\bibinitperiod},
+           given={Daniel},
+           giveni={D\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{location}{1}{%
+        {Github}%
+      }
+      \strng{namehash}{05ca4b3b74815243aaaf673644904d00}
+      \strng{fullhash}{05ca4b3b74815243aaaf673644904d00}
+      \strng{fullhashraw}{05ca4b3b74815243aaaf673644904d00}
+      \strng{bibnamehash}{05ca4b3b74815243aaaf673644904d00}
+      \strng{authorbibnamehash}{05ca4b3b74815243aaaf673644904d00}
+      \strng{authornamehash}{05ca4b3b74815243aaaf673644904d00}
+      \strng{authorfullhash}{05ca4b3b74815243aaaf673644904d00}
+      \strng{authorfullhashraw}{05ca4b3b74815243aaaf673644904d00}
+      \field{extraname}{2}
+      \field{sortinit}{A}
+      \field{sortinithash}{2f401846e2029bad6b3ecc16d50031e2}
+      \field{extradate}{2}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{abstract}{Library for computing elastic sea level fingerprints}
+      \field{day}{21}
+      \field{hour}{6}
+      \field{minute}{52}
+      \field{month}{10}
+      \field{origday}{20}
+      \field{orighour}{7}
+      \field{origminute}{2}
+      \field{origmonth}{9}
+      \field{origsecond}{0}
+      \field{origtimezone}{Z}
+      \field{origyear}{2024}
+      \field{second}{15}
+      \field{shorttitle}{{{PySLFP}}}
+      \field{timezone}{Z}
+      \field{title}{{{PySLFP}}: {{Python Sea Level Fingerprints}}}
+      \field{urlday}{25}
+      \field{urlmonth}{10}
+      \field{urlyear}{2025}
+      \field{year}{2025}
+      \field{dateera}{ce}
+      \field{origdateera}{ce}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://github.com/da380/pyslfp
+      \endverb
+      \verb{url}
+      \verb https://github.com/da380/pyslfp
+      \endverb
+    \endentry
+    \entry{coulsonDetectionSeaLevel2022}{article}{}{}
+      \name{author}{6}{ul=2}{%
+        {{un=0,uniquepart=base,hash=b38f90b0be27a4cef77b8e0b7d56e9d5}{%
+           family={Coulson},
+           familyi={C\bibinitperiod},
+           given={Sophie},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=260aaabc63b0ef15dd62ee45678336c2}{%
+           family={Dangendorf},
+           familyi={D\bibinitperiod},
+           given={Sönke},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=95e128813efbea73ccdd0aff0714fd1a}{%
+           family={Mitrovica},
+           familyi={M\bibinitperiod},
+           given={Jerry\bibnamedelima X.},
+           giveni={J\bibinitperiod\bibinitdelim X\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=2245b67ad8bbac8052017fcb4ba625a7}{%
+           family={Tamisiea},
+           familyi={T\bibinitperiod},
+           given={Mark\bibnamedelima E.},
+           giveni={M\bibinitperiod\bibinitdelim E\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=ca3f6ae89267bff9bef5a4d7cb31b909}{%
+           family={Pan},
+           familyi={P\bibinitperiod},
+           given={Linda},
+           giveni={L\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=2bc4c4ab18f6fe11c6658db1975c2687}{%
+           family={Sandwell},
+           familyi={S\bibinitperiod},
+           given={David\bibnamedelima T.},
+           giveni={D\bibinitperiod\bibinitdelim T\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{5ba7bea7bda9fff315a4ad28725882e9}
+      \strng{fullhash}{a9a635ddfd01dc5b425e840b1e852fe1}
+      \strng{fullhashraw}{a9a635ddfd01dc5b425e840b1e852fe1}
+      \strng{bibnamehash}{5ba7bea7bda9fff315a4ad28725882e9}
+      \strng{authorbibnamehash}{5ba7bea7bda9fff315a4ad28725882e9}
+      \strng{authornamehash}{5ba7bea7bda9fff315a4ad28725882e9}
+      \strng{authorfullhash}{a9a635ddfd01dc5b425e840b1e852fe1}
+      \strng{authorfullhashraw}{a9a635ddfd01dc5b425e840b1e852fe1}
+      \field{sortinit}{C}
+      \field{sortinithash}{4d103a86280481745c9c897c925753c0}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Rapid melting of ice sheets and glaciers drives a unique geometry, or fingerprint, of sea level change. However, the detection of individual fingerprints has been challenging because of sparse observations at high latitudes and the difficulty of disentangling ocean dynamic variability from the signal. We predict the fingerprint of Greenland Ice Sheet (GrIS) melt using recent ice mass loss estimates from radar altimetry data and model reconstructions of nearby glaciers and compare this prediction to an independent, altimetry-derived sea surface height trend corrected for ocean dynamic variability in the region adjacent to the ice sheet. A statistically significant correlation between the two fields ( P {$<$} 0.001) provides an unambiguous observational detection of the near-field sea level fingerprint of recent GrIS melting in our warming world. , Leveling up and down Rapid melting of ice sheets and glaciers raises the global average sea level but does so in a complex pattern of regional increases and decreases called a sea level fingerprint. Coulson et al . found that the fingerprint of melting near the Greenland Ice Sheet can be detected using ice mass loss estimates made from radar altimetry and model reconstructions of nearby glaciers. Their data provide an independent confirmation of the acceleration of Greenland Ice Sheet mass loss and reveal the impact of this mass flux on sea surface heights around Greenland. —HJS , High-latitude satellite-based measurements can detect the sea level fingerprint of Greenland Ice Sheet melting.}
+      \field{day}{30}
+      \field{issn}{0036-8075, 1095-9203}
+      \field{journaltitle}{Science}
+      \field{langid}{english}
+      \field{month}{9}
+      \field{number}{6614}
+      \field{shortjournal}{Science}
+      \field{title}{A Detection of the Sea Level Fingerprint of {{Greenland Ice Sheet}} Melt}
+      \field{volume}{377}
+      \field{year}{2022}
+      \field{dateera}{ce}
+      \field{pages}{1550\bibrangedash 1554}
+      \range{pages}{5}
+      \verb{doi}
+      \verb 10.1126/science.abo0926
+      \endverb
+      \verb{file}
+      \verb /Users/th/Zotero/storage/PHMBYVFG/Coulson et al. - A detection of the sea level fingerprint of Greenland Ice Sheet melt.pdf
+      \endverb
+    \endentry
+    \entry{coulsonInvertingSeaSurface2026}{unpublished}{}{}
+      \name{author}{9}{ul=2}{%
+        {{un=0,uniquepart=base,hash=b38f90b0be27a4cef77b8e0b7d56e9d5}{%
+           family={Coulson},
+           familyi={C\bibinitperiod},
+           given={Sophie},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=829ad7698cffe75b5a185292d3b88b06}{%
+           family={Lloyd},
+           familyi={L\bibinitperiod},
+           given={Andrew},
+           giveni={A\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=2b831b4c4329bb9824dc6ed212b14892}{%
+           family={Mitrovica},
+           familyi={M\bibinitperiod},
+           given={Jerry},
+           giveni={J\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=260aaabc63b0ef15dd62ee45678336c2}{%
+           family={Dangendorf},
+           familyi={D\bibinitperiod},
+           given={Sönke},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=ca3f6ae89267bff9bef5a4d7cb31b909}{%
+           family={Pan},
+           familyi={P\bibinitperiod},
+           given={Linda},
+           giveni={L\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=ffb8a242e4a71888bd70c846d2c050a6}{%
+           family={Tamisea},
+           familyi={T\bibinitperiod},
+           given={Mark\bibnamedelima E},
+           giveni={M\bibinitperiod\bibinitdelim E\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=bde544476ecbaaa7cdc0241b4273f6a7}{%
+           family={Heathcottee},
+           familyi={H\bibinitperiod},
+           given={Daniel},
+           giveni={D\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=93fbd4a18fa5345f741f5f2e1f954834}{%
+           family={Valencic},
+           familyi={V\bibinitperiod},
+           given={Natasha},
+           giveni={N\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=965d0bfebbdddafdee25c0ddfbfa80b8}{%
+           family={Al-Attar},
+           familyi={A\bibinithyphendelim A\bibinitperiod},
+           given={David},
+           giveni={D\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{publisher}{1}{%
+        {Geophysical Journal International}%
+      }
+      \strng{namehash}{f20fee1ad7f77fac4b8e8d3d3e473fb1}
+      \strng{fullhash}{b7becc9fd4b8fcb5a067a9aa9ccf80af}
+      \strng{fullhashraw}{b7becc9fd4b8fcb5a067a9aa9ccf80af}
+      \strng{bibnamehash}{f20fee1ad7f77fac4b8e8d3d3e473fb1}
+      \strng{authorbibnamehash}{f20fee1ad7f77fac4b8e8d3d3e473fb1}
+      \strng{authornamehash}{f20fee1ad7f77fac4b8e8d3d3e473fb1}
+      \strng{authorfullhash}{b7becc9fd4b8fcb5a067a9aa9ccf80af}
+      \strng{authorfullhashraw}{b7becc9fd4b8fcb5a067a9aa9ccf80af}
+      \field{sortinit}{C}
+      \field{sortinithash}{4d103a86280481745c9c897c925753c0}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{In Review, via Personal Communications}
+      \field{title}{Inverting {{Sea Surface Height Data Yields Greenland Ice Mass Changes}} (1993-2019): {{A Proof}} of {{Concept}}}
+      \field{year}{2026}
+      \field{dateera}{ce}
+      \verb{file}
+      \verb /Users/th/Zotero/storage/Z2GPHU8U/Sophie Coulson et al. - Inverting Sea Surface Height Data Yields Greenland Ice Mass Changes (1993-2019) A Proof of Concept.pdf
+      \endverb
+    \endentry
+    \entry{heathcoteScaleableBayesianFramework2026}{unpublished}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=269ad217c227f4dd14897204292812cf}{%
+           family={{D A Heathcote}},
+           familyi={D\bibinitperiod}}}%
+        {{un=0,uniquepart=base,hash=ef1766c453f1ad520a6da8981f20267b}{%
+           family={{D Al-Attar}},
+           familyi={D\bibinitperiod}}}%
+      }
+      \strng{namehash}{829ab2f67077f6c24a7dd771298eb203}
+      \strng{fullhash}{829ab2f67077f6c24a7dd771298eb203}
+      \strng{fullhashraw}{829ab2f67077f6c24a7dd771298eb203}
+      \strng{bibnamehash}{829ab2f67077f6c24a7dd771298eb203}
+      \strng{authorbibnamehash}{829ab2f67077f6c24a7dd771298eb203}
+      \strng{authornamehash}{829ab2f67077f6c24a7dd771298eb203}
+      \strng{authorfullhash}{829ab2f67077f6c24a7dd771298eb203}
+      \strng{authorfullhashraw}{829ab2f67077f6c24a7dd771298eb203}
+      \field{sortinit}{D}
+      \field{sortinithash}{6f385f66841fb5e82009dc833c761848}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{This paper presents a scalable Bayesian framework for the inference of modern-day sea level change, focusing on the use of time-dependent satellite gravity observations to constrain mass redistribution in ice sheets and the oceans. While the determination of surface loads from gravity data typically relies on the method of Wahr et al. (1998) and its later refinements, it has been previously shown that this approach introduces systematic errors of approximately 5–15 per cent by failing to account for induced water loads and gravitationally self-consistent sea level change (e.g. Riva et al. 2010; Sterenborg et al. 2013). Motivated by such issues, we describe a new inference framework that offers three key advances over previous studies. First, we utilise recent developments in adjoint sea level fingerprints to incorporate the physics of self-attraction and loading into both forward and inverse modelling. Second, we solve the full Bayesian inverse problem in an infinite-dimensional setting following Stuart (2010) and thereby avoid the underestimation of uncertainties that is inherent within finite-dimensional approximations. Finally, our method is designed for the flexible integration of multiple data types, and is therefore compatible with tide gauge records and satellite altimetry in joint inversions.}
+      \field{howpublished}{Unpublished Draft, via Personal Communication}
+      \field{langid}{english}
+      \field{title}{A Scaleable {{Bayesian}} Framework for Modern Sea Level Inference}
+      \field{year}{2026}
+      \field{dateera}{ce}
+      \verb{file}
+      \verb /Users/th/Zotero/storage/GXMTVM94/Heathcote and Al-Attar - A scaleable Bayesian framework for modern sea level inference.pdf
+      \endverb
+    \endentry
+    \entry{dal-attarPygeoinfsymmetric_spacePackageDocumentation2025}{online}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=ef1766c453f1ad520a6da8981f20267b}{%
+           family={{D Al-Attar}},
+           familyi={D\bibinitperiod}}}%
+        {{un=0,uniquepart=base,hash=269ad217c227f4dd14897204292812cf}{%
+           family={{D A Heathcote}},
+           familyi={D\bibinitperiod}}}%
+      }
+      \list{organization}{1}{%
+        {pygeoinf package documentation}%
+      }
+      \strng{namehash}{21b5afa1d09172af10f08ef0b1738b32}
+      \strng{fullhash}{21b5afa1d09172af10f08ef0b1738b32}
+      \strng{fullhashraw}{21b5afa1d09172af10f08ef0b1738b32}
+      \strng{bibnamehash}{21b5afa1d09172af10f08ef0b1738b32}
+      \strng{authorbibnamehash}{21b5afa1d09172af10f08ef0b1738b32}
+      \strng{authornamehash}{21b5afa1d09172af10f08ef0b1738b32}
+      \strng{authorfullhash}{21b5afa1d09172af10f08ef0b1738b32}
+      \strng{authorfullhashraw}{21b5afa1d09172af10f08ef0b1738b32}
+      \field{sortinit}{D}
+      \field{sortinithash}{6f385f66841fb5e82009dc833c761848}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{day}{1}
+      \field{month}{12}
+      \field{title}{Pygeoinf.Symmetric\_space Package Documentation}
+      \field{urlday}{9}
+      \field{urlmonth}{3}
+      \field{urlyear}{2026}
+      \field{year}{2025}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \verb{file}
+      \verb /Users/th/Zotero/storage/3XZHC3VM/pygeoinf.symmetric_space.html
+      \endverb
+      \verb{urlraw}
+      \verb https://pygeoinf.readthedocs.io/en/latest/pygeoinf.symmetric_space.html#pygeoinf.symmetric_space.symmetric_space.AbstractInvariantSobolevSpace.point_value_scaled_heat_kernel_gaussian_measure
+      \endverb
+      \verb{url}
+      \verb https://pygeoinf.readthedocs.io/en/latest/pygeoinf.symmetric_space.html#pygeoinf.symmetric_space.symmetric_space.AbstractInvariantSobolevSpace.point_value_scaled_heat_kernel_gaussian_measure
+      \endverb
+    \endentry
+    \entry{hortonMappingSeaLevelChange2018}{article}{}{}
+      \name{author}{7}{}{%
+        {{un=0,uniquepart=base,hash=cfe4197f41bcfc9374ad04d03091cf45}{%
+           family={Horton},
+           familyi={H\bibinitperiod},
+           given={Benjamin\bibnamedelima P.},
+           giveni={B\bibinitperiod\bibinitdelim P\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=4391c3436abcd53bbd7c83a3a5021ceb}{%
+           family={Kopp},
+           familyi={K\bibinitperiod},
+           given={Robert\bibnamedelima E.},
+           giveni={R\bibinitperiod\bibinitdelim E\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=1c15f769a27e242c5ebbf972047e578a}{%
+           family={Garner},
+           familyi={G\bibinitperiod},
+           given={Andra\bibnamedelima J.},
+           giveni={A\bibinitperiod\bibinitdelim J\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=d8f9acb0a8420f896ef67dc222d82c9a}{%
+           family={Hay},
+           familyi={H\bibinitperiod},
+           given={Carling\bibnamedelima C.},
+           giveni={C\bibinitperiod\bibinitdelim C\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=f561ec45d8d18b3a72f9117da9e01393}{%
+           family={Khan},
+           familyi={K\bibinitperiod},
+           given={Nicole\bibnamedelima S.},
+           giveni={N\bibinitperiod\bibinitdelim S\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=31f6c679819442cde49a13f127958a83}{%
+           family={Roy},
+           familyi={R\bibinitperiod},
+           given={Keven},
+           giveni={K\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=3a33e1b68b2f8a518b1b5a091bcaa3c8}{%
+           family={Shaw},
+           familyi={S\bibinitperiod},
+           given={Timothy\bibnamedelima A.},
+           giveni={T\bibinitperiod\bibinitdelim A\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{9531f44c4571e256f1659864f107d77a}
+      \strng{fullhash}{8795bff529284cefdde07719fa361d64}
+      \strng{fullhashraw}{8795bff529284cefdde07719fa361d64}
+      \strng{bibnamehash}{9531f44c4571e256f1659864f107d77a}
+      \strng{authorbibnamehash}{9531f44c4571e256f1659864f107d77a}
+      \strng{authornamehash}{9531f44c4571e256f1659864f107d77a}
+      \strng{authorfullhash}{8795bff529284cefdde07719fa361d64}
+      \strng{authorfullhashraw}{8795bff529284cefdde07719fa361d64}
+      \field{sortinit}{H}
+      \field{sortinithash}{23a3aa7c24e56cfa16945d55545109b5}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Future sea-level rise generates hazards for coastal populations, economies, infrastructure, and ecosystems around the world. The projection of future sea-level rise relies on an accurate understanding of the mechanisms driving its complex spatio-temporal evolution, which must be founded on an understanding of its history. We review the current methodologies and data sources used to reconstruct the history of sea-level change over geological (Pliocene, Last Interglacial, and Holocene) and instrumental (tide-gauge and satellite alimetry) eras, and the tools used to project the future spatial and temporal evolution of sea level. We summarize the understanding of the future evolution of sea level over the near (through 2050), medium (2100), and long (post-2100) terms. Using case studies from Singapore and New Jersey, we illustrate the ways in which current methodologies and data sources can constrain future projections, and how accurate projections can motivate the development of new sea-level research questions across relevant timescales.}
+      \field{day}{17}
+      \field{issn}{1543-5938, 1545-2050}
+      \field{journaltitle}{Annual Review of Environment and Resources}
+      \field{langid}{english}
+      \field{month}{10}
+      \field{number}{1}
+      \field{shortjournal}{Annu. Rev. Environ. Resour.}
+      \field{title}{Mapping {{Sea-Level Change}} in {{Time}}, {{Space}}, and {{Probability}}}
+      \field{volume}{43}
+      \field{year}{2018}
+      \field{dateera}{ce}
+      \field{pages}{481\bibrangedash 521}
+      \range{pages}{41}
+      \verb{doi}
+      \verb 10.1146/annurev-environ-102017-025826
+      \endverb
+      \verb{file}
+      \verb /Users/th/Zotero/storage/U8HSMEMV/Horton et al. - Mapping Sea-Level Change in Time, Space, and Probability.pdf
+      \endverb
+    \endentry
+    \entry{kaufmannLateralViscosityVariations2005}{article}{}{}
+      \name{author}{3}{}{%
+        {{un=0,uniquepart=base,hash=332180257453ca1fb482c9b3652bb53b}{%
+           family={Kaufmann},
+           familyi={K\bibinitperiod},
+           given={Georg},
+           giveni={G\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=202185e2e7c51631dc9d6d4cecec8ff5}{%
+           family={Wu},
+           familyi={W\bibinitperiod},
+           given={Patrick},
+           giveni={P\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=7ceebb1803e00a96292d65b9b3f06441}{%
+           family={Ivins},
+           familyi={I\bibinitperiod},
+           given={Erik\bibnamedelima R.},
+           giveni={E\bibinitperiod\bibinitdelim R\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{c8cc1d245783840dfffe0a365ef3f3d2}
+      \strng{fullhash}{8722306c9aeedfd9aa610e4aebd8205c}
+      \strng{fullhashraw}{8722306c9aeedfd9aa610e4aebd8205c}
+      \strng{bibnamehash}{c8cc1d245783840dfffe0a365ef3f3d2}
+      \strng{authorbibnamehash}{c8cc1d245783840dfffe0a365ef3f3d2}
+      \strng{authornamehash}{c8cc1d245783840dfffe0a365ef3f3d2}
+      \strng{authorfullhash}{8722306c9aeedfd9aa610e4aebd8205c}
+      \strng{authorfullhashraw}{8722306c9aeedfd9aa610e4aebd8205c}
+      \field{sortinit}{K}
+      \field{sortinithash}{c02bf6bff1c488450c352b40f5d853ab}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issn}{02643707}
+      \field{journaltitle}{Journal of Geodynamics}
+      \field{langid}{english}
+      \field{month}{3}
+      \field{number}{2}
+      \field{shortjournal}{Journal of Geodynamics}
+      \field{title}{Lateral Viscosity Variations beneath {{Antarctica}} and Their Implications on Regional Rebound Motions and Seismotectonics}
+      \field{volume}{39}
+      \field{year}{2005}
+      \field{dateera}{ce}
+      \field{pages}{165\bibrangedash 181}
+      \range{pages}{17}
+      \verb{doi}
+      \verb 10.1016/j.jog.2004.08.009
+      \endverb
+    \endentry
+    \entry{lickleyBiasEstimatesGlobal2018}{article}{}{}
+      \name{author}{4}{}{%
+        {{un=0,uniquepart=base,hash=160988e89fbf3e315d64907160e24e63}{%
+           family={Lickley},
+           familyi={L\bibinitperiod},
+           given={Megan\bibnamedelima Jeramaz},
+           giveni={M\bibinitperiod\bibinitdelim J\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=d8f9acb0a8420f896ef67dc222d82c9a}{%
+           family={Hay},
+           familyi={H\bibinitperiod},
+           given={Carling\bibnamedelima C.},
+           giveni={C\bibinitperiod\bibinitdelim C\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=2245b67ad8bbac8052017fcb4ba625a7}{%
+           family={Tamisiea},
+           familyi={T\bibinitperiod},
+           given={Mark\bibnamedelima E.},
+           giveni={M\bibinitperiod\bibinitdelim E\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=95e128813efbea73ccdd0aff0714fd1a}{%
+           family={Mitrovica},
+           familyi={M\bibinitperiod},
+           given={Jerry\bibnamedelima X.},
+           giveni={J\bibinitperiod\bibinitdelim X\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{6be53a9febd03a54572e2a700e2f1e48}
+      \strng{fullhash}{fd74c7cd575483379f81b296555a63ca}
+      \strng{fullhashraw}{fd74c7cd575483379f81b296555a63ca}
+      \strng{bibnamehash}{6be53a9febd03a54572e2a700e2f1e48}
+      \strng{authorbibnamehash}{6be53a9febd03a54572e2a700e2f1e48}
+      \strng{authornamehash}{6be53a9febd03a54572e2a700e2f1e48}
+      \strng{authorfullhash}{fd74c7cd575483379f81b296555a63ca}
+      \strng{authorfullhashraw}{fd74c7cd575483379f81b296555a63ca}
+      \field{sortinit}{L}
+      \field{sortinithash}{7c47d417cecb1f4bd38d1825c427a61a}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Estimates of regional and global average sea level change remain a focus of climate change research. One complication in obtaining coherent estimates is that geodetic datasets measure different aspects of the sea level field. Satellite altimetry constrains changes in the sea surface height (SSH; or absolute sea level), whereas tide gauge data provide a measure of changes in SSH relative to the crust (i.e., relative sea level). The latter is a direct measure of changes in ocean volume (and the combined impacts of ice sheet melt and steric effects), but the former is not since it does not account for crustal deformation. Nevertheless, the literature commonly conflates the two estimates by directly comparing them. We demonstrate that using satellite altimetry records to estimate global ocean volume changes can lead to biases that can exceed 15\%. The level of bias will depend on the relative contributions to sea level changes from the Antarctic and Greenland Ice Sheets. The bias is also more sensitive to the detailed geometry of mass flux from the Antarctic Ice Sheet than the Greenland Ice Sheet due to rotational effects on sea level. Finally, in a regional sense, altimetry estimates should not be compared to relative sea level changes because radial crustal motions driven by polar ice mass flux are nonnegligible globally.}
+      \field{issn}{0894-8755, 1520-0442}
+      \field{journaltitle}{Journal of Climate}
+      \field{langid}{english}
+      \field{month}{7}
+      \field{number}{13}
+      \field{shortjournal}{J. Climate}
+      \field{title}{Bias in {{Estimates}} of {{Global Mean Sea Level Change Inferred}} from {{Satellite Altimetry}}}
+      \field{volume}{31}
+      \field{year}{2018}
+      \field{dateera}{ce}
+      \field{pages}{5263\bibrangedash 5271}
+      \range{pages}{9}
+      \verb{doi}
+      \verb 10.1175/JCLI-D-18-0024.1
+      \endverb
+      \verb{file}
+      \verb /Users/th/Zotero/storage/ZEMINX7F/Lickley et al. - 2018 - Bias in Estimates of Global Mean Sea Level Change Inferred from Satellite Altimetry.pdf
+      \endverb
+      \keyw{need to read}
+    \endentry
+    \entry{mitrovicaRobustnessPredictionsSea2011}{article}{}{}
+      \name{author}{6}{}{%
+        {{un=0,uniquepart=base,hash=d02ba29dd0907e5100089ee14ae91250}{%
+           family={Mitrovica},
+           familyi={M\bibinitperiod},
+           given={J.\bibnamedelimi X.},
+           giveni={J\bibinitperiod\bibinitdelim X\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=0ab2e854027f1fa654bcdc75ab937043}{%
+           family={Gomez},
+           familyi={G\bibinitperiod},
+           given={N.},
+           giveni={N\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=124aeb7a3878d877717af7b5547f8525}{%
+           family={Morrow},
+           familyi={M\bibinitperiod},
+           given={E.},
+           giveni={E\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=af1126636c6cdcc6d66cb78d09664508}{%
+           family={Hay},
+           familyi={H\bibinitperiod},
+           given={C.},
+           giveni={C\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=707ead37ce080d1dc4896e1963d31dcb}{%
+           family={Latychev},
+           familyi={L\bibinitperiod},
+           given={K.},
+           giveni={K\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=5987f8924fa6c6320e83606d27b01e5f}{%
+           family={Tamisiea},
+           familyi={T\bibinitperiod},
+           given={M.\bibnamedelimi E.},
+           giveni={M\bibinitperiod\bibinitdelim E\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{39382b978a6a00bf72e920237e9868f3}
+      \strng{fullhash}{a87516ca9549e9bf7e30bbbe22c40554}
+      \strng{fullhashraw}{a87516ca9549e9bf7e30bbbe22c40554}
+      \strng{bibnamehash}{39382b978a6a00bf72e920237e9868f3}
+      \strng{authorbibnamehash}{39382b978a6a00bf72e920237e9868f3}
+      \strng{authornamehash}{39382b978a6a00bf72e920237e9868f3}
+      \strng{authorfullhash}{a87516ca9549e9bf7e30bbbe22c40554}
+      \strng{authorfullhashraw}{a87516ca9549e9bf7e30bbbe22c40554}
+      \field{sortinit}{M}
+      \field{sortinithash}{4625c616857f13d17ce56f7d4f97d451}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{issn}{0956540X}
+      \field{journaltitle}{Geophysical Journal International}
+      \field{langid}{english}
+      \field{month}{11}
+      \field{number}{2}
+      \field{shorttitle}{On the Robustness of Predictions of Sea Level Fingerprints}
+      \field{title}{On the Robustness of Predictions of Sea Level Fingerprints: {{On}} Predictions of Sea-Level Fingerprints}
+      \field{volume}{187}
+      \field{year}{2011}
+      \field{dateera}{ce}
+      \field{pages}{729\bibrangedash 742}
+      \range{pages}{14}
+      \verb{doi}
+      \verb 10.1111/j.1365-246X.2011.05090.x
+      \endverb
+      \verb{file}
+      \verb /Users/th/Zotero/storage/M65H3SMG/Mitrovica et al. - 2011 - On the robustness of predictions of sea level fingerprints On predictions of sea-level fingerprints.pdf
+      \endverb
+    \endentry
+    \entry{parkerGeophysicalInverseTheory1994}{book}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=a0b738b0553406420b5a19990559f1f0}{%
+           family={Parker},
+           familyi={P\bibinitperiod},
+           given={Robert\bibnamedelima L.},
+           giveni={R\bibinitperiod\bibinitdelim L\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{location}{1}{%
+        {Princeton, New Jersey}%
+      }
+      \list{publisher}{1}{%
+        {Princeton University Press}%
+      }
+      \strng{namehash}{a0b738b0553406420b5a19990559f1f0}
+      \strng{fullhash}{a0b738b0553406420b5a19990559f1f0}
+      \strng{fullhashraw}{a0b738b0553406420b5a19990559f1f0}
+      \strng{bibnamehash}{a0b738b0553406420b5a19990559f1f0}
+      \strng{authorbibnamehash}{a0b738b0553406420b5a19990559f1f0}
+      \strng{authornamehash}{a0b738b0553406420b5a19990559f1f0}
+      \strng{authorfullhash}{a0b738b0553406420b5a19990559f1f0}
+      \strng{authorfullhashraw}{a0b738b0553406420b5a19990559f1f0}
+      \field{sortinit}{P}
+      \field{sortinithash}{ff3bcf24f47321b42cb156c2cc8a8422}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{isbn}{978-0-691-03634-2 978-0-691-20683-7}
+      \field{langid}{english}
+      \field{pagetotal}{1}
+      \field{title}{Geophysical Inverse Theory}
+      \field{year}{1994}
+      \field{dateera}{ce}
+    \endentry
+    \entry{royICE7G2018}{dataset}{}{}
+      \name{author}{2}{}{%
+        {{un=2,uniquepart=given,hash=9445a8d7730816aa7db435077101ca14}{%
+           family={Roy},
+           familyi={R\bibinitperiod},
+           given={K.},
+           giveni={K\bibinitperiod},
+           givenun=2}}%
+        {{un=1,uniquepart=given,hash=8f51873c65751d1c7126b579f42a22bd}{%
+           family={Peltier},
+           familyi={P\bibinitperiod},
+           given={W.\bibnamedelimi R.},
+           giveni={W\bibinitperiod\bibinitdelim R\bibinitperiod},
+           givenun=1}}%
+      }
+      \strng{namehash}{e6b5c7d39c24eedccc47d37ff3e3133b}
+      \strng{fullhash}{e6b5c7d39c24eedccc47d37ff3e3133b}
+      \strng{fullhashraw}{e6b5c7d39c24eedccc47d37ff3e3133b}
+      \strng{bibnamehash}{e6b5c7d39c24eedccc47d37ff3e3133b}
+      \strng{authorbibnamehash}{e6b5c7d39c24eedccc47d37ff3e3133b}
+      \strng{authornamehash}{e6b5c7d39c24eedccc47d37ff3e3133b}
+      \strng{authorfullhash}{e6b5c7d39c24eedccc47d37ff3e3133b}
+      \strng{authorfullhashraw}{e6b5c7d39c24eedccc47d37ff3e3133b}
+      \field{sortinit}{R}
+      \field{sortinithash}{5e1c39a9d46ffb6bebd8f801023a9486}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{{{ICE-7G}}}
+      \field{type}{Glacial isostatic adjustment, relative sea level history, and mantle viscosity dataset}
+      \field{version}{7}
+      \field{year}{2018}
+      \field{dateera}{ce}
+      \verb{urlraw}
+      \verb https://www.atmosp.physics.utoronto.ca/~peltier/data.php
+      \endverb
+      \verb{url}
+      \verb https://www.atmosp.physics.utoronto.ca/~peltier/data.php
+      \endverb
+    \endentry
+    \entry{royGlacialIsostaticAdjustment2015}{article}{}{}
+      \name{author}{2}{}{%
+        {{un=2,uniquepart=given,hash=31f6c679819442cde49a13f127958a83}{%
+           family={Roy},
+           familyi={R\bibinitperiod},
+           given={Keven},
+           giveni={K\bibinitperiod},
+           givenun=2}}%
+        {{un=1,uniquepart=given,hash=8f51873c65751d1c7126b579f42a22bd}{%
+           family={Peltier},
+           familyi={P\bibinitperiod},
+           given={W.R.},
+           giveni={W\bibinitperiod},
+           givenun=1}}%
+      }
+      \strng{namehash}{82f4f8c2f0ad6769ff1080b837fe7541}
+      \strng{fullhash}{82f4f8c2f0ad6769ff1080b837fe7541}
+      \strng{fullhashraw}{82f4f8c2f0ad6769ff1080b837fe7541}
+      \strng{bibnamehash}{82f4f8c2f0ad6769ff1080b837fe7541}
+      \strng{authorbibnamehash}{82f4f8c2f0ad6769ff1080b837fe7541}
+      \strng{authornamehash}{82f4f8c2f0ad6769ff1080b837fe7541}
+      \strng{authorfullhash}{82f4f8c2f0ad6769ff1080b837fe7541}
+      \strng{authorfullhashraw}{82f4f8c2f0ad6769ff1080b837fe7541}
+      \field{sortinit}{R}
+      \field{sortinithash}{5e1c39a9d46ffb6bebd8f801023a9486}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{day}{1}
+      \field{issn}{1365-246X, 0956-540X}
+      \field{journaltitle}{Geophysical Journal International}
+      \field{langid}{english}
+      \field{month}{5}
+      \field{number}{2}
+      \field{shorttitle}{Glacial Isostatic Adjustment, Relative Sea Level History and Mantle Viscosity}
+      \field{title}{Glacial Isostatic Adjustment, Relative Sea Level History and Mantle Viscosity: Reconciling Relative Sea Level Model Predictions for the {{U}}.{{S}}. {{East}} Coast with Geological Constraints}
+      \field{volume}{201}
+      \field{year}{2015}
+      \field{dateera}{ce}
+      \field{pages}{1156\bibrangedash 1181}
+      \range{pages}{26}
+      \verb{doi}
+      \verb 10.1093/gji/ggv066
+      \endverb
+      \verb{file}
+      \verb /Users/th/Zotero/storage/UDG9MHPN/Roy and Peltier - 2015 - Glacial isostatic adjustment, relative sea level history and mantle viscosity reconciling relative.pdf
+      \endverb
+    \endentry
+    \entry{rudinFunctionalAnalysis1991}{book}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=33be2fc2739d3493c6d6cc5d56a4c41e}{%
+           family={Rudin},
+           familyi={R\bibinitperiod},
+           given={Walter},
+           giveni={W\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{location}{1}{%
+        {New York}%
+      }
+      \list{publisher}{1}{%
+        {McGraw-Hill}%
+      }
+      \strng{namehash}{33be2fc2739d3493c6d6cc5d56a4c41e}
+      \strng{fullhash}{33be2fc2739d3493c6d6cc5d56a4c41e}
+      \strng{fullhashraw}{33be2fc2739d3493c6d6cc5d56a4c41e}
+      \strng{bibnamehash}{33be2fc2739d3493c6d6cc5d56a4c41e}
+      \strng{authorbibnamehash}{33be2fc2739d3493c6d6cc5d56a4c41e}
+      \strng{authornamehash}{33be2fc2739d3493c6d6cc5d56a4c41e}
+      \strng{authorfullhash}{33be2fc2739d3493c6d6cc5d56a4c41e}
+      \strng{authorfullhashraw}{33be2fc2739d3493c6d6cc5d56a4c41e}
+      \field{sortinit}{R}
+      \field{sortinithash}{5e1c39a9d46ffb6bebd8f801023a9486}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{edition}{2nd ed}
+      \field{isbn}{978-0-07-054236-5}
+      \field{pagetotal}{424}
+      \field{series}{International Series in Pure and Applied Mathematics}
+      \field{title}{Functional Analysis}
+      \field{year}{1991}
+      \field{dateera}{ce}
+      \keyw{Functional analysis}
+    \endentry
+    \entry{slangenEvaluatingModelSimulations2017}{article}{}{}
+      \name{author}{13}{}{%
+        {{un=0,uniquepart=base,hash=13473112d62f0744ceeef11805917f89}{%
+           family={Slangen},
+           familyi={S\bibinitperiod},
+           given={Aimée\bibnamedelimb B.\bibnamedelimi A.},
+           giveni={A\bibinitperiod\bibinitdelim B\bibinitperiod\bibinitdelim A\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=3e4db5c765296605c9fa71ebe0707d47}{%
+           family={Meyssignac},
+           familyi={M\bibinitperiod},
+           given={Benoit},
+           giveni={B\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=7bef336001350c3e03b315f75f9e7f0d}{%
+           family={Agosta},
+           familyi={A\bibinitperiod},
+           given={Cecile},
+           giveni={C\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=ef8e942498e4e3e1e2c60e725c312d3d}{%
+           family={Champollion},
+           familyi={C\bibinitperiod},
+           given={Nicolas},
+           giveni={N\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=2894e8b2526d0f85f65ec3eb0450766f}{%
+           family={Church},
+           familyi={C\bibinitperiod},
+           given={John\bibnamedelima A.},
+           giveni={J\bibinitperiod\bibinitdelim A\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=a9885a2f27c152210dc8bfd84fa8c0f3}{%
+           family={Fettweis},
+           familyi={F\bibinitperiod},
+           given={Xavier},
+           giveni={X\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=d8670b1fcf6b425bbab7d7d0837df8c0}{%
+           family={Ligtenberg},
+           familyi={L\bibinitperiod},
+           given={Stefan\bibnamedelimb R.\bibnamedelimi M.},
+           giveni={S\bibinitperiod\bibinitdelim R\bibinitperiod\bibinitdelim M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=adbde5802980df99b4826693b48dd1c4}{%
+           family={Marzeion},
+           familyi={M\bibinitperiod},
+           given={Ben},
+           giveni={B\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=31d299eff57b475887d39ad49daf0352}{%
+           family={Melet},
+           familyi={M\bibinitperiod},
+           given={Angelique},
+           giveni={A\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=7df5167498d60e834378792c24c1f488}{%
+           family={Palmer},
+           familyi={P\bibinitperiod},
+           given={Matthew\bibnamedelima D.},
+           giveni={M\bibinitperiod\bibinitdelim D\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=924f93a9ac81b6c8e11147f1e64debde}{%
+           family={Richter},
+           familyi={R\bibinitperiod},
+           given={Kristin},
+           giveni={K\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=d09c9f94e1c098d40ff1234e7390a954}{%
+           family={Roberts},
+           familyi={R\bibinitperiod},
+           given={Christopher\bibnamedelima D.},
+           giveni={C\bibinitperiod\bibinitdelim D\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=3011e7fe78b09ea8fbd9cd55761567d9}{%
+           family={Spada},
+           familyi={S\bibinitperiod},
+           given={Giorgio},
+           giveni={G\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{acde1a63b7ef22fe0fb3eee3ed3c2bb5}
+      \strng{fullhash}{db53bfe0ecd3df6a8f670334d5a389e3}
+      \strng{fullhashraw}{db53bfe0ecd3df6a8f670334d5a389e3}
+      \strng{bibnamehash}{acde1a63b7ef22fe0fb3eee3ed3c2bb5}
+      \strng{authorbibnamehash}{acde1a63b7ef22fe0fb3eee3ed3c2bb5}
+      \strng{authornamehash}{acde1a63b7ef22fe0fb3eee3ed3c2bb5}
+      \strng{authorfullhash}{db53bfe0ecd3df6a8f670334d5a389e3}
+      \strng{authorfullhashraw}{db53bfe0ecd3df6a8f670334d5a389e3}
+      \field{sortinit}{S}
+      \field{sortinithash}{b164b07b29984b41daf1e85279fbc5ab}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{abstract}{Sea level change is one of the major consequences of climate change and is projected to affect coastal communities around the world. Here, global mean sea level (GMSL) change estimated by 12 climate models from phase 5 of the World Climate Research Programme’s Climate Model Intercomparison Project (CMIP5) is compared to observational estimates for the period 1900–2015. Observed and simulated individual contributions to GMSL change (thermal expansion, glacier mass change, ice sheet mass change, landwater storage change) are analyzed and compared to observed GMSL change over the period 1900–2007 using tide gauge reconstructions, and over the period 1993–2015 using satellite altimetry estimates. The model-simulated contributions explain 50\% ± 30\% (uncertainties 1.65 σ unless indicated otherwise) of the mean observed change from 1901–20 to 1988–2007. Based on attributable biases between observations and models, a number of corrections are proposed, which result in an improved explanation of 75\% ± 38\% of the observed change. For the satellite era (from 1993–97 to 2011–15) an improved budget closure of 102\% ± 33\% is found (105\% ± 35\% when including the proposed bias corrections). Simulated decadal trends increase over the twentieth century, both in the thermal expansion and the combined mass contributions (glaciers, ice sheets, and landwater storage). The mass components explain the majority of sea level rise over the twentieth century, but the thermal expansion has increasingly contributed to sea level rise, starting from 1910 onward and in 2015 accounting for 46\% of the total simulated sea level change.}
+      \field{issn}{0894-8755, 1520-0442}
+      \field{journaltitle}{Journal of Climate}
+      \field{langid}{english}
+      \field{month}{11}
+      \field{number}{21}
+      \field{shortjournal}{J. Climate}
+      \field{shorttitle}{Evaluating {{Model Simulations}} of {{Twentieth-Century Sea Level Rise}}. {{Part I}}}
+      \field{title}{Evaluating {{Model Simulations}} of {{Twentieth-Century Sea Level Rise}}. {{Part I}}: {{Global Mean Sea Level Change}}}
+      \field{volume}{30}
+      \field{year}{2017}
+      \field{dateera}{ce}
+      \field{pages}{8539\bibrangedash 8563}
+      \range{pages}{25}
+      \verb{doi}
+      \verb 10.1175/JCLI-D-17-0110.1
+      \endverb
+      \verb{file}
+      \verb /Users/th/Zotero/storage/2YPKXWU9/Slangen et al. - 2017 - Evaluating Model Simulations of Twentieth-Century Sea Level Rise. Part I Global Mean Sea Level Chan.pdf
+      \endverb
+    \endentry
+    \entry{stuartInverseProblemsBayesian2010}{article}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=fde3c68fe9c30dbf4f8da9a36f9833ef}{%
+           family={Stuart},
+           familyi={S\bibinitperiod},
+           given={A.\bibnamedelimi M.},
+           giveni={A\bibinitperiod\bibinitdelim M\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{fde3c68fe9c30dbf4f8da9a36f9833ef}
+      \strng{fullhash}{fde3c68fe9c30dbf4f8da9a36f9833ef}
+      \strng{fullhashraw}{fde3c68fe9c30dbf4f8da9a36f9833ef}
+      \strng{bibnamehash}{fde3c68fe9c30dbf4f8da9a36f9833ef}
+      \strng{authorbibnamehash}{fde3c68fe9c30dbf4f8da9a36f9833ef}
+      \strng{authornamehash}{fde3c68fe9c30dbf4f8da9a36f9833ef}
+      \strng{authorfullhash}{fde3c68fe9c30dbf4f8da9a36f9833ef}
+      \strng{authorfullhashraw}{fde3c68fe9c30dbf4f8da9a36f9833ef}
+      \field{sortinit}{S}
+      \field{sortinithash}{b164b07b29984b41daf1e85279fbc5ab}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{abstract}{The subject of inverse problems in differential equations is of enormous practical importance, and has also generated substantial mathematical and computational innovation. Typically some form of regularization is required to ameliorate ill-posed behaviour. In this article we review the Bayesian approach to regularization, developing a function space viewpoint on the subject. This approach allows for a full characterization of all possible solutions, and their relative probabilities, whilst simultaneously forcing significant modelling issues to be addressed in a clear and precise fashion. Although expensive to implement, this approach is starting to lie within the range of the available computational resources in many application areas. It also allows for the quantification of uncertainty and risk, something which is increasingly demanded by these applications. Furthermore, the approach is conceptually important for the understanding of simpler, computationally expedient approaches to inverse problems.}
+      \field{issn}{0962-4929, 1474-0508}
+      \field{journaltitle}{Acta Numerica}
+      \field{langid}{english}
+      \field{month}{5}
+      \field{shortjournal}{Acta Numerica}
+      \field{shorttitle}{Inverse Problems}
+      \field{title}{Inverse Problems: {{A Bayesian}} Perspective}
+      \field{volume}{19}
+      \field{year}{2010}
+      \field{dateera}{ce}
+      \field{pages}{451\bibrangedash 559}
+      \range{pages}{109}
+      \verb{doi}
+      \verb 10.1017/S0962492910000061
+      \endverb
+      \verb{file}
+      \verb /Users/th/Zotero/storage/LBICWGMP/Stuart - 2010 - Inverse problems A Bayesian perspective.pdf
+      \endverb
+    \endentry
+    \entry{thomasholland01SeaSurface2026}{online}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=cfd9f71fa32a3f270cacc6d66a27a549}{%
+           family={{Thomas Holland}},
+           familyi={T\bibinitperiod}}}%
+      }
+      \list{organization}{1}{%
+        {GitHub}%
+      }
+      \strng{namehash}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{fullhash}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{fullhashraw}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{bibnamehash}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{authorbibnamehash}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{authornamehash}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{authorfullhash}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{authorfullhashraw}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \field{extraname}{1}
+      \field{sortinit}{T}
+      \field{sortinithash}{9af77f0292593c26bde9a56e688eaee9}
+      \field{extradate}{1}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Methods for estimating global and regional sea level change from satellite altimetry observations - 0thomasholland/Part\_III\_Project}
+      \field{langid}{english}
+      \field{month}{3}
+      \field{title}{01 - {{Sea Surface Height}}.Ipynb}
+      \field{urlday}{7}
+      \field{urlmonth}{3}
+      \field{urlyear}{2026}
+      \field{year}{2026}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \verb{file}
+      \verb /Users/th/Zotero/storage/B74QBCGH/01 - Sea Surface Height.html
+      \endverb
+      \verb{urlraw}
+      \verb https://github.com/0thomasholland/Part_III_Project/blob/main/notebooks/01%20-%20Sea%20Surface%20Height.ipynb
+      \endverb
+      \verb{url}
+      \verb https://github.com/0thomasholland/Part_III_Project/blob/main/notebooks/01%20-%20Sea%20Surface%20Height.ipynb
+      \endverb
+    \endentry
+    \entry{thomasholland02MajorSourcesipynb2026}{online}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=cfd9f71fa32a3f270cacc6d66a27a549}{%
+           family={{Thomas Holland}},
+           familyi={T\bibinitperiod}}}%
+      }
+      \list{organization}{1}{%
+        {GitHub}%
+      }
+      \strng{namehash}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{fullhash}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{fullhashraw}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{bibnamehash}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{authorbibnamehash}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{authornamehash}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{authorfullhash}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{authorfullhashraw}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \field{extraname}{2}
+      \field{sortinit}{T}
+      \field{sortinithash}{9af77f0292593c26bde9a56e688eaee9}
+      \field{extradate}{2}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{month}{3}
+      \field{title}{02 - {{Major Sources}}.Ipynb}
+      \field{urlday}{7}
+      \field{urlmonth}{3}
+      \field{urlyear}{2026}
+      \field{year}{2026}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \verb{file}
+      \verb /Users/th/Zotero/storage/H27KEZ7E/02 - Major Sources.html
+      \endverb
+      \verb{urlraw}
+      \verb https://github.com/0thomasholland/Part_III_Project/blob/main/notebooks/02%20-%20Major%20Sources.ipynb
+      \endverb
+      \verb{url}
+      \verb https://github.com/0thomasholland/Part_III_Project/blob/main/notebooks/02%20-%20Major%20Sources.ipynb
+      \endverb
+    \endentry
+    \entry{thomasholland03OceanDynamicsipynb2026}{online}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=cfd9f71fa32a3f270cacc6d66a27a549}{%
+           family={{Thomas Holland}},
+           familyi={T\bibinitperiod}}}%
+      }
+      \list{organization}{1}{%
+        {GitHub}%
+      }
+      \strng{namehash}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{fullhash}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{fullhashraw}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{bibnamehash}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{authorbibnamehash}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{authornamehash}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{authorfullhash}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{authorfullhashraw}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \field{extraname}{3}
+      \field{sortinit}{T}
+      \field{sortinithash}{9af77f0292593c26bde9a56e688eaee9}
+      \field{extradate}{3}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Methods for estimating global and regional sea level change from satellite altimetry observations - 0thomasholland/Part\_III\_Project}
+      \field{langid}{english}
+      \field{month}{3}
+      \field{title}{03 - {{Ocean Dynamics}}.Ipynb}
+      \field{urlday}{8}
+      \field{urlmonth}{3}
+      \field{urlyear}{2026}
+      \field{year}{2026}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \verb{file}
+      \verb /Users/th/Zotero/storage/V5PEBN55/03 - Ocean Dynamics.html
+      \endverb
+      \verb{urlraw}
+      \verb https://github.com/0thomasholland/Part_III_Project/blob/main/notebooks/03%20-%20Ocean%20Dynamics.ipynb
+      \endverb
+      \verb{url}
+      \verb https://github.com/0thomasholland/Part_III_Project/blob/main/notebooks/03%20-%20Ocean%20Dynamics.ipynb
+      \endverb
+    \endentry
+    \entry{thomasholland04IceFirnipynb2026}{online}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=cfd9f71fa32a3f270cacc6d66a27a549}{%
+           family={{Thomas Holland}},
+           familyi={T\bibinitperiod}}}%
+      }
+      \list{organization}{1}{%
+        {GitHub}%
+      }
+      \strng{namehash}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{fullhash}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{fullhashraw}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{bibnamehash}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{authorbibnamehash}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{authornamehash}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{authorfullhash}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{authorfullhashraw}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \field{extraname}{4}
+      \field{sortinit}{T}
+      \field{sortinithash}{9af77f0292593c26bde9a56e688eaee9}
+      \field{extradate}{4}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Methods for estimating global and regional sea level change from satellite altimetry observations - 0thomasholland/Part\_III\_Project}
+      \field{langid}{english}
+      \field{month}{3}
+      \field{title}{04 - {{Ice}} and {{Firn}}.Ipynb}
+      \field{urlday}{8}
+      \field{urlmonth}{3}
+      \field{urlyear}{2026}
+      \field{year}{2026}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \verb{file}
+      \verb /Users/th/Zotero/storage/DI5YZG5C/04 - Ice and Firn.html
+      \endverb
+      \verb{urlraw}
+      \verb https://github.com/0thomasholland/Part_III_Project/blob/main/notebooks/04%20-%20Ice%20and%20Firn.ipynb
+      \endverb
+      \verb{url}
+      \verb https://github.com/0thomasholland/Part_III_Project/blob/main/notebooks/04%20-%20Ice%20and%20Firn.ipynb
+      \endverb
+    \endentry
+    \entry{thomasholland05AltimetrySamplingipynb2026}{online}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=cfd9f71fa32a3f270cacc6d66a27a549}{%
+           family={{Thomas Holland}},
+           familyi={T\bibinitperiod}}}%
+      }
+      \list{organization}{1}{%
+        {GitHub}%
+      }
+      \strng{namehash}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{fullhash}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{fullhashraw}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{bibnamehash}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{authorbibnamehash}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{authornamehash}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{authorfullhash}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{authorfullhashraw}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \field{extraname}{5}
+      \field{sortinit}{T}
+      \field{sortinithash}{9af77f0292593c26bde9a56e688eaee9}
+      \field{extradate}{5}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{month}{3}
+      \field{title}{05 - {{Altimetry Sampling}}.Ipynb}
+      \field{urlday}{7}
+      \field{urlmonth}{3}
+      \field{urlyear}{2026}
+      \field{year}{2026}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \verb{file}
+      \verb /Users/th/Zotero/storage/JSG4ZUDW/05 - Altimetry Sampling.html
+      \endverb
+      \verb{urlraw}
+      \verb https://github.com/0thomasholland/Part_III_Project/blob/main/notebooks/05%20-%20Altimetry%20Sampling.ipynb
+      \endverb
+      \verb{url}
+      \verb https://github.com/0thomasholland/Part_III_Project/blob/main/notebooks/05%20-%20Altimetry%20Sampling.ipynb
+      \endverb
+    \endentry
+    \entry{thomasholland06SimpleInversionipynb2026}{online}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=cfd9f71fa32a3f270cacc6d66a27a549}{%
+           family={{Thomas Holland}},
+           familyi={T\bibinitperiod}}}%
+      }
+      \list{organization}{1}{%
+        {GitHub}%
+      }
+      \strng{namehash}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{fullhash}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{fullhashraw}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{bibnamehash}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{authorbibnamehash}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{authornamehash}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{authorfullhash}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{authorfullhashraw}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \field{extraname}{6}
+      \field{sortinit}{T}
+      \field{sortinithash}{9af77f0292593c26bde9a56e688eaee9}
+      \field{extradate}{6}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Methods for estimating global and regional sea level change from satellite altimetry observations - 0thomasholland/Part\_III\_Project}
+      \field{langid}{english}
+      \field{month}{3}
+      \field{title}{06 - {{Simple Inversion}}.Ipynb}
+      \field{urlday}{6}
+      \field{urlmonth}{3}
+      \field{urlyear}{2026}
+      \field{year}{2026}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \verb{file}
+      \verb /Users/th/Zotero/storage/9D5FBZWA/06 - Simple Inversion.html
+      \endverb
+      \verb{urlraw}
+      \verb https://github.com/0thomasholland/Part_III_Project/blob/main/notebooks/06%20-%20Simple%20Inversion.ipynb
+      \endverb
+      \verb{url}
+      \verb https://github.com/0thomasholland/Part_III_Project/blob/main/notebooks/06%20-%20Simple%20Inversion.ipynb
+      \endverb
+    \endentry
+    \entry{thomasholland07InversionSensitivityipynb2026}{online}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=cfd9f71fa32a3f270cacc6d66a27a549}{%
+           family={{Thomas Holland}},
+           familyi={T\bibinitperiod}}}%
+      }
+      \list{organization}{1}{%
+        {GitHub}%
+      }
+      \strng{namehash}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{fullhash}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{fullhashraw}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{bibnamehash}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{authorbibnamehash}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{authornamehash}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{authorfullhash}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \strng{authorfullhashraw}{cfd9f71fa32a3f270cacc6d66a27a549}
+      \field{extraname}{7}
+      \field{sortinit}{T}
+      \field{sortinithash}{9af77f0292593c26bde9a56e688eaee9}
+      \field{extradate}{7}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Methods for estimating global and regional sea level change from satellite altimetry observations - 0thomasholland/Part\_III\_Project}
+      \field{langid}{english}
+      \field{month}{3}
+      \field{title}{07 - {{Inversion Sensitivity}}.Ipynb}
+      \field{urlday}{6}
+      \field{urlmonth}{3}
+      \field{urlyear}{2026}
+      \field{year}{2026}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \verb{file}
+      \verb /Users/th/Zotero/storage/ASNXFHSR/07 - Inversion Sensitivity.html
+      \endverb
+      \verb{urlraw}
+      \verb https://github.com/0thomasholland/Part_III_Project/blob/main/notebooks/07%20-%20Inversion%20Sensitivity.ipynb
+      \endverb
+      \verb{url}
+      \verb https://github.com/0thomasholland/Part_III_Project/blob/main/notebooks/07%20-%20Inversion%20Sensitivity.ipynb
+      \endverb
+    \endentry
+    \entry{vandeschootBayesianStatisticsModelling2021}{article}{}{}
+      \name{author}{11}{}{%
+        {{un=0,uniquepart=base,hash=98f71e28f82dd9ca3ae0bb3f1b9701b7}{%
+           family={Van\bibnamedelimb De\bibnamedelima Schoot},
+           familyi={V\bibinitperiod\bibinitdelim D\bibinitperiod\bibinitdelim S\bibinitperiod},
+           given={Rens},
+           giveni={R\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=9c5e26680566de9ada96010f7cd17489}{%
+           family={Depaoli},
+           familyi={D\bibinitperiod},
+           given={Sarah},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=e34a1433682fda3bfb32e8ef6048f117}{%
+           family={King},
+           familyi={K\bibinitperiod},
+           given={Ruth},
+           giveni={R\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=682f7d8ae7e1979840314e106cadb66f}{%
+           family={Kramer},
+           familyi={K\bibinitperiod},
+           given={Bianca},
+           giveni={B\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=7ea0f9b2dbb07f1beb283d03c62f8280}{%
+           family={Märtens},
+           familyi={M\bibinitperiod},
+           given={Kaspar},
+           giveni={K\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=c0c101831f5b2933f2a43aa1e2aae23b}{%
+           family={Tadesse},
+           familyi={T\bibinitperiod},
+           given={Mahlet\bibnamedelima G.},
+           giveni={M\bibinitperiod\bibinitdelim G\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=19ad09b9a20f8f8168f14d5c3eb9e675}{%
+           family={Vannucci},
+           familyi={V\bibinitperiod},
+           given={Marina},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=1e1eb60e3b6e222217bf8e9b24070b28}{%
+           family={Gelman},
+           familyi={G\bibinitperiod},
+           given={Andrew},
+           giveni={A\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=f27b2c2139c4722cd31a89b6482a4dc5}{%
+           family={Veen},
+           familyi={V\bibinitperiod},
+           given={Duco},
+           giveni={D\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=095b59eacc4859996113cfaeec114522}{%
+           family={Willemsen},
+           familyi={W\bibinitperiod},
+           given={Joukje},
+           giveni={J\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=51b85f640c5a83033c4a75e713661c1d}{%
+           family={Yau},
+           familyi={Y\bibinitperiod},
+           given={Christopher},
+           giveni={C\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{76fb9d049f535f3d738f83f505e850dd}
+      \strng{fullhash}{9caa8d4ecafc2f66efa91d082f081035}
+      \strng{fullhashraw}{9caa8d4ecafc2f66efa91d082f081035}
+      \strng{bibnamehash}{76fb9d049f535f3d738f83f505e850dd}
+      \strng{authorbibnamehash}{76fb9d049f535f3d738f83f505e850dd}
+      \strng{authornamehash}{76fb9d049f535f3d738f83f505e850dd}
+      \strng{authorfullhash}{9caa8d4ecafc2f66efa91d082f081035}
+      \strng{authorfullhashraw}{9caa8d4ecafc2f66efa91d082f081035}
+      \field{sortinit}{V}
+      \field{sortinithash}{afb52128e5b4dc4b843768c0113d673b}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{abstract}{Bayesian statistics is an approach to data analysis based on Bayes’ theorem, where available knowledge about parameters in a statistical model is updated with the information in observed data. The background knowledge is expressed as a prior distribution and combined with observational data in the form of a likelihood function to determine the posterior distribution. The posterior can also be used for making predictions about future events. This Primer describes the stages involved in Bayesian analysis, from specifying the prior and data models to deriving inference, model checking and refinement. We discuss the importance of prior and posterior predictive checking, selecting a proper technique for sampling from a posterior distribution, variational inference and variable selection. Examples of successful applications of Bayesian analysis across various research fields are provided, including in social sciences, ecology, genetics, medicine and more. We propose strategies for reproducibility and reporting standards, outlining an updated WAMBS (when to Worry and how to Avoid the Misuse of Bayesian Statistics) checklist. Finally, we outline the impact of Bayesian analysis on artificial intelligence, a major goal in the next decade.}
+      \field{day}{14}
+      \field{issn}{2662-8449}
+      \field{journaltitle}{Nature Reviews Methods Primers}
+      \field{langid}{english}
+      \field{month}{1}
+      \field{number}{1}
+      \field{shortjournal}{Nat Rev Methods Primers}
+      \field{shorttitle}{Bayesian Statistics and Modelling}
+      \field{title}{Bayesian Statistics and Modelling}
+      \field{volume}{1}
+      \field{year}{2021}
+      \field{dateera}{ce}
+      \field{pages}{1}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.1038/s43586-020-00001-2
+      \endverb
+      \verb{file}
+      \verb /Users/th/Zotero/storage/L8JNGJKM/Van De Schoot et al. - 2021 - Bayesian statistics and modelling.pdf
+      \endverb
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
+
