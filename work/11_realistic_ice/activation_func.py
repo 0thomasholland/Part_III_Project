@@ -79,7 +79,7 @@ ax.set_ylim(-0.0, 1.0)
 ax.set_ylabel(
     "Output (melt field standard deviation multiplier)"
 )
-fig.savefig("figs/activator_func.png", dpi=600)
+fig.savefig("figs/activator_func.pdf", dpi=600)
 
 # %%
 

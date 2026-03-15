@@ -59,42 +59,42 @@ plot(
     vmin=-thickness_max,
     colorbar_label="Firn thickness change (m)",
     tight_layout=True,
-)[0].savefig("figs/firn_thickness.png", dpi=600)
+)[0].savefig("figs/firn_thickness.pdf", dpi=600)
 plot(
     samples.firn_load,
     vmax=load_max,
     vmin=-load_max,
     tight_layout=True,
     colorbar_label="Firn load change (kg/m²)",
-)[0].savefig("figs/firn_load.png", dpi=600)
+)[0].savefig("figs/firn_load.pdf", dpi=600)
 plot(
     samples.ice_thickness,
     vmax=thickness_max,
     vmin=-thickness_max,
     tight_layout=True,
     colorbar_label="Ice thickness change (m)",
-)[0].savefig("figs/ice_thickness.png", dpi=600)
+)[0].savefig("figs/ice_thickness.pdf", dpi=600)
 plot(
     samples.ice_load,
     vmax=load_max,
     vmin=-load_max,
     tight_layout=True,
     colorbar_label="Ice load change (kg/m²)",
-)[0].savefig("figs/ice_load.png", dpi=600)
+)[0].savefig("figs/ice_load.pdf", dpi=600)
 plot(
     samples.total_thickness,
     vmax=thickness_max,
     vmin=-thickness_max,
     tight_layout=True,
     colorbar_label="Total thickness change (m)",
-)[0].savefig("figs/total_thickness.png", dpi=600)
+)[0].savefig("figs/total_thickness.pdf", dpi=600)
 plot(
     samples.total_load,
     vmax=load_max,
     vmin=-load_max,
     tight_layout=True,
     colorbar_label="Total load change (kg/m²)",
-)[0].savefig("figs/total_load.png", dpi=600)
+)[0].savefig("figs/total_load.pdf", dpi=600)
 
 
 # %%
@@ -139,7 +139,7 @@ plot(
     * fp.ice_projection(),
     cmap=cc.cm.bmy,
     colorbar_label="Ice load variance from 100 samples (kg²/m⁴)",
-)[0].savefig("figs/ice_load_std.png", dpi=600)
+)[0].savefig("figs/ice_load_std.pdf", dpi=600)
 
 plot(
     ice_change_spatial.firn_load.sample_pointwise_variance(
@@ -148,4 +148,4 @@ plot(
     * fp.ice_projection(),
     cmap=cc.cm.bmy,
     colorbar_label="Firn load variance from 100 samples (kg²/m⁴)",
-)[0].savefig("figs/firn_load_variance.png", dpi=600)
+)[0].savefig("figs/firn_load_variance.pdf", dpi=600)

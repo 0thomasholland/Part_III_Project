@@ -1,12 +1,4 @@
 
-\begin{figure}
-	\includegraphics[width=0.8\textwidth]{ssh_vs_sl.pdf}
-\end{figure}
-
-\begin{figure}
-	\includegraphics[width=0.8\textwidth]{explainer.pdf}
-\end{figure}
-
 % \begin{figure}
 % 	\includegraphics[width=\textwidth]{height.pdf}
 % \end{figure}
@@ -14,23 +6,45 @@
 
 This report presents a novel method to understand ice-driven sea level change, centred on using satellite altimetry. Previous methods for understanding sea level change were limited to global estimates of mean sea level change; however, I present methods for more accurately understanding these metrics, but also provides spatial reconstruction of the ice melt that drove the observed sea level change.
 
-Sea Level (\textbf{SL}), also known as Relative Sea Level, is the difference in elevation between the sea surface and the solid earth surface. A change in this elevation difference is termed Sea Level Change (\textbf{SLC}).
+The sea surface is the the time-varying upper boundary of the ocean \autocite{gregoryConceptsTerminologySea2019}. Sea Level (\textbf{SL}), also known as Relative Sea Level, is the difference in elevation between the sea surface and the solid earth surface \autocite{gregoryConceptsTerminologySea2019}. A change in this elevation difference is termed Sea Level Change (\textbf{SLC}). Sea Surface Height (\textbf{SSH}), also known as Absolute Sea Level, is defined as the elevation of the sea surface above a reference ellipsoid \autocite{gregoryConceptsTerminologySea2019}. Ocean satellite altimetry measures SSH, as it measures the height difference between itself on an orbital ellipsoid and the sea surface.
 
-Sea Surface Height (\textbf{SSH}), also known as Absolute Sea Level, is defined as the elevation of the sea surface above a reference ellipsoid. Ocean satellite altimetry measures Sea Surface Height, as it measures the height difference between itself on an orbital ellipsoid and the sea surface.
+Global Mean Sea Level (\textbf{GMSL}) is the areal average height of SL \autocite{hortonMappingSeaLevelChange2018}. GMSL change (\textbf{GMSLC}) is influenced by Barystatic and Steric sea-level change . Barystatsic SLC is due to the change of ocean water mass due to flux from water mass resevoirs either in land area, for example ice sheets or land water storage, or in the atmosphere. Streic sea level change is due to the change in ocean density, which can be due to changes in temperature (thermosteric) or salinity (halosteric). \autocite{gregoryConceptsTerminologySea2019}
+
+Eustatic is often used in geological context as regarding global-mean sea-level rise or global-mean geocentric sea-level rise, compared to as a synonym for barystatic within oceanographic contexts \autocite{gregoryConceptsTerminologySea2019}. This report is based around ice driven barystatic SLC, and will refer to GMSLC as the global mean barystatic sea level change, and SLC as the local barystatic sea level change, unless otherwise specified.
+
+\begin{figure}[h]
+  \begin{center}
+  	\includegraphics[width=0.8\textwidth]{ssh_vs_sl.pdf}
+  \end{center}
+	\caption{}
+	\label{fig:ssh_vs_sl}
+\end{figure}
+
+
 
 
 % Importance
 
-Understanding modern SLC is important for .
-Global Mean Sea Level (\textbf{GMSL}) is the areal average height of SL \autocite{hortonMappingSeaLevelChange2018}. GMSL is a particularly significant quantity as it decreases the small
-It is generally accepted that GMSL change is to a large part influenced by ice sheet and glacial mass flux signals \autocite[e.g.][]{slangenEvaluatingModelSimulations2017}.
+SLC importance...
+
+
+
+GMSL is a particularly significant quantity as it decreases the small local fluctuations across the ocean and is used to track the global response to climate change, and is a key metric for understanding the impacts of climate change on coastal communities. It is generally accepted that GMSL change is, to a large part, influenced by ice sheet and glacial mass flux signals \autocite[e.g.][]{slangenEvaluatingModelSimulations2017}.
 
 
 % Idea
 
-Ice mass change results in SLC, due to the added water volume and the gravitationally consistent sea level change. The latter is the change in sea level that occurs due to the redistribution of mass on the Earth, which affects the gravitational potential and thus the shape of the sea surface. This means that SLC is not uniform across the globe, but rather has a spatial structure that depends on the location of the ice mass change, called a fingerprint \autocite{mitrovicaRobustnessPredictionsSea2011}.
+Mass change in ice sheets results in SLC through two mechanisms: the addition of water volume to the ocean, and the perturbation of the gravitational field. The gravitational redistribution of mass alters the equipotential surface on which sea level rests, meaning that SLC is not spatially uniform. Instead, the pattern of sea level change depends on the location of the ice mass source and exhibits a characteristic spatial structure known as a sea level fingerprint \autocite{mitrovicaRobustnessPredictionsSea2011}, see \autoref{fig:explainer}.
 
-Traditional methods have used satelite surface altimetry to measure SSH change, and then applied a correction to account for the gravitationally consistent sea level change, in order to estimate SLC \autocites[e.g.][]{}.
+\begin{figure}[h]
+\begin{center}
+	\includegraphics[width=0.8\textwidth]{explainer.pdf}
+\end{center}
+  \caption{}
+  \label{fig:explainer}
+\end{figure}
+
+Traditional methods have used satellite surface altimetry to measure SSH change (\textbf{SSHC}), and then applied a correction to account for the gravitationally consistent sea level change, to estimate SLC \autocites[e.g.][]{}.
 
 However, these corrections are based on assumptions and are poorly constrained \autocites[e.g.][]{}, leading to potential significant errors in the estimated SLC. These errors are believed to be significant and locationally variable, meaning that they cannot be accounted for with a simple correction.
 
@@ -42,86 +56,59 @@ However, these corrections are based on assumptions and are poorly constrained \
 % magnitude of the bias will depend onthe relative contributions from Greenland and Antarctic ice mass flux
 % lickley
 
-\Textcite{lickleyBiasEstimatesGlobal2018} and others \autocite[e.g.][]{al-attarReciprocitySensitivityKernels2023} have shown that there are errors assocaited with this method and made steps to quantify these errors. Part of this project aims to extend the error quantification to explore how uncertainnty grows when using satellite altimetry derived SSHC data to approximate SLC.
+\Textcite{lickleyBiasEstimatesGlobal2018} and others \autocite[e.g.][]{al-attarReciprocitySensitivityKernels2023} have shown that there are errors associated with this method and made steps to quantify these errors. Part of this project aims to extend the error quantification to explore how uncertanty grows when using satellite altimetry derived SSHC data to approximate SLC.
 
 
 % Solution
 
-As a proposed solution, a method is developed using the framework presented in \textcite{heathcoteScaleableBayesianFramework2026}, it is possible to explore modern ice-driven sea level change using the full account of the physics related to the gravitationally consistent sea level change in an infinite-dimensional setting and framing an inverse problem to solve for the ice melt history that drove the observed sea level change. This is done by using a Bayesian framework, which allows for the incorporation of prior information about the physics of the problem, and also allows for the quantification of uncertainty in the inversion method, which is not possible with traditional methods.
+As a proposed improvement, a method is developed in this report using the framework presented in \textcite{heathcoteScaleableBayesianFramework2026}. We explore modern ice-driven sea level change using the full account of the physics related to the gravitationally consistent SLC in a mathematically rigorous infinite-dimensional setting. We solve for the ice change that drove the observed sea level change by using an inverse-problem that accounts for the SL physics. This is done by using a Bayesian framework, which allows for the incorporation of prior information that captures our belief of the system and also allows for the quantification of uncertainty in the inversion method. The propagation of error through methods is not possible with traditional GMSLC methods nor easily done with general inverse methods, but is a natural part of the Bayesian framework.
 
-\textcite{heathcoteScaleableBayesianFramework2026} has shown, among other uses of the Bayseian inversion method, that tide gauge data can lead to significant accuracy of SLC estimates, and also allows for the reconstruction of the spatial structure of the ice melt that drove the observed sea level change. This is because the Bayesian framework allows for the incorporation of prior information about the physics of the problem.
+\textcite{heathcoteScaleableBayesianFramework2026} have shown applications of this method with tide gauge data and GRACE data to reconstruct ice thickness change.
 
-By implementing the Bayesian framework, it is possible to improve the accuracy of SLC estimates using satellite altimetry data, and also recover the spatial structure of the ice melt that drove the observed sea level change.
+Within this Bayesiean framework, this report extends the method to do complex joint inversions using multiple data sources, including satellite altimetry, tide gauge data, and ice altimetry data, to dientangle the contributions of ice melt, ocean dynamic topography change, and firn thickness change that drives sea level change.
+
+\Textcite{coulsonDetectionSeaLevel2022} recently claimed to have found evidence for a significant ice driven SLC signal in the altimetry record. Until their efforts, there was difficulty using the sparse measurements to separate the ocean dynamic variability from an ice-driven fingerprint signal.
+
+\Textcite{coulsonInvertingSeaSurface2026} ...
 
 
-\Textcite{coulsonDetectionSeaLevel2022} recently claimed to have found evidence for a significant ice driven SLC signal in the altimetry record. Up until their efforts, there was difficulty using the sparse measurements to separate the ocean dynamic variability from an ice-driven fingerprint signal.
+
+
 
 
 \subsection{Sea level physics in relation to ice sheet change}\label{sec:slp}
 
 I shall be working under the assumptions that the timescales for modern ice-driven sea level change are short enough that the Earth's response to the ice mass change is elastic, after accounting for GIA, and that the fingerprint problem is suitably linear with small changes in sea level resulting in no appreciable change in the shoreline geometry \autocite{al-attarReciprocitySensitivityKernels2023}.
 
-For Glacial isostatic adjustment, \citetitle{al-attarPySLFPPythonSea2025} uses \citetitle{royICE7G2018} \autocite{royICE7G2018} model is used \autocite{royGlacialIsostaticAdjustment2015}
+For glacial isostatic adjustment, \citetitle{al-attarPySLFPPythonSea2025} uses \citetitle{royICE7G2018} \autocite{royICE7G2018} from \textcite{royGlacialIsostaticAdjustment2015}. The elastic assumption is broadly valid for modern ice-driven sea level change, as the timescales of interest are on the order of decades to centuries, which is short compared to the timescales of viscoelastic response of the Earth. However, it has been suggested that beneath West Antarctica this assumption could fall down due to lower viscosities \autocites{kaufmannLateralViscosityVariations2005}.
 
-The elastic assumption is broadly valid for modern ice-driven sea level change, as the timescales of interest are on the order of decades to centuries, which is short compared to the timescales of viscoelastic response of the Earth. However, it has been suggested that beneath West Antartica this assumption could fall down due to lower viscosities \autocites{kaufmannLateralViscosityVariations2005}.
-
-SL defines the sea surface as an equipotential surface:
+Following the assumptions and derivation detailed in \autoref{sec:sea_level_equations}, which follow \textcite{al-attarReciprocitySensitivityKernels2023}, SL is defined upon an equipotential surface,
 
 \begin{equation}
-	\Phi(\mathbf{x} + \SL \hat{\mathbf{r}}) = \Phi_0 \label{eq:sea_level_equipotential}
+    \Phi(\mathbf{x}+\SL\hat{\mathbf{r}}) = \Phi_0
 \end{equation}
 
-\todo{move this to derivations}
-
-When this is perturbed by an ice thickness change, $\thicknesschangeice$, four things occur simultaneously: the gravitational potential itself changes, by $\phi$; the centrifugal potential changes due to perturbations in the Earth's rotation vector, by $\psi$; the solid Earth surface, $\mathbf{x}$, moves radially, by $\mathbf{u}$; and the value of the potential at the ocean surface shifts, from $\Phi_0$ to $\Phi_0 + \Phi_g$. This results in the SL changing, from $\SL$ to $\SL + \slc$, because the sea surface must adapt to an equipotential of the combined gravitational and centrifugal potentials. This can be captured within the following equation:
+where $\Phi$ is the gravitational potential, $\mathbf{x}$ is the position vector, $\hat{\mathbf{r}}$ is the unit vector in the radial direction, and $\Phi_0$ is a constant representing the potential at the sea surface. Under suitably small changes to ice thickness (see derivation), SLC is given by
 
 \begin{equation}
-	(\Phi + \phi + \psi)(\mathbf{x} + \mathbf{u} + (\SL + \slc)\mathbf{\hat{r}}) = \Phi_0 + \Phi_g
+  \slc = -\frac{1}{g}(\mathbf{u} \cdot \nabla\Phi + \phi + \psi)
+  + \frac{\Phi_g}{g}
 \end{equation}
 
-If we apply a first order Taylor expansion to the left-hand side, we get:
+where $\mathbf{u}$ is the solid Earth displacement, $\nabla\Phi$ is the gradient of the gravitational potential, $\phi$ is the perturbation to the gravitational potential due to the change in mass distribution, $\psi$ is the perturbation to the centrifugal potential due to polar wander, and $\Phi_g$ is the shift in the reference equipotential value, fixed by conservation of mass.
+
+When calculating SSHC, we need to account for the fact that the measurement is relative to a reference ellipsoid rather than the solid Earth surface. Under the further approximation that $\nabla\Phi$ is radial at the Earth's surface, and following the convention of \textcite{al-attarReciprocitySensitivityKernels2023} of removing the centrifugal contribution so as to isolate the mass redistribution signal (see \autoref{sec:sea_level_equations} for details), SSHC simplifies to
 
 \begin{equation}
-	\Phi(\mathbf{x} + \SL \hat{\mathbf{r}}) + \phi + \psi + \nabla \Phi \cdot (\mathbf{u} + \slc \hat{\mathbf{r}}) = \Phi_0 + \Phi_g
+  \sshc = \frac{\Phi_g}{g} - \frac{\phi}{g}.
 \end{equation}
 
-Which can be simplified: using \autoref{eq:sea_level_equipotential} we can cancel these terms from both sides; $\nabla\Phi$ represents the gravitational acceleration vector with its radial magnitude as $g$, therefore $\nabla\Phi \cdot \mathbf{\hat{r}} = g$; the term $\mathbf{u} \cdot \nabla\Phi$ represents the potential change due to the vertical motion of the solid surface:
+This result is physically significant: SSHC depends only on the perturbation to the gravitational potential $\phi$, with no dependence on solid surface displacement $\hat{\mathbf{r}} \cdot \mathbf{u}$ or centrifugal potential perturbation $\psi$. This distinction between SLC and SSHC is central to both the systematic errors investigated in this work and to building operators that measure the effects of ice sheet change on the sea surface using satellite altimetry.
 
-\begin{equation}
-	\phi + \psi + \mathbf{u} \cdot \nabla\Phi + g \slc = \Phi_g
-\end{equation}
+% If we have an ice load, $\zeta$, which is due to the change in ice thickness, $\thicknesschangeice$ with density $\densityice$, then the ice load is:
 
-Which we can rearrange to get the change in sea level:
+% \begin{equation}
+% 	\zeta = \densityice (1-C) \thicknesschange{I}
+% \end{equation}
 
-\begin{equation}
-	\slc = -\frac{1}{g}(\mathbf{u} \cdot \nabla\Phi + \phi + \psi) + \frac{\Phi_g}{g} \label{eq:sl-equation}
-\end{equation}
-
-When discussing SSH, we need to account for the fact that SSH is the height of the sea surface above a reference ellipsoid, which is not an equipotential surface. Unlike SL, which is measured relative to the moving solid surface, SSH is measured relative to a fixed reference datum, meaning we must add back the radial displacement of the solid surface. Following the convention of removing the centrifugal contribution, the change in SSH, $\sshc$, is related to the change in SL, $\slc$, by:
-
-\begin{equation}
-	\sshc = \slc + u + \frac{\psi}{g} \label{eq:sshc_slc_relation}
-\end{equation}
-
-where $u = \hat{\mathbf{r}} \cdot \mathbf{u}$ is the radial displacement of the solid surface. Since $\nabla\Phi$ points approximately radially with magnitude $g$ at the Earth's surface, we have $\mathbf{u} \cdot \nabla\Phi \approx gu$. Substituting \autoref{eq:sl-equation} into \autoref{eq:sshc_slc_relation}:
-
-\begin{equation}
-	\sshc = \underbrace{\left[ -\frac{1}{g}(gu + \phi + \psi) + \frac{\Phi_g}{g} \right]}_{\slc} + u + \frac{\psi}{g}
-\end{equation}
-
-The radial displacement terms cancel, as do the centrifugal potential terms, leaving:
-
-\begin{equation}
-	\sshc = \frac{\Phi_g}{g} - \frac{\phi}{g} \label{eq:ssh-equation}
-\end{equation}
-
-This result is physically intuitive: SSH change has spatial structure through $\phi$, the perturbation to the gravitational potential due to ice mass redistribution, but unlike SL it has no dependence on solid surface displacement.
-
-
-If we have an ice load, $\zeta$, which is due to the change in ice thickness, $\thicknesschangeice$ with density $\densityice$, then the ice load is:
-
-\begin{equation}
-	\zeta = \densityice (1-C) \thicknesschange{I}
-\end{equation}
-
-Where $1 - C$ accounts for the possibility of floating ice and C is the ocean function, which is 1 if the point is ocean and 0 if the point is land. This means that the ice load only applies to points where there is no floating ice, as floating ice does not contribute to the load on the solid earth.
+% Where $1 - C$ accounts for the possibility of floating ice and C is the ocean function, which is 1 if the point is ocean and 0 if the point is land. This means that the ice load only applies to points where there is no floating ice, as floating ice does not contribute to the load on the solid earth.

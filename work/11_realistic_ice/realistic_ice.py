@@ -27,7 +27,7 @@ plot(
     cmap=cc.cm.blues,
     colorbar_label="Ice thickness (m)",
     tight_layout=True,
-)[0].savefig("figs/state_ice_thickness.png", dpi=600)
+)[0].savefig("figs/state_ice_thickness.pdf", dpi=600)
 
 # %%
 
@@ -64,7 +64,7 @@ plot(
     melt_likelihood * fp.ice_projection(),
     cmap=cc.cm.blues,
     colorbar_label="Ice melt pointwise standard deviation field",
-)[0].savefig("figs/ice_melt_likelihood.png", dpi=600)
+)[0].savefig("figs/ice_melt_likelihood.pdf", dpi=600)
 
 
 # %%
@@ -102,4 +102,4 @@ plot(
     melt_likelihood * fp.ice_projection(),
     cmap=cc.cm.blues,
     colorbar_label="Firn melt pointwise standard deviation field",
-)[0].savefig("figs/firn_melt_likelihood.png", dpi=600)
+)[0].savefig("figs/firn_melt_likelihood.pdf", dpi=600)
