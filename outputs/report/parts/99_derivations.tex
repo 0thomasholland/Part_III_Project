@@ -1,3 +1,147 @@
+\subsection{Sea Level and Sea Surface Height Equations}\label{sec:sea_level_equations}
+
+This derivation is not a new result, but is included here for completeness
+and to clarify the assumptions and approximations made in deriving the
+equations for sea level change (SLC) and sea surface height change (SSHC)
+in response to ice mass redistribution. The derivation follows the framework
+laid out in \textcite{al-attarReciprocitySensitivityKernels2023}.
+
+Throughout, we work within a first-order perturbation theory, assuming that
+changes in sea level, displacement, and gravitational potential are all small
+relative to the background state. We further assume that the shoreline
+geometry is fixed, meaning the ocean function $C$ does not evolve as sea
+level changes; this is what renders the fingerprint problem linear and is
+appropriate for the small-amplitude changes associated with modern ice melt.
+Finally, we assume that the elastic response of the Earth dominates over
+viscous relaxation, which is justified for the timescales relevant to
+present-day ice mass flux.
+
+Sea level (SL) is defined upon the equipotential surface such that
+%
+\begin{equation}
+    \Phi(\mathbf{x} + \mathrm{SL}\,\hat{\mathbf{r}}) = \Phi_0,
+    \label{eq:sl_definition}
+\end{equation}
+%
+where $\Phi$ is the gravitational potential, $\mathbf{x}$ is the position
+vector, $\hat{\mathbf{r}}$ is the unit vector in the radial direction, and
+$\Phi_0$ is a constant representing the potential at the sea surface. This
+means that the sea surface must adapt to changes in the gravitational and
+centrifugal potential to maintain an equipotential surface.
+
+When perturbed by an ice thickness change $\Delta T_I$, four things occur
+simultaneously:
+%
+\begin{itemize}
+    \item the gravitational potential itself changes, by $\phi$;
+    \item the centrifugal potential changes due to perturbations in
+          the Earth's rotation vector, by $\psi$;
+    \item the solid Earth surface, $\mathbf{x}$, moves radially by
+          the displacement vector $\mathbf{u}$; and
+    \item the value of the potential at the ocean surface shifts,
+          from $\Phi_0$ to $\Phi_0 + \Phi_g$.
+\end{itemize}
+%
+This results in the SL changing, from SL to $\mathrm{SL} + \Delta\mathrm{SL}$,
+in the form of
+%
+\begin{equation}
+    (\Phi + \phi + \psi)\!\left(
+        \mathbf{x} + \mathbf{u} + (\mathrm{SL} + \Delta\mathrm{SL})\,\hat{\mathbf{r}}
+    \right) = \Phi_0 + \Phi_g,
+    \label{eq:sl_perturbed}
+\end{equation}
+%
+to which we apply a first-order Taylor expansion of the left-hand side to get
+%
+\begin{equation}
+    \Phi(\mathbf{x} + \mathrm{SL}\,\hat{\mathbf{r}})
+    + \phi + \psi
+    + \nabla\Phi \cdot \left(\mathbf{u} + \Delta\mathrm{SL}\,\hat{\mathbf{r}}\right)
+    = \Phi_0 + \Phi_g.
+    \label{eq:sl_taylor}
+\end{equation}
+%
+This equation can be simplified using:
+%
+\begin{itemize}
+    \item using the relation in \autoref{eq:sl_definition} we can cancel the
+          terms involving $\Phi$ and $\Phi_0$;
+    \item $\nabla\Phi$ represents the gravitational acceleration vector with
+          its radial magnitude as $g$, therefore
+          $\nabla\Phi \cdot \hat{\mathbf{r}} = g$; and
+    \item the term $\mathbf{u} \cdot \nabla\Phi$ represents the potential
+          change due to the vertical motion of the solid surface;
+\end{itemize}
+%
+to give
+%
+\begin{equation}
+    \phi + \psi + \mathbf{u} \cdot \nabla\Phi + g\,\Delta\mathrm{SL} = \Phi_g,
+    \label{eq:sl_simplified}
+\end{equation}
+%
+which we can rearrange to get the change in sea level
+%
+\begin{equation}
+    \Delta\mathrm{SL} = -\frac{1}{g}
+        \left(\mathbf{u} \cdot \nabla\Phi + \phi + \psi\right)
+        + \frac{\Phi_g}{g}.
+    \label{eq:slc}
+\end{equation}
+
+When calculating SSH, we need to account for the fact that SSH is the
+height of the sea surface above a reference ellipsoid, meaning we must
+add back the radial displacement of the solid surface. We additionally
+choose to remove the centrifugal contribution $\psi$ from the SSH change,
+following \textcite{al-attarReciprocitySensitivityKernels2023}; this is a convention motivated by the fact
+that satellite altimetry measures height above a reference ellipsoid fixed
+to the mean rotational state, so that isolating $\phi$ gives a cleaner
+measure of the mass redistribution signal. Whether and how this should be
+done is discussed in detail in \textcite{tamisieaOngoingGlacialIsostatic2011} and
+\citealt{lickleyBiasEstimatesGlobal2018}. Under this convention, SSHC is related to
+SLC by
+%
+\begin{equation}
+    \Delta\mathrm{SSH} = \Delta\mathrm{SL}
+        + \hat{\mathbf{r}} \cdot \mathbf{u}
+        + \frac{\psi}{g}.
+    \label{eq:ssh_from_sl}
+\end{equation}
+%
+Since $\nabla\Phi$ points approximately radially with magnitude $g$ at the
+Earth's surface, we make the approximation
+$\mathbf{u} \cdot \nabla\Phi \approx g\,(\hat{\mathbf{r}} \cdot \mathbf{u})$,
+which neglects the contribution of lateral surface displacement to the
+potential change. Substituting \autoref{eq:slc} into \autoref{eq:ssh_from_sl}:
+%
+\begin{equation}
+    \Delta\mathrm{SSH} =
+    \underbrace{
+        -\frac{1}{g}\!\left(
+            g\,(\hat{\mathbf{r}} \cdot \mathbf{u}) + \phi + \psi
+        \right)
+        + \frac{\Phi_g}{g}
+    }_{\Delta\mathrm{SL}}
+    + \hat{\mathbf{r}} \cdot \mathbf{u}
+    + \frac{\psi}{g},
+    \label{eq:ssh_expanded}
+\end{equation}
+%
+in which the $\hat{\mathbf{r}} \cdot \mathbf{u}$ terms cancel and the
+$\psi/g$ terms cancel, which simplifies to
+%
+\begin{equation}
+    \Delta\mathrm{SSH} = \frac{\Phi_g}{g} - \frac{\phi}{g}.
+    \label{eq:sshc}
+\end{equation}
+%
+This result is physically intuitive: SSH change has spatial structure
+through $\phi$, the perturbation to the gravitational potential due to
+ice mass redistribution, but unlike SL it has no dependence on solid
+surface displacement $\hat{\mathbf{r}} \cdot \mathbf{u}$ or centrifugal
+potential perturbation $\psi$.
+
 \subsection{Derivation of the relationship between GMSL approximation and SSHC}\label{sec:point_gmsl_derivation}
 
 The motivation of this section is to derive the mathematical relationship between the GMSL approximation and the SSHC values across the altimetry domain, which is used in the traditional method of estimating GMSL change from ocean altimetry data. By defining weights for each datapoint based on their latitude, we can express the GMSL approximation as a weighted sum of the SSHC values using an averaging operator built into \citetitle{al-attarPygeoinfPythonLibrary2025}.

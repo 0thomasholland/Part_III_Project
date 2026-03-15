@@ -386,3 +386,8 @@
 - Added worker recycling to the parallel computation framework for stability.
 - Implemented new sensitivity test prior configurations.
 
+## 15 March 2026
+
+- Added realistic ice and firn thickness modelling notebooks with associated plots.
+- Updated analysis figures and continued report text revisions.
+
