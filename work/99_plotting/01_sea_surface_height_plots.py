@@ -5,18 +5,20 @@
 from pathlib import Path
 
 import matplotlib.pyplot as plt
-from pyslfp import (
-    FingerPrint,
-    IceModel,
-    plot,
-    averaging_operator,
-)
-from pyslfp_extras.ice_thickness import IceSheetChange
-from pygeoinf_extras import standard_dev, expectation
-from project import error_plot
 import numpy as np
 
 np.random.seed(120101)
+import seaborn as sns
+from pyslfp import (
+    FingerPrint,
+    IceModel,
+    averaging_operator,
+)
+
+from project import error_plot
+from pygeoinf_extras import expectation, standard_dev
+from pyslfp_extras.ice_thickness import IceSheetChange
+from pyslfp_extras.plotting import plot
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 FIGURES_DIR = SCRIPT_DIR / "figures"
@@ -49,41 +51,45 @@ load /= fp.mean_sea_level_change(
     direct_load=load
 )  # normalise to 1mm GMSL change
 
-plot(
+fig, ax, im = plot(
     load * fp.ice_projection(),
     colorbar_label="Load (kg/m²)",
 )
+plt.show()
 
 # ---- Notebook code cell 3 ----
 slc, dis, _, avc = fp(direct_load=load)
 
-plot(
+fig, ax, im = plot(
     slc * fp.ocean_projection(),
     colorbar_label="Sea Level Change (mm)",
     vmin=-1.25,
     vmax=1.25,
 )
+plt.show()
 
 sshc = fp.sea_surface_height_change(slc, dis, avc)
 
-plot(
+fig, ax, im = plot(
     sshc * fp.ocean_projection(),
     colorbar_label="Sea Surface Height Change (mm)",
     vmin=-1.25,
     vmax=1.25,
 )
+plt.show()
 
 # ---- Notebook code cell 4 ----
 observed_sshc = sshc * fp.altimetry_projection(
     latitude_min=-66.0, latitude_max=66.0
 )
 
-plot(
+fig, ax, im = plot(
     observed_sshc,
     colorbar_label="Observed Sea Surface Height Change (mm)",
     vmin=-1.25,
     vmax=1.25,
 )
+plt.show()
 
 # ---- Notebook code cell 5 ----
 true_gmsl = fp.ocean_average(slc)
@@ -119,7 +125,10 @@ ice_change = IceSheetChange.global_ice(
 )
 ice_thickness_measure = ice_change.ice_thickness
 
-plot(ice_thickness_measure.expectation, symmetric=True)
+fig, ax, im = plot(
+    ice_thickness_measure.expectation, symmetric=True
+)
+plt.show()
 
 # ---- Notebook code cell 8 ----
 true_gmsl = ice_thickness_measure.affine_mapping(
@@ -137,28 +146,34 @@ print(
 slc = ice_change.ice_slc
 sshc = ice_change.ice_ssh
 
-plot(
+fig, ax, im = plot(
     slc.expectation * fp.ocean_projection() * 1000,
     colorbar_label="Sea Level Change (mm)",
 )
-plot(
+plt.show()
+
+fig, ax, im = plot(
     sshc.expectation * fp.ocean_projection() * 1000,
     colorbar_label="Sea Surface Height Change (mm)",
 )
+plt.show()
 
 # ---- Notebook code cell 10 ----
 samples = ice_change.sample()  # draw linked samples from the ice thickness, and derive their SLC and SSH
 
-plot(
+fig, ax, im = plot(
     samples.ice_slc * 1000,
     symmetric=True,
     colorbar_label="Sea Level Change (mm)",
 )
-plot(
+plt.show()
+
+fig, ax, im = plot(
     samples.ice_ssh * 1000,
     symmetric=True,
     colorbar_label="Sea Surface Height Change (mm)",
 )
+plt.show()
 
 # ---- Notebook code cell 11 ----
 altimetry_operator = averaging_operator(
@@ -198,6 +213,7 @@ fig, (ax1, ax2) = error_plot(
     ax1_xlabel="GMSL Change (mm)",
     ax2_xlabel="Estimation Error (mm)",
 )
+plt.show()
 
 # ---- Notebook code cell 13 ----
 region = "NEU"
@@ -219,7 +235,8 @@ val = np.max(
         ).max(),
     ]
 )
-plot(
+
+fig, ax, im = plot(
     slc.expectation
     * 1000
     * fp.regionmask_projection(region)
@@ -229,7 +246,9 @@ plot(
     # map_extent=(-100, -30, -10, 50), # Caribbean region
     map_extent=(-20, 40, 30, 80),  # NEU region
 )
-plot(
+plt.show()
+
+fig, ax, im = plot(
     sshc.expectation
     * 1000
     * fp.regionmask_projection(region)
@@ -239,6 +258,7 @@ plot(
     # map_extent=(-100, -30, -10, 50), # Caribbean region
     map_extent=(-20, 40, 30, 80),  # NEU region
 )
+plt.show()
 
 # ---- Notebook code cell 14 ----
 car_sshc_averaging_op = averaging_operator(
@@ -286,21 +306,15 @@ fig, (ax1, ax2) = error_plot(
     ax1_xlabel="Regional GMSL Change (mm)",
     ax2_xlabel="Estimation Error (mm)",
 )
+plt.show()
 
 # ---- Notebook code cell 16 ----
 error = ice_change.ice_slc - ice_change.ice_ssh
 
-plot(
+fig, ax, im = plot(
     error.expectation * 1000 * fp.ocean_projection(),
     colorbar_label="Error Expectation: SLC - SSH (mm)",
 )
-
-plot(
-    error.sample_pointwise_std(20)
-    * 1000
-    * fp.ocean_projection(),
-    colorbar_label="Error Sample Pointwise Std: SLC - SSH (mm)",
-    cmap="Reds",
-)
+plt.show()
 
 _save_all_figures("01_sea_surface_height")

@@ -3,6 +3,8 @@
 #uv run 01_sea_surface_height_plots.py
 echo Starting 2
 uv run 02_major_sources_plots.py
+echo Starting 3
+uv run 03_ocean_dynamics_plots.py
 echo Starting 4
 uv run 04_ice_and_firn_plots.py
 echo "Starting 5"

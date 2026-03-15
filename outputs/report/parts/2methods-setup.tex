@@ -103,6 +103,12 @@ This weighted estimator converges to $\operatorgmsl{\altimetry}$ as $N \to \inft
 \subsubsection{Modelling Ice and Firn Thickness Change}\label{sec:ice_thickness_priors}
 
 \notebookcite{thomasholland04IceFirnipynb2026}
+
+
+\begin{figure}[h]
+	\includegraphics[width=\columnwidth]{04_variability_fields_side_by_side.pdf}
+	\caption{a}\label{fig:spatial_ice_function}
+\end{figure}
 % -------------------------------------------------------------------------
 
 % Paragraph: Motivate the need for a spatial prior on ice thickness change.
@@ -140,6 +146,12 @@ However, as ice altimetry, which is sensitive to thickness change, and ocean fin
 
 To approximate the system, implemented two independently variable fields, one represent ice thickness change and one representing firn thickness change.
 
+\begin{figure}[]
+	\includegraphics[width=\columnwidth]{04_variable_fields_thickness_load_grid.pdf}
+	\caption{ Firn and ice measures generated from spatially variable fields.
+	Firn has been scaled to produce the standard deviation equivalent of 10 mm GMSL; Ice has been scaled to produce the standard deviation equivalent of 20 mm GMSL; with firn having a density 0.4 times that of ice.}\label{fig:ice_samples}
+\end{figure}
+
 Studies (e.g. REF) have use spatial patterns suggesting that thickness changes that occur near the edges of the ice sheets (in the ablation zone) are more likely to be from denser ice loss, compared to thickness change that occurs in more central, thicker, locations are more likely to be surficial fluctuation in firn.
 
 To capture this relationship, a probability map was created that converted from ice thickness to probability of ice and firn melt (see \autoref{fig:spatial_ice_function}a), which takes the form of a generalised logistic curve. (\autoref{eq:spatial_prob_func}). Note that parameters are set heuristically to reflect  known glaciological structure and to match the spatial structure shown in other studies \autocites[e.g. ][]{}, and could in future be constrained empirically.
@@ -171,31 +183,7 @@ The load operator is defined in pyslfp as the point-wise multiplication of ice t
 \end{align}
 
 
-\begin{figure}
 
-	\includegraphics[width=0.5\columnwidth]{ice_figs/activator_func.png}
-	\includegraphics[width=0.5\columnwidth]{figs/ice_figs/state_ice_thickness}
-
-
-	\includegraphics[width=0.5\columnwidth]{figs/ice_figs/firn_melt_likelihood}
-	\includegraphics[width=0.5\columnwidth]{figs/ice_figs/ice_melt_likelihood}
-	\includegraphics[width=0.5\columnwidth]{ice_figs/firn_load_variance.png}
-	\includegraphics[width=0.5\columnwidth]{ice_figs/ice_load_variance.png}
-
-	\caption{a}\label{fig:spatial_ice_function}
-\end{figure}
-
-\begin{figure}
-	\includegraphics[width=0.5\columnwidth]{ice_figs/ice_thickness.png}
-	\includegraphics[width=0.5\columnwidth]{ice_figs/ice_load.png}
-	\includegraphics[width=0.5\columnwidth]{ice_figs/firn_thickness.png}
-	\includegraphics[width=0.5\columnwidth]{ice_figs/firn_load.png}
-	\includegraphics[width=0.5\columnwidth]{ice_figs/total_thickness.png}
-	\includegraphics[width=0.5\columnwidth]{ice_figs/total_load.png}
-
-	\caption{ Firn and ice measures generated from spatially variable fields.
-	Firn has been scaled to produce the standard deviation equivalent of 10 mm GMSL; Ice has been scaled to produce the standard deviation equivalent of 20 mm GMSL; with firn having a density 0.4 times that of ice.}\label{fig:ice_samples}
-\end{figure}
 
 % Paragraph: Explain the GMSL variance rescaling. The prior amplitude is
 % set by requiring the implied global mean sea level change to have a
@@ -221,8 +209,10 @@ Three views could be taken with this prior, either to have a spatially uniform c
 As an example, to derive spatially variable ocean variance, DUACS dataset REF downloaded and turned into a scaled field between 0 and 1, EQUATION. This resulted in the point-wise standard deviation being scaled by this factor. See \autoref{fig:spatial_odt}. The benefit of this approach is that when looking at different time frames, it would be possible to take the variance from those time bins, so for example the variance of monthly time gaps, and then take the average of those time bins and build the covariance structure from this. This in theory would give spatial variations on the orders of magnitude and correlation.
 
 
-\begin{figure}
-	\missingfigure{ODT spatial figures}
+\begin{figure}[h]
+  \hfill\includegraphics[width=0.5\columnwidth]{03_Ocean_Dynamics_cell_3_01.pdf}\\
+  \includegraphics[width=0.5\columnwidth]{03_Ocean_Dynamics_cell_2_01.pdf}
+  \includegraphics[width=0.5\columnwidth]{03_Ocean_Dynamics_cell_4_01.pdf}
 	\caption{ODT }\label{fig:spatial_odt}
 \end{figure}
 
