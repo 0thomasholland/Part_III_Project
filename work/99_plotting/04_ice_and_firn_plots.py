@@ -9,9 +9,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 from pyshtools import SHGrid
 from pyslfp import FingerPrint, IceModel
-from project import colors
 
+from project import colors
 from pyslfp_extras.ice_thickness import IceSheetChange
+from pyslfp_extras.plotting import plot
 
 np.random.seed(423991)
 
@@ -66,6 +67,28 @@ def plot_shgrid_robinson_on_ax(
     return im
 
 
+def activator_richards(x, x_min, x_max):
+    """Richards activation function for ice/firn melt probability.
+
+    Standardizes input: 0 at min thickness, 1 at max thickness.
+    Parameters define a clean 0-to-1 probability curve based on ice thickness.
+    """
+    _x = (x - x_min) / (x_max - x_min)
+
+    # Parameters for a clean 0-to-1 probability curve
+    a = 0.1  # Lower asymptote (Thick ice = 0 probability)
+    k = 0.9  # Upper asymptote (Thin ice = 1 probability)
+    b = 10.0  # Steepness
+    m = 0.45  # Threshold (where the drop-off happens)
+    nu = 0.75  # Asymmetry (adjusts how 'sharp' the turn is)
+
+    # Note: We use (_x - m) to make probability drop as thickness increases
+    _x = a + (k - a) / (1 + np.exp(b * (_x - m))) ** (
+        1 / nu
+    )
+    return _x
+
+
 def setup_ice_models():
     lmax = 256
     fp = FingerPrint(lmax=lmax)
@@ -116,29 +139,12 @@ def setup_ice_models():
 
 
 def save_uniform_field_plot(uniform_sample):
-    fig = plt.figure(figsize=(11.5, 6.5))
-    ax = fig.add_subplot(
-        1, 1, 1, projection=ccrs.Robinson()
-    )
-
-    im = plot_shgrid_robinson_on_ax(
+    fig, ax, _ = plot(
         uniform_sample.ice_thickness,
-        ax,
-        cmap=cc.cm.blues,
-        symmetric=False,
-        vmin=0.15,
-        vmax=0.90,
+        symmetric=True,
+        colorbar_label="Uniform-prior ice thickness change (m)",
     )
-    ax.set_title("Uniform-prior ice thickness sample")
-
-    fig.colorbar(
-        im,
-        ax=ax,
-        orientation="horizontal",
-        pad=0.06,
-        shrink=0.75,
-        label="Ice thickness (m)",
-    )
+    ax.set_title("Sample from Uniform Ice Prior")
     fig.savefig(
         FIGURES_DIR / "04_uniform_field.pdf",
         dpi=600,
@@ -151,52 +157,122 @@ def save_variability_side_by_side(weighted_pattern, fp):
     ice_std_field = weighted_pattern.spatial_weights(fp)
     firn_std_field = weighted_pattern.firn_weights(fp)
 
-    fig = plt.figure(figsize=(14.0, 5.6))
-    ax_left = fig.add_subplot(
-        1, 2, 1, projection=ccrs.Robinson()
-    )
-    ax_right = fig.add_subplot(
-        1, 2, 2, projection=ccrs.Robinson()
+    fig = plt.figure(figsize=(6.5, 5))
+    gs = fig.add_gridspec(
+        2,
+        2,
+        hspace=0.3,
+        wspace=0.2,
+        left=0.08,
+        right=0.95,
+        top=0.93,
+        bottom=0.08,
     )
 
-    im_left = plot_shgrid_robinson_on_ax(
-        firn_std_field,
-        ax_left,
+    # Top left: Activator function
+    ax_activator = fig.add_subplot(gs[0, 0])
+    ax_activator.set_box_aspect(1)
+
+    # Top right: Ice thickness field
+    ax_ice_thickness = fig.add_subplot(
+        gs[0, 1], projection=ccrs.Robinson()
+    )
+
+    # Bottom left: Firn std field
+    ax_firn = fig.add_subplot(
+        gs[1, 0], projection=ccrs.Robinson()
+    )
+
+    # Bottom right: Ice std field
+    ax_ice = fig.add_subplot(
+        gs[1, 1], projection=ccrs.Robinson()
+    )
+
+    # Plot activator function
+    data = fp.ice_thickness.data.flatten()
+    input_range = np.linspace(data.min(), data.max(), 100)
+    ice_melt = activator_richards(
+        input_range, data.min(), data.max()
+    )
+    firn_melt = 1 - ice_melt
+
+    ax_activator.plot(
+        input_range,
+        ice_melt,
+        label="Ice Melt Function",
+        color="black",
+    )
+    ax_activator.plot(
+        input_range,
+        firn_melt,
+        label="Firn Melt Function",
+        color="black",
+        linestyle="dashed",
+    )
+    ax_activator.legend()
+    ax_activator.set_xlabel("Ice thickness (m)")
+    ax_activator.set_ylim(-0.0, 1.0)
+    ax_activator.set_ylabel("Melt field std dev multiplier")
+    ax_activator.set_title("Activation Function")
+
+    # Plot ice thickness field
+    im_thickness = plot_shgrid_robinson_on_ax(
+        fp.ice_thickness,
+        ax_ice_thickness,
         cmap=cc.cm.blues,
+        symmetric=False,
+        vmin=0.0,
+        vmax=4000.0,
+    )
+    ax_ice_thickness.set_title("Present-day Ice Thickness")
+    fig.colorbar(
+        im_thickness,
+        ax=ax_ice_thickness,
+        orientation="horizontal",
+        pad=0.04,
+        shrink=0.85,
+        label="Ice thickness (m)",
+    )
+
+    # Plot firn std field
+    im_firn = plot_shgrid_robinson_on_ax(
+        firn_std_field * fp.ice_projection(),
+        ax_firn,
+        cmap=cc.cm.fire,
         symmetric=False,
         vmin=0.1,
         vmax=0.9,
     )
-    im_right = plot_shgrid_robinson_on_ax(
-        ice_std_field,
-        ax_right,
-        cmap=cc.cm.blues,
-        symmetric=False,
-        vmin=0.1,
-        vmax=0.9,
-    )
-
-    ax_left.set_title(
+    ax_firn.set_title(
         "Firn melt pointwise standard deviation field"
     )
-    ax_right.set_title(
-        "Ice melt pointwise standard deviation field"
-    )
-
     fig.colorbar(
-        im_left,
-        ax=ax_left,
+        im_firn,
+        ax=ax_firn,
         orientation="horizontal",
-        pad=0.06,
-        shrink=0.9,
+        pad=0.04,
+        shrink=0.85,
         label="Firn variability multiplier",
     )
+
+    # Plot ice std field
+    im_ice = plot_shgrid_robinson_on_ax(
+        ice_std_field * fp.ice_projection(),
+        ax_ice,
+        cmap=cc.cm.fire,
+        symmetric=False,
+        vmin=0.1,
+        vmax=0.9,
+    )
+    ax_ice.set_title(
+        "Ice melt pointwise standard deviation field"
+    )
     fig.colorbar(
-        im_right,
-        ax=ax_right,
+        im_ice,
+        ax=ax_ice,
         orientation="horizontal",
-        pad=0.06,
-        shrink=0.9,
+        pad=0.04,
+        shrink=0.85,
         label="Ice variability multiplier",
     )
 
@@ -293,17 +369,58 @@ def save_variable_thickness_load_grid(samples):
         cax=cax_th,
         orientation="horizontal",
         label="Thickness change (m)",
+        shrink=0.85,
     )
     fig.colorbar(
         load_ims[-1],
         cax=cax_ld,
         orientation="horizontal",
         label="Load change (kg/m²)",
+        shrink=0.85,
     )
 
     fig.savefig(
         FIGURES_DIR
         / "04_variable_fields_thickness_load_grid.pdf",
+        dpi=600,
+        bbox_inches="tight",
+    )
+    plt.close(fig)
+
+
+def save_activator_function_plot(fp):
+    """Save plot of ice and firn melt activation functions."""
+    data = fp.ice_thickness.data.flatten()
+
+    input_range = np.linspace(data.min(), data.max(), 100)
+    ice_melt = activator_richards(
+        input_range, data.min(), data.max()
+    )
+    firn_melt = 1 - ice_melt
+
+    fig, ax = plt.subplots(figsize=(6, 4))
+    ax.plot(
+        input_range,
+        ice_melt,
+        label="Ice Melt Function",
+        color="black",
+    )
+    ax.plot(
+        input_range,
+        firn_melt,
+        label="Firn Melt Function",
+        color="black",
+        linestyle="dashed",
+    )
+    ax.legend()
+    ax.set_xlabel("Input (ice thickness in m)")
+    ax.set_ylim(-0.0, 1.0)
+    ax.set_ylabel(
+        "Output (melt field standard deviation multiplier)"
+    )
+
+    fig.savefig(
+        FIGURES_DIR / "04_activator_function.pdf",
         dpi=600,
         bbox_inches="tight",
     )
@@ -324,6 +441,7 @@ def main():
     save_uniform_field_plot(uniform_sample)
     save_variability_side_by_side(weighted_pattern, fp)
     save_variable_thickness_load_grid(samples)
+    save_activator_function_plot(fp)
 
 
 if __name__ == "__main__":
