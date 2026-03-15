@@ -1,55 +1,48 @@
-The methods developed and discussed in \autoref{sec:methods} rely upon a rigorously defined mathematical framework, which is implemented in the \citetitle{al-attarPygeoinfPythonLibrary2025} python package, as described in \textcite{heathcoteScaleableBayesianFramework2026}. This framework allows for the consistent representation of continuous fields over the sphere, the application of linear operators to these fields, and the use of Gaussian measures to quantify uncertainty. The mathematical properties of this framework are critical to the development and implementation of the methods described in this report, and so a brief overview is given here to provide context for the subsequent sections.
+The methods developed and discussed in this project rely upon a rigorously defined mathematical framework, which is implemented in the \citetitle{al-attarPygeoinfPythonLibrary2025} python package as described in \textcite{heathcoteScaleableBayesianFramework2026}. This framework allows for the consistent representation of continuous fields over the sphere, the application of linear operators to these fields, and the use of Gaussian measures to quantify uncertainty. The mathematical properties of this framework are critical to the development and implementation of the methods described in this report, and so a brief overview is given here to provide context for the subsequent sections.
+
+For most readers, the framing given should be sufficient to understand the remainder of the paper. However, for full details for the mathematical framework surrounding the underlying python packages can be found in \textcite{heathcoteScaleableBayesianFramework2026}. Other useful texts for a wider background are \citetitle{stuartInverseProblemsBayesian2010} \autocite{stuartInverseProblemsBayesian2010} for Bayesian inversion on infintie dimensions, \citetitle{parkerGeophysicalInverseTheory1994} \autocite{parkerGeophysicalInverseTheory1994} for geophysical inverse theory, and \citetitle{rudinFunctionalAnalysis1991} \autocite{rudinFunctionalAnalysis1991} for background on funcational anaysis and introduction to Hilbert Spaces, linear operators, Sobolev spaces, Adjoints, etc.
 
 \subsection{Mathematical framework}\label{sec:maths_background}
 
-For sea level physics problems at the length and timescales involved with our problem, it is physically appropriate to generate our problem on spaces where the realised fields are guaranteed to be spatially smooth, and where the operators that we use to represent the physics of the problem are linear. This allows us to use a mathematical framework that is based on Hilbert spaces, linear operators, and Gaussian measures, which is implemented in the \citetitle{al-attarPygeoinfPythonLibrary2025} python package which \citetitle{al-attarPySLFPPythonSea2025} is built upon. For a full explanation of this motivation see section 2.3.2 of \textcite{heathcoteScaleableBayesianFramework2026}.
+For sea-level physics problems at the lengthscales and timescales involved with considered problem, it is physically appropriate to generate our problem on spaces where the realised fields are guaranteed to be spatially smooth, and where we use linear operators that we use to represent the physical mapping between these spaces.
 
-To represent this type of continuous field over the sphere (taken to be a unit sphere, $\mathbb{S}^2$, scaled to the dimensions of the Earth) in a mathematically rigorous way, we work within a Sobolev space, $h \in H^s(\mathbb{S}^2)$, where the index $s$ controls the smoothness of admissible fields.
+To represent continuous field over the sphere ($\mathbb{S}^2$ scaled to the dimensions of the Earth) we work within a Sobolev space, $h \in H^s(\mathbb{S}^2)$, where the index $s$ controls the smoothness of admissible fields.
 
-This framework accommodates both deterministic fields, which enter as fixed elements of $H^s(\mathbb{S}^2)$, and  Gaussian measures, which we use to quantify our understanding of various parameters as described later in \autoref{sec:bay}. These Gaussian measures are on $H^s(\mathbb{S}^2)$, which are characterised by its mean $m \in H^s(\mathbb{S}^2)$ and covariance operator $\mathcal{C}$:
+Linear operators (e.g. $A$) map between these spaces, with their adjoints mapping back to the original space (e.g. $A^*$). For example, if we have a linear operator $A: X \to Y$ that maps from a space $X$ to a space $Y$, then its adjoint $A^*: Y \to X$ maps back from $Y$ space to the $X$ space.
 
-
+This framework accommodates both deterministic fields, which enter as fixed elements of $H^s(\mathbb{S}^2)$, and  Gaussian measures, which we use to quantify our understanding of various parameters, as described later in \autoref{sec:bay}. These Gaussian measures are characterised by their mean, $m \in H^s(\mathbb{S}^2)$, and covariance operator $\mathcal{C}$, and are written as
 
 \begin{equation}
-\mu = \mathcal{N}(m, \mathcal{C})
+\mu = \mathcal{N}(m, \mathcal{C}).
 \end{equation}
 
-There are suitable conditions that $\mathcal{C}$ must satisfy to be a valid covariance operator on an infinite-dimensional space. However, this is handled by \citetitle{al-attarPygeoinfPythonLibrary2025} and so is not discussed here. However, for the case where custom covariance structures are used, it is important to ensure that these conditions are satisfied to ensure that the resulting measure is well-defined. This is a critical factor worth emphasising: linear operators that act on Gaussian measures ensure that the resulting pushforward measure is still a valid Gaussian measure, which is guaranteed by the properties of linear operators and the conditions on covariance operators.
+There are suitable conditions that $\mathcal{C}$ must satisfy to be a valid covariance operator on an infinite-dimensional space, which are ensured by \citetitle{al-attarPygeoinfPythonLibrary2025}. An example of this is the heat kernel covariance structure
 
-This property of linear operators being able to act on both scalar and gaussian fields allows uncertainty to be propagated consistently through the forward model and for linear operators to apply to both, regardless of whether the input is deterministic or stochastic. For example, a known ice thickness distribution enters as a fixed field, while our prior belief about ice thickness change is represented as a Gaussian measure over the same space, but the same linear operators can be applied to both. This ensures a consistent mathematical treatment of all components of the model.
+\begin{equation}
+  \covariance{} = \frac{\alpha^2}{\braket{e^{-\lambda^2\Delta}\delta_x,\delta_x}} e^{-\lambda^2 \Delta}
+\end{equation}
 
-Linear operators map between fields, with their adjoints mapping the reverse way, allowing for the consistent propagation of uncertainty and the application of the forward model in both directions. For example, the forward operator that maps ice thickness change to sea level change has an adjoint that maps from the data space back to the model space, which is essential for calculating the Kalman gain and performing Bayesian updates.
+where $\Delta$ is the Laplace-Beltrami operator on the sphere, and $\alpha$ and $\lambda$ are parameters that control the pointwise standard deviation and the lengthscale of spatial correlations, respectively. $\braket{\cdot,\cdot}$ is the inner product of the space (a generalisation of the dot product \autocite{parkerGeophysicalInverseTheory1994}). This covariance structure ensures that the resulting Gaussian measure is well-defined and rotationally invariant (such that covariance is equal at any point). It is a useful form of covariance structure for geophysical problems, as it encodes the physical intuition of scaling point-wise variance and spatial correlation that decays with distance.
+
+Linear operators acting on Gaussian measures produce a valid Gaussian pushforward measure on the target space:
 
 \begin{align}
-    A: X &\rightarrow Y \\
-    A^*: Y &\rightarrow X \\
-    \braket{Ax, y}_Y &= \braket{x, A^*y}_X
+\mu_X &= \mathcal{N}(m, \mathcal{C}) \in X, \\
+A\mu_X &= \mathcal{N}(Am, A\mathcal{C}A^*) \in Y.
 \end{align}
 
 
-The action of a linear operator on a Gaussian measure is well-defined: if $\mu_X \in X$, then the pushforward under $A$ is:
-
-\begin{align}
-	\mu_X &= \mathcal{N}(\mathbf{m}, \mathcal{C}) \in X \\
-	A \mu &= \mathcal{N}(A\mathbf{m}, A\mathcal{C}A^*) \in Y
-\end{align}
-
-This gives the posterior mean value of $A\mathbf{m}$ and posterior covariance of $A\mathcal{C}A^*$, and as these are both well-defined, this means that the resulting measure is a valid Gaussian measure on $Y$. This is a critical property that underpins the entire Bayesian inversion framework, as it allows us to propagate uncertainty through the forward model and to perform updates in a mathematically consistent way.
-
-% [This is a key equation — worth one or two sentences explaining why this is useful: it means applying the forward model to a Gaussian prior directly yields a Gaussian in the data space, with no approximation, and that this is what makes the Kalman/Bayesian update analytically tractable.]
+That is, pushing $\mu_X$ forward through $A$ transforms the mean and covariance consistently, and the result remains a well-defined Gaussian measure in $Y$. This closure under linear maps holds uniformly, whether the input is a deterministic field or a Gaussian measure: the same operator formulation applies to both without distinction. For example, a known ice thickness distribution and a prior distribution over ice thickness change are acted upon by the same forward operators, giving the framework its mathematical consistency. As shown in \autoref{sec:bay}, it is precisely this property that permits the posterior distribution to be computed in closed form.
 
 
-
-It is often the case where we wish to extract scalar-valued quantities of interest, such as the Global Mean Sea Level (GMSL). These can be represented as continuous linear functionals $\phi: H^s(\mathbb{S}^2) \rightarrow \mathbb{R}$. By the Riesz representation theorem, any such functional can be written as:
+It is often the case that we wish to extract scalar-valued quantities of interest, such as the Global Mean Sea Level (GMSL). These can be represented as continuous linear functionals $\phi: H^s(\mathbb{S}^2) \rightarrow \mathbb{R}$. By the Riesz representation theorem, any such functional can be written as
 
 \begin{equation}
 \phi(h) = \braket{h, k}_{H^s}
 \end{equation}
+
 for a unique representer $k \in H^s(\mathbb{S}^2)$. A representer for GMSL, for example, would be a constant function over the ocean area and zero elsewhere, such that the inner product with a sea level change field yields the spatial average over the oceans. This allows us to compute the distribution of GMSL change directly from the distribution of sea level change.
 
-\todo{example gaussian: heat kernel gaussian measure etc}
-
-For most readers, the mathematical framing given should be sufficient to understand the remainder of the paper. However, for full details for the mathematical framework surrounding the underlying python packages can be found in \textcite{heathcoteScaleableBayesianFramework2026}. Other useful texts for a wider background are \citetitle{stuartInverseProblemsBayesian2010} \autocite{stuartInverseProblemsBayesian2010} for Bayseain inverion on infintie dimensions, \citetitle{parkerGeophysicalInverseTheory1994} \autocite{parkerGeophysicalInverseTheory1994} for geophysical inverse theory, and \citetitle{rudinFunctionalAnalysis1991} \autocite{rudinFunctionalAnalysis1991} for background on funcational anaysis and introduction to Hilbert Spaces, linear operators, Sobolev spaces, Adjoints, etc.
 
 \subsection{Bayesian inference framework}\label{sec:bay}
 
@@ -57,47 +50,48 @@ For most readers, the mathematical framing given should be sufficient to underst
 
 Calculating ice sheet change from the change in ocean altimetry data is an inverse problem, which can be framed using Bayesian inference.
 
-A Bayesian view of probability differs from a frequentists' perspective. Frequentist statistics interprets probability as long-run frequency, treating parameters as fixed and data as random, using $p$-values and confidence intervals to accept or reject hypotheses. Conversely, Bayesian statistics treats parameters as random, incorporating prior beliefs and updating them with data to produce a posterior distribution, allowing for direct probability statements about hypotheses. This benefits from the posterior distributions giving quantifications about the uncertainties produced by inverse method, and that, given suitable uncertainties are quantified within our prior.
+A Bayesian view of probability differs from a frequentists' perspective. Frequentist statistics interprets probability as long-run frequency, treating parameters as fixed and data as random, using $p$-values and confidence intervals to accept or reject hypotheses. Conversely, Bayesian statistics treats parameters as random, incorporating prior beliefs and updating them with data to produce a posterior distribution, allowing for direct probability statements about hypotheses.
 
-Bayesian inference is framed as using a specific implementation of Bayes' theorem:
+This benefits the inverse method, as the output gives a posterior distribution which gives uncertainties produced by the inverse method combined with the initial uncertainties. Bayesian inference is framed as using a specific implementation of Bayes' theorem:
 
 \begin{equation}
 	p(\text{model} | \text{data}) = \dfrac{p(\text{data} | \text{model})p(\text{model})}{p(\text{data})}
 \end{equation}
 
-Where the data is the observed data that we collect, or synthetically generate when developing the methods, and the model is the parameters we define across the model space.
+where the data is the observed data that we collect, or synthetically generate when developing the methods, and the model is the parameters we define across the model space, and $p(\cdot)$ is the probability of the argument. The likelihood, $p(\text{data} | \text{model})$, is the probability of observing the data given a particular model, and the prior, $p(\text{model})$, is our initial belief about the model before seeing the data. The posterior, $p(\text{model} | \text{data})$, is our updated belief about the model after observing the data.
 
-Bayesian inversion is the specific application of this framework to inverse problems, where, rather than seeking a single best-fit solution, it characterises the entire probability distribution of unknown physical parameters from noisy data. To summarise in a simple case, if we state our prior knowledge of a model space in terms of a Gaussian measure given as:
+Bayesian inversion is the specific application of this framework to inverse problems, where, rather than seeking a single best-fit solution, it characterises the entire probability distribution of unknown physical parameters from noisy data. To show this simply, if we state our prior knowledge of a model space in terms of a Gaussian measure, with some expectation $\bar{m}$ and covariance $\mathcal{C}_m$, the model space can be represented as
 
 \begin{equation*}
 	m \sim \mathcal{N}(\bar{m}, \mathcal{C}_m)
 \end{equation*}
 
-Which is suitably pushed forward through our physical system and measured in the data space using a combined forward operator $A$. Some random noise associated with the measurements, given as a vector, $n$, can sensibly be assumed Gaussian. With expectation $\bar{n}$ and covariance $\mathcal{C}_n$, the data space vector, $d$, would be:
+which is suitably pushed forward using an operator $A$, which represents the physical relation between the model and data spaces. Some random noise is associated with the measurements, given as a vector, $n$, and can sensibly be assumed Gaussian. With an expectation $\bar{n}$ and covariance $\mathcal{C}_n$ of the noise, the data space vector, $d$, would be
 
 \begin{align*}
-	d &= Am +z\\
-	\to  d &\sim \mathcal{N}(A\bar{m} + \bar{n},\quad A\mathcal{C}_mA^* + \mathcal{C}_n)
+	d &= Am +n,\\
+	\implies  d &\sim \mathcal{N}(A\bar{m} + \bar{n},\quad A\mathcal{C}_mA^* + \mathcal{C}_n).
 \end{align*}
 
-Using the form of Bayes' theorem implemented in \textcite{heathcoteScaleableBayesianFramework2026} originally presented in \textcite{stuartInverseProblemsBayesian2010}, the posterior measure of our updated view of the model space given an observation, $d_{obs}$, of the data space would be:
+Using a form of Bayes' theorem implemented in \textcite{heathcoteScaleableBayesianFramework2026} originally presented in \textcite{stuartInverseProblemsBayesian2010} for the inverse problem, the posterior distribution of the model space can be calculated in closed form as a Gaussian measure with mean and covariance given as
 
 \begin{align}
 	m_p \sim \mathcal{N}(\bar{m}+K(d_{obs}-A\bar{m}-\bar{n}),\quad (1-KA)\mathcal{C}_{m}))
 \end{align}
 
-Where $K$ is the Kalman gain, which is the information gained by the observation, is given as:
+where $K$ is the Kalman gain, which is the information gained by the observation, is given as
 
 \begin{equation}
-	K = \mathcal{C}_{m}A^*(A\mathcal{C}_{m}A^*+\mathcal{C}_{n})^{-1}
+	K = \mathcal{C}_{m}A^*(A\mathcal{C}_{m}A^*+\mathcal{C}_{n})^{-1}.
 \end{equation}
 
-The priors that are defined for the model space are critical to the results of the inversion, as they encode our prior beliefs about the system and can significantly influence the posterior distribution.
+The priors that are defined in the model space are critical to the results of the inversion, as they encode our prior beliefs about the system and can significantly influence the posterior distribution.
 
-In this context, informative priors are those that incorporate specific priori knowledge about the physical system, such as known spatial patterns of ice thickness change or constraints based on physical laws. These priors can help to regularise the inversion and guide it towards physically plausible solutions, especially in cases where the data is sparse or noisy.
+Priors that incorporate specific for-known knowledge about the physical system are known as informative priors. An example of this would be using spatial patterns of ice thickness change or constraints based on physical laws to restrict prior distributions. These informative priors can help to regularise the inversion and guide it towards physically plausible solutions, especially in cases where the data is sparse or very noisy.
 
-Using informative priors, however, is not without its flaws, and as discussed in \textcite{vandeschootBayesianStatisticsModelling2021}, it is important to assess the impact of how informative priors affect the posterior distribution, as this is a key way in which overly biased results can be introduced. The disctinction is nuanced but for our purposes can be summarised as restrictions based on what we think happen in a physical system are valid, but restrictions based on what we think has happened to generate our data are not.  For example, when generating ice sheet priors, it is physically motivated to restrict ice loss to ice sheet margins (see \autoref{sec:ice_thickness_priors}), however biasing these priors to have a expectation of ice loss is not, as this is a restriction based on what we think has happened to generate our data, and thus can lead to overly biased results.
+Using informative priors, however, is not without its flaws. It is important to assess the impact of how informative priors affect the posterior distribution, as this is an unintended way in which overly biased results can be introduced \autocite{vandeschootBayesianStatisticsModelling2021}. The distinction is nuanced, but for our purposes can be summarised as restrictions based on what we think happen in a physical system are valid, but restrictions based on what we think has happened to generate our data are not. For example, when generating ice sheet priors, it is physically motivated to restrict ice loss to ice sheet margins, however biasing these priors to have a expectation of ice loss, due to some understanding of our data, is not, as this is a restriction based on what we think has happened to generate our data, and thus can lead to overly biased results.
 
-There is also a subtle distinction to be made between restricting priors based on knowledge of the physical system and behaviours, as just described, and restricting the priors, such as using artificial discretization schemes. The former is defensible within a Baysean framework, however the latter is a restriction imposed by computational or mathematical restriction, and, as discussed in \textcite{stuartInverseProblemsBayesian2010}, can result in artefacts or overly constrained posteriors due to these restriction.
+There is also a subtle distinction to be made between restricting priors based on knowledge of the physical system and behaviours, as just described, and restricting the priors, such as using artificial discretisation schemes. The former is defensible within a Bayesian framework; however, the latter is a restriction imposed by computational or mathematical need, and, as discussed in \textcite{stuartInverseProblemsBayesian2010}, can result in artefacts or overly constrained posteriors due to these restrictions.
 
-This where an important distinction between this method and recently released method by \textcite{coulsonInvertingSeaSurface2026} have used Bayesian inversion, as they have used a discrete scheme for inverting ice thickness change over Greenland, the method outlined in this report in arguably an improvement of their method, as results in a more physically motivated prior, and thus a more physically motivated posterior, as well as avoiding the potential artefacts that can arise from discretization schemes. However, it is important to note that the method outlined in this report is not without its own limitations and assumptions, and further work is needed to fully understand the implications of these choices on the results of the inversion.
+\todo{describe this differnce better}
+This where an important distinction between this method and recently released method by \textcite{coulsonInvertingSeaSurface2026} have used Bayesian inversion, as they have used a discrete scheme for inverting ice thickness change over Greenland, the method outlined in this report in arguably an improvement of their method, as results in a more physically motivated prior, and thus a more physically motivated posterior, as well as avoiding the potential artefacts that can arise from discretisation schemes. However, it is important to note that the method outlined in this report is not without its limitations and assumptions, and further work is needed to fully understand the implications of these choices on the results of the inversion.

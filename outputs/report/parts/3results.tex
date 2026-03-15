@@ -47,7 +47,7 @@ The spatial distribution of the error expectation field (SLC $-$ SSHC) shows a s
 
 At $66^\circ$, the estimated GMSL distribution is shifted slightly below the true distribution, with the error distribution centred near zero but with a small negative bias. At $80^\circ$, the separation between the true and estimated distributions increases, and the error distribution widens and shifts further from zero, reflecting the larger proxy error incurred when the altimetry domain extends closer to the ice sheets.
 
-\begin{figure}[!h]
+\begin{figure}
 	\includegraphics[width=\columnwidth]{double_distribution_66_80.pdf}
 	\caption{True and estimated GMSL distributions, with corresponding error distributions, at altimetry latitude cutoffs of $66^\circ$ (top) and $80^\circ$ (bottom), for a rotationally invariant Gaussian ice thickness prior standardised to 10~mm $\pm$ 1~mm GMSL change.}\label{fig:gaussian_uniform}
 \end{figure}
@@ -102,7 +102,9 @@ The old method is only within 1 sigma of the true value in 14.6\% of runs, while
 This section is run at a spherical harmonic truncation of 128 for computational speed, but this is not expected to affect the results of the sensitivity tests, which are focused on the relative changes in the inversion results as the parameters are varied, rather than the absolute values of the inversion results.
 
 \begin{figure}[h!]
+\begin{center}
 	\includegraphics[width=0.75\columnwidth]{ridge_kde_all_z_score.pdf}
+  \end{center}
 	\caption{}
 	\label{fig:sensitivity-z_score}
 \end{figure}
@@ -188,4 +190,46 @@ The offset had no effect on the iterations required for the CG solve.
 
 The higher variance resulted in a much longer CG solve time, which is expected as it becomes a poorly conditioned problem, making it harder for the solver to converge (0.5x: 47 iterations, 2.0x: 197 iterations, 5.0x: 610 iterations).
 
+\subsubsection*{Sensitivity to informative spatial priors}
+
+\notebookcite{thomasholland09TruthPriorCross2026}
+
+\begin{figure}[h!]
+  \begin{center}
+  \includegraphics[width=0.9\columnwidth]{9-1_true_fields.pdf}
+  \includegraphics[width=0.9\columnwidth]{9-3_posterior_mean_maps.pdf}
+  \end{center}
+  \caption{}
+  \label{fig:sensitivity-truth-prior-cross}
+\end{figure}
+
+\begin{figure}[h!]
+\begin{center}
+  \includegraphics[width=0.7\columnwidth]{9-2_posterior_gmsl_pdfs.pdf}
+  \end{center}
+  \caption{}
+  \label{fig:sensitivity-truth-prior-cross-gmsl}
+\end{figure}
+
 \subsection{Joint inversion using ice, firn, and ocean dynamic changes}
+\notebookcite{thomasholland08JointInversionipynb2026}
+
+\begin{figure}[h!]
+  \includegraphics[width=0.45\columnwidth]{joint_precon_firn_thickness.pdf}
+  \includegraphics[width=0.45\columnwidth]{joint_precon_firn_thickness_posterior.pdf}
+  \includegraphics[width=0.45\columnwidth]{joint_precon_ice_thickness.pdf}
+  \includegraphics[width=0.45\columnwidth]{joint_precon_ice_thickness_posterior.pdf}
+  \includegraphics[width=0.45\columnwidth]{joint_precon_odt_height.pdf}
+  \includegraphics[width=0.45\columnwidth]{joint_precon_odt_height_posterior.pdf}
+  \caption{}
+  \label{fig:joint-inversion}
+\end{figure}
+
+\begin{figure}[h!]
+  \includegraphics[width=0.45\columnwidth]{joint_precon_slc.pdf}
+  \includegraphics[width=0.45\columnwidth]{joint_precon_slc_posterior.pdf}
+  \includegraphics[width=0.45\columnwidth]{joint_precon_total_load.pdf}
+  \includegraphics[width=0.45\columnwidth]{joint_precon_total_load_posterior.pdf}
+  \caption{}
+  \label{fig:joint-inversion-gmsl}
+\end{figure}
