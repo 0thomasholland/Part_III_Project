@@ -9,7 +9,7 @@ laid out in \textcite{al-attarReciprocitySensitivityKernels2023}.
 Throughout, we work within a first-order perturbation theory, assuming that
 changes in sea level, displacement, and gravitational potential are all small
 relative to the background state. We further assume that the shoreline
-geometry is fixed, meaning the ocean function $C$ does not evolve as sea
+geometry is fixed, meaning the ocean function, $C$, does not evolve as sea
 level changes; this is what renders the fingerprint problem linear and is
 appropriate for the small-amplitude changes associated with modern ice melt.
 Finally, we assume that the elastic response of the Earth dominates over
@@ -197,7 +197,7 @@ We have the forward operator matrix:
     \end{bmatrix}
 \end{equation}
 
-Which maps the model space vector $\mathbf{x} = (\thicknesschange{Ice},\, \thicknesschange{Firn},\, \odtchange)$ to the data space vector $d = (d_{\Delta SSH},\, d_{\Delta TG},\, d_{\Delta ISH})$.
+Which maps the model space vector $\mathbf{x} = (\thicknesschangeice,\, \thicknesschangefirn,\, \odtchange)$ to the data space vector $d = (d_{\Delta SSH},\, d_{\Delta TG},\, d_{\Delta ISH})$.
 
 This is an inefficient operator, as it requires six independent calls to the fingerprint numerical solver $\operatorslc$, which is the most computationally expensive part of the forward model, due to its numerical implementation.
 
@@ -220,15 +220,15 @@ so that $\operatorslc$ is called only once. Define
 \end{equation}
 
 where the bottom three rows simply route the state variables
-$(\thicknesschange{Ice},\, \thicknesschange{Firn},\, \odtchange)$ to slots that will be
+$(\thicknesschangeice,\, \thicknesschangefirn,\, \odtchange)$ to slots that will be
 used by the outer operators. The action of $C$ on $\mathbf{x}$ gives the intermediate vector
 
 \begin{equation}
     C\mathbf{x} = \begin{pmatrix}
-        \operatorloadice\,\thicknesschange{Ice} + \operatorloadfirn\,\thicknesschange{Firn} + \operatorloadwater\,\odtchange \\
+        \operatorloadice\,\thicknesschangeice + \operatorloadfirn\,\thicknesschangefirn + \operatorloadwater\,\odtchange \\
         \odtchange \\
-        \thicknesschange{Ice} \\
-        \thicknesschange{Firn}
+        \thicknesschangeice \\
+        \thicknesschangefirn
     \end{pmatrix}
 \end{equation}
 
@@ -250,15 +250,15 @@ so that
 
 \begin{equation}
     BC\mathbf{x} = \begin{pmatrix}
-        \operatorslc(\operatorloadice\,\thicknesschange{Ice} + \operatorloadfirn\,\thicknesschange{Firn} + \operatorloadwater\,\odtchange) \\
+        \operatorslc(\operatorloadice\,\thicknesschangeice + \operatorloadfirn\,\thicknesschangefirn + \operatorloadwater\,\odtchange) \\
         \odtchange \\
-        \thicknesschange{Ice} \\
-        \thicknesschange{Firn}
+        \thicknesschangeice \\
+        \thicknesschangefirn
     \end{pmatrix}
 \end{equation}
 
 Linearity of $\operatorslc$ then distributes the first component into
-$\operatorslc\operatorloadice\,\thicknesschange{Ice} + \operatorslc\operatorloadfirn\,\thicknesschange{Firn}
+$\operatorslc\operatorloadice\,\thicknesschangeice + \operatorslc\operatorloadfirn\,\thicknesschangefirn
 + \operatorslc\operatorloadwater\,\odtchange$, which is precisely the fingerprint contribution
 needed in rows 1 and 2 of $M$.
 
@@ -269,7 +269,7 @@ Reading off what each row of $M$ requires:
 \begin{itemize}
     \item Row 1 needs $\operatorpointocean \operatorsshc$ acting on the fingerprint result, plus $\operatorpointocean$ acting on $\odtchange$ directly.
     \item Row 2 needs $\operatorpointtg$ acting on the fingerprint result, plus $\operatorpointtg$ acting on $\odtchange$ directly.
-    \item Row 3 needs $\operatorpointice$ acting on $\thicknesschange{Ice}$ and $\thicknesschange{Firn}$, with no fingerprint contribution.
+    \item Row 3 needs $\operatorpointice$ acting on $\thicknesschangeice$ and $\thicknesschangefirn$, with no fingerprint contribution.
 \end{itemize}
 
 This gives

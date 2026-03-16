@@ -139,14 +139,14 @@ However, this is computationally inefficient, as it requires six independent cal
 0 & 0 & 0 & \mathbf{1}
 \end{bmatrix}
 \begin{bmatrix}
-\mathbf{L_I} & \mathbf{L_F} & \mathbf{L_W} \\
+\operatorloadice & \operatorloadfirn & \operatorloadwater \\
 0 & 0 & \mathbf{1} \\
 \mathbf{1} & 0 & 0 \\
 0 & \mathbf{1} & 0
 \end{bmatrix}
 \begin{bmatrix}
-\thicknesschange{\text{Ice}} \\
-\thicknesschange{\text{Firn}} \\
+\thicknesschangeice \\
+\thicknesschangefirn \\
 \odtchange
 \end{bmatrix},\label{eq:factorised_joint}
 \end{equation}
