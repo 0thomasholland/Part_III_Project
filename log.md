@@ -391,3 +391,10 @@
 - Added realistic ice and firn thickness modelling notebooks with associated plots.
 - Updated analysis figures and continued report text revisions.
 
+## 16 March 2026
+
+- Derived explicit mathematical equations for the `sea_surface_height_operator`, the `remove_ocean_average_operator` (including its adjoint structure), and how it transforms a Gaussian measure. Working backward from code to derive and document the mathematics cleanly.
+- Developed the joint inversion description incorporating the full model space structure and forward operators.
+- Proofread and revised the project report across multiple sections.
+- Added knockout sensitivity tests and firn–ice thickness covariance analysis.
+
