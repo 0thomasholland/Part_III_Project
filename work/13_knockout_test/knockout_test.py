@@ -109,8 +109,12 @@ for i in range(len(lats)):
         ):
             filtered_lats[j] = None
             filtered_lons[j] = None
-filtered_lats = [lat for lat in filtered_lats if lat is not None]
-filtered_lons = [lon for lon in filtered_lons if lon is not None]
+filtered_lats = [
+    lat for lat in filtered_lats if lat is not None
+]
+filtered_lons = [
+    lon for lon in filtered_lons if lon is not None
+]
 
 tide_gauge_points = list(zip(filtered_lats, filtered_lons))
 tide_sampling_op = tide_gauge_operator(
@@ -234,12 +238,18 @@ def make_data(forward_op):
     data_error = GaussianMeasure.from_standard_deviation(
         forward_op.codomain, measure_error_std
     )
-    return forward_op(model_true) + data_error.sample(), data_error
+    return forward_op(
+        model_true
+    ) + data_error.sample(), data_error
 
 
-data_no_ssh, data_error_no_ssh = make_data(forward_op_no_ssh)
+data_no_ssh, data_error_no_ssh = make_data(
+    forward_op_no_ssh
+)
 data_no_tg, data_error_no_tg = make_data(forward_op_no_tg)
-data_no_ice, data_error_no_ice = make_data(forward_op_no_ice)
+data_no_ice, data_error_no_ice = make_data(
+    forward_op_no_ice
+)
 
 # %%
 # =============================================================================
@@ -317,7 +327,9 @@ pf22 = (
     @ precon_ice.load_to_slc_operator
     @ precon_ice.firn_thickness_to_load_operator
 )
-pf23 = precon_tide_sampling_op @ precon_odt._height_to_slc_op
+pf23 = (
+    precon_tide_sampling_op @ precon_odt._height_to_slc_op
+)
 pf31 = precon_ice.ice_thickness.domain.point_evaluation_operator(
     ice_altimetry.coords
 )
@@ -334,7 +346,11 @@ pf33 = precon_odt.height_measure.domain.point_evaluation_operator(
 
 # Four preconditioner forward operators (matching the four full-res variants)
 precon_op_full = BlockLinearOperator(
-    [[pf11, pf12, pf13], [pf21, pf22, pf23], [pf31, pf32, pf33]]
+    [
+        [pf11, pf12, pf13],
+        [pf21, pf22, pf23],
+        [pf31, pf32, pf33],
+    ]
 )
 precon_op_no_ssh = BlockLinearOperator(
     [[pf21, pf22, pf23], [pf31, pf32, pf33]]
@@ -356,8 +372,10 @@ def build_preconditioner(
     precon_forward_op, full_res_data_space, label
 ):
     """Build an approximate inverse normal operator at low resolution."""
-    precon_data_error = GaussianMeasure.from_standard_deviation(
-        full_res_data_space, measure_error_std
+    precon_data_error = (
+        GaussianMeasure.from_standard_deviation(
+            full_res_data_space, measure_error_std
+        )
     )
     precon_problem = LinearForwardProblem(
         precon_forward_op,
@@ -377,13 +395,19 @@ precon_inv_full = build_preconditioner(
     precon_op_full, forward_op_full.codomain, "full"
 )
 precon_inv_no_ssh = build_preconditioner(
-    precon_op_no_ssh, forward_op_no_ssh.codomain, "no SSH altimetry"
+    precon_op_no_ssh,
+    forward_op_no_ssh.codomain,
+    "no SSH altimetry",
 )
 precon_inv_no_tg = build_preconditioner(
-    precon_op_no_tg, forward_op_no_tg.codomain, "no tide gauges"
+    precon_op_no_tg,
+    forward_op_no_tg.codomain,
+    "no tide gauges",
 )
 precon_inv_no_ice = build_preconditioner(
-    precon_op_no_ice, forward_op_no_ice.codomain, "no ice altimetry"
+    precon_op_no_ice,
+    forward_op_no_ice.codomain,
+    "no ice altimetry",
 )
 
 # %%
@@ -392,26 +416,37 @@ precon_inv_no_ice = build_preconditioner(
 # =============================================================================
 
 
-def run_inversion(forward_op, data_error, data, precon_inv, label):
+def run_inversion(
+    forward_op, data_error, data, precon_inv, label
+):
     """Run a preconditioned CG Bayesian inversion and return the posterior."""
     problem = LinearForwardProblem(
         forward_op, data_error_measure=data_error
     )
-    inversion = LinearBayesianInversion(problem, model_prior)
+    inversion = LinearBayesianInversion(
+        problem, model_prior
+    )
     residuals = []
     pbar = tqdm(desc=f"CG ({label})")
+    is_solving_mean = [True]
 
     def callback(xk):
-        residuals.append(np.linalg.norm(xk))
-        pbar.set_postfix({"||x||": f"{residuals[-1]:.2e}"})
-        pbar.update(1)
+        if is_solving_mean[0]:
+            residuals.append(np.linalg.norm(xk))
+            pbar.set_postfix(
+                {"||x||": f"{residuals[-1]:.2e}"}
+            )
+            pbar.update(1)
 
     posterior = inversion.model_posterior_measure(
         data,
-        CGMatrixSolver(callback=callback, maxiter=100),
+        CGMatrixSolver(
+            callback=callback, maxiter=300, rtol=1e-5
+        ),
         preconditioner=precon_inv,
     )
     pbar.close()
+    is_solving_mean[0] = False
     print(f"  Inversion complete: {label}")
     return posterior, residuals
 
@@ -456,12 +491,18 @@ variant_residuals = [
     ("Full (SSH+TG+ice)", res_full, colors.new_method),
     ("No SSH altimetry", res_no_ssh, colors.ice_altimetry),
     ("No tide gauges", res_no_tg, colors.firn),
-    ("No ice altimetry", res_no_ice, colors.ocean_altimetry),
+    (
+        "No ice altimetry",
+        res_no_ice,
+        colors.ocean_altimetry,
+    ),
 ]
 
 fig_cg, ax_cg = plt.subplots(figsize=(7, 4))
 for label, residuals, color in variant_residuals:
-    ax_cg.semilogy(residuals, label=label, color=color, linewidth=1.5)
+    ax_cg.semilogy(
+        residuals, label=label, color=color, linewidth=1.5
+    )
 ax_cg.set_xlabel("Iteration")
 ax_cg.set_ylabel(r"$\|x_k\|$")
 ax_cg.set_title("CG Convergence by Inversion Variant")
@@ -497,7 +538,9 @@ def compute_gmsl_posterior(posterior):
     exp_mm = post_measure.expectation[0] * 1000
     # covariance.matrix returns a 1×1 matrix; guard against tiny
     # negative values from floating-point rounding
-    var = float(post_measure.covariance.matrix(dense=True)[0, 0])
+    var = float(
+        post_measure.covariance.matrix(dense=True)[0, 0]
+    )
     std_mm = np.sqrt(max(var, 0.0)) * 1000
     return exp_mm, std_mm
 
@@ -523,11 +566,17 @@ variant_gmsl = [
     ("Full (SSH+TG+ice)", gmsl_full, colors.new_method),
     ("No SSH altimetry", gmsl_no_ssh, colors.ice_altimetry),
     ("No tide gauges", gmsl_no_tg, colors.ocean_dynamics),
-    ("No ice altimetry", gmsl_no_ice, colors.ocean_altimetry),
+    (
+        "No ice altimetry",
+        gmsl_no_ice,
+        colors.ocean_altimetry,
+    ),
 ]
 
 # x-axis: centre on the true value, span 4σ of the widest *finite* std
-finite_stds = [s for _, (_, s), _ in variant_gmsl if s > 1e-6]
+finite_stds = [
+    s for _, (_, s), _ in variant_gmsl if s > 1e-6
+]
 x_half = 4 * max(finite_stds) if finite_stds else 5.0
 x_range = np.linspace(
     total_gmsl_true_mm - x_half,
@@ -563,7 +612,11 @@ for label, (exp_mm, std_mm), color in variant_gmsl:
             linewidth=1.8,
         )
         ax_gmsl.axvline(
-            exp_mm, color=color, linestyle=":", linewidth=1, alpha=0.6
+            exp_mm,
+            color=color,
+            linestyle=":",
+            linewidth=1,
+            alpha=0.6,
         )
 
 ax_gmsl.get_yaxis().set_visible(False)
@@ -599,12 +652,15 @@ posteriors_ordered = [
     ("No ice\naltimetry", posterior_no_ice),
 ]
 
+
 # Helper: extract SHGrid as a 2D array in mm, masked by the projection.
 # Non-masked pixels will be near-zero (not NaN), appearing as the neutral
 # colour on the seismic colormap — matching the existing plotting pattern.
 def field_mm(shgrid, projection_mask):
     scale = fp.length_scale * 1000  # m → mm
-    return (shgrid * projection_mask * scale).data.astype(float)
+    return (shgrid * projection_mask * scale).data.astype(
+        float
+    )
 
 
 # Helper: compute symmetric colour limit across a list of 2D arrays
@@ -622,9 +678,21 @@ odt_true = model_true[2]
 
 component_rows = []
 for comp_key, proj, unit_label in [
-    ("ice", fp.ice_projection(), "Ice Thickness Change (mm)"),
-    ("firn", fp.ice_projection(), "Firn Thickness Change (mm)"),
-    ("odt", fp.ocean_projection(), "Ocean Dyn. Height (mm)"),
+    (
+        "ice",
+        fp.ice_projection(),
+        "Ice Thickness Change (mm)",
+    ),
+    (
+        "firn",
+        fp.ice_projection(),
+        "Firn Thickness Change (mm)",
+    ),
+    (
+        "odt",
+        fp.ocean_projection(),
+        "Ocean Dyn. Height (mm)",
+    ),
 ]:
     true_field = {
         "ice": ice_true,
@@ -650,7 +718,9 @@ _sample_grid = ice_true
 _raw_lats = _sample_grid.lats()
 _raw_lons = _sample_grid.lons()
 # Shift longitudes to -180..180 for cartopy
-_lons_shifted = np.where(_raw_lons > 180, _raw_lons - 360, _raw_lons)
+_lons_shifted = np.where(
+    _raw_lons > 180, _raw_lons - 360, _raw_lons
+)
 _sort_idx = np.argsort(_lons_shifted)
 _lons_plot = _lons_shifted[_sort_idx]
 _lon_grid, _lat_grid = np.meshgrid(_lons_plot, _raw_lats)
@@ -661,15 +731,21 @@ n_cols = 1 + len(posteriors_ordered)  # true + 4 posteriors
 fig_grid, axes = plt.subplots(
     n_rows,
     n_cols,
-    figsize=(3.2 * n_cols, 2.8 * n_rows),
+    figsize=(9, 6.5),
     subplot_kw={"projection": ccrs.Robinson()},
+    constrained_layout=True,
 )
 
-col_titles = ["True"] + [lbl for lbl, _ in posteriors_ordered]
+col_titles = ["True"] + [
+    lbl for lbl, _ in posteriors_ordered
+]
 
-for row_idx, (comp_key, unit_label, row_arrays, clim) in enumerate(
-    component_rows
-):
+for row_idx, (
+    comp_key,
+    unit_label,
+    row_arrays,
+    clim,
+) in enumerate(component_rows):
     for col_idx, (arr, col_title) in enumerate(
         zip(row_arrays, col_titles)
     ):
@@ -706,7 +782,6 @@ for row_idx, (comp_key, unit_label, row_arrays, clim) in enumerate(
         ax=axes[row_idx, :],
         orientation="horizontal",
         shrink=0.6,
-        pad=0.03,
         label=unit_label,
     )
     cb.ax.tick_params(labelsize=7)
@@ -715,10 +790,8 @@ fig_grid.suptitle(
     "Knockout Test: True vs Posterior Expectations\n"
     "(rows: ice / firn / ocean dynamics; "
     "columns: true and each inversion variant)",
-    y=1.01,
     fontsize=9,
 )
-fig_grid.tight_layout()
 fig_grid.savefig(
     "figs/knockout_component_grid.pdf",
     dpi=300,
