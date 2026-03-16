@@ -5,11 +5,13 @@ from pygeoinf import (
     BlockLinearOperator,
     CGMatrixSolver,
     EigenSolver,
+    EuclideanSpace,
     GaussianMeasure,
     HilbertSpaceDirectSum,
     LinearBayesianInversion,
     LinearForwardProblem,
     RowLinearOperator,
+    plot_corner_distributions,
 )
 from pyslfp import (
     FingerPrint,
@@ -27,6 +29,7 @@ from project.factored_forward_operator import (
 from project.operators import (
     ice_thickness_to_estimated_gmsl_operator,
 )
+from pygeoinf_extras import standard_dev
 from pyslfp_extras.altimetry import GridPoints
 from pyslfp_extras.ice_thickness import IceSheetChange
 from pyslfp_extras.ocean_dynamics import OceanDynamics
@@ -683,4 +686,83 @@ fig8.savefig(
 fig9.savefig(f"{dir}/joint_precon_total_load.pdf", dpi=600)
 fig10.savefig(
     f"{dir}/joint_precon_total_load_posterior.pdf", dpi=600
+)
+
+# %%
+# =============================================================================
+# Ice vs firn GMSL covariance (corner plot)
+# =============================================================================
+
+ice_gmsl_op = ice.ice_thickness_to_gmsl_operator
+firn_gmsl_op = ice.firn_thickness_to_gmsl_operator
+
+# Row operators mapping the full 3-component model space to scalar GMSL (mm)
+ice_gmsl_row = RowLinearOperator(
+    [
+        1000 * ice_gmsl_op,
+        ice.firn_thickness.domain.zero_operator(
+            codomain=ice_gmsl_op.codomain
+        ),
+        odt.height_measure.domain.zero_operator(
+            codomain=ice_gmsl_op.codomain
+        ),
+    ]
+)
+firn_gmsl_row = RowLinearOperator(
+    [
+        ice.ice_thickness.domain.zero_operator(
+            codomain=firn_gmsl_op.codomain
+        ),
+        1000 * firn_gmsl_op,
+        odt.height_measure.domain.zero_operator(
+            codomain=firn_gmsl_op.codomain
+        ),
+    ]
+)
+
+# Scalar posterior measures for each component
+ice_gmsl_post = model_posterior_measure.affine_mapping(
+    operator=ice_gmsl_row
+)
+firn_gmsl_post = model_posterior_measure.affine_mapping(
+    operator=firn_gmsl_row
+)
+
+# Cross-covariance via polarization identity:
+# Cov(A, B) = 0.5 * (Var(A+B) - Var(A) - Var(B))
+sum_gmsl_post = model_posterior_measure.affine_mapping(
+    operator=ice_gmsl_row + firn_gmsl_row
+)
+var_ice = standard_dev(ice_gmsl_post) ** 2
+var_firn = standard_dev(firn_gmsl_post) ** 2
+var_sum = standard_dev(sum_gmsl_post) ** 2
+cross_cov = 0.5 * (var_sum - var_ice - var_firn)
+
+# Assemble 2x2 covariance matrix and mean on a flat EuclideanSpace(2)
+mu_ice = ice_gmsl_post.expectation[0]
+mu_firn = firn_gmsl_post.expectation[0]
+mean_2d = np.array([mu_ice, mu_firn])
+cov_2d = np.array(
+    [[var_ice, cross_cov], [cross_cov, var_firn]]
+)
+
+joint_gmsl_posterior_measure = (
+    GaussianMeasure.from_covariance_matrix(
+        EuclideanSpace(2), cov_2d, expectation=mean_2d
+    )
+)
+
+true_ice_gmsl = ice_gmsl_row(model_true)[0]
+true_firn_gmsl = firn_gmsl_row(model_true)[0]
+
+fig_cov, axes_cov = plot_corner_distributions(
+    joint_gmsl_posterior_measure,
+    true_values=np.array([true_ice_gmsl, true_firn_gmsl]),
+    labels=["Ice GMSL (mm)", "Firn GMSL (mm)"],
+    title="Joint Posterior: Ice vs Firn GMSL Contributions",
+    figsize=(6.5, 6.5),
+)
+fig_cov.savefig(
+    f"{dir}/joint_precon_ice_firn_gmsl_covariance.pdf",
+    dpi=600,
 )
