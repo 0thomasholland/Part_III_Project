@@ -100,7 +100,13 @@ where $\mathbf{u}$ is the solid Earth displacement, $\nabla\Phi$ is the gradient
 When calculating SSHC, we need to account for the fact that the measurement is relative to a reference ellipsoid rather than the solid Earth surface. Under the further approximation that $\nabla\Phi$ is radial at the Earth's surface, and following the convention of \textcite{al-attarReciprocitySensitivityKernels2023} of removing the centrifugal contribution so as to isolate the mass redistribution signal (see \autoref{sec:sea_level_equations} for details), SSHC simplifies to
 
 \begin{equation}
-  \sshc = \frac{\Phi_g}{g} - \frac{\phi}{g}.
+  \sshc = \frac{\Phi_g}{g} - \frac{\phi}{g}
+\end{equation}
+
+which is equivalent to
+
+\begin{equation}
+  \sshc = \slc + \mathbf{u} \cdot \hat{\mathbf{r}} + \frac{\psi}{g}.
 \end{equation}
 
 This result is physically significant: SSHC depends only on the perturbation to the gravitational potential $\phi$, with no dependence on solid surface displacement, $\mathbf{u}$, or centrifugal potential perturbation, $\psi$. This distinction between SLC and SSHC is central to both the systematic errors investigated in this work and to building operators that measure the effects of ice sheet change on the sea surface using satellite altimetry.

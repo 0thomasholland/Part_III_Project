@@ -1,35 +1,35 @@
 \subsection{Error Quantification}
 
-The objective of this section is to quantify the systematic error introduced by using sea surface height change (SSHC) as a proxy for sea level change (SLC) when estimating global mean sea level (GMSL) from satellite altimetry. This error arises because SSHC and SLC differ by the solid-earth deformation and geoid perturbation terms, which are spatially heterogeneous functions of the ice load distribution. We first establish the idealised setting for the analysis, then characterise the error for known ice sources, and finally generalise to the case where the source distribution is itself uncertain.
+The objective of this section is to quantify the systematic error introduced by using sea surface height change (SSHC) as a proxy for sea level change (SLC) when estimating global mean sea level (GMSL) from satellite altimetry. This error arises because SSHC and SLC differ by the solid-earth deformation and geoid perturbation terms, which are spatially heterogeneous functions of the ice load distribution. We first characterise the error for known ice sources, and finally generalise to the case where the source distribution is itself uncertain.
 
-\subsubsection{Idealised altimetry limit}
-
-In estimating this proxy error, we adopt a best-case assumption of dense, uniform sampling across the altimetry domain $\Omega$. In this limit, the discrete sum over altimetry measurement points converges to a continuous surface integral so that the estimated global mean sea level reduces to the true spatial average of the field:
-
-\begin{equation}
-    \frac{1}{|\Omega|}\sum_{i=1}^{N} \eta(\mathbf{x}_i)\, \delta A_i
-    \;\xrightarrow{N \to \infty}\;
-    \frac{1}{|\Omega|}\int_{\Omega} \eta(\mathbf{x})\, \mathrm{d}S(\mathbf{x}).\label{eq:altimetry_equation}
-\end{equation}
-
-This constitutes a best-case scenario for the estimation error: any realistic altimetry network, with finite and non-uniform spatial coverage, will perform no better than this ideal limit. By framing the error analysis in terms of this continuous average rather than a specific satellite configuration, the resulting error bounds are independent of the particular sampling geometry and reflect a fundamental lower bound on the approximation error inherent to the method itself.
-
-\notebookcite{thomasholland05AltimetrySamplingipynb2026}
+In the quantification of altimetry error, we use the limit outlined in \autoref{eq:altimetry_equation}, which results in the altimetery being a continuous integral of SSHC. By framing the error analysis in terms of this continuous average rather than a specific satellite configuration, the resulting error bounds are independent of the particular sampling geometry and reflect a fundamental lower bound on the approximation error inherent to the method itself.
 
 \subsubsection{Per-source error characterisation}
 
-To build physical intuition for the proxy error, we first consider the case where the ice source is known. Uniform melt scenarios are constructed independently for each of the three major ice sheets (GIS, WAIS, and EAIS), each normalised to produce 1~mm of true GMSL change. For each scenario, the ice load is propagated through the sea level fingerprint operator to yield the corresponding SLC and SSHC fields. GMSL is then estimated by forming the area-weighted average of SSHC over the altimetry-observable ocean, and the percentage error relative to the true mass-balance GMSL is calculated directly.
-
-By varying the latitudinal extent of the altimetry domain, the dependence of this error on altimetry coverage can be traced for each ice sheet independently. This serves both to characterise the source-dependent structure of the proxy bias and to cross-validate against the results of \textcite{lickleyBiasEstimatesGlobal2018}, who demonstrated a similar latitude dependence using a different framework.
 \notebookcite{thomasholland02MajorSourcesipynb2026}
 
-The key result from this analysis is that the proxy error differs in both sign and magnitude across ice sources: Greenland melt leads to a systematic underestimation of GMSL, while West Antarctic sources produce a smaller bias of variable sign. This source dependence means that the SSHC proxy error cannot be corrected by a single scalar factor, the correction would itself depend on the unknown spatial distribution of ice loss.
+To build physical intuition for the proxy error, we first consider the case where the ice source is known. Uniform melt scenarios are constructed independently for each of the three major ice sheets: Greenland (\textbf{GIS}), West Antartic (\textbf{WAIS}), and East Antartic (\textbf{EAIS}), normalised to produce 1~mm of true GMSL change. For each scenario, the ice load is propagated through operators to yield the corresponding SLC and SSHC fields:
+
+\begin{align}
+    \slc &= \operatorslc \circ \operatorloadice (\thicknesschangeice) \\
+    \sshc &= \operatorsshc \circ \operatorslc \circ \operatorloadice (\thicknesschangeice)
+\end{align}
+
+GMSL is then estimated for SSHC (\autoref{eq:gmsl_ssh_alt_integral}), and the percentage error relative to the true mass-balance GMSL (\autoref{eq:gmsl_integral}) can be computed:
+
+\begin{align}
+    \gmslctrue &= \operatorgmsl{\text{true}} \circ \operatorslc \circ \operatorloadice (\thicknesschangeice),\\
+    \gmslcalt &= \operatorgmsl{\text{alt}} \circ \operatorsshc \circ \operatorslc \circ \operatorloadice (\thicknesschangeice),\\
+    \text{error} &= \frac{\gmslcalt - \gmslctrue}{\gmslctrue} \times 100\%.
+\end{align}
+
+
+As both SLC and SSHC are linear functions of the ice load, the resulting error is independent of the magnitude of the ice change, and thus generalises to any scenario with the same spatial pattern of mass loss.
+
+By varying the latitudinal extent of the altimetry domain, the dependence of this error on altimetry coverage can be traced for each ice sheet independently. This serves both to characterise the source-dependent structure of the proxy bias and to cross-validate against the results of \textcite{lickleyBiasEstimatesGlobal2018}, who demonstrated a similar latitude dependence using a different framework.
 
 \subsubsection{Error under source uncertainty}
 
-In practice, the spatial distribution of ice loss is not known a priori, and so the proxy error inherits this uncertainty. To quantify the error in this more realistic setting, a synthetic ice sheet change scenario is constructed as a Gaussian measure over ice thickness, representing our prior uncertainty about the spatial pattern of mass loss. This measure is propagated through the sea level fingerprint operator to yield distributions over both the true SLC field and its corresponding SSHC field.
-
-GMSL is then estimated by forming the area-weighted average of SSHC over the altimetry-observable ocean (latitudes within $\pm 66^\circ$), and compared against the true GMSL obtained from the mass-balance calculation. Because the ice source is now a random variable, the proxy error is itself a random variable with its own expectation and variance, and the spatial structure of the error field can be examined pointwise.
 \notebookcite{thomasholland01SeaSurface2026}
 
-This generalises the per-source analysis: the deterministic errors computed for individual ice sheets are recovered as special cases, while the stochastic formulation captures the additional uncertainty that arises when the source distribution is unknown. The resulting error statistics provide the baseline against which the Bayesian inversion method, developed in the following section, can be compared.
+In practice, the spatial distribution of ice loss is not known a priori, and so the proxy error inherits this uncertainty. To quantify the error in this more realistic setting, a synthetic ice sheet change scenario is constructed as per \autoref{sec:ice_thickness_priors}, representing our prior uncertainty about the spatial pattern of mass loss. This measure is propagated through the sea level fingerprint operator to yield distributions over both the true SLC field and its corresponding SSHC field.

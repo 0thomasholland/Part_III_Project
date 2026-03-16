@@ -1,4 +1,4 @@
-To quantify the error of using sea surface height change as a proxy for global mean sea level change, and to develop a new method that utilises the Bayesiean framework, it is necessary to design a suitable model space, data space, and operators that map between these spaces in a way that is consistent with the underlying physics and the available data and then proceed with testing the method and quantifying the error of the old method. Then, once this has been understood, the new method can be applied and tested.
+To quantify the error of using sea surface height change as a proxy for global mean sea level change, and to develop a new method that utilises the Bayesiean framework, it is necessary to design a suitable model space, data space, and operators that map between these spaces. These need to be consistent with the underlying physics and the available data.These are then used in testing and quantifying the error of the old method. Then, once this has been understood, the new method can be developed, compared, and tested.
 
 \subsection{Designing the model space, data space, and suitable operators}
 
@@ -9,33 +9,39 @@ Under this mathematical framework, it is possible to define model spaces and dat
 \notebookcite{thomasholland01SeaSurface2026}
 
 
-The sea-level problem had been implemented in \citetitle{al-attarPySLFPPythonSea2025} using the recent advancements made in \textcite{al-attarReciprocitySensitivityKernels2023} related to calculating of the adjoint of the sea level fingerprint equation.
+The numerical solution to the sea-level problem had been implemented in \citetitle{al-attarPySLFPPythonSea2025} using the recent advancements made in \textcite{al-attarReciprocitySensitivityKernels2023} related to calculating of the adjoint of the sea level fingerprint equation.
 
-As discussed in \autoref{sec:slp}, the relation between SSHC and SLC is given in \autoref{eq:slc_ssh_eq}. As the finger print code implemented in \citetitle{al-attarPySLFPPythonSea2025} returns the displacement field when calculating the SLC, it is fairly trivial to implement an operator that maps from SLC to SSHC, which acts on the total response space of the fingerprint operator to return the SSHC field (\autoref{eq:sshc_op}).
-
-\begin{equation}
-	\Delta SSH = \Delta SL + \hat{r}\mathbf{u} \label{eq:slc_ssh_eq}
-\end{equation}
+As discussed in \autoref{sec:slp}, the relation between SSHC and SLC is
 
 \begin{equation}
-    \Delta \text{SSH} = \operatorsshc \circ \operatorslc \, L \label{eq:sshc_op}
+  \sshc = \slc + \mathbf{u} \cdot \hat{\mathbf{r}} + \frac{\psi}{g} \label{eq:slc_ssh_eq}
 \end{equation}
 
-\begin{figure}
+and as the fingerprint code implemented in \citetitle{al-attarPySLFPPythonSea2025} returns the response of the Earth to a load. This response space is a direct sum containing sea level change, displacement, potential change, and angular velocity change, $\slc \oplus \mathbf{u} \oplus \psi \oplus \omega]$. Using reponse space, it is possible to implement a linear operator that maps to the sea surface height space.
 
-\end{figure}
+This operator takes the form of a mapping that computes the sea surface height change using the radial displacement and angular velocity change, removing rotational contributions, and subsequently applying an ocean projection operator to restrict the field to the ocean domain. This can be represented as
 
+\begin{equation}
+    \sshc = \operatorsshc(\slc, \mathbf{u}, \omega)
+\end{equation}
 
+which can be used as an operator to map from load change to sea surface height change, by first mapping from load change to the response space using the fingerprint operator, and then applying the SSHC operator to map from the response space to the SSHC space as
+
+\begin{equation}
+    \sshc = \operatorsshc \circ \operatorslc (\text{load})
+\end{equation}
+
+where $\operatorslc$ is the fingerprint operator that maps from load change to the response space that acts on load change to give the response of the Earth, in this case an arbritary load.
 
 \subsubsection{Point sampling}
+
+\todo{come back to this to fix it}
 
 \notebookcite{thomasholland05AltimetrySamplingipynb2026}
 
 In order to build data spaces, it is necessary to design operators that map from the continuous fields to the discrete observations that represent those made by satellite altimeters and tide gauges.
 
-For this, \citetitle{al-attarPygeoinfPythonLibrary2025} uses a Linear Operator form of a Dirac delta function, which acts to sample the input field at the given points, and return a vector of the sampled values.
-
-In order to simulate tide gauge data, ocean statelite, and ice altimetry data, I implemented three different point sampling operators, each validating points from a tide gauge dataset, gridded data at regular degree spacing masked to oceans, and the same masked for ice shelves, respectively. These operators are used to map from the continuous fields of sea level change and ice thickness change to the discrete observations that represent those made by satellite altimeters and tide gauges.
+For this, \citetitle{al-attarPygeoinfPythonLibrary2025} uses a Linear Operator form of a Dirac delta function, which acts to sample the input field at given points, and return a vector of the sampled values.
 
 \begin{align}
   \operatoraltimetry{\cdot}: H^s(\mathbb{S}^2) \to \mathbb{R}^N, \\ (\operatoraltimetry{}\, f)_i = \delta_{\mathbf{x}_i}(f) = f(\mathbf{x}_i),\quad i = 1, \dots, N
@@ -43,11 +49,23 @@ In order to simulate tide gauge data, ocean statelite, and ice altimetry data, I
 
 with condition $s > \frac{n}{2}$
 
+For example the tide gauge points are represented as a point sampling operator that samples the field at the locations of the tide gauges, and returns a vector of the sampled values. To generate the altimetery points, first a regular latitude-longitude grid is generated, and then a point sampling operator is applied to this grid to return the subset of points that are within the ocean or ice sheet domains, which represent the points that are observed by satellite altimeters.
+
+To generate a list of points to sample, a point sampling operator is designed that takes a domain $\Omega$ and a point set $\mathcal{G}$, and returns the subset of points that are within the domain. This can be represented as
+
+\begin{equation}
+  \operatorpoint: \Omega \times \mathcal{G} \to \mathcal{P}_\Omega, \quad \mathcal{P}_\Omega = \{\mathbf{x}_i \in \mathcal{G} \mid \mathbf{x}_i \in \Omega\}
+\end{equation}
+
+
+
 If G is a regular latitude-longitude grid with spacings ($\Delta \phi$, $\Delta \lambda$), then the masked point set for domain Omega is:
 
 \begin{equation}
   \mathcal{P}_\Omega = \left\{ \mathbf{x}_i \in \mathcal{G}(\Delta\phi, \Delta\lambda) \;\middle|\; \mathbf{x}_i \in \Omega \right\}
 \end{equation}
+
+In order to simulate tide gauge data, ocean statelite, and ice altimetry data, I implemented three different point sampling operators, each validating points from a tide gauge dataset, gridded data at regular degree spacing masked to oceans, and the same masked for ice shelves, respectively
 
 \begin{align}
   \operatorpointocean: \quad \Omega &= \Omega_{\text{ocean}} \cap \Omega_{\altimetry} \\
@@ -56,23 +74,24 @@ If G is a regular latitude-longitude grid with spacings ($\Delta \phi$, $\Delta 
   \subset \partial\Omega_{\text{ocean}}
 \end{align}
 
-\todo{equations and sort this out a bit better}
 
 \subsubsection{GMSL operators}
 
-True GMSL can be calculated from a simple mass balance from ice change, across the ice field domain $\Omega_I$, accounting for the density difference, and if we assume that the shape of the coastlines is constant, this takes the form:
+\notebookcite{thomasholland05AltimetrySamplingipynb2026}
+
+True GMSLC can be calculated from a simple mass balance from ice change, $\gmslc$, across the ice field domain, $\Omega_I$, accounting for the density difference between ice, $\rho_I$, and water, $\rho_W$. If we assume that the coastline shape is constant, this takes the form
 
 \begin{equation}
-    \gmslc: \operatorgmsl{\text{true}} = \frac{\rho_W}{A_{ocean} \rho_I} \int_{\Omega_I} \thicknesschange{I} (\mathbf{x})\, \mathrm{d}S(\mathbf{x}) \label{eq:gmsl_integral}
+    \gmslc: \operatorgmsl{\text{true}} = \frac{\rho_W}{A_{ocean} \rho_I} \int_{\Omega_I} \thicknesschange{I} (\mathbf{x})\, \mathrm{d}S(\mathbf{x}). \label{eq:gmsl_integral}
 \end{equation}
 
-A SSH based GMSL estimate can be calculated by calculating a surface integral of the SSHC field over the oceans:
+A SSH based GMSL estimate can be calculated by calculating a surface integral of the SSHC field over the oceans
 
 \begin{equation}
-    \gmslc^{\sshc}: \operatorgmsl{\sshc} = \frac{1}{|\Omega|}\int_{\Omega} \sshc(\mathbf{x})\, \mathrm{d}S(\mathbf{x}) \label{eq:gmsl_ssh_integral}
+    \gmslc^{\sshc}: \operatorgmsl{\sshc} = \frac{1}{|\Omega|}\int_{\Omega} \sshc(\mathbf{x})\, \mathrm{d}S(\mathbf{x}), \label{eq:gmsl_ssh_integral}
 \end{equation}
 
-Where $|\Omega| = \int_{\Omega} \mathrm{d}S(\mathbf{x})$ is the total surface area of the ocean domain, $\Omega$.
+where $|\Omega| = \int_{\Omega} \mathrm{d}S(\mathbf{x})$ is the total surface area of the ocean domain, $\Omega$.
 A SSH altimetry based GMSL can be calculated by a surface integral of the SSHC over the oceans within a defined latitudinal range, which represents what is sampled by satelite altimeters:
 
 \begin{equation}
@@ -80,25 +99,33 @@ A SSH altimetry based GMSL can be calculated by a surface integral of the SSHC o
 \end{equation}
 
 Where $|\Omega_{\altimetry}| = \int_{\Omega_{\altimetry}} \mathrm{d}S(\mathbf{x})$ is the total surface area of the ocean within the altimetry coverage domain, $\Omega_{\altimetry}$.
-Note that the normalisation by $|\Omega_{\altimetry}|$ rather than the full ocean area $|\Omega|$ implicitly assumes that the SSH anomaly outside the altimetry coverage is representative of the global mean, which is an approximation inherent to all altimetry-based GMSL estimates.
 
-A SSH point altimetry based GMSL estimate can be calculated by sampling the SSHC field at the altimetry points. A naive arithmetic mean of the form
+A SSH point altimetry based GMSL estimate can be calculated by sampling the SSHC field at the altimetry points, which more accurately reflects the method used to calculate GMSL from satellite altimetry data. A naive arithmetic mean of the form
 
 \begin{equation}
     % \gmslc^{\text{point}}: \operatorgmsl{\text{point, naive}} =
     \frac{1}{N}\sum_{i=1}^{N} \sshc(\mathbf{x}_i)\label{eq:gmsl_ssh_point_naive}
 \end{equation}
 
-is biased whenever the observation points are not uniformly distributed with respect to surface area. On a regular latitude-longitude grid, point density scales as $\cos^{-1}(\lambda)$, so polar regions are overrepresented. A $\cos(\lambda)$-weighted scheme corrects for this by replacing the uniform weights with $w_i = \cos(\lambda_i) / \sum_j \cos(\lambda_j)$, giving the area-weighted point estimator:
+is biased whenever the observation points are not uniformly distributed with respect to surface area. On a regular latitude-longitude grid, point density scales as $\cos^{-1}(\lambda)$, so polar regions are overrepresented. A $\cos(\lambda)$-weighted scheme corrects for this by replacing the uniform weights with $w_i = \cos(\lambda_i) / \sum_j \cos(\lambda_j)$, giving the area-weighted point estimator
 
 \begin{equation}
-    \gmslc^{\text{point}}: \operatorgmsl{\text{point}} = \sum_{i=1}^{N} w_i \, \sshc(\mathbf{x}_i), \qquad w_i = \frac{\cos(\lambda_i)}{\sum_j \cos(\lambda_j)} \label{eq:gmsl_ssh_point}
+    \gmslc^{\text{point}}: \operatorgmsl{\text{point}} = \sum_{i=1}^{N} w_i \, \sshc(\mathbf{x}_i), \qquad w_i = \frac{\cos(\lambda_i)}{\sum_j \cos(\lambda_j)}. \label{eq:gmsl_ssh_point}
 \end{equation}
 
 The full derivation of this quadriture scheme is given in \autoref{sec:point_gmsl_derivation}.
 
-This weighted estimator converges to $\operatorgmsl{\altimetry}$ as $N \to \infty$ and grid spacing tends to zero, since the discrete sum approximates the spherical surface integral with the correct area element $R^2 \cos(\lambda) \, \mathrm{d}\phi \, \mathrm{d}\lambda$, providing a natural consistency check between the two approaches.
+% This weighted estimator converges to $\operatorgmsl{\altimetry}$ as $N \to \infty$ and grid spacing tends to zero, since the discrete sum approximates the spherical surface integral with the correct area element $R^2 \cos(\lambda) \, \mathrm{d}\phi \, \mathrm{d}\lambda$, providing a natural consistency check between the two approaches.
 
+In the case where we want to give the lower error bounds for the altimetry-based GMSL estimate, we can adopt a best-case assumption of dense, uniform sampling across the altimetry domain $\Omega$. In this limit, the discrete sum over altimetry measurement points converges to a continuous surface integral so that the estimated global mean sea level reduces to the true spatial average of the field:
+
+\begin{equation}
+    \frac{1}{|\Omega_{ALT}|}\sum_{i=1}^{N} \sshc(\mathbf{x}_i)\, \delta A_i
+    \;\xrightarrow{N \to \infty}\;
+    \frac{1}{|\Omega_{ALT}|}\int_{\Omega_{ALT}} \sshc(\mathbf{x})\, \mathrm{d}S(\mathbf{x}) = \gmslc^{\altimetry}\label{eq:altimetry_equation}
+\end{equation}
+
+This constitutes a best-case scenario for the estimation error: any realistic altimetry network, with finite and non-uniform spatial coverage, will perform no better than this ideal limit.
 
 \subsubsection{Modelling Ice and Firn Thickness Change}\label{sec:ice_thickness_priors}
 
@@ -109,42 +136,31 @@ This weighted estimator converges to $\operatorgmsl{\altimetry}$ as $N \to \inft
 	\includegraphics[width=\columnwidth]{04_variability_fields_side_by_side.pdf}
 	\caption{a}\label{fig:spatial_ice_function}
 \end{figure}
-% -------------------------------------------------------------------------
 
-% Paragraph: Motivate the need for a spatial prior on ice thickness change.
-% Different physical processes dominate in different regions -- dynamic ice
-% loss at margins vs firn compaction in the interior. A spatially uniform
-% prior cannot capture this.
-
-The starting point for the error quantification and models produced is the ice model space which repesents our prior belief on what the ice sheet thickness change has occured.
-
-As discussed in \autoref{sec:bay}, if there is a scientific
-
-
-% Paragraph: Introduce the base Gaussian measure using the heat kernel on
-% the sphere. Explain that this gives a rotationally invariant, spatially
-% smooth prior, with the length scale controlling spatial correlation.
-
-
-A uniform point value scaled heat kernel gaussian measure is generated across the load space, which is then masked to the ice area. This measure is defined such that the covariance of the measure is scaled such that the standard deviation of the point-wise values are equal to the given amplitude \autocite{dal-attarPygeoinfsymmetric_spacePackageDocumentation2025}.
-
-
-By scaling the ice thickness change according to \autoref{eq:ice_gmsl_scaling}, which acts to scale the ice prior to have the belived standard deviation of the GMSL contirbution of ice melt, this can be satisfactorily used as an ice thickness prior.
+The starting point for the error quantification and models produced is the ice model space which repesents our prior belief of the change in ice thickness could occur. To do this, we can generate an initial covariance structure, $\covariance{0}$, that has decaying spatial correlation, which is a common choice for representing spatial fields, and is consistent with the idea that changes in ice thickness are more likely to be similar at nearby locations than at distant ones. This can be implemented using a heat kernel covariance (\autoref{eq:heat_kernel_covariance}), which has a structure that decays exponentially with distance, and is parameterised by a length scale that controls the rate of decay and a pointwise standard deviation based on an amplitude. To control the amplitude of the field, the standard deviation can be scaled to have a prescribed standard deviation for the implied GMSL change, which is a physically meaningful way to set the prior scale rather than an arbitrary choice. A sensible way to do this is to generate a field to act as the initial ice thickness change
 
 \begin{equation}
-    \sigma_{\text{gmsl}}  = \text{std}(\operatorgmsl{\text{true}} \circ \mu),
-    \quad \covariance{\thicknesschange{i}} = \left(\frac{\sigma_{\text{target}}}{\sigma_{\text{gmsl}}}\right)^2 \covariance{0}
-	\label{eq:ice_gmsl_scaling}
+	\thicknesschangeice \sim \mathcal{N}(0, \covariance{0})
 \end{equation}
 
-\todo{better this equation}
+which we can then measure equivielent GMSLC variance by applying the GMSL operator to this field
 
+\begin{equation}
+    \sigma_{\gmslc}^2 = \operatorgmsl{\text{true}} \covariance{0} \operatorgmsl{\text{true}}^*
+\end{equation}
 
-However, to consider ice altimetry, the variable density with depth means that thickness change is not linearly related to mass change, and so the simple.
+and then use this to scale the original operator to have the desired GMSL standard deviation, $\sigma_{\gmslc}^{\text{desired}}$, by applying a scaling factor to the original operator
 
-However, as ice altimetry, which is sensitive to thickness change, and ocean fingerprint measurements, through tide gauge and satellite altimetry which are sensitive to ice mass change, could be used to separate out these changes.
+\begin{equation}
+    \thicknesschangeice \sim \frac{\left(\sigma_{\gmslc}^{\text{desired}}\right)^2}{\sigma_{\gmslc}^2} \mathcal{N}(0, \covariance{0})
+\end{equation}
 
-To approximate the system, implemented two independently variable fields, one represent ice thickness change and one representing firn thickness change.
+which results in the ice thickness covaraince, $\covariance{\thicknesschange{I}}$, being scaled by the square of the scaling factor
+
+\begin{equation}
+\covariance{\thicknesschange{I}} \\ = \frac{\left(\sigma_{\gmslc}^{\text{desired}}\right)^2}{\sigma_{\gmslc}^2} \covariance{0}
+\end{equation}
+
 
 \begin{figure}[]
 	\includegraphics[width=\columnwidth]{04_variable_fields_thickness_load_grid.pdf}
@@ -152,62 +168,66 @@ To approximate the system, implemented two independently variable fields, one re
 	Firn has been scaled to produce the standard deviation equivalent of 10 mm GMSL; Ice has been scaled to produce the standard deviation equivalent of 20 mm GMSL; with firn having a density 0.4 times that of ice.}\label{fig:ice_samples}
 \end{figure}
 
-Studies (e.g. REF) have use spatial patterns suggesting that thickness changes that occur near the edges of the ice sheets (in the ablation zone) are more likely to be from denser ice loss, compared to thickness change that occurs in more central, thicker, locations are more likely to be surficial fluctuation in firn.
+Studies (e.g. REF) have shown spatial patterns suggesting that thickness changes that occur near the edges of the ice sheets are more likely to be from denser ice loss, compared to thickness change that occurs in more central, thicker, locations are more likely to be surficial fluctuation in firn. Firn is the intermediate stage between snow and ice, and is characterised by a lower density than ice, as well as a different response to climate forcing.
 
-To capture this relationship, a probability map was created that converted from ice thickness to probability of ice and firn melt (see \autoref{fig:spatial_ice_function}a), which takes the form of a generalised logistic curve. (\autoref{eq:spatial_prob_func}). Note that parameters are set heuristically to reflect  known glaciological structure and to match the spatial structure shown in other studies \autocites[e.g. ][]{}, and could in future be constrained empirically.
-
+To capture this relationship, a function, $\alpha$, was created that converted from ice thickness to fluctuation of ice, $\alpha(x)$ and firn change ($1-\alpha(x)$) (see \autoref{fig:spatial_ice_function}a), which takes the form of a generalised logistic curve
 
 \begin{equation}
     \alpha(x) = a + \frac{k - a}{\left(1 + e^{b(x - m)}\right)^{1/\nu}}, \quad T_i \to x \in [0,1] \label{eq:spatial_prob_func}
 \end{equation}
 
+where $x$ is a linearly standardised thickness $(x \in [0,1])$, $a$ is lower asymptote, $k$ upper asymptote, $b$ steepness parameter, $m$ inflection threshold, $\nu$ asymmetry parameter. The parameters that control the shape of the curve, $a$, $k$, $b$, $m$, and $\nu$, are set heuristically to reflect known glaciological structure and to match the spatial structure shown in other studies \autocites[e.g. ][]{}, and could in future be constrained empirically.
 
-
-Where $x$ is the standardised thickness $(x \in [0,1])$, $a$ is lower asymptote, $k$ upper asymptote, $b$ steepness parameter, $m$ inflection threshold, $\nu$ asymmetry parameter.
-
-This is applied to two fields, generated as described previously, by applying a point multiplication operator which results in the point-wise variance being scaled by the probability function (\autoref{eq:spatial_ice_covariance}). The thickness measures are then scaled using the GMSL scaling equation (\autoref{eq:ice_gmsl_scaling}), with suitable densities, for GMSLs standard deviations that are believed to be suitable for ice and firn contributions. \autoref{fig:spatial_ice_function} shows the application of this.
-
+This is applied to two uniform fields heat kernel fields, by applying a point multiplication operator which results in the point-wise variance being scaled by the function
 
 \begin{align}
-    \covariance{\thicknesschange{i}} &= W \covariance{0} W^*, \quad W = \text{diag}(\alpha(T_i))\label{eq:spatial_ice_covariance} \\
-    \covariance{\thicknesschange{f}} &= \tilde{W} \covariance{0} \tilde{W}^*, \quad \tilde{W} = \text{diag}(1 - \alpha(T_i)) \label{eq:spatial_firn_covariance}
+    \covariance{\thicknesschange{i}} &= W \covariance{0} W^*, \quad W = \text{diag}(\alpha(T_i)),\label{eq:spatial_ice_covariance} \\
+    \covariance{\thicknesschange{f}} &= \tilde{W} \covariance{0} \tilde{W}^*, \quad \tilde{W} = \text{diag}(1 - \alpha(T_i)). \label{eq:spatial_firn_covariance}
 \end{align}
 
-To map these two height fields into the load space, I used the built-in operator for ice load, and developed a complimentary operator for firn load.
-The load operator is defined in pyslfp as the point-wise multiplication of ice thickness change by the ice density (\autoref{eq:load_ice_op}). For firn, this operator is scaled by the firn density, such that the operator point-wise multiplies the change in firn thickness with the firn thickness.
-
-
-\begin{align}
-    \operatorloadice &= \rho_{i} \odot \thicknesschange{i}\label{eq:load_ice_op} \\
-    \operatorloadfirn &= \dfrac{\rho_{\text{firn}}}{\rho_{\text{ice}}}\operatorloadice \implies \operatorloadfirn = \rho_{\text{firn}} \odot \thicknesschange{f}  \label{eq:load_firn_op}
-\end{align}
+The thickness measures are then scaled using the GMSL scaling equation (\autoref{eq:ice_gmsl_scaling}), with suitable densities, for GMSLs standard deviations that are believed to be suitable for ice and firn contributions. \autoref{fig:spatial_ice_function} shows the application of this.
 
 
 
-
-% Paragraph: Explain the GMSL variance rescaling. The prior amplitude is
-% set by requiring the implied global mean sea level change to have a
-% prescribed standard deviation sigma_gmsl. This is a physically meaningful
-% way to set the prior scale rather than an arbitrary choice.
-
-
+To map these two height fields into the load space, the thickness fields are multiplied by the density of ice and firn.
 
 \subsubsection{Modelling Ocean Dynamics}
 \notebookcite{thomasholland03OceanDynamicsipynb2026}
 
 
 
-A uniform point value scaled heat kernel Gaussian Measure (ASK DAVID) is generated across the load space, which is then masked to the ocean area. This measure is suitable as it allows for the covariance to vary point-wise based on a defined quantity. This means that the field can be scaled to either have uniform standard deviation or to follow observed magnitudes.
-
 Three views could be taken with this prior, either to have a spatially uniform covariance, which could be argued to be valid over shorter time frames, for example considering month to month, where the uncertainty of any spatial pattern is too high, however
 
+When considering ocean dynamics, on shorter time scales for example less than a month, the spatial structure of the variance is likely to be more variable, and it is unlikely that there are regions of the ocean that have higher variability than others REF. This could be due to a variety of factors, such as ocean currents, eddies, and other dynamic processes that can lead to spatially heterogeneous patterns of sea level change. However, on longer time scales, on month to year or more, it is likely that there are regions of the ocean that have higher variability than others, due to factors such as ocean circulation patterns, topography, and other factors that can lead to spatially heterogeneous patterns of sea level change.
+
+For the former, a spatially uniform covariance could be used, which would assume that the variance of ocean dynamics is the same across the entire ocean domain. This could be implemented using a heat kernel covariance with a constant pointwise standard deviation, which would result in a spatially homogeneous field of ocean dynamics.
+
+For the latter, a spatially variable covariance could be used, which would allow for different variances in different regions of the ocean. This could be implemented by applying a pointwise scaling function to the covariance, which would allow for different variances in different regions of the ocean.
+
+As an example, to derive spatially variable ocean variance, DUACS dataset was sub-sampled into the required fields, binned into monthly changes and averaged,
+
+\begin{equation}
+    \sigma_{\text{OD}}^2(\mathbf{x}) = \frac{1}{N} \sum_{i=1}^{N} \left( \thicknesschange{OD}^i(\mathbf{x}) - \thicknesschange{OD}^{i-1}(\mathbf{x}) \right)^2,
+\end{equation}
+
+
+then scaled field between 0 and 1 using a min-max scaler
+
+\begin{equation}
+    \tilde{\sigma}_{\text{OD}}^2(\mathbf{x}) = \frac{\sigma_{\text{OD}}^2(\mathbf{x}) - \min(\sigma_{\text{OD}}^2)}{\max(\sigma_{\text{OD}}^2) - \min(\sigma_{\text{OD}}^2)},
+\end{equation}
+
+then this applied as a pointwise scaling function to the covariance of the ocean dynamics field
+
+\begin{equation}
+    \covariance{\thicknesschange{OD}} = W \covariance{0} W^*, \quad W = \text{diag}(\tilde{\sigma}_{\text{OD}}(\mathbf{x}))
+\end{equation}
 
 
 
+resulting in the point-wise standard deviation being scaled by the variance of the ocean dynamics field, which results in a spatially variable covariance structure for the ocean dynamics field. This is shown in the top panel of  \autoref{fig:spatial_odt} with samples of the two types of ocean dynamics field shown in the bottom panel.
 
-
-As an example, to derive spatially variable ocean variance, DUACS dataset REF downloaded and turned into a scaled field between 0 and 1, EQUATION. This resulted in the point-wise standard deviation being scaled by this factor. See \autoref{fig:spatial_odt}. The benefit of this approach is that when looking at different time frames, it would be possible to take the variance from those time bins, so for example the variance of monthly time gaps, and then take the average of those time bins and build the covariance structure from this. This in theory would give spatial variations on the orders of magnitude and correlation.
-
+Ocean dynamics does not result in a change in mass, but rather a redistribution of mass, and so the thickness change must average to zero across the ocean domain in all cases. This constraint is enforced by applying an operator which removes any variacne in the mean of the field, which can be implemented by applying a pointwise scaling function to the covariance, which would allow for different variances in different regions of the ocean, while also ensuring that the mean of the field is zero.
 
 \begin{figure}[h]
   \hfill\includegraphics[width=0.5\columnwidth]{03_Ocean_Dynamics_cell_3_01.pdf}\\
@@ -216,12 +236,9 @@ As an example, to derive spatially variable ocean variance, DUACS dataset REF do
 	\caption{ODT }\label{fig:spatial_odt}
 \end{figure}
 
-
-A operator which removes the ocean average is called to result in the global mean resulting in zero which means that the global average water mass change due to ocean dynamics is zero, which is physically consistent.
-
-When considering the impact of ocean dynamics, it is important to note that the redistribution of mass has an effect on the equipotential surface. As such, whenever calculating the fingerprint, we also pass the load change due to ocean dynamics. This results in the total change due to ocean dynamics being the combination of the thickness change and the finger print response.
+When considering the impact of ocean dynamics, it is important to note that the redistribution of mass has an effect on the equipotential surface. As such, whenever calculating the fingerprint, we also pass the height change due to ocean dynamics. This results in the total change due to ocean dynamics being the combination of the thickness change and the fingerprint response:
 
 \begin{align}
-	\slc &= \thicknesschange{OD} + \operatorslc \circ \operatorloadwater(\thicknesschange{OD}) \\
-	\sshc &= \thicknesschange{OD} + \operatorsshc \circ \operatorslc \circ \operatorloadwater(\thicknesschange{OD})
+	\slc &= \thicknesschange{OD} + \operatorslc \circ \operatorloadwater(\thicknesschange{OD}), \\
+	\sshc &= \thicknesschange{OD} + \operatorsshc \circ \operatorslc \circ \operatorloadwater(\thicknesschange{OD}).
 \end{align}

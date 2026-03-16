@@ -19,7 +19,7 @@ This framework accommodates both deterministic fields, which enter as fixed elem
 There are suitable conditions that $\mathcal{C}$ must satisfy to be a valid covariance operator on an infinite-dimensional space, which are ensured by \citetitle{al-attarPygeoinfPythonLibrary2025}. An example of this is the heat kernel covariance structure
 
 \begin{equation}
-  \covariance{} = \frac{\alpha^2}{\braket{e^{-\lambda^2\Delta}\delta_x,\delta_x}} e^{-\lambda^2 \Delta}
+  \covariance{} = \frac{\alpha^2}{\braket{e^{-\lambda^2\Delta}\delta_x,\delta_x}} e^{-\lambda^2 \Delta}\label{eq:heat_kernel_covariance}
 \end{equation}
 
 where $\Delta$ is the Laplace-Beltrami operator on the sphere, and $\alpha$ and $\lambda$ are parameters that control the pointwise standard deviation and the lengthscale of spatial correlations, respectively. $\braket{\cdot,\cdot}$ is the inner product of the space (a generalisation of the dot product \autocite{parkerGeophysicalInverseTheory1994}). This covariance structure ensures that the resulting Gaussian measure is well-defined and rotationally invariant (such that covariance is equal at any point). It is a useful form of covariance structure for geophysical problems, as it encodes the physical intuition of scaling point-wise variance and spatial correlation that decays with distance.
