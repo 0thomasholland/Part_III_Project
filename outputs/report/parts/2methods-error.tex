@@ -33,3 +33,9 @@ By varying the latitudinal extent of the altimetry domain, the dependence of thi
 \notebookcite{thomasholland01SeaSurface2026}
 
 In practice, the spatial distribution of ice loss is not known a priori, and so the proxy error inherits this uncertainty. To quantify the error in this more realistic setting, a synthetic ice sheet change scenario is constructed as per \autoref{sec:ice_thickness_priors}, representing our prior uncertainty about the spatial pattern of mass loss. This measure is propagated through the sea level fingerprint operator to yield distributions over both the true SLC field and its corresponding SSHC field.
+
+A sample is drawn from this to show how this flow works. Quantification of the error associated with a realistic case is then achieved by comparing the resulting distributions of GMSL values obtained from the true SLC and the SSHC proxy. This quantifies the error in terms of both bias and uncertainty, reflecting the fact that the proxy error is not a fixed quantity but rather a distribution that depends on the unknown spatial pattern of ice loss.
+
+This was then repeated across a range of altimetry coverage scenarios to show how the error changes with coverage in the presence of source uncertainty.
+
+For a qualitative understanding of how ice thickness change parameters (mean, covariance, and length scales) led to different error distributions, the above process was repeated for a range of different ice thickness change priors, where each of these parameters were changed and the resulting distributions of GMSL values across altimetry ranges were compared.
