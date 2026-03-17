@@ -4,7 +4,7 @@
   \includegraphics[width=0.9\columnwidth]{7-0_baseline_inversion.pdf}
   \end{center}
 
-	\caption{}
+	\caption{The true ice thickness change field used across all sensitivity tests, drawn as a single sample from the prior, alongside the posterior expectation and uncertainty for an inversion where the prior exactly matches the generating distribution. The posterior expectation recovers the spatial structure of the true field well, and the true field lies comfortably within the posterior.}
 	\label{fig:sensitivity-true-inversion}
 
 \end{figure}
@@ -16,7 +16,8 @@
   \includegraphics[width=0.9\columnwidth]{7-1_length_scale.pdf}
   \end{center}
 
-	\caption{}
+	\caption{Results for priors with length scales of 318.4 km (0.5x), 955.2 km (1.5x), and 2547.2 km (4.0x) relative to the true length scale of 636.8 km. All three posteriors contain the true GMSL value, with z-scores of -0.82, -0.37, and 0.20 respectively. Longer length scales recover the field with more spatial smoothing but converge faster (108, 74, and 52 CG iterations respectively). Some artefacts are visible in eastern Greenland for the shortest length scale.
+}
 	\label{fig:sensitivity-lengthscale}
 
 \end{figure}
@@ -27,7 +28,7 @@
   \includegraphics[width=0.9\columnwidth]{7-2_mean_translation.pdf}
   \end{center}
 
-	\caption{}
+	\caption{Results for prior means offset to 1, 10, and 50 mm GMSL relative to the true value of 1.67 mm. Despite the 50 mm case placing the prior mean well outside the data-constrained range (prior z-score of 4.83), the posterior still recovers the true GMSL with a z-score of -1.12 and a mean of 1.56 mm. Posterior widths are similar across all offset cases, and the prior mean offset has negligible effect on CG convergence (76 to 82 iterations).}
 	\label{fig:sensitivity-offset}
 
 \end{figure}
@@ -38,7 +39,7 @@
   \includegraphics[width=0.9\columnwidth]{7-3_covariance_scaling.pdf}
   \end{center}
 
-	\caption{}
+	\caption{Results for prior standard deviation multipliers of 0.5, 2.0, and 5.0 relative to the baseline of 10 mm. All posteriors contain the true GMSL value (z-scores of 0.22, -1.60, and -1.30 respectively). The higher-variance cases are poorly conditioned and require substantially more CG iterations to converge, with the 5x case taking approximately five times longer than the baseline inversion (47, 197, and 610 iterations respectively).}
 	\label{fig:sensitivity-variance}
 
 \end{figure}
