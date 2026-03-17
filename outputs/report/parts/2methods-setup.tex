@@ -65,7 +65,7 @@ If G is a regular latitude-longitude grid with spacings ($\Delta \phi$, $\Delta 
   \mathcal{P}_\Omega = \left\{ \mathbf{x}_i \in \mathcal{G}(\Delta\phi, \Delta\lambda) \;\middle|\; \mathbf{x}_i \in \Omega \right\}
 \end{equation}
 
-In order to simulate tide gauge data, ocean statelite, and ice altimetry data, I implemented three different point sampling operators, each validating points from a tide gauge dataset, gridded data at regular degree spacing masked to oceans, and the same masked for ice shelves, respectively
+In order to simulate tide gauge data, ocean statelite, and ice altimetry data, we implemented three different point sampling operators, each validating points from a tide gauge dataset, gridded data at regular degree spacing masked to oceans, and the same masked for ice shelves, respectively
 
 \begin{align}
   \operatorpointocean: \quad \Omega &= \Omega_{\text{ocean}} \cap \Omega_{\altimetry} \\
