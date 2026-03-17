@@ -120,7 +120,7 @@ def make_ssh_grid_figure(panels, title: str) -> plt.Figure:
             label=label,
         )
 
-    fig.suptitle(title, y=1.01, fontsize=10)
+    # fig.suptitle(title, y=1.01, fontsize=10)
     return fig
 
 

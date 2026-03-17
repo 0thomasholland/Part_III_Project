@@ -13,6 +13,24 @@ At the standard altimetry latitude range of $60$--$75^\circ$, the GIS contributi
 
 \subsubsection{Spatial structure of the proxy error}
 
+
+\begin{figure}[h!]
+  \begin{center}
+  \includegraphics[width=0.8\columnwidth]{10_ssh_expectations.pdf}
+	\end{center}
+  \caption{Synthetic error quantification scenario. Top row: rotationally invariant ice thickness change (left) and resulting SLC field (right). Middle row: corresponding SSHC field (left) and observed SSHC within the $\pm66^\circ$ altimetry band (right). Bottom: distributions of the true and estimated GMSL, and the estimation error.}
+	\label{fig:simple_load_to_obs}
+\end{figure}
+
+\begin{figure}[h!]
+\begin{center}
+	\includegraphics[width=0.8\columnwidth]{10_ssh_samples.pdf}
+\end{center}
+	\caption{Synthetic error quantification scenario. Top row: rotationally invariant ice thickness change (left) and resulting SLC field (right). Middle row: corresponding SSHC field (left) and observed SSHC within the $\pm66^\circ$ altimetry band (right). Bottom: distributions of the true and estimated GMSL, and the estimation error.}
+	\label{fig:sample_simple_load}
+\end{figure}
+
+
 \begin{figure}[h]
   \begin{center}
   \includegraphics[width=0.7\columnwidth]{01_sea_surface_height_10.pdf}
@@ -22,32 +40,6 @@ At the standard altimetry latitude range of $60$--$75^\circ$, the GIS contributi
 
 To illustrate how the proxy error manifests spatially, \autoref{fig:simple_load_to_obs} shows the expected fields from a single synthetic scenario in which a spatially uniform ice change standardised to $\mathcal{N}(10\text{mm}, 1\text{mm}^2)$ GMSL change is propagated forwards. The resulting true GMSL expectation is 9.951~mm with a standard deviation of 0.998~mm. The SSHC-based estimate yields an expectation of 9.831~mm with a standard deviation of 0.988~mm. The error distribution is centred just below zero, confirming a small but consistent negative bias, shown in \autoref{fig:simple_error_dist}. \autoref{fig:sample_simple_load} shows a sample drawn from this distribution, which captures the spatial variability underlying these distributions.
 
-\todo{fix this section - i've gotten confused on what each thing is showing.}
-
-\begin{figure}[h!]
-  \begin{center}
-  \includegraphics[width=0.49\columnwidth]{01_sea_surface_height_01.pdf}
-  \includegraphics[width=0.49\columnwidth]{01_sea_surface_height_02.pdf}
-  \includegraphics[width=0.49\columnwidth]{01_sea_surface_height_03.pdf}
-  \hfill\includegraphics[width=0.49\columnwidth]{01_sea_surface_height_04.pdf}\hspace{0.05\columnwidth}
-	\includegraphics[width=0.49\columnwidth]{01_sea_surface_height_14.pdf}
-	\end{center}
-	\caption{Synthetic error quantification scenario. Top row: rotationally invariant ice thickness change (left) and resulting SLC field (right). Middle row: corresponding SSHC field (left) and observed SSHC within the $\pm66^\circ$ altimetry band (right). Bottom: distributions of the true and estimated GMSL, and the estimation error.}
-	\label{fig:simple_load_to_obs}
-\end{figure}
-
-\begin{figure}[h!]
- %  \begin{center}
- %  \includegraphics[width=0.49\columnwidth]{01_sea_surface_height_01.pdf}
- %  \includegraphics[width=0.49\columnwidth]{01_sea_surface_height_02.pdf}
- %  \includegraphics[width=0.49\columnwidth]{01_sea_surface_height_03.pdf}
- %  \hfill\includegraphics[width=0.49\columnwidth]{01_sea_surface_height_04.pdf}\hspace{0.05\columnwidth}
-	% \includegraphics[width=0.49\columnwidth]{01_sea_surface_height_14.pdf}
-	% \end{center}
-	\missingfigure{sample case}
-	\caption{Synthetic error quantification scenario. Top row: rotationally invariant ice thickness change (left) and resulting SLC field (right). Middle row: corresponding SSHC field (left) and observed SSHC within the $\pm66^\circ$ altimetry band (right). Bottom: distributions of the true and estimated GMSL, and the estimation error.}
-	\label{fig:sample_simple_load}
-\end{figure}
 
 \subsubsection{Error under source uncertainty}
 
@@ -72,7 +64,7 @@ Over multiple runs, I found qualativlhy, this pattern varies as the GMSL estimat
   \caption{simple inversion}\label{fig:simple_inversion_example}
 \end{figure}
 
-\Autoref{fig:simple_inversion_example} shows a simple example of an inversion for ice thickness change from ocean altimetry, where the true data is synthetically drawn from the prior distribution. The posterior distribution of GMSL change from the inversion contains the true value well. The spatial structure of the posterior expectation also shows good recovery of the true ice thickness change field, with the main features of the true field being captured in the posterior expectation.
+\autoref{fig:simple_inversion_example} shows a simple example of an inversion for ice thickness change from ocean altimetry, where the true data is synthetically drawn from the prior distribution. The posterior distribution of GMSL change from the inversion contains the true value well. The spatial structure of the posterior expectation also shows good recovery of the true ice thickness change field, with the main features of the true field being captured in the posterior expectation.
 
 \subsection{Method comparison}
 
