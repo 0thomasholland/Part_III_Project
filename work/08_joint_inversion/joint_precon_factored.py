@@ -21,6 +21,7 @@ from pyslfp import (
 )
 from tqdm import tqdm
 
+from project import colors
 from project.factored_forward_operator import (
     build_factored_forward_operator,
     build_factored_forward_operator_precon,
@@ -29,11 +30,12 @@ from project.operators import (
     ice_thickness_to_estimated_gmsl_operator,
 )
 from pygeoinf_extras import standard_dev
-from pygeoinf_extras.plots import plot_corner_distributions
+from pygeoinf_extras.plots import plot_bivariate_corner
+from pyslfp_extras import colors
 from pyslfp_extras.altimetry import GridPoints
 from pyslfp_extras.ice_thickness import IceSheetChange
 from pyslfp_extras.ocean_dynamics import OceanDynamics
-from project import colors
+
 # %%
 # =============================================================================
 # Full-resolution model setup
@@ -755,12 +757,13 @@ joint_gmsl_posterior_measure = (
 true_ice_gmsl = ice_gmsl_row(model_true)[0]
 true_firn_gmsl = firn_gmsl_row(model_true)[0]
 
-fig_cov, axes_cov = plot_corner_distributions(
+fig_cov, axes_cov = plot_bivariate_corner(
     joint_gmsl_posterior_measure,
     true_values=np.array([true_ice_gmsl, true_firn_gmsl]),
     labels=["Ice GMSL (mm)", "Firn GMSL (mm)"],
     title="Joint Posterior: Ice vs Firn GMSL Contributions",
     figsize=(6.5, 6.5),
+    pdf_colors=[colors.ice, colors.firn],
 )
 fig_cov.savefig(
     f"{dir}/joint_precon_ice_firn_gmsl_covariance.pdf",

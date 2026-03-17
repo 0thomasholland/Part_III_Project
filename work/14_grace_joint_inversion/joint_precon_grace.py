@@ -29,7 +29,8 @@ from project.operators import (
     ice_thickness_to_estimated_gmsl_operator,
 )
 from pygeoinf_extras import standard_dev
-from pygeoinf_extras.plots import plot_corner_distributions
+from pygeoinf_extras.plots import plot_bivariate_corner
+from pyslfp_extras import colors
 from pyslfp_extras.altimetry import GridPoints
 from pyslfp_extras.ice_thickness import IceSheetChange
 from pyslfp_extras.ocean_dynamics import OceanDynamics
@@ -123,9 +124,17 @@ tide_gauge_points = list(zip(filtered_lats, filtered_lons))
 #
 # =============================================================================
 
-def _build_forward_operator(fp, fp_op, ice, odt,
-                             ssh_altimetry, ice_altimetry,
-                             tide_gauge_points, grace_observation_degree):
+
+def _build_forward_operator(
+    fp,
+    fp_op,
+    ice,
+    odt,
+    ssh_altimetry,
+    ice_altimetry,
+    tide_gauge_points,
+    grace_observation_degree,
+):
     """
     Build the factored forward operator extended with GRACE observations.
 
@@ -153,17 +162,31 @@ def _build_forward_operator(fp, fp_op, ice, odt,
     L_W = sea_level_change_to_load_operator(fp, load_space)
 
     # -- Point evaluation operators --
-    P_S_ssh = ssh_altimetry.point_evaluation_operator(S.codomain)
-    P_S_odt = ssh_altimetry.point_evaluation_operator(odt_space)
+    P_S_ssh = ssh_altimetry.point_evaluation_operator(
+        S.codomain
+    )
+    P_S_odt = ssh_altimetry.point_evaluation_operator(
+        odt_space
+    )
 
-    P_T_slc = slc_space.point_evaluation_operator(tide_gauge_points)
-    P_T_odt = odt_space.point_evaluation_operator(tide_gauge_points)
+    P_T_slc = slc_space.point_evaluation_operator(
+        tide_gauge_points
+    )
+    P_T_odt = odt_space.point_evaluation_operator(
+        tide_gauge_points
+    )
 
-    P_I_ice = ice_altimetry.point_evaluation_operator(ice_space)
-    P_I_firn = ice_altimetry.point_evaluation_operator(firn_space)
+    P_I_ice = ice_altimetry.point_evaluation_operator(
+        ice_space
+    )
+    P_I_firn = ice_altimetry.point_evaluation_operator(
+        firn_space
+    )
 
     # -- GRACE operator --
-    grace_op = grace_operator(response_space, grace_observation_degree)
+    grace_op = grace_operator(
+        response_space, grace_observation_degree
+    )
 
     # -- Identities --
     id_odt = odt_space.identity_operator()
@@ -182,18 +205,26 @@ def _build_forward_operator(fp, fp_op, ice, odt,
             [L_I, L_F, L_W],
             [
                 ice_space.zero_operator(codomain=odt_space),
-                firn_space.zero_operator(codomain=odt_space),
+                firn_space.zero_operator(
+                    codomain=odt_space
+                ),
                 id_odt,
             ],
             [
                 id_ice,
-                firn_space.zero_operator(codomain=ice_space),
+                firn_space.zero_operator(
+                    codomain=ice_space
+                ),
                 odt_space.zero_operator(codomain=ice_space),
             ],
             [
-                ice_space.zero_operator(codomain=firn_space),
+                ice_space.zero_operator(
+                    codomain=firn_space
+                ),
                 id_firn,
-                odt_space.zero_operator(codomain=firn_space),
+                odt_space.zero_operator(
+                    codomain=firn_space
+                ),
             ],
         ]
     )
@@ -223,7 +254,9 @@ def _build_forward_operator(fp, fp_op, ice, odt,
                 firn_space.zero_operator(codomain=tg_obs),
             ],
             [
-                response_space.zero_operator(codomain=ice_obs),
+                response_space.zero_operator(
+                    codomain=ice_obs
+                ),
                 odt_space.zero_operator(codomain=ice_obs),
                 P_I_ice,
                 P_I_firn,
@@ -232,7 +265,9 @@ def _build_forward_operator(fp, fp_op, ice, odt,
                 grace_op,
                 odt_space.zero_operator(codomain=grace_obs),
                 ice_space.zero_operator(codomain=grace_obs),
-                firn_space.zero_operator(codomain=grace_obs),
+                firn_space.zero_operator(
+                    codomain=grace_obs
+                ),
             ],
         ]
     )
@@ -241,9 +276,14 @@ def _build_forward_operator(fp, fp_op, ice, odt,
 
 
 forward_operator, grace_obs = _build_forward_operator(
-    fp, fp_op, ice, odt,
-    ssh_altimetry, ice_altimetry,
-    tide_gauge_points, grace_observation_degree,
+    fp,
+    fp_op,
+    ice,
+    odt,
+    ssh_altimetry,
+    ice_altimetry,
+    tide_gauge_points,
+    grace_observation_degree,
 )
 
 data_space = forward_operator.codomain
@@ -406,7 +446,9 @@ precon_F = precon_fp_op
 precon_S = sea_surface_height_operator(
     precon_fp, precon_response_space
 )
-precon_slc_proj = precon_response_space.subspace_projection(0)
+precon_slc_proj = precon_response_space.subspace_projection(
+    0
+)
 precon_slc_space = precon_slc_proj.codomain
 
 precon_L_I = precon_ice.ice_thickness_to_load_operator
@@ -416,8 +458,10 @@ precon_L_W = sea_level_change_to_load_operator(
 )
 
 # Evaluate at full-resolution coordinates
-precon_P_S_ssh = precon_S.codomain.point_evaluation_operator(
-    ssh_altimetry.coords
+precon_P_S_ssh = (
+    precon_S.codomain.point_evaluation_operator(
+        ssh_altimetry.coords
+    )
 )
 precon_P_S_odt = precon_odt_space.point_evaluation_operator(
     ssh_altimetry.coords
@@ -431,8 +475,10 @@ precon_P_T_odt = precon_odt_space.point_evaluation_operator(
 precon_P_I_ice = precon_ice_space.point_evaluation_operator(
     ice_altimetry.coords
 )
-precon_P_I_firn = precon_firn_space.point_evaluation_operator(
-    ice_altimetry.coords
+precon_P_I_firn = (
+    precon_firn_space.point_evaluation_operator(
+        ice_altimetry.coords
+    )
 )
 
 # GRACE operator at low resolution — same observation_degree
@@ -1000,12 +1046,13 @@ joint_gmsl_posterior_measure = (
 true_ice_gmsl = ice_gmsl_row(model_true)[0]
 true_firn_gmsl = firn_gmsl_row(model_true)[0]
 
-fig_cov, axes_cov = plot_corner_distributions(
+fig_cov, axes_cov = plot_bivariate_corner(
     joint_gmsl_posterior_measure,
     true_values=np.array([true_ice_gmsl, true_firn_gmsl]),
     labels=["Ice GMSL (mm)", "Firn GMSL (mm)"],
     title="Joint Posterior: Ice vs Firn GMSL Contributions",
     figsize=(6.5, 6.5),
+    pdf_colors=[colors.ice, colors.firn],
 )
 fig_cov.savefig(
     f"{dir}/joint_precon_grace_ice_firn_gmsl_covariance.pdf",
