@@ -398,3 +398,11 @@
 - Proofread and revised the project report across multiple sections.
 - Added knockout sensitivity tests and firn–ice thickness covariance analysis.
 
+## 17 March 2026
+
+- Drafted methodology comparison with Coulson et al., contrasting the infinite-dimensional spatially-correlated approach against their mascon discretisation. Framing emphasises physically arbitrary spatial structure and assumed independence between drainage basins rather than stronger claims.
+- Polished sensitivity analysis results, deciding to move sensitivity figures to supplementary material and retain only the z-score ridge plot in the main text.
+- Added GRACE joint inversion run and updated bivariate posterior plots with knockout test results.
+- Implemented improved covariance visualisation and regional analysis plots.
+- Updated bibliography references and continued report drafting.
+
