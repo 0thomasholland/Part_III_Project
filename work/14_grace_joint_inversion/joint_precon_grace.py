@@ -2,6 +2,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from pygeoinf import (
+    BlockDiagonalLinearOperator,
     BlockLinearOperator,
     CGMatrixSolver,
     EigenSolver,
@@ -17,14 +18,13 @@ from pyslfp import (
     IceModel,
     plot,
     read_gloss_tide_gauge_data,
+    sea_level_change_to_load_operator,
+    sea_surface_height_operator,
     tide_gauge_operator,
 )
+from pyslfp.operators import grace_operator
 from tqdm import tqdm
 
-from project.factored_forward_operator import (
-    build_factored_forward_operator,
-    build_factored_forward_operator_precon,
-)
 from project.operators import (
     ice_thickness_to_estimated_gmsl_operator,
 )
@@ -33,7 +33,7 @@ from pygeoinf_extras.plots import plot_corner_distributions
 from pyslfp_extras.altimetry import GridPoints
 from pyslfp_extras.ice_thickness import IceSheetChange
 from pyslfp_extras.ocean_dynamics import OceanDynamics
-from project import colors
+
 # %%
 # =============================================================================
 # Full-resolution model setup
@@ -47,6 +47,11 @@ fp_op = fp.as_sobolev_linear_operator(
 
 dir = "figs1"
 measure_error_std = 0.001
+
+# GRACE-specific error (in non-dimensionalised units)
+grace_std_dev_m = 0.0027
+grace_std = grace_std_dev_m / fp.length_scale
+grace_observation_degree = 96
 
 ice = IceSheetChange.global_ice(
     finger_print=fp,
@@ -97,47 +102,148 @@ ssh_altimetry = GridPoints.ocean_altimetry(fp, 10.0, 66.0)
 ice_altimetry = GridPoints.ice(fp, 15.0)
 
 lats, lons = read_gloss_tide_gauge_data()
-
-
 filtered_lats = lats.copy()
 filtered_lons = lons.copy()
-
-# for i in range(len(lats)):
-#     for j in range(i + 1, len(lats)):
-#         if (
-#             abs(lats[i] - lats[j]) < 8.0
-#             and abs(lons[i] - lons[j]) < 8.0
-#         ):
-#             # Remove the second point (j) if it's too close to the first point (i)
-#             filtered_lats[j] = None
-#             filtered_lons[j] = None
-
-# filtered_lats = [
-#     lat for lat in filtered_lats if lat is not None
-# ]
-# filtered_lons = [
-#     lon for lon in filtered_lons if lon is not None
-# ]
-
-
 tide_gauge_points = list(zip(filtered_lats, filtered_lons))
-tide_sampling_op = tide_gauge_operator(
-    ice.load_to_slc_operator.codomain, tide_gauge_points
-)
 
 # %%
 # =============================================================================
-# Full-resolution forward operator (block structure)
+# Full-resolution forward operator with GRACE
+# =============================================================================
+#
+# Extends the factored block structure (P_left @ F_middle @ L_right)
+# from joint_precon_factored.py by adding GRACE as a 4th observation row.
+#
+#   L_right (4×3):  load operators + routing permutation  [unchanged]
+#   F_middle(4×4):  block_diag(F, I_odt, I_ice, I_firn)  [unchanged]
+#   P_left  (4×4):  rows = SSH altimetry / tide gauges / ice altimetry / GRACE
+#
+# The GRACE row maps from the fingerprint response_space via the spherical
+# harmonic sampling operator; all other intermediate spaces contribute zero.
+#
 # =============================================================================
 
-forward_operator = build_factored_forward_operator(
-    fp,
-    fp_op,
-    ice,
-    odt,
-    ssh_altimetry,
-    ice_altimetry,
-    tide_gauge_points,
+def _build_forward_operator(fp, fp_op, ice, odt,
+                             ssh_altimetry, ice_altimetry,
+                             tide_gauge_points, grace_observation_degree):
+    """
+    Build the factored forward operator extended with GRACE observations.
+
+    Observation rows (in order):
+      0 — SSH altimetry
+      1 — Tide gauges (SLC)
+      2 — Ice altimetry
+      3 — GRACE spherical harmonic coefficients
+    """
+    # -- Spaces --
+    load_space = fp_op.domain
+    response_space = fp_op.codomain
+    ice_space = ice.ice_thickness.domain
+    firn_space = ice.firn_thickness.domain
+    odt_space = odt.height_measure.domain
+
+    # -- Component operators --
+    F = fp_op
+    S = sea_surface_height_operator(fp, response_space)
+    slc_proj = response_space.subspace_projection(0)
+    slc_space = slc_proj.codomain
+
+    L_I = ice.ice_thickness_to_load_operator
+    L_F = ice.firn_thickness_to_load_operator
+    L_W = sea_level_change_to_load_operator(fp, load_space)
+
+    # -- Point evaluation operators --
+    P_S_ssh = ssh_altimetry.point_evaluation_operator(S.codomain)
+    P_S_odt = ssh_altimetry.point_evaluation_operator(odt_space)
+
+    P_T_slc = slc_space.point_evaluation_operator(tide_gauge_points)
+    P_T_odt = odt_space.point_evaluation_operator(tide_gauge_points)
+
+    P_I_ice = ice_altimetry.point_evaluation_operator(ice_space)
+    P_I_firn = ice_altimetry.point_evaluation_operator(firn_space)
+
+    # -- GRACE operator --
+    grace_op = grace_operator(response_space, grace_observation_degree)
+
+    # -- Identities --
+    id_odt = odt_space.identity_operator()
+    id_ice = ice_space.identity_operator()
+    id_firn = firn_space.identity_operator()
+
+    # -- Observation spaces --
+    ssh_obs = P_S_ssh.codomain
+    tg_obs = P_T_slc.codomain
+    ice_obs = P_I_ice.codomain
+    grace_obs = grace_op.codomain
+
+    # == L_right (4×3) ==
+    L_right = BlockLinearOperator(
+        [
+            [L_I, L_F, L_W],
+            [
+                ice_space.zero_operator(codomain=odt_space),
+                firn_space.zero_operator(codomain=odt_space),
+                id_odt,
+            ],
+            [
+                id_ice,
+                firn_space.zero_operator(codomain=ice_space),
+                odt_space.zero_operator(codomain=ice_space),
+            ],
+            [
+                ice_space.zero_operator(codomain=firn_space),
+                id_firn,
+                odt_space.zero_operator(codomain=firn_space),
+            ],
+        ]
+    )
+
+    # == F_middle (4×4 block diagonal) ==
+    F_middle = BlockDiagonalLinearOperator(
+        [F, id_odt, id_ice, id_firn]
+    )
+
+    # == P_left (4×4) ==
+    # [[P_S·S,        P_S_odt,  0,       0        ],
+    #  [P_T·slc_proj, P_T_odt,  0,       0        ],
+    #  [0,            0,        P_I_ice, P_I_firn  ],
+    #  [grace_op,     0,        0,       0         ]]
+    P_left = BlockLinearOperator(
+        [
+            [
+                P_S_ssh @ S,
+                P_S_odt,
+                ice_space.zero_operator(codomain=ssh_obs),
+                firn_space.zero_operator(codomain=ssh_obs),
+            ],
+            [
+                P_T_slc @ slc_proj,
+                P_T_odt,
+                ice_space.zero_operator(codomain=tg_obs),
+                firn_space.zero_operator(codomain=tg_obs),
+            ],
+            [
+                response_space.zero_operator(codomain=ice_obs),
+                odt_space.zero_operator(codomain=ice_obs),
+                P_I_ice,
+                P_I_firn,
+            ],
+            [
+                grace_op,
+                odt_space.zero_operator(codomain=grace_obs),
+                ice_space.zero_operator(codomain=grace_obs),
+                firn_space.zero_operator(codomain=grace_obs),
+            ],
+        ]
+    )
+
+    return P_left @ F_middle @ L_right, grace_op.codomain
+
+
+forward_operator, grace_obs = _build_forward_operator(
+    fp, fp_op, ice, odt,
+    ssh_altimetry, ice_altimetry,
+    tide_gauge_points, grace_observation_degree,
 )
 
 data_space = forward_operator.codomain
@@ -152,17 +258,33 @@ model_space_to_slc_operator = RowLinearOperator(
     ]
 )
 
-
 # %%
 # =============================================================================
-# Data error and forward problem
+# Data error (component-wise: altimetry/TG/ice share measure_error_std;
+# GRACE uses its own grace_std)
 # =============================================================================
 
+# Extract observation sub-spaces from the data_space order:
+# 0: SSH altimetry, 1: tide gauges, 2: ice altimetry, 3: GRACE
+ssh_obs_space = data_space.subspaces[0]
+tg_obs_space = data_space.subspaces[1]
+ice_obs_space = data_space.subspaces[2]
 
-data_error_measure = (
-    GaussianMeasure.from_standard_deviation(
-        data_space, measure_error_std
-    )
+data_error_measure = GaussianMeasure.from_direct_sum(
+    [
+        GaussianMeasure.from_standard_deviation(
+            ssh_obs_space, measure_error_std
+        ),
+        GaussianMeasure.from_standard_deviation(
+            tg_obs_space, measure_error_std
+        ),
+        GaussianMeasure.from_standard_deviation(
+            ice_obs_space, measure_error_std
+        ),
+        GaussianMeasure.from_standard_deviation(
+            grace_obs, grace_std
+        ),
+    ]
 )
 
 forward_problem = LinearForwardProblem(
@@ -176,7 +298,7 @@ model_true, data = forward_problem.synthetic_model_and_data(
 
 # %%
 # =============================================================================
-# Preconditioner setup (lower-resolution joint model)
+# Preconditioner setup (lower-resolution joint model with GRACE)
 # =============================================================================
 
 lmax_precon = 32
@@ -189,7 +311,6 @@ precon_fp_op = precon_fp.as_sobolev_linear_operator(
     2, precon_fp.mean_sea_floor_radius * 0.1
 )
 
-# --- Preconditioner ice model ---
 precon_ice = IceSheetChange.global_ice(
     finger_print=precon_fp,
     finger_print_operator=precon_fp_op,
@@ -199,7 +320,6 @@ precon_ice = IceSheetChange.global_ice(
     include_firn=True,
 )
 
-# --- Preconditioner ocean dynamics ---
 precon_odt = OceanDynamics(
     finger_print=precon_fp,
     finger_print_operator=precon_fp_op,
@@ -208,8 +328,6 @@ precon_odt = OceanDynamics(
     pattern=OD_pattern,
 )
 
-
-# --- Preconditioner prior ---
 precon_model_prior = GaussianMeasure.from_direct_sum(
     [
         precon_ice.ice_thickness,
@@ -220,7 +338,7 @@ precon_model_prior = GaussianMeasure.from_direct_sum(
 
 # %%
 # =============================================================================
-# Check ocean point consistency between full and preconditioner grids
+# Check ocean / ice point consistency between full and preconditioner grids
 # =============================================================================
 
 precon_ssh_altimetry = GridPoints.ocean_altimetry(
@@ -240,7 +358,8 @@ print(
     f"Preconditioner SSH ocean points: {len(precon_ssh_ocean_set)}"
 )
 print(
-    f"Full-res SSH points NOT in preconditioner ocean: {len(ssh_points_not_in_precon)}"
+    f"Full-res SSH points NOT in preconditioner ocean: "
+    f"{len(ssh_points_not_in_precon)}"
 )
 if ssh_points_not_in_precon:
     print(
@@ -260,7 +379,8 @@ print(
     f"Preconditioner ice altimetry points: {len(precon_ice_set)}"
 )
 print(
-    f"Full-res ice points NOT in preconditioner: {len(ice_points_not_in_precon)}"
+    f"Full-res ice points NOT in preconditioner: "
+    f"{len(ice_points_not_in_precon)}"
 )
 if ice_points_not_in_precon:
     print(
@@ -272,44 +392,159 @@ if ice_points_not_in_precon:
 
 # %%
 # =============================================================================
-# Preconditioner forward operator (block structure matching full problem,
-# but using low-resolution operators and sampling at full-res points)
+# Preconditioner forward operator (low-res, same 4-row structure,
+# sampling at full-resolution coordinates)
 # =============================================================================
 
-# Tide gauge operator for the preconditioner
-precon_tide_sampling_op = tide_gauge_operator(
-    precon_ice.load_to_slc_operator.codomain,
-    tide_gauge_points,
+precon_load_space = precon_fp_op.domain
+precon_response_space = precon_fp_op.codomain
+precon_ice_space = precon_ice.ice_thickness.domain
+precon_firn_space = precon_ice.firn_thickness.domain
+precon_odt_space = precon_odt.height_measure.domain
+
+precon_F = precon_fp_op
+precon_S = sea_surface_height_operator(
+    precon_fp, precon_response_space
+)
+precon_slc_proj = precon_response_space.subspace_projection(0)
+precon_slc_space = precon_slc_proj.codomain
+
+precon_L_I = precon_ice.ice_thickness_to_load_operator
+precon_L_F = precon_ice.firn_thickness_to_load_operator
+precon_L_W = sea_level_change_to_load_operator(
+    precon_fp, precon_load_space
+)
+
+# Evaluate at full-resolution coordinates
+precon_P_S_ssh = precon_S.codomain.point_evaluation_operator(
+    ssh_altimetry.coords
+)
+precon_P_S_odt = precon_odt_space.point_evaluation_operator(
+    ssh_altimetry.coords
+)
+precon_P_T_slc = precon_slc_space.point_evaluation_operator(
+    tide_gauge_points
+)
+precon_P_T_odt = precon_odt_space.point_evaluation_operator(
+    tide_gauge_points
+)
+precon_P_I_ice = precon_ice_space.point_evaluation_operator(
+    ice_altimetry.coords
+)
+precon_P_I_firn = precon_firn_space.point_evaluation_operator(
+    ice_altimetry.coords
+)
+
+# GRACE operator at low resolution — same observation_degree
+precon_grace_op = grace_operator(
+    precon_response_space, grace_observation_degree
+)
+
+precon_id_odt = precon_odt_space.identity_operator()
+precon_id_ice = precon_ice_space.identity_operator()
+precon_id_firn = precon_firn_space.identity_operator()
+
+precon_ssh_obs = precon_P_S_ssh.codomain
+precon_tg_obs = precon_P_T_slc.codomain
+precon_ice_obs = precon_P_I_ice.codomain
+precon_grace_obs = precon_grace_op.codomain
+
+precon_L_right = BlockLinearOperator(
+    [
+        [precon_L_I, precon_L_F, precon_L_W],
+        [
+            precon_ice_space.zero_operator(
+                codomain=precon_odt_space
+            ),
+            precon_firn_space.zero_operator(
+                codomain=precon_odt_space
+            ),
+            precon_id_odt,
+        ],
+        [
+            precon_id_ice,
+            precon_firn_space.zero_operator(
+                codomain=precon_ice_space
+            ),
+            precon_odt_space.zero_operator(
+                codomain=precon_ice_space
+            ),
+        ],
+        [
+            precon_ice_space.zero_operator(
+                codomain=precon_firn_space
+            ),
+            precon_id_firn,
+            precon_odt_space.zero_operator(
+                codomain=precon_firn_space
+            ),
+        ],
+    ]
+)
+
+precon_F_middle = BlockDiagonalLinearOperator(
+    [precon_F, precon_id_odt, precon_id_ice, precon_id_firn]
+)
+
+precon_P_left = BlockLinearOperator(
+    [
+        [
+            precon_P_S_ssh @ precon_S,
+            precon_P_S_odt,
+            precon_ice_space.zero_operator(
+                codomain=precon_ssh_obs
+            ),
+            precon_firn_space.zero_operator(
+                codomain=precon_ssh_obs
+            ),
+        ],
+        [
+            precon_P_T_slc @ precon_slc_proj,
+            precon_P_T_odt,
+            precon_ice_space.zero_operator(
+                codomain=precon_tg_obs
+            ),
+            precon_firn_space.zero_operator(
+                codomain=precon_tg_obs
+            ),
+        ],
+        [
+            precon_response_space.zero_operator(
+                codomain=precon_ice_obs
+            ),
+            precon_odt_space.zero_operator(
+                codomain=precon_ice_obs
+            ),
+            precon_P_I_ice,
+            precon_P_I_firn,
+        ],
+        [
+            precon_grace_op,
+            precon_odt_space.zero_operator(
+                codomain=precon_grace_obs
+            ),
+            precon_ice_space.zero_operator(
+                codomain=precon_grace_obs
+            ),
+            precon_firn_space.zero_operator(
+                codomain=precon_grace_obs
+            ),
+        ],
+    ]
 )
 
 precon_forward_operator = (
-    build_factored_forward_operator_precon(
-        precon_fp,
-        precon_fp_op,
-        precon_ice,
-        precon_odt,
-        ssh_altimetry.coords,
-        ice_altimetry.coords,
-        tide_gauge_points,
-    )
+    precon_P_left @ precon_F_middle @ precon_L_right
 )
-
 
 # %%
 # =============================================================================
 # Form the preconditioner inverse via eigen-decomposition
 # =============================================================================
 
-
-precon_data_error_measure = (
-    GaussianMeasure.from_standard_deviation(
-        data_space, measure_error_std
-    )
-)
-
 precon_forward_problem = LinearForwardProblem(
     precon_forward_operator,
-    data_error_measure=precon_data_error_measure,
+    data_error_measure=data_error_measure,
 )
 
 precon_bayesian_inversion = LinearBayesianInversion(
@@ -371,7 +606,7 @@ plt.xlabel("Iteration")
 plt.ylabel("Norm of Solution ($||x_k||$)")
 plt.grid(True, which="both", ls="-", alpha=0.5)
 plt.savefig(
-    f"{dir}/joint_precon_cg_convergence.pdf", dpi=600
+    f"{dir}/joint_precon_grace_cg_convergence.pdf", dpi=600
 )
 
 model_posterior_expectation = (
@@ -398,10 +633,9 @@ odt_height_posterior_expectation = (
 
 # %%
 # =============================================================================
-# Plotting
+# Plotting — ice thickness
 # =============================================================================
 
-# --- Ice thickness ---
 max_abs_ice_change = (
     np.nanmax(
         np.abs(
@@ -447,11 +681,15 @@ fig2, ax2, im2 = plot(
     colorbar_label="Ice Thickness Change (mm)",
 )
 ax2.set_title(
-    "b) Posterior Expectation (Inferred from Data)"
+    "b) Posterior Expectation (GRACE + altimetry + TG)"
 )
 fig2.tight_layout()
 
-# --- Firn thickness ---
+# %%
+# =============================================================================
+# Plotting — firn thickness
+# =============================================================================
+
 max_abs_firn_change = (
     np.nanmax(
         np.abs(
@@ -501,7 +739,11 @@ ax4.set_title(
 )
 fig4.tight_layout()
 
-# --- Ocean dynamics ---
+# %%
+# =============================================================================
+# Plotting — ocean dynamics
+# =============================================================================
+
 max_abs_odt_height_change = (
     np.nanmax(
         np.abs(
@@ -552,15 +794,15 @@ ax6.set_title(
 fig6.tight_layout()
 
 # %%
-# operator that maps from the model space to slc
+# =============================================================================
+# Plotting — sea level change
+# =============================================================================
 
 slc_true = model_space_to_slc_operator(model_true)[0]
 slc_posterior_expectation = model_space_to_slc_operator(
     model_posterior_expectation
 )[0]
 
-# plot
-#
 max_abs_sl_change = (
     np.nanmax(
         np.abs(
@@ -580,7 +822,6 @@ max_abs_sl_change = (
     * 1000
     * fp.length_scale
 )
-
 
 fig7, ax7, im7 = plot(
     1000
@@ -616,10 +857,10 @@ ax8.set_title(
 )
 fig8.tight_layout()
 
-
 # %%
-
-# map from model space to total ice and firn load
+# =============================================================================
+# Plotting — total ice + firn load
+# =============================================================================
 
 total_load = ice.ice_thickness_to_load_operator(
     ice_thickness_true
@@ -660,32 +901,41 @@ ax10.set_title(
 fig10.tight_layout()
 
 # %%
+# =============================================================================
+# Save figures
+# =============================================================================
 
 fig1.savefig(
-    f"{dir}/joint_precon_ice_thickness.pdf", dpi=600
+    f"{dir}/joint_precon_grace_ice_thickness.pdf", dpi=600
 )
 fig2.savefig(
-    f"{dir}/joint_precon_ice_thickness_posterior.pdf",
+    f"{dir}/joint_precon_grace_ice_thickness_posterior.pdf",
     dpi=600,
 )
 fig3.savefig(
-    f"{dir}/joint_precon_firn_thickness.pdf", dpi=600
+    f"{dir}/joint_precon_grace_firn_thickness.pdf", dpi=600
 )
 fig4.savefig(
-    f"{dir}/joint_precon_firn_thickness_posterior.pdf",
+    f"{dir}/joint_precon_grace_firn_thickness_posterior.pdf",
     dpi=600,
 )
-fig5.savefig(f"{dir}/joint_precon_odt_height.pdf", dpi=600)
+fig5.savefig(
+    f"{dir}/joint_precon_grace_odt_height.pdf", dpi=600
+)
 fig6.savefig(
-    f"{dir}/joint_precon_odt_height_posterior.pdf", dpi=600
+    f"{dir}/joint_precon_grace_odt_height_posterior.pdf",
+    dpi=600,
 )
-fig7.savefig(f"{dir}/joint_precon_slc.pdf", dpi=600)
+fig7.savefig(f"{dir}/joint_precon_grace_slc.pdf", dpi=600)
 fig8.savefig(
-    f"{dir}/joint_precon_slc_posterior.pdf", dpi=600
+    f"{dir}/joint_precon_grace_slc_posterior.pdf", dpi=600
 )
-fig9.savefig(f"{dir}/joint_precon_total_load.pdf", dpi=600)
+fig9.savefig(
+    f"{dir}/joint_precon_grace_total_load.pdf", dpi=600
+)
 fig10.savefig(
-    f"{dir}/joint_precon_total_load_posterior.pdf", dpi=600
+    f"{dir}/joint_precon_grace_total_load_posterior.pdf",
+    dpi=600,
 )
 
 # %%
@@ -696,7 +946,6 @@ fig10.savefig(
 ice_gmsl_op = ice.ice_thickness_to_gmsl_operator
 firn_gmsl_op = ice.firn_thickness_to_gmsl_operator
 
-# Row operators mapping the full 3-component model space to scalar GMSL (mm)
 ice_gmsl_row = RowLinearOperator(
     [
         1000 * ice_gmsl_op,
@@ -720,7 +969,6 @@ firn_gmsl_row = RowLinearOperator(
     ]
 )
 
-# Scalar posterior measures for each component
 ice_gmsl_post = model_posterior_measure.affine_mapping(
     operator=ice_gmsl_row
 )
@@ -728,8 +976,6 @@ firn_gmsl_post = model_posterior_measure.affine_mapping(
     operator=firn_gmsl_row
 )
 
-# Cross-covariance via polarization identity:
-# Cov(A, B) = 0.5 * (Var(A+B) - Var(A) - Var(B))
 sum_gmsl_post = model_posterior_measure.affine_mapping(
     operator=ice_gmsl_row + firn_gmsl_row
 )
@@ -738,7 +984,6 @@ var_firn = standard_dev(firn_gmsl_post) ** 2
 var_sum = standard_dev(sum_gmsl_post) ** 2
 cross_cov = 0.5 * (var_sum - var_ice - var_firn)
 
-# Assemble 2x2 covariance matrix and mean on a flat EuclideanSpace(2)
 mu_ice = ice_gmsl_post.expectation[0]
 mu_firn = firn_gmsl_post.expectation[0]
 mean_2d = np.array([mu_ice, mu_firn])
@@ -763,6 +1008,6 @@ fig_cov, axes_cov = plot_corner_distributions(
     figsize=(6.5, 6.5),
 )
 fig_cov.savefig(
-    f"{dir}/joint_precon_ice_firn_gmsl_covariance.pdf",
+    f"{dir}/joint_precon_grace_ice_firn_gmsl_covariance.pdf",
     dpi=600,
 )
