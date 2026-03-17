@@ -33,7 +33,7 @@ from pygeoinf_extras import standard_dev
 from pyslfp_extras.altimetry import GridPoints
 from pyslfp_extras.ice_thickness import IceSheetChange
 from pyslfp_extras.ocean_dynamics import OceanDynamics
-
+from project import colors
 # %%
 # =============================================================================
 # Full-resolution model setup
