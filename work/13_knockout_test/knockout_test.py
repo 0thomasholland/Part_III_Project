@@ -19,12 +19,14 @@ from pygeoinf import (
     BlockLinearOperator,
     CGMatrixSolver,
     EigenSolver,
+    EuclideanSpace,
     GaussianMeasure,
     HilbertSpaceDirectSum,
     LinearBayesianInversion,
     LinearForwardProblem,
     RowLinearOperator,
 )
+from scipy import stats
 from pyslfp import (
     FingerPrint,
     IceModel,
@@ -34,6 +36,8 @@ from pyslfp import (
 from tqdm import tqdm
 
 from project import colors
+from pygeoinf_extras import standard_dev
+from pygeoinf_extras.plots import plot_bivariate_corner
 from pyslfp_extras.altimetry import GridPoints
 from pyslfp_extras.ice_thickness import IceSheetChange
 from pyslfp_extras.ocean_dynamics import OceanDynamics
@@ -804,3 +808,294 @@ fig_grid.savefig(
 )
 
 print("\nAll figures saved to figs/")
+
+# %%
+# =============================================================================
+# Bivariate corner: Ice GMSL vs Firn GMSL for all knockout variants
+#
+# Two outputs:
+#   1. Overlay figure  — all 4 variants on shared axes (1-sigma ellipses +
+#      marginal PDFs) so sensitivity to each dropped data type is directly
+#      visible.
+#   2. Individual plot_bivariate_corner figures — one per variant, saved
+#      separately for detailed inspection.
+# =============================================================================
+
+# Row operators mapping the full 3-component model space to a scalar GMSL (mm)
+ice_gmsl_row = RowLinearOperator(
+    [
+        1000 * ice_gmsl_op,
+        ice.firn_thickness.domain.zero_operator(
+            codomain=ice_gmsl_op.codomain
+        ),
+        odt.height_measure.domain.zero_operator(
+            codomain=ice_gmsl_op.codomain
+        ),
+    ]
+)
+firn_gmsl_row = RowLinearOperator(
+    [
+        ice.ice_thickness.domain.zero_operator(
+            codomain=firn_gmsl_op.codomain
+        ),
+        1000 * firn_gmsl_op,
+        odt.height_measure.domain.zero_operator(
+            codomain=firn_gmsl_op.codomain
+        ),
+    ]
+)
+
+true_ice_gmsl_mm = ice_gmsl_row(model_true)[0]
+true_firn_gmsl_mm = firn_gmsl_row(model_true)[0]
+true_values_2d = np.array(
+    [true_ice_gmsl_mm, true_firn_gmsl_mm]
+)
+
+
+def gmsl_2d_posterior(posterior):
+    """
+    Compute the 2D joint Gaussian measure for
+    (ice GMSL [mm], firn GMSL [mm]) from a full posterior.
+
+    Uses the polarization identity to extract the cross-covariance
+    without computing the full dense covariance of the posterior.
+    """
+    ice_post = posterior.affine_mapping(
+        operator=ice_gmsl_row
+    )
+    firn_post = posterior.affine_mapping(
+        operator=firn_gmsl_row
+    )
+    sum_post = posterior.affine_mapping(
+        operator=ice_gmsl_row + firn_gmsl_row
+    )
+    var_ice = standard_dev(ice_post) ** 2
+    var_firn = standard_dev(firn_post) ** 2
+    var_sum = standard_dev(sum_post) ** 2
+    cross_cov = 0.5 * (var_sum - var_ice - var_firn)
+
+    mu_ice = ice_post.expectation[0]
+    mu_firn = firn_post.expectation[0]
+    return GaussianMeasure.from_covariance_matrix(
+        EuclideanSpace(2),
+        np.array(
+            [[var_ice, cross_cov], [cross_cov, var_firn]]
+        ),
+        expectation=np.array([mu_ice, mu_firn]),
+    )
+
+
+# Compute 2D posteriors for all variants
+variants_2d = [
+    (
+        "Full (SSH+TG+ice)",
+        gmsl_2d_posterior(posterior_full),
+        colors.new_method,
+    ),
+    (
+        "No SSH altimetry",
+        gmsl_2d_posterior(posterior_no_ssh),
+        colors.ice_altimetry,
+    ),
+    (
+        "No tide gauges",
+        gmsl_2d_posterior(posterior_no_tg),
+        colors.ocean_dynamics,
+    ),
+    (
+        "No ice altimetry",
+        gmsl_2d_posterior(posterior_no_ice),
+        colors.ocean_altimetry,
+    ),
+]
+
+# %%
+# =============================================================================
+# 1. Overlay bivariate corner figure
+# =============================================================================
+
+fig_ov, axes_ov = plt.subplots(
+    2,
+    2,
+    figsize=(8, 8),
+    gridspec_kw={
+        "width_ratios": [2, 1],
+        "height_ratios": [1, 2],
+    },
+)
+ax_top = axes_ov[0, 0]    # ice GMSL marginals
+ax_main = axes_ov[1, 0]   # 2D joint
+ax_right = axes_ov[1, 1]  # firn GMSL marginals (rotated)
+ax_legend = axes_ov[0, 1]
+ax_legend.axis("off")
+
+for label, measure_2d, color in variants_2d:
+    mu = measure_2d.expectation
+    cov = measure_2d.covariance.matrix(dense=True)
+
+    sigma0 = np.sqrt(cov[0, 0])
+    sigma1 = np.sqrt(cov[1, 1])
+
+    # -- Top: ice GMSL marginal --
+    x0 = np.linspace(
+        mu[0] - 4 * sigma0, mu[0] + 4 * sigma0, 300
+    )
+    ax_top.plot(
+        x0,
+        stats.norm.pdf(x0, mu[0], sigma0),
+        color=color,
+        linewidth=1.6,
+        label=label,
+    )
+
+    # -- Right: firn GMSL marginal (rotated) --
+    x1 = np.linspace(
+        mu[1] - 4 * sigma1, mu[1] + 4 * sigma1, 300
+    )
+    ax_right.plot(
+        stats.norm.pdf(x1, mu[1], sigma1),
+        x1,
+        color=color,
+        linewidth=1.6,
+    )
+
+    # -- Main: 1-sigma ellipse --
+    rv = stats.multivariate_normal(mu, cov)
+    sigma_level = rv.pdf(mu) * np.exp(-0.5)
+    x_grid = np.linspace(
+        mu[0] - 3.75 * sigma0,
+        mu[0] + 3.75 * sigma0,
+        120,
+    )
+    y_grid = np.linspace(
+        mu[1] - 3.75 * sigma1,
+        mu[1] + 3.75 * sigma1,
+        120,
+    )
+    X, Y = np.meshgrid(x_grid, y_grid)
+    Z = rv.pdf(np.dstack((X, Y)))
+    ax_main.contour(
+        X,
+        Y,
+        Z,
+        levels=[sigma_level],
+        colors=[color],
+        linewidths=1.8,
+        linestyles="-",
+    )
+    ax_main.plot(
+        mu[0],
+        mu[1],
+        "+",
+        color=color,
+        markersize=8,
+        mew=2,
+    )
+
+# True values
+ax_top.axvline(
+    true_ice_gmsl_mm,
+    color=colors.true,
+    linestyle="--",
+    linewidth=1.5,
+    label="True",
+)
+ax_right.axhline(
+    true_firn_gmsl_mm,
+    color=colors.true,
+    linestyle="--",
+    linewidth=1.5,
+)
+ax_main.plot(
+    true_ice_gmsl_mm,
+    true_firn_gmsl_mm,
+    "kx",
+    markersize=10,
+    mew=2,
+    label="True",
+    zorder=5,
+)
+
+ax_top.set_ylabel("Density")
+ax_top.set_xticklabels([])
+ax_top.set_yticklabels([])
+ax_right.set_xlabel("Density")
+ax_right.set_yticklabels([])
+ax_main.set_xlabel("Ice GMSL (mm)")
+ax_main.set_ylabel("Firn GMSL (mm)")
+
+handles, labels_leg = ax_top.get_legend_handles_labels()
+h_main, l_main = ax_main.get_legend_handles_labels()
+handles += h_main
+labels_leg += l_main
+ax_legend.legend(
+    handles,
+    labels_leg,
+    loc="center",
+    fontsize=9,
+    frameon=False,
+)
+
+fig_ov.suptitle(
+    "Knockout Sensitivity: Ice vs Firn GMSL\n"
+    "(1-sigma ellipses, all variants)",
+    fontsize=13,
+)
+plt.tight_layout()
+fig_ov.savefig(
+    "figs/knockout_gmsl_bivariate_overlay.pdf",
+    dpi=600,
+)
+fig_ov.savefig(
+    "figs/knockout_gmsl_bivariate_overlay.png",
+    dpi=200,
+)
+
+# %%
+# =============================================================================
+# 2. Individual plot_bivariate_corner per variant
+# =============================================================================
+
+variant_corner_meta = [
+    (
+        "full",
+        "Full (SSH+TG+ice)",
+        variants_2d[0][1],
+        colors.new_method,
+    ),
+    (
+        "no_ssh",
+        "No SSH Altimetry",
+        variants_2d[1][1],
+        colors.ice_altimetry,
+    ),
+    (
+        "no_tg",
+        "No Tide Gauges",
+        variants_2d[2][1],
+        colors.ocean_dynamics,
+    ),
+    (
+        "no_ice",
+        "No Ice Altimetry",
+        variants_2d[3][1],
+        colors.ocean_altimetry,
+    ),
+]
+
+for slug, title, measure_2d, color in variant_corner_meta:
+    fig_bc, _ = plot_bivariate_corner(
+        measure_2d,
+        true_values=true_values_2d,
+        labels=["Ice GMSL (mm)", "Firn GMSL (mm)"],
+        title=f"Ice vs Firn GMSL — {title}",
+        figsize=(6.5, 6.5),
+        pdf_colors=[color, color],
+    )
+    fig_bc.savefig(
+        f"figs/knockout_gmsl_corner_{slug}.pdf",
+        dpi=600,
+    )
+    plt.close(fig_bc)
+
+print("Bivariate corner figures saved to figs/")
