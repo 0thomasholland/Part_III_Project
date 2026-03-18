@@ -1,12 +1,9 @@
 # %%
 """
-Regional Greenland vs Antarctica comparison across three inversion cases:
-  A. Simple   (08a): ice + firn only (no ODT)
-  B. Joint    (08):  ice + firn + ODT (SSH alt + tide gauges + ice alt)
-  C. GRACE    (14):  ice + firn + ODT + GRACE
-
+Regional Greenland vs Antarctica comparison.
+Only GRACE case (ice + firn + ODT + GRACE) is considered.
 Three bivariate plots are produced (one each for total / ice / firn thickness
-GMSL contributions), each overlaying the three posteriors.
+GMSL contributions), showing the posterior.
 """
 
 import os
@@ -22,7 +19,6 @@ from pygeoinf import (
     HilbertSpaceDirectSum,
     LinearBayesianInversion,
     LinearForwardProblem,
-    RowLinearOperator,
 )
 from pyslfp import (
     FingerPrint,
@@ -60,7 +56,7 @@ fp_op = fp.as_sobolev_linear_operator(
 )
 
 # %%
-# --- Observation points (shared across all inversions) ---
+# --- Observation points ---
 
 ssh_altimetry = GridPoints.ocean_altimetry(fp, 10.0, 66.0)
 ice_altimetry = GridPoints.ice(fp, 10.0)
@@ -135,15 +131,6 @@ def plot_bivariate_overlay(
 ):
     """
     Overlay multiple 2D posterior measures on a bivariate corner plot.
-
-    Parameters
-    ----------
-    measures_info : list of dicts
-        Each dict: {'measure': GaussianMeasure (2D),
-                    'label':   str,
-                    'color':   matplotlib color,
-                    'true_val': [gl_mm, ant_mm] or None}
-    xlabel, ylabel : axis labels for the 2D panel (x=GL, y=ANT)
     """
     fig, axes = plt.subplots(
         2,
@@ -154,9 +141,11 @@ def plot_bivariate_overlay(
             "height_ratios": [1, 2],
         },
     )
-    ax_gl = axes[0, 0]   # GL marginal (top-left, upright)
-    ax_2d = axes[1, 0]   # 2D contour (bottom-left)
-    ax_ant = axes[1, 1]  # ANT marginal (bottom-right, rotated)
+    ax_gl = axes[0, 0]  # GL marginal (top-left, upright)
+    ax_2d = axes[1, 0]  # 2D contour (bottom-left)
+    ax_ant = axes[
+        1, 1
+    ]  # ANT marginal (bottom-right, rotated)
     axes[0, 1].axis("off")
 
     for info in measures_info:
@@ -175,7 +164,9 @@ def plot_bivariate_overlay(
             mu_gl - 4.0 * sig_gl, mu_gl + 4.0 * sig_gl, 400
         )
         pdf_gl = stats.norm.pdf(x_gl, mu_gl, sig_gl)
-        ax_gl.plot(x_gl, pdf_gl, color=c, label=info["label"])
+        ax_gl.plot(
+            x_gl, pdf_gl, color=c, label=info["label"]
+        )
         ax_gl.fill_between(x_gl, pdf_gl, alpha=0.2, color=c)
 
         # --- ANT marginal (rotated: x=density, y=value) ---
@@ -186,7 +177,9 @@ def plot_bivariate_overlay(
         )
         pdf_ant = stats.norm.pdf(x_ant, mu_ant, sig_ant)
         ax_ant.plot(pdf_ant, x_ant, color=c)
-        ax_ant.fill_betweenx(x_ant, 0, pdf_ant, alpha=0.2, color=c)
+        ax_ant.fill_betweenx(
+            x_ant, 0, pdf_ant, alpha=0.2, color=c
+        )
 
         # --- 2D 1-sigma contour ---
         x2 = np.linspace(
@@ -200,7 +193,10 @@ def plot_bivariate_overlay(
         X, Y = np.meshgrid(x2, y2)
         rv = stats.multivariate_normal(
             [mu_gl, mu_ant],
-            [[cov[0, 0], cov[0, 1]], [cov[1, 0], cov[1, 1]]],
+            [
+                [cov[0, 0], cov[0, 1]],
+                [cov[1, 0], cov[1, 1]],
+            ],
         )
         Z = rv.pdf(np.dstack((X, Y)))
         sigma_level = rv.pdf([mu_gl, mu_ant]) * np.exp(-0.5)
@@ -252,361 +248,7 @@ def plot_bivariate_overlay(
 
 # %%
 # =============================================================================
-# INVERSION A — Simple: ice + firn only  (mirrors 08a_small_joint_inversion)
-# =============================================================================
-
-print("=" * 60)
-print("INVERSION A: Simple (ice + firn, no ODT)")
-print("=" * 60)
-
-ice_a = IceSheetChange.global_ice(
-    finger_print=fp,
-    finger_print_operator=fp_op,
-    length_scale=0.1 * fp.mean_sea_floor_radius,
-    pattern=IceSheetChange.ThicknessWeightedPattern(),
-    ice_gmsl_std=0.01,
-    firn_gmsl_std=0.008,
-    include_firn=True,
-    firn_density=fp.ice_density * 0.4,
-    ice_density=fp.ice_density,
-    point_degree_spacing=10.0,
-)
-
-model_space_a = HilbertSpaceDirectSum(
-    [ice_a.ice_thickness.domain, ice_a.firn_thickness.domain]
-)
-model_prior_a = GaussianMeasure.from_direct_sum(
-    [ice_a.ice_thickness, ice_a.firn_thickness]
-)
-
-tide_op_a = tide_gauge_operator(
-    ice_a.load_to_slc_operator.codomain, tide_gauge_points
-)
-
-forward_op_a = BlockLinearOperator(
-    [
-        [
-            ssh_altimetry.point_evaluation_operator(
-                ice_a.load_to_ssh_operator.codomain
-            )
-            @ ice_a.load_to_ssh_operator
-            @ ice_a.ice_thickness_to_load_operator,
-            ssh_altimetry.point_evaluation_operator(
-                ice_a.load_to_ssh_operator.codomain
-            )
-            @ ice_a.load_to_ssh_operator
-            @ ice_a.firn_thickness_to_load_operator,
-        ],
-        [
-            tide_op_a
-            @ ice_a.load_to_slc_operator
-            @ ice_a.ice_thickness_to_load_operator,
-            tide_op_a
-            @ ice_a.load_to_slc_operator
-            @ ice_a.firn_thickness_to_load_operator,
-        ],
-        [
-            ice_altimetry.point_evaluation_operator(
-                ice_a.ice_thickness.domain
-            ),
-            ice_altimetry.point_evaluation_operator(
-                ice_a.firn_thickness.domain
-            ),
-        ],
-    ]
-)
-
-data_space_a = forward_op_a.codomain
-data_error_a = GaussianMeasure.from_standard_deviation(
-    data_space_a, measure_error_std
-)
-forward_problem_a = LinearForwardProblem(
-    forward_op_a, data_error_measure=data_error_a
-)
-model_true_a, data_a = (
-    forward_problem_a.synthetic_model_and_data(model_prior_a)
-)
-
-# --- Preconditioner A ---
-
-precon_ice_a = IceSheetChange.global_ice(
-    finger_print=precon_fp,
-    finger_print_operator=precon_fp_op,
-    length_scale=0.1 * precon_fp.mean_sea_floor_radius,
-    pattern=IceSheetChange.ThicknessWeightedPattern(),
-    ice_gmsl_std=0.003,
-    include_firn=True,
-)
-precon_model_prior_a = GaussianMeasure.from_direct_sum(
-    [precon_ice_a.ice_thickness, precon_ice_a.firn_thickness]
-)
-precon_tide_a = tide_gauge_operator(
-    precon_ice_a.load_to_slc_operator.codomain, tide_gauge_points
-)
-
-precon_forward_op_a = BlockLinearOperator(
-    [
-        [
-            precon_ice_a.load_to_ssh_operator.codomain.point_evaluation_operator(
-                ssh_altimetry.coords
-            )
-            @ precon_ice_a.load_to_ssh_operator
-            @ precon_ice_a.ice_thickness_to_load_operator,
-            precon_ice_a.load_to_ssh_operator.codomain.point_evaluation_operator(
-                ssh_altimetry.coords
-            )
-            @ precon_ice_a.load_to_ssh_operator
-            @ precon_ice_a.firn_thickness_to_load_operator,
-        ],
-        [
-            precon_tide_a
-            @ precon_ice_a.load_to_slc_operator
-            @ precon_ice_a.ice_thickness_to_load_operator,
-            precon_tide_a
-            @ precon_ice_a.load_to_slc_operator
-            @ precon_ice_a.firn_thickness_to_load_operator,
-        ],
-        [
-            precon_ice_a.ice_thickness.domain.point_evaluation_operator(
-                ice_altimetry.coords
-            ),
-            precon_ice_a.firn_thickness.domain.point_evaluation_operator(
-                ice_altimetry.coords
-            ),
-        ],
-    ]
-)
-
-precon_inv_a = LinearBayesianInversion(
-    LinearForwardProblem(
-        precon_forward_op_a,
-        data_error_measure=GaussianMeasure.from_standard_deviation(
-            data_space_a, measure_error_std
-        ),
-    ),
-    precon_model_prior_a,
-)
-print("Forming preconditioner A...")
-precon_inv_normal_a = EigenSolver(parallel=False)(
-    precon_inv_a.normal_operator
-)
-
-pbar_a = tqdm(desc="CG A")
-posterior_a = LinearBayesianInversion(
-    forward_problem_a, model_prior_a
-).model_posterior_measure(
-    data_a,
-    CGMatrixSolver(
-        callback=lambda xk: pbar_a.update(1), maxiter=300
-    ),
-    preconditioner=precon_inv_normal_a,
-)
-pbar_a.close()
-print("Inversion A complete.\n")
-
-# %%
-# =============================================================================
-# INVERSION B — Joint: ice + firn + ODT  (mirrors 08_joint_inversion)
-# =============================================================================
-
-print("=" * 60)
-print("INVERSION B: Joint (ice + firn + ODT)")
-print("=" * 60)
-
-ice_b = IceSheetChange.global_ice(
-    finger_print=fp,
-    finger_print_operator=fp_op,
-    length_scale=0.1 * fp.mean_sea_floor_radius,
-    pattern=IceSheetChange.ThicknessWeightedPattern(),
-    ice_gmsl_std=0.003,
-    include_firn=True,
-)
-odt_b = OceanDynamics(
-    finger_print=fp,
-    finger_print_operator=fp_op,
-    std=0.004,
-    length_scale=10000.0,
-    pattern=OD_pattern,
-)
-
-model_space_b = HilbertSpaceDirectSum(
-    [
-        ice_b.ice_thickness.domain,
-        ice_b.firn_thickness.domain,
-        odt_b.height_measure.domain,
-    ]
-)
-model_prior_b = GaussianMeasure.from_direct_sum(
-    [
-        ice_b.ice_thickness,
-        ice_b.firn_thickness,
-        odt_b.height_measure,
-    ]
-)
-
-tide_op_b = tide_gauge_operator(
-    ice_b.load_to_slc_operator.codomain, tide_gauge_points
-)
-
-forward_op_b = BlockLinearOperator(
-    [
-        [
-            ssh_altimetry.point_evaluation_operator(
-                ice_b.load_to_ssh_operator.codomain
-            )
-            @ ice_b.load_to_ssh_operator
-            @ ice_b.ice_thickness_to_load_operator,
-            ssh_altimetry.point_evaluation_operator(
-                ice_b.load_to_ssh_operator.codomain
-            )
-            @ ice_b.load_to_ssh_operator
-            @ ice_b.firn_thickness_to_load_operator,
-            ssh_altimetry.point_evaluation_operator(
-                odt_b._height_to_ssh_op.codomain
-            )
-            @ odt_b._height_to_ssh_op,
-        ],
-        [
-            tide_op_b
-            @ ice_b.load_to_slc_operator
-            @ ice_b.ice_thickness_to_load_operator,
-            tide_op_b
-            @ ice_b.load_to_slc_operator
-            @ ice_b.firn_thickness_to_load_operator,
-            tide_op_b @ odt_b._height_to_slc_op,
-        ],
-        [
-            ice_altimetry.point_evaluation_operator(
-                ice_b.ice_thickness.domain
-            ),
-            ice_altimetry.point_evaluation_operator(
-                ice_b.firn_thickness.domain
-            ),
-            ice_altimetry.point_evaluation_operator(
-                odt_b.height_measure.domain
-            ).domain.zero_operator(
-                codomain=ice_altimetry.point_evaluation_operator(
-                    odt_b.height_measure.domain
-                ).codomain
-            ),
-        ],
-    ]
-)
-
-data_space_b = forward_op_b.codomain
-data_error_b = GaussianMeasure.from_standard_deviation(
-    data_space_b, measure_error_std
-)
-forward_problem_b = LinearForwardProblem(
-    forward_op_b, data_error_measure=data_error_b
-)
-model_true_b, data_b = (
-    forward_problem_b.synthetic_model_and_data(model_prior_b)
-)
-
-# --- Preconditioner B ---
-
-precon_ice_b = IceSheetChange.global_ice(
-    finger_print=precon_fp,
-    finger_print_operator=precon_fp_op,
-    length_scale=0.1 * precon_fp.mean_sea_floor_radius,
-    pattern=IceSheetChange.ThicknessWeightedPattern(),
-    ice_gmsl_std=0.003,
-    include_firn=True,
-)
-precon_odt_b = OceanDynamics(
-    finger_print=precon_fp,
-    finger_print_operator=precon_fp_op,
-    std=0.004,
-    length_scale=10000.0,
-    pattern=OD_pattern,
-)
-precon_model_prior_b = GaussianMeasure.from_direct_sum(
-    [
-        precon_ice_b.ice_thickness,
-        precon_ice_b.firn_thickness,
-        precon_odt_b.height_measure,
-    ]
-)
-precon_tide_b = tide_gauge_operator(
-    precon_ice_b.load_to_slc_operator.codomain, tide_gauge_points
-)
-
-precon_forward_op_b = BlockLinearOperator(
-    [
-        [
-            precon_ice_b.load_to_ssh_operator.codomain.point_evaluation_operator(
-                ssh_altimetry.coords
-            )
-            @ precon_ice_b.load_to_ssh_operator
-            @ precon_ice_b.ice_thickness_to_load_operator,
-            precon_ice_b.load_to_ssh_operator.codomain.point_evaluation_operator(
-                ssh_altimetry.coords
-            )
-            @ precon_ice_b.load_to_ssh_operator
-            @ precon_ice_b.firn_thickness_to_load_operator,
-            precon_odt_b._height_to_ssh_op.codomain.point_evaluation_operator(
-                ssh_altimetry.coords
-            )
-            @ precon_odt_b._height_to_ssh_op,
-        ],
-        [
-            precon_tide_b
-            @ precon_ice_b.load_to_slc_operator
-            @ precon_ice_b.ice_thickness_to_load_operator,
-            precon_tide_b
-            @ precon_ice_b.load_to_slc_operator
-            @ precon_ice_b.firn_thickness_to_load_operator,
-            precon_tide_b @ precon_odt_b._height_to_slc_op,
-        ],
-        [
-            precon_ice_b.ice_thickness.domain.point_evaluation_operator(
-                ice_altimetry.coords
-            ),
-            precon_ice_b.firn_thickness.domain.point_evaluation_operator(
-                ice_altimetry.coords
-            ),
-            precon_odt_b.height_measure.domain.point_evaluation_operator(
-                ice_altimetry.coords
-            ).domain.zero_operator(
-                codomain=precon_odt_b.height_measure.domain.point_evaluation_operator(
-                    ice_altimetry.coords
-                ).codomain
-            ),
-        ],
-    ]
-)
-
-precon_inv_b = LinearBayesianInversion(
-    LinearForwardProblem(
-        precon_forward_op_b,
-        data_error_measure=GaussianMeasure.from_standard_deviation(
-            data_space_b, measure_error_std
-        ),
-    ),
-    precon_model_prior_b,
-)
-print("Forming preconditioner B...")
-precon_inv_normal_b = EigenSolver(parallel=False)(
-    precon_inv_b.normal_operator
-)
-
-pbar_b = tqdm(desc="CG B")
-posterior_b = LinearBayesianInversion(
-    forward_problem_b, model_prior_b
-).model_posterior_measure(
-    data_b,
-    CGMatrixSolver(
-        callback=lambda xk: pbar_b.update(1), maxiter=100
-    ),
-    preconditioner=precon_inv_normal_b,
-)
-pbar_b.close()
-print("Inversion B complete.\n")
-
-# %%
-# =============================================================================
-# INVERSION C — GRACE: ice + firn + ODT + GRACE  (mirrors 14)
+# INVERSION C — GRACE: ice + firn + ODT + GRACE
 # =============================================================================
 
 print("=" * 60)
@@ -673,8 +315,10 @@ P_S_odt_c = ssh_altimetry.point_evaluation_operator(
 P_T_slc_c = slc_space_c.point_evaluation_operator(
     tide_gauge_points
 )
-P_T_odt_c = odt_c.height_measure.domain.point_evaluation_operator(
-    tide_gauge_points
+P_T_odt_c = (
+    odt_c.height_measure.domain.point_evaluation_operator(
+        tide_gauge_points
+    )
 )
 P_I_ice_c = ice_altimetry.point_evaluation_operator(
     ice_c.ice_thickness.domain
@@ -682,7 +326,9 @@ P_I_ice_c = ice_altimetry.point_evaluation_operator(
 P_I_firn_c = ice_altimetry.point_evaluation_operator(
     ice_c.firn_thickness.domain
 )
-grace_op_c = grace_operator(response_space_c, grace_obs_degree)
+grace_op_c = grace_operator(
+    response_space_c, grace_obs_degree
+)
 
 ice_space_c = ice_c.ice_thickness.domain
 firn_space_c = ice_c.firn_thickness.domain
@@ -701,18 +347,26 @@ L_right_c = BlockLinearOperator(
         [L_I_c, L_F_c, L_W_c],
         [
             ice_space_c.zero_operator(codomain=odt_space_c),
-            firn_space_c.zero_operator(codomain=odt_space_c),
+            firn_space_c.zero_operator(
+                codomain=odt_space_c
+            ),
             id_odt_c,
         ],
         [
             id_ice_c,
-            firn_space_c.zero_operator(codomain=ice_space_c),
+            firn_space_c.zero_operator(
+                codomain=ice_space_c
+            ),
             odt_space_c.zero_operator(codomain=ice_space_c),
         ],
         [
-            ice_space_c.zero_operator(codomain=firn_space_c),
+            ice_space_c.zero_operator(
+                codomain=firn_space_c
+            ),
             id_firn_c,
-            odt_space_c.zero_operator(codomain=firn_space_c),
+            odt_space_c.zero_operator(
+                codomain=firn_space_c
+            ),
         ],
     ]
 )
@@ -734,7 +388,9 @@ P_left_c = BlockLinearOperator(
             firn_space_c.zero_operator(codomain=tg_obs_c),
         ],
         [
-            response_space_c.zero_operator(codomain=ice_obs_c),
+            response_space_c.zero_operator(
+                codomain=ice_obs_c
+            ),
             odt_space_c.zero_operator(codomain=ice_obs_c),
             P_I_ice_c,
             P_I_firn_c,
@@ -743,7 +399,9 @@ P_left_c = BlockLinearOperator(
             grace_op_c,
             odt_space_c.zero_operator(codomain=grace_obs_c),
             ice_space_c.zero_operator(codomain=grace_obs_c),
-            firn_space_c.zero_operator(codomain=grace_obs_c),
+            firn_space_c.zero_operator(
+                codomain=grace_obs_c
+            ),
         ],
     ]
 )
@@ -775,7 +433,9 @@ forward_problem_c = LinearForwardProblem(
     forward_op_c, data_error_measure=data_error_c
 )
 model_true_c, data_c = (
-    forward_problem_c.synthetic_model_and_data(model_prior_c)
+    forward_problem_c.synthetic_model_and_data(
+        model_prior_c
+    )
 )
 
 # --- Preconditioner C ---
@@ -803,7 +463,8 @@ precon_model_prior_c = GaussianMeasure.from_direct_sum(
     ]
 )
 precon_tide_c = tide_gauge_operator(
-    precon_ice_c.load_to_slc_operator.codomain, tide_gauge_points
+    precon_ice_c.load_to_slc_operator.codomain,
+    tide_gauge_points,
 )
 
 precon_load_space_c = precon_fp_op.domain
@@ -811,7 +472,9 @@ precon_response_space_c = precon_fp_op.codomain
 precon_S_c = sea_surface_height_operator(
     precon_fp, precon_response_space_c
 )
-precon_slc_proj_c = precon_response_space_c.subspace_projection(0)
+precon_slc_proj_c = (
+    precon_response_space_c.subspace_projection(0)
+)
 precon_slc_space_c = precon_slc_proj_c.codomain
 precon_L_I_c = precon_ice_c.ice_thickness_to_load_operator
 precon_L_F_c = precon_ice_c.firn_thickness_to_load_operator
@@ -825,23 +488,35 @@ precon_id_odt_c = precon_odt_space_c.identity_operator()
 precon_id_ice_c = precon_ice_space_c.identity_operator()
 precon_id_firn_c = precon_firn_space_c.identity_operator()
 
-precon_P_S_ssh_c = precon_S_c.codomain.point_evaluation_operator(
-    ssh_altimetry.coords
+precon_P_S_ssh_c = (
+    precon_S_c.codomain.point_evaluation_operator(
+        ssh_altimetry.coords
+    )
 )
-precon_P_S_odt_c = precon_odt_space_c.point_evaluation_operator(
-    ssh_altimetry.coords
+precon_P_S_odt_c = (
+    precon_odt_space_c.point_evaluation_operator(
+        ssh_altimetry.coords
+    )
 )
-precon_P_T_slc_c = precon_slc_space_c.point_evaluation_operator(
-    tide_gauge_points
+precon_P_T_slc_c = (
+    precon_slc_space_c.point_evaluation_operator(
+        tide_gauge_points
+    )
 )
-precon_P_T_odt_c = precon_odt_space_c.point_evaluation_operator(
-    tide_gauge_points
+precon_P_T_odt_c = (
+    precon_odt_space_c.point_evaluation_operator(
+        tide_gauge_points
+    )
 )
-precon_P_I_ice_c = precon_ice_space_c.point_evaluation_operator(
-    ice_altimetry.coords
+precon_P_I_ice_c = (
+    precon_ice_space_c.point_evaluation_operator(
+        ice_altimetry.coords
+    )
 )
-precon_P_I_firn_c = precon_firn_space_c.point_evaluation_operator(
-    ice_altimetry.coords
+precon_P_I_firn_c = (
+    precon_firn_space_c.point_evaluation_operator(
+        ice_altimetry.coords
+    )
 )
 precon_grace_op_c = grace_operator(
     precon_response_space_c, grace_obs_degree
@@ -885,7 +560,12 @@ precon_L_right_c = BlockLinearOperator(
     ]
 )
 precon_F_middle_c = BlockDiagonalLinearOperator(
-    [precon_fp_op, precon_id_odt_c, precon_id_ice_c, precon_id_firn_c]
+    [
+        precon_fp_op,
+        precon_id_odt_c,
+        precon_id_ice_c,
+        precon_id_firn_c,
+    ]
 )
 precon_P_left_c = BlockLinearOperator(
     [
@@ -967,43 +647,6 @@ print("Inversion C complete.\n")
 # Regional 2D (Greenland, Antarctica) operators
 # =============================================================================
 
-# --- Inversion A (2-component: ice, firn) ---
-
-ice_space_a = ice_a.ice_thickness.domain
-firn_space_a = ice_a.firn_thickness.domain
-
-gl_ice_a = averaging_operator(ice_space_a, [gl_wf])
-ant_ice_a = averaging_operator(ice_space_a, [ant_wf])
-gl_firn_a = averaging_operator(firn_space_a, [gl_wf])
-ant_firn_a = averaging_operator(firn_space_a, [ant_wf])
-sc_a = gl_ice_a.codomain  # scalar (R^1)
-
-# total (ice + firn)
-C_total_a = BlockLinearOperator(
-    [
-        [gl_ice_a, gl_firn_a],
-        [ant_ice_a, ant_firn_a],
-    ]
-)
-# ice only
-C_ice_a = BlockLinearOperator(
-    [
-        [gl_ice_a, firn_space_a.zero_operator(codomain=sc_a)],
-        [ant_ice_a, firn_space_a.zero_operator(codomain=sc_a)],
-    ]
-)
-# firn only
-C_firn_a = BlockLinearOperator(
-    [
-        [ice_space_a.zero_operator(codomain=sc_a), gl_firn_a],
-        [ice_space_a.zero_operator(codomain=sc_a), ant_firn_a],
-    ]
-)
-
-# --- Inversions B and C (3-component: ice, firn, odt) ---
-# B uses ice_b/odt_b; C uses ice_c/odt_c.
-# Helper builds the three C operators for a 3-component model.
-
 
 def make_3comp_regional_ops(ice_obj, odt_obj):
     i_sp = ice_obj.ice_thickness.domain
@@ -1053,9 +696,6 @@ def make_3comp_regional_ops(ice_obj, odt_obj):
     return C_tot, C_ice, C_firn
 
 
-C_total_b, C_ice_b, C_firn_b = make_3comp_regional_ops(
-    ice_b, odt_b
-)
 C_total_c, C_ice_c, C_firn_c = make_3comp_regional_ops(
     ice_c, odt_c
 )
@@ -1073,26 +713,6 @@ def regional_measure_and_true(posterior, model_true, C):
     return measure_2d, true_2d
 
 
-post_total_a, true_total_a = regional_measure_and_true(
-    posterior_a, model_true_a, C_total_a
-)
-post_ice_a, true_ice_a = regional_measure_and_true(
-    posterior_a, model_true_a, C_ice_a
-)
-post_firn_a, true_firn_a = regional_measure_and_true(
-    posterior_a, model_true_a, C_firn_a
-)
-
-post_total_b, true_total_b = regional_measure_and_true(
-    posterior_b, model_true_b, C_total_b
-)
-post_ice_b, true_ice_b = regional_measure_and_true(
-    posterior_b, model_true_b, C_ice_b
-)
-post_firn_b, true_firn_b = regional_measure_and_true(
-    posterior_b, model_true_b, C_firn_b
-)
-
 post_total_c, true_total_c = regional_measure_and_true(
     posterior_c, model_true_c, C_total_c
 )
@@ -1108,10 +728,7 @@ post_firn_c, true_firn_c = regional_measure_and_true(
 # Bivariate overlay plots
 # =============================================================================
 
-# Assign colours per method
-col_a = "tab:purple"   # Simple (ice+firn)
-col_b = colors.new_method  # Joint (ice+firn+ODT)
-col_c = "tab:orange"   # GRACE
+col_c = "tab:orange"  # GRACE
 
 
 def _tv(true_2d):
@@ -1123,18 +740,6 @@ def _tv(true_2d):
 
 fig_total, _ = plot_bivariate_overlay(
     [
-        {
-            "measure": post_total_a,
-            "label": "Simple (ice+firn)",
-            "color": col_a,
-            "true_val": _tv(true_total_a),
-        },
-        {
-            "measure": post_total_b,
-            "label": "Joint (ice+firn+ODT)",
-            "color": col_b,
-            "true_val": _tv(true_total_b),
-        },
         {
             "measure": post_total_c,
             "label": "GRACE (ice+firn+ODT+GRACE)",
@@ -1155,18 +760,6 @@ fig_total.savefig(
 fig_ice, _ = plot_bivariate_overlay(
     [
         {
-            "measure": post_ice_a,
-            "label": "Simple (ice+firn)",
-            "color": col_a,
-            "true_val": _tv(true_ice_a),
-        },
-        {
-            "measure": post_ice_b,
-            "label": "Joint (ice+firn+ODT)",
-            "color": col_b,
-            "true_val": _tv(true_ice_b),
-        },
-        {
             "measure": post_ice_c,
             "label": "GRACE (ice+firn+ODT+GRACE)",
             "color": col_c,
@@ -1183,18 +776,6 @@ fig_ice.savefig("figs/regional_bivariate_ice.pdf", dpi=600)
 
 fig_firn, _ = plot_bivariate_overlay(
     [
-        {
-            "measure": post_firn_a,
-            "label": "Simple (ice+firn)",
-            "color": col_a,
-            "true_val": _tv(true_firn_a),
-        },
-        {
-            "measure": post_firn_b,
-            "label": "Joint (ice+firn+ODT)",
-            "color": col_b,
-            "true_val": _tv(true_firn_b),
-        },
         {
             "measure": post_firn_c,
             "label": "GRACE (ice+firn+ODT+GRACE)",
