@@ -73,8 +73,6 @@ s = model_prior.sample()
 
 plot(s[2], symmetric=True)
 
-plt.show()
-
 # %%
 
 ssh_altimetry = GridPoints.ocean_altimetry(fp, 5.0, 66.0)
@@ -364,6 +362,3 @@ fig6, ax6, im6 = plot(
 ax6.set_title(
     "f) Posterior Expectation (Inferred from Data)"
 )
-
-
-plt.show()
