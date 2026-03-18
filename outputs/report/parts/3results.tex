@@ -2,13 +2,13 @@
 
 \subsubsection{Per-source proxy errors}
 
-\autoref{fig:simple_major_source} shows the relative error of estimating GMSL from the area-weighted average of SSHC over the altimetry-observable ocean, for uniform melt scenarios normalised to 1~mm of true GMSL change from each major ice sheet independently.
+\autoref{fig:simple_major_source} shows the relative error of estimating GMSL from the integral average of SSHC over the altimetry-observable ocean for each major ice sheet independently.
 
-At the standard altimetry latitude range of $60$--$75^\circ$, the GrIS contribution is underestimated by 5--8\%, the EAIS contribution is underestimated by 0--2\%, and the WAIS contribution ranges from a 2.2\% overestimation to a 0.4\% underestimation depending on the latitude cutoff. The GrIS error increases monotonically with the latitude of the altimetry boundary, while the EAIS error remains comparatively flat across the tested range. The WAIS error changes sign near $40^\circ$, transitioning from a slight overestimation at lower latitudes to a slight underestimation at higher latitudes.
+At the standard altimetry latitude range of $60$--$75^\circ$, the GIS contribution is underestimated by 5.8--8.2\%, the EAIS contribution is underestimated by 0--2\%, and the WAIS contribution ranges from a 2.3\% overestimation to a 0.5\% underestimation. The GIS and EAIS errors increases with the latitude of the altimetry boundary. The WAIS error changes sign near $72^\circ$, transitioning from a slight overestimation at lower latitudes to a slight underestimation at higher latitudes.
 
 \begin{figure}[!h]
 	\includegraphics[width=\columnwidth]{major_source_altimetry_errors_scalar.pdf}
-	\caption{Relative error of GMSL estimation using SSHC as a proxy for SLC, shown as a function of altimetry latitude cutoff for uniform melt from GIS, EAIS, and WAIS, each normalised to 1~mm true GMSL change. Dashed line indicates the typical altimetry range of $\pm66^\circ$.}\label{fig:simple_major_source}
+	\caption{Relative error of GMSL estimation using SSHC as a proxy for SLC, shown as a function of altimetry latitude range for uniform melt from GIS, EAIS, and WAIS. Dashed line indicates the typical altimetry range of $\pm66^\circ$.}\label{fig:simple_major_source}
 \end{figure}
 
 \subsubsection{Spatial structure of the proxy error}
@@ -17,17 +17,12 @@ At the standard altimetry latitude range of $60$--$75^\circ$, the GrIS contribut
   \begin{center}
   \includegraphics[width=0.7\columnwidth]{01_sea_surface_height_10.pdf}
   \end{center}
-  \caption{.}\label{fig:simple_error_maps}
+  \caption{.}\label{fig:simple_error_dist}
 \end{figure}
 
+To illustrate how the proxy error manifests spatially, \autoref{fig:simple_load_to_obs} shows the expected fields from a single synthetic scenario in which a spatially uniform ice change standardised to $\mathcal{N}(10\text{mm}, 1\text{mm}^2)$ GMSL change is propagated forwards. The resulting true GMSL expectation is 9.951~mm with a standard deviation of 0.998~mm. The SSHC-based estimate yields an expectation of 9.831~mm with a standard deviation of 0.988~mm. The error distribution is centred just below zero, confirming a small but consistent negative bias, shown in \autoref{fig:simple_error_dist}. \autoref{fig:sample_simple_load} shows a sample drawn from this distribution, which captures the spatial variability underlying these distributions.
 
-
-
-To illustrate how the proxy error manifests spatially, \autoref{fig:simple_load_to_obs} shows the output fields from a single synthetic scenario in which a rotationally invariant ice thickness change is drawn from a Gaussian measure standardised to $\mathcal{N}(10mm, 1mm^2)$ GMSL change. The ice load field, its corresponding SLC and SSHC fields, and the observed SSHC within the $\pm66^\circ$ altimetry band are shown.
-
-The resulting true GMSL is 9.951~mm with a standard deviation of 0.998~mm. The SSHC-based estimate yields 9.831~mm with a standard deviation of 0.988~mm, corresponding to a percentage error of approximately 1.34\%. The error distribution is centred just below zero, confirming a small but consistent negative bias.
-
-The spatial distribution of the error expectation field (SLC $-$ SSHC) shows a strongly negative signal at high southern latitudes proximal to Antarctica, reaching approximately $-15$~mm, with a weaker negative signal near Greenland. The remainder of the open ocean is close to zero. The pointwise standard deviation of the error field follows a qualitatively similar spatial pattern, ranging from approximately 0.75~mm across the open ocean to 2.75~mm near the Antarctic margins.
+\todo{fix this section - i've gotten confused on what each thing is showing.}
 
 \begin{figure}[h!]
   \begin{center}
@@ -41,16 +36,26 @@ The spatial distribution of the error expectation field (SLC $-$ SSHC) shows a s
 	\label{fig:simple_load_to_obs}
 \end{figure}
 
+\begin{figure}[h!]
+ %  \begin{center}
+ %  \includegraphics[width=0.49\columnwidth]{01_sea_surface_height_01.pdf}
+ %  \includegraphics[width=0.49\columnwidth]{01_sea_surface_height_02.pdf}
+ %  \includegraphics[width=0.49\columnwidth]{01_sea_surface_height_03.pdf}
+ %  \hfill\includegraphics[width=0.49\columnwidth]{01_sea_surface_height_04.pdf}\hspace{0.05\columnwidth}
+	% \includegraphics[width=0.49\columnwidth]{01_sea_surface_height_14.pdf}
+	% \end{center}
+	\missingfigure{sample case}
+	\caption{Synthetic error quantification scenario. Top row: rotationally invariant ice thickness change (left) and resulting SLC field (right). Middle row: corresponding SSHC field (left) and observed SSHC within the $\pm66^\circ$ altimetry band (right). Bottom: distributions of the true and estimated GMSL, and the estimation error.}
+	\label{fig:sample_simple_load}
+\end{figure}
+
 \subsubsection{Error under source uncertainty}
 
 \autoref{fig:gaussian_uniform} extends the per-source analysis by showing the GMSL estimation error when the ice source distribution is represented as a Gaussian measure rather than a fixed field. The figure shows the true and estimated GMSL distributions, together with the error distribution, at altimetry latitude cutoffs of $66^\circ$ and $80^\circ$.
 
 At $66^\circ$, the estimated GMSL distribution is shifted slightly below the true distribution, with the error distribution centred near zero but with a small negative bias. At $80^\circ$, the separation between the true and estimated distributions increases, and the error distribution widens and shifts further from zero, reflecting the larger proxy error incurred when the altimetry domain extends closer to the ice sheets.
 
-\begin{figure}
-	\includegraphics[width=\columnwidth]{double_distribution_66_80.pdf}
-	\caption{True and estimated GMSL distributions, with corresponding error distributions, at altimetry latitude cutoffs of $66^\circ$ (top) and $80^\circ$ (bottom), for a rotationally invariant Gaussian ice thickness prior standardised to 10~mm $\pm$ 1~mm GMSL change.}\label{fig:gaussian_uniform}
-\end{figure}
+
 
 Over multiple runs, I found qualativlhy, this pattern varies as the GMSL estimation error varies with the underlying ice source distribution parameters. However, the general trend of a bias and increasing error with higher latitude cutoffs is consistent across runs, confirming the systematic nature of the proxy error under source uncertainty.
 
@@ -59,31 +64,25 @@ Over multiple runs, I found qualativlhy, this pattern varies as the GMSL estimat
 
 
 \begin{figure}[!h]
-
+  \begin{center}
+    \includegraphics[width=0.49\columnwidth]{6-1_true_ice_thickness.pdf}
+    \includegraphics[width=0.49\columnwidth]{6-2_posterior_ice_thickness.pdf}
+    \includegraphics[width=0.7\columnwidth]{6-7_gmsl_distribution_comparison.pdf}
+  \end{center}
+  \caption{simple inversion}\label{fig:simple_inversion_example}
 \end{figure}
+
+\Autoref{fig:simple_inversion_example} shows a simple example of an inversion for ice thickness change from ocean altimetry, where the true data is synthetically drawn from the prior distribution. The posterior distribution of GMSL change from the inversion contains the true value well. The spatial structure of the posterior expectation also shows good recovery of the true ice thickness change field, with the main features of the true field being captured in the posterior expectation.
 
 \subsection{Method comparison}
 
 % A single representative inversion example, using figure 2 - note the posterior is well-centred on the true value, the altimetry estimate is biased low, both are tight distributions
+\autoref{fig:simple_inversion_example} shows the posterior distribution of ice-driven GMSL from an inversion, with the old method's estimate is also given. The Bayesian inversion's distribution contains the true value (vertical dashed line) better than the old method's distribution, which is highly biased and does not contain the true value.
 
-With a prior ice thickness distribution with spatial thickness variability and standardised to a GMSL contribution of 0 mm with standard deviation of 10 mm and ocean altimetry sampling of 5.0 degrees, the following results were calculated. The true data was synthetically drawn from the prior distribution, this being consistent with a well calibrated Bayesian inversion prior.
 
-\autoref{fig:gmsl_contribution_distributions} shows the posterior distribution of ice-driven GMSL from an inversion, with the old method's estimate is also given. The Bayesian inversion's distribution contains the true value (vertical dashed line) and is much narrower than the old method's distribution, which is biased low and does not contain the true value.
+\autoref{fig:z_score_method_comparison} shows the z-score distribution of the true value under the predicted distribution for both methods across 261 runs. The Bayesian inversion's z-scores cluster tightly around zero, indicating that it is unbiased and has well-calibrated uncertainty quantification. In contrast, the old method's z-scores show a broader distribution, suggesting that it has larger variance. The old method is only within 1 sigma of the true value in 14.6\% of runs, while the new method is within 1 sigma in 60.5\% of runs.
 
-\autoref{fig:z_score_method_comparison} shows the z-score distribution of the true value under the predicted distribution for both methods across 261 runs. The Bayesian inversion's z-scores cluster tightly around zero, indicating that it is unbiased and has well-calibrated uncertainty quantification. In contrast, the old method's z-scores show a broader distribution with a horizontal elongation, suggesting that it has larger variance and may be systematically biased.
-
-The z-score statistics for the new method show a mean of 0.07 and a standard deviation of 1.21, while the old method has a mean of 0.23 and a standard deviation of 4.20. The new method's mean z-score near zero indicates that it is unbiased, with estimates centred on the true value on average. The standard deviation of z-scores near one suggests that the new method's uncertainty quantification is well-calibrated, meaning it is neither overconfident nor underconfident. In contrast, the old method's higher mean and much larger standard deviation indicate that it is biased and has poorly calibrated uncertainty quantification, often being overconfident in its estimates.
-
-The old method is only within 1 sigma of the true value in 14.6\% of runs, while the new method is within 1 sigma in 60.5\% of runs.
-
-\begin{figure}[!h]
-	\begin{center}
-		\includegraphics[width=0.6\columnwidth]{gmsl_contribution_distributions.png}
-	\end{center}
-	\caption{.}
-	\label{fig:gmsl_contribution_distributions}
-\end{figure}
-
+\todo{fix the figures}
 \begin{figure}[!h]
 	\begin{center}
 		\includegraphics[width=0.47\columnwidth]{z_score_comparison_contour.pdf}
@@ -109,12 +108,9 @@ This section is run at a spherical harmonic truncation of 128 for computational 
 	\label{fig:sensitivity-z_score}
 \end{figure}
 
-\todo{simple summary of the z scores}
+\autoref{fig:sensitivity-z_score} shows the posterior z-scores across all sensitivity cases. In every case the posterior contains the true GMSL value and shows no systematic bias, demonstrating that the Bayesian inversion is robust to prior misspecification. The accurate prior case recovers the true field most tightly, as expected. Spatial recovery across all cases is shown in the supplementary figures (\autoref{fig:sensitivity-true-inversion} to \autoref{fig:sensitivity-variance}).
 
-
-\todo{slim down this}
-
-\autoref{fig:sensitivity-true-inversion} shows the true ice thickness change field used in the sensitivity tests, which is a single sample drawn from the prior distribution as described in \autoref{sec:sensitivity-method}. It also shows the results for an inversion where the Baysiean prior is the distribution from which the true field was drawn, which is the ideal case for the inversion method. The posterior distribution contains the true field well, and that there is good spatial recovery of the ice thickness change within the posterior expectation.
+The three parameter groups differ in character: length scale affects spatial structure but has little effect on GMSL recovery; mean offset tests a worst-case scenario where the true value lies outside the prior support; and covariance amplitude has the most practical implications, with higher variance cases being poorly conditioned and requiring substantially more conjugate gradient iterations to converge (47, 197, and 610 iterations for multipliers of 0.5, 2.0, and 5.0 respectively). The prior mean offset and length scale have comparatively little effect on convergence behaviour.
 
 
 % Length scale: 318400.0 km
@@ -134,12 +130,6 @@ This section is run at a spherical harmonic truncation of 128 for computational 
 % Length scale = 0.5x (318.40 km): prior z = -0.17 (mean = 0.00 mm, std = 10.00 mm), posterior z = -0.82 (mean = 1.58 mm, std = 0.11 mm)
 % Length scale = 1.5x (955.20 km): prior z = -0.17 (mean = 0.00 mm, std = 10.00 mm), posterior z = -0.37 (mean = 1.64 mm, std = 0.09 mm)
 % Length scale = 4.0x (2547.20 km): prior z = -0.17 (mean = 0.00 mm, std = 10.00 mm), posterior z = 0.20 (mean = 1.69 mm, std = 0.08 mm)
-
-\autoref{fig:sensitivity-lengthscale} shows the results of varying the length scale over which ice sheet thickness variations are expected to occur within the prior distribution. The length scales did not affect the GMSL estimation much (z-scores of -0.82, -0.37, and 0.20 for length scales of 318.4 km, 955.2 km, and 2547.2 km respectively compared to the altimetry method's z-score of 1.49), with the posteriors all containing the true value and outperforming the simple altimetry method, and the longer length scales resulting in slightly narrower posterior distributions centred closer to the true value.
-
-Shorter length scales did not result in more noise, and recovered the correct structure of length scales correctly, although some artifacts are visible in eastern Greenland. The longer length scales smoothed out the spatial structure as expected but still recovered the true field well, with the posterior expectation showing a similar spatial structure to the true field, albeit with some smoothing.
-
-The longer length scales resulted in a shorter CG solve time, which is expected as the smoother fields are easier to recover (318400.0 km: 108 iterations, 955200.0 km: 74 iterations, 2547200.0 km: 52 iterations).
 
 
 % GMSL target mean: 1.0 mm
@@ -161,12 +151,6 @@ The longer length scales resulted in a shorter CG solve time, which is expected 
 % GMSL offset = 50.0 mm: prior z = 4.83 (mean = 50.00 mm, std = 10.00 mm), posterior z = -1.12 (mean = 1.56 mm, std = 0.10 mm)
 
 
-\autoref{fig:sensitivity-offset} shows the results of varying the offset of the prior distribution compared to the true field. This effect is equivalent to the true value being outside the support of the prior distribution. The results show that even with 50 mm of offset (compared to the true value of 1.67~mm), the posterior distribution still contains the true value and outperforms the altimetry method (z-score of -1.12 compared to altimetry's z-score of 1.49). The posteriors all have similar widths, with the means all close to the true value, showing that the method is robust to large offsets in the prior mean.
-
-
-The offset had no effect on the iterations required for the CG solve.
-
-
 % Std multiplier: 0.5
 % CG solve: 47it [00:18,  2.61it/s, ||x||=1.26e+04]
 %   Inversion complete
@@ -186,22 +170,11 @@ The offset had no effect on the iterations required for the CG solve.
 % Std multiplier = x5.0: prior z = -0.03 (mean = 0.00 mm, std = 50.00 mm), posterior z = -1.30 (mean = 1.43 mm, std = 0.19 mm)
 
 
-\autoref{fig:sensitivity-variance} shows the results of varying the variance of the prior distribution compared to the true field, which is equivalent to changing our confidence in the prior distribution's mean value. A higher variance means we are less confident in the prior mean, while a lower variance means we are more confident in the prior mean.
-
-The higher variance resulted in a much longer CG solve time, which is expected as it becomes a poorly conditioned problem, making it harder for the solver to converge (0.5x: 47 iterations, 2.0x: 197 iterations, 5.0x: 610 iterations).
-
 \subsubsection*{Sensitivity to informative spatial priors}
 
 \notebookcite{thomasholland09TruthPriorCross2026}
 
-\begin{figure}[h!]
-  \begin{center}
-  \includegraphics[width=0.9\columnwidth]{9-1_true_fields.pdf}
-  \includegraphics[width=0.9\columnwidth]{9-3_posterior_mean_maps.pdf}
-  \end{center}
-  \caption{}
-  \label{fig:sensitivity-truth-prior-cross}
-\end{figure}
+
 
 \begin{figure}[h!]
 \begin{center}
@@ -214,16 +187,7 @@ The higher variance resulted in a much longer CG solve time, which is expected a
 \subsection{Joint inversion using ice, firn, and ocean dynamic changes}
 \notebookcite{thomasholland08JointInversionipynb2026}
 
-\begin{figure}[h!]
-  \includegraphics[width=0.45\columnwidth]{joint_precon_firn_thickness.pdf}
-  \includegraphics[width=0.45\columnwidth]{joint_precon_firn_thickness_posterior.pdf}
-  \includegraphics[width=0.45\columnwidth]{joint_precon_ice_thickness.pdf}
-  \includegraphics[width=0.45\columnwidth]{joint_precon_ice_thickness_posterior.pdf}
-  \includegraphics[width=0.45\columnwidth]{joint_precon_odt_height.pdf}
-  \includegraphics[width=0.45\columnwidth]{joint_precon_odt_height_posterior.pdf}
-  \caption{}
-  \label{fig:joint-inversion}
-\end{figure}
+
 
 \begin{figure}[h!]
   \includegraphics[width=0.45\columnwidth]{joint_precon_slc.pdf}
@@ -232,4 +196,29 @@ The higher variance resulted in a much longer CG solve time, which is expected a
   \includegraphics[width=0.45\columnwidth]{joint_precon_total_load_posterior.pdf}
   \caption{}
   \label{fig:joint-inversion-gmsl}
+\end{figure}
+
+\begin{figure}[p]
+	\includegraphics[width=\columnwidth]{double_distribution_66_80.pdf}
+	\caption{True and estimated GMSL distributions, with corresponding error distributions, at altimetry latitude cutoffs of $66^\circ$ (top) and $80^\circ$ (bottom), for a rotationally invariant Gaussian ice thickness prior standardised to 10~mm $\pm$ 1~mm GMSL change.}\label{fig:gaussian_uniform}
+\end{figure}
+
+\begin{figure}[p]
+  \begin{center}
+  \includegraphics[width=0.9\columnwidth]{9-1_true_fields.pdf}
+  \includegraphics[width=0.9\columnwidth]{9-3_posterior_mean_maps.pdf}
+  \end{center}
+  \caption{}
+  \label{fig:sensitivity-truth-prior-cross}
+\end{figure}
+
+\begin{figure}[p]
+  \includegraphics[width=0.45\columnwidth]{joint_precon_firn_thickness.pdf}
+  \includegraphics[width=0.45\columnwidth]{joint_precon_firn_thickness_posterior.pdf}
+  \includegraphics[width=0.45\columnwidth]{joint_precon_ice_thickness.pdf}
+  \includegraphics[width=0.45\columnwidth]{joint_precon_ice_thickness_posterior.pdf}
+  \includegraphics[width=0.45\columnwidth]{joint_precon_odt_height.pdf}
+  \includegraphics[width=0.45\columnwidth]{joint_precon_odt_height_posterior.pdf}
+  \caption{}
+  \label{fig:joint-inversion}
 \end{figure}

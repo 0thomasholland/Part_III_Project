@@ -82,7 +82,7 @@ In order to simulate tide gauge data, ocean statelite, and ice altimetry data, I
 True GMSLC can be calculated from a simple mass balance from ice change, $\gmslc$, across the ice field domain, $\Omega_I$, accounting for the density difference between ice, $\rho_I$, and water, $\rho_W$. If we assume that the coastline shape is constant, this takes the form
 
 \begin{equation}
-    \gmslc: \operatorgmsl{\text{true}} = \frac{\rho_W}{A_{ocean} \rho_I} \int_{\Omega_I} \thicknesschange{I} (\mathbf{x})\, \mathrm{d}S(\mathbf{x}). \label{eq:gmsl_integral}
+    \gmslc: \operatorgmsl{\text{true}} = \frac{\rho_W}{A_{ocean} \rho_I} \int_{\Omega_I} \thicknesschangeice (\mathbf{x})\, \mathrm{d}S(\mathbf{x}). \label{eq:gmsl_integral}
 \end{equation}
 
 A SSH based GMSL estimate can be calculated by calculating a surface integral of the SSHC field over the oceans
@@ -155,10 +155,10 @@ and then use this to scale the original operator to have the desired GMSL standa
     \thicknesschangeice \sim \frac{\left(\sigma_{\gmslc}^{\text{desired}}\right)^2}{\sigma_{\gmslc}^2} \mathcal{N}(0, \covariance{0})
 \end{equation}
 
-which results in the ice thickness covaraince, $\covariance{\thicknesschange{I}}$, being scaled by the square of the scaling factor
+which results in the ice thickness covaraince, $\covariance{\thicknesschangeice}$, being scaled by the square of the scaling factor
 
 \begin{equation}
-\covariance{\thicknesschange{I}} \\ = \frac{\left(\sigma_{\gmslc}^{\text{desired}}\right)^2}{\sigma_{\gmslc}^2} \covariance{0}
+\covariance{\thicknesschangeice} \\ = \frac{\left(\sigma_{\gmslc}^{\text{desired}}\right)^2}{\sigma_{\gmslc}^2} \covariance{0}
 \end{equation}
 
 
@@ -181,7 +181,7 @@ where $x$ is a linearly standardised thickness $(x \in [0,1])$, $a$ is lower asy
 This is applied to two uniform fields heat kernel fields, by applying a point multiplication operator which results in the point-wise variance being scaled by the function
 
 \begin{align}
-    \covariance{\thicknesschange{i}} &= W \covariance{0} W^*, \quad W = \text{diag}(\alpha(T_i)),\label{eq:spatial_ice_covariance} \\
+    \covariance{\thicknesschangeice} &= W \covariance{0} W^*, \quad W = \text{diag}(\alpha(T_i)),\label{eq:spatial_ice_covariance} \\
     \covariance{\thicknesschange{f}} &= \tilde{W} \covariance{0} \tilde{W}^*, \quad \tilde{W} = \text{diag}(1 - \alpha(T_i)). \label{eq:spatial_firn_covariance}
 \end{align}
 
