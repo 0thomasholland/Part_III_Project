@@ -84,8 +84,8 @@ Over multiple runs, we found qualitatively, this pattern varies as the GMSL esti
 \todo{fix the figures}
 \begin{figure}[!h]
 	\begin{center}
-		\includegraphics[width=0.47\columnwidth]{z_score_comparison_contour.pdf}
-		\includegraphics[width=0.5\columnwidth]{z_score_comparison_kde.pdf}
+		\includegraphics[width=0.49\columnwidth]{z_score_comparison_contour_b.pdf}
+		\includegraphics[width=0.49\columnwidth]{z_score_comparison_kde.pdf}
 	\end{center}
 	\caption{Comparison of the error of the new Bayesian inversion method with the old  method, using the z-score of the true value under the predicted distribution. The new method shows a more accurate and precise estimation of the true value, with a higher density of points around the z-score of 0 and a narrower distribution overall.}
 	\label{fig:z_score_method_comparison}
@@ -188,20 +188,18 @@ The three parameter groups differ in character: length scale affects spatial str
 
 
 \subsection{Joint inversion using ice, firn, and ocean dynamic changes}
+
 \notebookcite{thomasholland08JointInversionipynb2026}
 
+\autoref{fig:joint-inversion} shows the results of a joint inversion for ice thickness change, firn compaction, and ocean dynamic changes from a synthetic test using ocean altimetery, tide gauges, ice altimetry, and GRACE data. The posterior expectation captures the spatial variances in ice and firn thickness change well, with some regions showing a trade off between them (e.g. Eastern most Antartica where the posterior expectation of ice thickness gain is overestimated and the firn loss is overestimated).
 
+The ocean dynamic change is less well recovered, with the posterior expectation showing a smoother spatial structure than the true field, but still capturing the main large amplitude features of the true field.
 
 
 
 
 \begin{figure}[p]
-  \includegraphics[width=0.45\columnwidth]{joint_precon_firn_thickness.pdf}
-  \includegraphics[width=0.45\columnwidth]{joint_precon_firn_thickness_posterior.pdf}
-  \includegraphics[width=0.45\columnwidth]{joint_precon_ice_thickness.pdf}
-  \includegraphics[width=0.45\columnwidth]{joint_precon_ice_thickness_posterior.pdf}
-  \includegraphics[width=0.45\columnwidth]{joint_precon_odt_height.pdf}
-  \includegraphics[width=0.45\columnwidth]{joint_precon_odt_height_posterior.pdf}
-  \caption{\todo{Provide a succinct and clear caption for this figure, as per the report instructions.}}
+  \includegraphics[width=\columnwidth]{joint_precon_grace_6panel.pdf}
+  \caption{joint inversion posteriors}
   \label{fig:joint-inversion}
 \end{figure}

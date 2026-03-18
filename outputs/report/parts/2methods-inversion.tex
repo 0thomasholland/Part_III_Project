@@ -89,10 +89,11 @@ The model space would be a direct sum of the ice thickness change, firn thicknes
 	m = \thicknesschangeice \oplus \thicknesschange{f} \oplus \thicknesschange{odt}
 \end{equation}
 
-To invert for these data sources, we can use a combination of SSH altimetry data, tide gauge data, and ice altimetry data. Each of these data sources provides different constraints on the model space parameters, so by combining them in a joint inversion, we can leverage their complementary information to better constrain the model space and improve our estimates of the various sources of sea level change. Our data space would be a direct sum of these measuremednts
+To invert for these data sources, we can use a combination of GRACE gravity data, SSH altimetry data, tide gauge data, and ice altimetry data. Each of these data sources provides different constraints on the model space parameters, so by combining them in a joint inversion, we can leverage their complementary information to better constrain the model space and improve our estimates of the various sources of sea level change. Our data space would be a direct sum of these measuremednts
 
 \begin{equation}
-	d = d_{\text{SSH altimetry}} \oplus d_{\text{tide gauges}} \oplus d_{\text{ice altimetry}}
+d = d_{\text{SSH altimetry}} \oplus d_{\text{tide gauges}}
+    \oplus d_{\text{ice altimetry}} \oplus d_{\text{GRACE}}
 \end{equation}
 
 It is often the case where multiple model space parameters map to one data space parameter, for example in our case, SSH altimetry points forms the linear equation:
@@ -105,20 +106,23 @@ The forward operator for the joint inversion can be written as a block matrix, w
 
 \begin{align}
 \begin{bmatrix}
-  d_{\text{SSH altimetry}}\\
-  d_{\text{tide gauges}}\\
-  d_{\text{ice altimetry}}
+    d_{\text{SSH}} \\ d_{\text{TG}} \\ d_{\text{ice}} \\ d_{\text{GRACE}}
 \end{bmatrix}
-&\nonumber\\&=
+=
 \begin{bmatrix}
-	\operatorpointocean \operatorsshc \operatorslc \operatorloadice & \operatorpointocean \operatorsshc \operatorslc \operatorloadfirn & \operatorpointocean(\operatorsshc \operatorslc \operatorloadwater + 1) \\
-	\operatorpointtg \operatorslc \operatorloadice & \operatorpointtg \operatorslc \operatorloadice & \operatorpointtg(\operatorslc \operatorloadwater + 1)\\
-	\operatorpointice & \operatorpointice & \mathbf{0}
+    \operatorpointocean \operatorsshc \operatorslc \operatorloadice
+        & \operatorpointocean \operatorsshc \operatorslc \operatorloadfirn
+        & \operatorpointocean(\operatorsshc \operatorslc \operatorloadwater + 1) \\
+    \operatorpointtg \operatorslc \operatorloadice
+        & \operatorpointtg \operatorslc \operatorloadfirn
+        & \operatorpointtg(\operatorslc \operatorloadwater + 1) \\
+    \operatorpointice & \operatorpointice & \mathbf{0} \\
+    \operatorgrace \operatorslc \operatorloadice
+        & \operatorgrace \operatorslc \operatorloadfirn
+        & \operatorgrace \operatorslc \operatorloadwater
 \end{bmatrix}
 \begin{bmatrix}
-	\thicknesschangeice \\
-  \thicknesschangefirn \\
-	\odtchange
+    \thicknesschangeice \\ \thicknesschange{f} \\ \odtchange
 \end{bmatrix}.
 \end{align}
 
@@ -127,10 +131,11 @@ However, this is computationally inefficient, as it requires six independent cal
 
 \begin{equation}
 =
-	\begin{bmatrix}
-\operatorpointocean \operatorsshc & \operatorpointocean & 0 & 0 \\
-\operatorpointtg & \operatorpointtg & 0 & 0 \\
-0 & 0 & \operatorpointice & \operatorpointice
+\begin{bmatrix}
+    \operatorpointocean \operatorsshc & \operatorpointocean & 0 & 0 \\
+    \operatorpointtg & \operatorpointtg & 0 & 0 \\
+    0 & 0 & \operatorpointice & \operatorpointice \\
+    \operatorgrace & 0 & 0 & 0
 \end{bmatrix}
 \begin{bmatrix}
 \operatorslc & 0 & 0 & 0 \\

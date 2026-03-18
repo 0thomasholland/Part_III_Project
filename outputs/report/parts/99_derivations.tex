@@ -190,23 +190,24 @@ Which then leads to the final expression for the GMSL approximation as a weighte
 We have the forward operator matrix:
 
 \begin{equation}
-    M = \begin{bmatrix}
+    O = \begin{bmatrix}
         \operatorpointocean \operatorsshc \operatorslc \operatorloadice & \operatorpointocean \operatorsshc \operatorslc \operatorloadfirn & \operatorpointocean(\operatorsshc \operatorslc \operatorloadwater + 1) \\
         \operatorpointtg \operatorslc \operatorloadice & \operatorpointtg \operatorslc \operatorloadfirn & \operatorpointtg(\operatorslc \operatorloadwater + 1) \\
-        \operatorpointice & \operatorpointice & 0
+        \operatorpointice & \operatorpointice & 0 \\
+        \operatorgrace \operatorslc \operatorloadice & \operatorgrace \operatorslc \operatorloadfirn & \operatorgrace \operatorslc \operatorloadwater
     \end{bmatrix}
 \end{equation}
 
-Which maps the model space vector $\mathbf{x} = (\thicknesschangeice,\, \thicknesschangefirn,\, \odtchange)$ to the data space vector $d = (d_{\Delta SSH},\, d_{\Delta TG},\, d_{\Delta ISH})$.
+Which maps the model space vector $\mathbf{x} = (\thicknesschangeice,\, \thicknesschangefirn,\, \odtchange)$ to the data space vector $d = (d_{\Delta SSH},\, d_{\Delta TG},\, d_{\Delta ISH},\, d_{\text{GRACE}})$.
 
 This is an inefficient operator, as it requires six independent calls to the fingerprint numerical solver $\operatorslc$, which is the most computationally expensive part of the forward model, due to its numerical implementation.
 
-We can factorise this matrix into three sparse matrices $A$, $B$, and $C$ such that $M = ABC$, where $B$ contains only one call to $\operatorslc$, thus reducing the number of fingerprint calls from six to one. The derivation of this factorisation proceeds in three steps:
+We can factorise this matrix into three sparse matrices $A$, $B$, and $C$ such that $O = ABC$, where $B$ contains only one call to $\operatorslc$, thus reducing the number of fingerprint calls from six to one. The derivation of this factorisation proceeds in three steps:
 
 \textbf{Step 1: Isolate the fingerprint structure}
 
 Notice that $\operatorslc$ appears applied to $\operatorloadice$, $\operatorloadfirn$, $\operatorloadwater$
-in rows 1 and 2, but never in row 3. This suggests introducing an intermediate quantity
+in rows 1, 2, and 4, but never in row 3. This suggests introducing an intermediate quantity
 $\mathbf{u} = \operatorslc\mathbf{L}\,\mathbf{x}$ where $\mathbf{L}$ collects the load operators,
 so that $\operatorslc$ is called only once. Define
 
@@ -260,16 +261,17 @@ so that
 Linearity of $\operatorslc$ then distributes the first component into
 $\operatorslc\operatorloadice\,\thicknesschangeice + \operatorslc\operatorloadfirn\,\thicknesschangefirn
 + \operatorslc\operatorloadwater\,\odtchange$, which is precisely the fingerprint contribution
-needed in rows 1 and 2 of $M$.
+needed in rows 1, 2, and 4 of $M$.
 
 \textbf{Step 3: Recover the original rows by projection}
 
-It remains to map the four-component vector $BC\mathbf{x}$ back to the three observation types.
+It remains to map the four-component vector $BC\mathbf{x}$ back to the four observation types.
 Reading off what each row of $M$ requires:
 \begin{itemize}
     \item Row 1 needs $\operatorpointocean \operatorsshc$ acting on the fingerprint result, plus $\operatorpointocean$ acting on $\odtchange$ directly.
     \item Row 2 needs $\operatorpointtg$ acting on the fingerprint result, plus $\operatorpointtg$ acting on $\odtchange$ directly.
     \item Row 3 needs $\operatorpointice$ acting on $\thicknesschangeice$ and $\thicknesschangefirn$, with no fingerprint contribution.
+    \item Row 4 needs $\operatorgrace$ acting on the fingerprint result only. Unlike rows 1 and 2, there is no direct additive contribution from $\odtchange$, since $\operatorgrace$ extracts the gravitational potential perturbation $\phi$ from the fingerprint response space, which is a globally defined field insensitive to the geometric height redistribution of ODT.
 \end{itemize}
 
 This gives
@@ -278,12 +280,11 @@ This gives
     A = \begin{bmatrix}
         \operatorpointocean \operatorsshc & \operatorpointocean & 0 & 0 \\
         \operatorpointtg & \operatorpointtg & 0 & 0 \\
-        0 & 0 & \operatorpointice & \operatorpointice
+        0 & 0 & \operatorpointice & \operatorpointice \\
+        \operatorgrace & 0 & 0 & 0
     \end{bmatrix}
 \end{equation}
 
 \textbf{Conclusion}
 
-Combining the three steps, $M = ABC$, where each factor has a clear role: $C$ computes the
-total load and routes state variables, $B$ applies $\operatorslc$ exactly once to the combined
-load, and $A$ projects the result onto the three observation spaces.
+Combining the three steps, $O = ABC$, where each factor has a clear role: $C$ computes the total load and routes state variables, $B$ applies $\operatorslc$ exactly once to the combined load, and $A$ projects the result onto the four observation spaces.

@@ -1062,6 +1062,7 @@ fig_cov.savefig(
 import cartopy.crs as ccrs
 from pyshtools import SHGrid
 
+
 def plot_shgrid_robinson_on_ax(
     shgrid: SHGrid,
     ax,
@@ -1105,15 +1106,20 @@ def plot_shgrid_robinson_on_ax(
     ax.set_global()
     return im
 
+
 fig, axs = plt.subplots(
-    3, 2, 
-    figsize=(6.5, 7), 
-    subplot_kw={'projection': ccrs.Robinson()}
+    3,
+    2,
+    figsize=(6.5, 6),
+    subplot_kw={"projection": ccrs.Robinson()},
 )
 
 # Row 1: Ice
 im1 = plot_shgrid_robinson_on_ax(
-    1000 * ice_thickness_true * fp.length_scale * fp.ice_projection(),
+    1000
+    * ice_thickness_true
+    * fp.length_scale
+    * fp.ice_projection(),
     axs[0, 0],
     cmap="seismic",
     vmin=-max_abs_ice_change,
@@ -1123,18 +1129,26 @@ im1 = plot_shgrid_robinson_on_ax(
 axs[0, 0].set_title("True Ice Change (mm)", fontsize=10)
 
 im2 = plot_shgrid_robinson_on_ax(
-    1000 * ice_thickness_posterior_expectation * fp.length_scale * fp.ice_projection(),
+    1000
+    * ice_thickness_posterior_expectation
+    * fp.length_scale
+    * fp.ice_projection(),
     axs[0, 1],
     cmap="seismic",
     vmin=-max_abs_ice_change,
     vmax=max_abs_ice_change,
     symmetric=False,
 )
-axs[0, 1].set_title("Posterior Ice Change (mm)", fontsize=10)
+axs[0, 1].set_title(
+    "Posterior Ice Change (mm)", fontsize=10
+)
 
 # Row 2: Firn
 im3 = plot_shgrid_robinson_on_ax(
-    1000 * firn_thickness_true * fp.length_scale * fp.ice_projection(),
+    1000
+    * firn_thickness_true
+    * fp.length_scale
+    * fp.ice_projection(),
     axs[1, 0],
     cmap="seismic",
     vmin=-max_abs_firn_change,
@@ -1144,18 +1158,26 @@ im3 = plot_shgrid_robinson_on_ax(
 axs[1, 0].set_title("True Firn Change (mm)", fontsize=10)
 
 im4 = plot_shgrid_robinson_on_ax(
-    1000 * firn_thickness_posterior_expectation * fp.length_scale * fp.ice_projection(),
+    1000
+    * firn_thickness_posterior_expectation
+    * fp.length_scale
+    * fp.ice_projection(),
     axs[1, 1],
     cmap="seismic",
     vmin=-max_abs_firn_change,
     vmax=max_abs_firn_change,
     symmetric=False,
 )
-axs[1, 1].set_title("Posterior Firn Change (mm)", fontsize=10)
+axs[1, 1].set_title(
+    "Posterior Firn Change (mm)", fontsize=10
+)
 
 # Row 3: ODT
 im5 = plot_shgrid_robinson_on_ax(
-    1000 * odt_height_true * fp.length_scale * fp.ocean_projection(),
+    1000
+    * odt_height_true
+    * fp.length_scale
+    * fp.ocean_projection(),
     axs[2, 0],
     cmap="seismic",
     vmin=-max_abs_odt_height_change,
@@ -1165,23 +1187,53 @@ im5 = plot_shgrid_robinson_on_ax(
 axs[2, 0].set_title("True ODT Change (mm)", fontsize=10)
 
 im6 = plot_shgrid_robinson_on_ax(
-    1000 * odt_height_posterior_expectation * fp.length_scale * fp.ocean_projection(),
+    1000
+    * odt_height_posterior_expectation
+    * fp.length_scale
+    * fp.ocean_projection(),
     axs[2, 1],
     cmap="seismic",
     vmin=-max_abs_odt_height_change,
     vmax=max_abs_odt_height_change,
     symmetric=False,
 )
-axs[2, 1].set_title("Posterior ODT Change (mm)", fontsize=10)
+axs[2, 1].set_title(
+    "Posterior ODT Change (mm)", fontsize=10
+)
 
 plt.tight_layout()
 
 # Add colorbars
-cbar1 = fig.colorbar(im2, ax=axs[0, :], orientation='vertical', shrink=0.8, pad=0.02, aspect=20)
-cbar1.set_label('Ice Change (mm)', fontsize=9)
-cbar2 = fig.colorbar(im4, ax=axs[1, :], orientation='vertical', shrink=0.8, pad=0.02, aspect=20)
-cbar2.set_label('Firn Change (mm)', fontsize=9)
-cbar3 = fig.colorbar(im6, ax=axs[2, :], orientation='vertical', shrink=0.8, pad=0.02, aspect=20)
-cbar3.set_label('ODT Change (mm)', fontsize=9)
+cbar1 = fig.colorbar(
+    im2,
+    ax=axs[0, :],
+    orientation="vertical",
+    shrink=0.8,
+    pad=0.02,
+    aspect=20,
+)
+cbar1.set_label("Ice Change (mm)", fontsize=9)
+cbar2 = fig.colorbar(
+    im4,
+    ax=axs[1, :],
+    orientation="vertical",
+    shrink=0.8,
+    pad=0.02,
+    aspect=20,
+)
+cbar2.set_label("Firn Change (mm)", fontsize=9)
+cbar3 = fig.colorbar(
+    im6,
+    ax=axs[2, :],
+    orientation="vertical",
+    shrink=0.8,
+    pad=0.02,
+    aspect=20,
+)
+cbar3.set_label("ODT Change (mm)", fontsize=9)
 
-fig.savefig(f"{dir}/joint_precon_grace_6panel.pdf", dpi=600, bbox_inches="tight")
+fig.savefig(
+    f"{dir}/joint_precon_grace_6panel.pdf",
+    dpi=600,
+    bbox_inches="tight",
+)

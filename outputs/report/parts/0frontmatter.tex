@@ -80,7 +80,20 @@
 \usepackage[obeyFinal]{todonotes}
 \setuptodonotes{inline, size=\tiny}
 
-\usepackage[backend=biber, uniquename=full, maxnames=2, style=authoryear, backref=true]{biblatex}
+\usepackage[
+    backend=biber,
+    style=authoryear,
+    maxnames=2,
+    backref=true,
+    giveninits=true,    % Renders first names as initials
+    uniquename=init     % Changed from 'full' to 'init' to prevent full names appearing for disambiguation
+]{biblatex}
+\renewcommand*{\revsdnamepunct}{}
+
+% % Force ALL names (first author, subsequent authors, editors) to Last, Initials
+\DeclareNameAlias{default}{family-given}
+\DeclareNameAlias{sortname}{family-given}
+
 \addbibresource{zotero.bib}
 
 % ==========================================

@@ -75,6 +75,7 @@ In order to simulate tide gauge data, ocean statelite, and ice altimetry data, w
 \end{align}
 
 
+
 \subsubsection{GMSL operators}
 
 \notebookcite{thomasholland05AltimetrySamplingipynb2026}
@@ -127,6 +128,20 @@ In the case where we want to give the lower error bounds for the altimetry-based
 
 This constitutes a best-case scenario for the estimation error: any realistic altimetry network, with finite and non-uniform spatial coverage, will perform no better than this ideal limit.
 
+\subsubsection{GRACE Gravity Observations}
+
+\citetitle{al-attarPySLFPPythonSea2025} includes a GRACE operator which maps from load change to the gravity change observed by the GRACE satellites. The operator extracts the spherical harmonic coefficients of the gravitational potential perturbation $\phi$ from the fingerprint response space, for degrees $2\leq l \leq L$:
+
+\begin{align}
+    \operatorgrace:
+    (\slc \oplus \mathbf{u} \oplus \phi \oplus \boldsymbol{\omega})
+    &\to \mathbb{R}^{(L+1)^2 - 4} \\
+    (\slc, \mathbf{u}, \phi, \boldsymbol{\omega})
+    &\mapsto \{\phi_{lm}\}_{l=2}^{L}
+\end{align}
+
+where $\phi_{lm}$ are the fully normalised, Condon-Shortley-phased spherical harmonic coefficients of the gravitational potential perturbation. Degrees $l < 2$ are excluded as degree 0 corresponds to conservation of mass and degree 1 to geocentre shift. Crucially, $\phi$ is a globally defined field — it is not masked to any one region, like the other observation operators, so it is sensitive to mass changes in the oceans as well as the ice sheets.
+
 \subsubsection{Modelling Ice and Firn Thickness Change}\label{sec:ice_thickness_priors}
 
 \notebookcite{thomasholland04IceFirnipynb2026}
@@ -164,11 +179,11 @@ which results in the ice thickness covaraince, $\covariance{\thicknesschangeice}
 
 \begin{figure}[]
 	\includegraphics[width=\columnwidth]{04_variable_fields_thickness_load_grid.pdf}
-	\caption{ Firn and ice measures generated from spatially variable fields.
-	Firn has been scaled to produce the standard deviation equivalent of 10 mm GMSL; Ice has been scaled to produce the standard deviation equivalent of 20 mm GMSL; with firn having a density 0.4 times that of ice \autocite{ligtenbergImprovedSemiEmpiricalModel2011}.}\label{fig:ice_samples}
+	\caption{Firn and ice measures generated from spatially variable fields.
+	Firn has been scaled to produce the standard deviation equivalent of 10 mm GMSL; Ice has been scaled to produce the standard deviation equivalent of 20 mm GMSL; with firn having a density 0.4 times that of ice \autocite{ligtenbergImprovedSemiempiricalModel2011}.}\label{fig:ice_samples}
 \end{figure}
 
-Studies \autocite[e.g.][]{mcmillanRapidDynamicActivation2016, liChangesIceSheet2011} have shown spatial patterns suggesting that thickness changes that occur near the edges of the ice sheets are more likely to be from denser ice loss, compared to thickness change that occurs in more central, thicker, locations are more likely to be surficial fluctuation in firn. Firn is the intermediate stage between snow and ice, and is characterised by a lower density than ice, as well as a different response to climate forcing \autocite{ligtenbergImprovedSemiEmpiricalModel2011}.
+Studies \autocite[e.g.][]{mcmillanRapidDynamicActivation2014, nilssonElevationChangeAntarctic2022} have shown spatial patterns suggesting that thickness changes that occur near the edges of the ice sheets are more likely to be from denser ice loss, compared to thickness change that occurs in more central, thicker, locations are more likely to be surficial fluctuation in firn \autocite{liModelingFirnCompaction2011}. Firn is the intermediate stage between snow and ice, and is characterised by a lower density than ice, as well as a different response to climate forcing \autocite{ligtenbergImprovedSemiempiricalModel2011}.
 
 To capture this relationship, a function, $\alpha$, was created that converted from ice thickness to fluctuation of ice, $\alpha(x)$ and firn change ($1-\alpha(x)$) (see \autoref{fig:spatial_ice_function}a), which takes the form of a generalised logistic curve \autocite{richardsFlexibleGrowthFunction1959}
 
@@ -176,7 +191,7 @@ To capture this relationship, a function, $\alpha$, was created that converted f
     \alpha(x) = a + \frac{k - a}{\left(1 + e^{b(x - m)}\right)^{1/\nu}}, \quad T_i \to x \in [0,1] \label{eq:spatial_prob_func}
 \end{equation}
 
-where $x$ is a linearly standardised thickness $(x \in [0,1])$, $a$ is lower asymptote, $k$ upper asymptote, $b$ steepness parameter, $m$ inflection threshold, $\nu$ asymmetry parameter. The parameters that control the shape of the curve, $a$, $k$, $b$, $m$, and $\nu$, are set heuristically to reflect known glaciological structure and to match the spatial structure shown in other studies \autocites[e.g. ][]{}, and could in future be constrained empirically.
+where $x$ is a linearly standardised thickness $(x \in [0,1])$, $a$ is lower asymptote, $k$ upper asymptote, $b$ steepness parameter, $m$ inflection threshold, $\nu$ asymmetry parameter. The parameters that control the shape of the curve, $a$, $k$, $b$, $m$, and $\nu$, are set heuristically to reflect known glaciological structure and to match the spatial structure shown in other studies \autocites[e.g. ][]{meminSnowIceheightChange2014, pritchardExtensiveDynamicThinning2009, shepherdTrendsAntarcticIce2019, nilssonElevationChangeAntarctic2022}, and could in future be constrained empirically.
 
 This is applied to two uniform fields heat kernel fields, by applying a point multiplication operator which results in the point-wise variance being scaled by the function
 
@@ -204,7 +219,7 @@ For the former, a spatially uniform covariance could be used, which would assume
 
 For the latter, a spatially variable covariance could be used, which would allow for different variances in different regions of the ocean. This could be implemented by applying a pointwise scaling function to the covariance, which would allow for different variances in different regions of the ocean.
 
-As an example, to derive spatially variable ocean variance, DUACS dataset \autocite{taburetDUACSDT20182019} was sub-sampled into the required fields, binned into monthly changes and averaged,
+As an example, to derive spatially variable ocean variance, DUACS dataset \autocite{copernicusclimatechangeserviceGLOBALOCEANGRIDDED2021} was sub-sampled into the required fields, binned into monthly changes and averaged,
 
 \begin{equation}
     \sigma_{\text{OD}}^2(\mathbf{x}) = \frac{1}{N} \sum_{i=1}^{N} \left( \thicknesschange{OD}^i(\mathbf{x}) - \thicknesschange{OD}^{i-1}(\mathbf{x}) \right)^2,
