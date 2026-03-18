@@ -81,7 +81,7 @@ In addition to the above tests from \textcite{heathcoteScaleableBayesianFramewor
 
 To show that the Bayesian framework extends naturally, we extend the model space to the direct sum of ice thickness change, firn thickness change, and ocean dynamic topography change, inverted simultaneously. This is motivated by the fact that all three processes contribute to observed sea level change and are therefore entangled in altimetry observations, making correct source attribution difficult. The problem is compounded by the similarity of ice and firn thickness change signals, which produce comparable spatial patterns and both affect ice surface height and load-induced sea level fingerprints.
 
-By constructing a joint forward operator that maps all three model space parameters to a combined data space of SSH altimetry, tide gauge, and ice altimetry observations, the inversion exploits the complementary information from each data source to better constrain and disambiguate between these competing contributions.
+By constructing a joint forward operator that maps all three model space parameters to a combined data space of SSH altimetry, ice altimetry, and GRACE observations, the inversion exploits the complementary information from each data source to better constrain and disambiguate between these competing contributions.
 
 We take the model space to be the direct sum of the ice thickness change, firn thickness change space, and ocean dynamic topography change:
 
@@ -89,12 +89,13 @@ We take the model space to be the direct sum of the ice thickness change, firn t
 	m = \thicknesschangeice \oplus \thicknesschange{f} \oplus \thicknesschange{odt}
 \end{equation}
 
-To invert for these sources, we combine GRACE gravity data, SSH altimetry data, tide gauge data, and ice altimetry data. Each source constrains the model space differently; a joint inversion leverages their complementary information to better constrain the model space and improve our estimates of the various sources of sea level change. We take the data space to be the direct sum of these measurements
+To invert for these sources, we combine GRACE gravity data, SSH altimetry data, and ice altimetry data. Each source constrains the model space differently: SSH altimetry constrains ocean dynamic topography through its spatial coverage of the sea surface; ice altimetry constrains the partitioning between ice and firn thickness change; and GRACE constrains the total mass change. We take the data space to be the direct sum of these measurements
 
 \begin{equation}
-d = d_{\text{SSH altimetry}} \oplus d_{\text{tide gauges}}
-    \oplus d_{\text{ice altimetry}} \oplus d_{\text{GRACE}}
+d = d_{\text{SSH altimetry}} \oplus d_{\text{ice altimetry}} \oplus d_{\text{GRACE}}
 \end{equation}
+
+Tide gauge observations were considered as an additional data source and tested in preliminary inversions, but were ultimately excluded. Their inclusion is redundant with SSH altimetry for constraining the sea surface signal, and their integration introduced computational difficulties; we therefore defer their inclusion to future work.
 
 Often, multiple model space parameters map to one data space parameter. In our case, the SSH altimetry points form the linear equation:
 
@@ -105,55 +106,51 @@ Often, multiple model space parameters map to one data space parameter. In our c
 The forward operator for the joint inversion can be written as a block matrix, with each element being the mapping of the respective model space parameter to the respective data space parameter:
 
 \begin{align}
-\begin{bmatrix}
-    d_{\text{SSH}} \\ d_{\text{TG}} \\ d_{\text{ice}} \\ d_{\text{GRACE}}
-\end{bmatrix}
+\begin{pmatrix}
+    d_{\text{SSH}} \\ d_{\text{ice}} \\ d_{\text{GRACE}}
+\end{pmatrix}
 =
-\begin{bmatrix}
+\begin{pmatrix}
     \operatorpointocean \operatorsshc \operatorslc \operatorloadice
         & \operatorpointocean \operatorsshc \operatorslc \operatorloadfirn
         & \operatorpointocean(\operatorsshc \operatorslc \operatorloadwater + 1) \\
-    \operatorpointtg \operatorslc \operatorloadice
-        & \operatorpointtg \operatorslc \operatorloadfirn
-        & \operatorpointtg(\operatorslc \operatorloadwater + 1) \\
     \operatorpointice & \operatorpointice & \mathbf{0} \\
     \operatorgrace \operatorslc \operatorloadice
         & \operatorgrace \operatorslc \operatorloadfirn
         & \operatorgrace \operatorslc \operatorloadwater
-\end{bmatrix}
-\begin{bmatrix}
+\end{pmatrix}
+\begin{pmatrix}
     \thicknesschangeice \\ \thicknesschange{f} \\ \odtchange
-\end{bmatrix}.
+\end{pmatrix}.
 \end{align}
 
-However, this is computationally inefficient, as it requires six independent calls to the fingerprint numerical solver. To optimise this forward operator, we can factorise this matrix into sparse matrices
+However, this is computationally inefficient, as it requires three independent calls to the fingerprint numerical solver. To optimise this forward operator, we can factorise this matrix into sparse matrices
 
 
 \begin{equation}
 =
-\begin{bmatrix}
+\begin{pmatrix}
     \operatorpointocean \operatorsshc & \operatorpointocean & 0 & 0 \\
-    \operatorpointtg & \operatorpointtg & 0 & 0 \\
     0 & 0 & \operatorpointice & \operatorpointice \\
     \operatorgrace & 0 & 0 & 0
-\end{bmatrix}
-\begin{bmatrix}
+\end{pmatrix}
+\begin{pmatrix}
 \operatorslc & 0 & 0 & 0 \\
 0 & \mathbf{1} & 0 & 0 \\
 0 & 0 & \mathbf{1} & 0 \\
 0 & 0 & 0 & \mathbf{1}
-\end{bmatrix}
-\begin{bmatrix}
+\end{pmatrix}
+\begin{pmatrix}
 \operatorloadice & \operatorloadfirn & \operatorloadwater \\
 0 & 0 & \mathbf{1} \\
 \mathbf{1} & 0 & 0 \\
 0 & \mathbf{1} & 0
-\end{bmatrix}
-\begin{bmatrix}
+\end{pmatrix}
+\begin{pmatrix}
 \thicknesschangeice \\
 \thicknesschangefirn \\
 \odtchange
-\end{bmatrix},\label{eq:factorised_joint}
+\end{pmatrix},\label{eq:factorised_joint}
 \end{equation}
 
 
