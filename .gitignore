@@ -83,3 +83,4 @@ __pypackages__/
 scratch/
 
 uv.lock
+outputs/report/report.bcf-SAVE-ERROR
