@@ -36,7 +36,7 @@ The covariance between the major sources can be inspected to understand how well
 \subsubsection{Comparison with previous method}
 \notebookcite{thomasholland06SimpleInversionipynb2026}
 
-To compare our method's estimate of GMSLC with the altimetry estimate, we can compare the $z$-scores of the two methods' estimates of GMSL change relative to the true GMSL change. We generate a true GMSL value, $\gmslctrue$, and the inversion method's estimate, $\gmslcbay$ by applying the mass balance GMSL operator, $\operatorgmsl{\text{true}}$, to the true ice thickness change field and the posterior model expectation, respectively:
+To compare our method's estimate of GMSLC with the altimetry estimate, the $z$-scores of the two methods' estimates of GMSL change relative to the true GMSL change can be compared. We generate a true GMSL value, $\gmslctrue$, and the inversion method's estimate, $\gmslcbay$ by applying the mass balance GMSL operator, $\operatorgmsl{\text{true}}$, to the true ice thickness change field and the posterior model expectation, respectively:
 
 \begin{align}
 	\gmslctrue &= \operatorgmsl{\text{true}} \thicknesschangeice^\dagger, \label{eq:true-gmsl-model} \\
@@ -163,4 +163,4 @@ see \autoref{sec:joint_operator_factorisation} for full derivation. This reduced
 
 The covariance between ice and firn thickness change in the posterior model space can be inspected to see how well the method can disambiguate between the factors, and how much uncertainty remains.
 
-To test the importance of each data source, we can run the joint inversion with one of the data sources removed, and compare the results to the full joint inversion. This will show how much each data source contributes to constraining the model space parameters, and how much information is lost when that data source is removed.
+The importance of each data source can be tested by running the joint inversion with that source removed and comparing the results to the full inversion. This will show how much each data source contributes to constraining the model space parameters, and how much information is lost when that data source is removed.
