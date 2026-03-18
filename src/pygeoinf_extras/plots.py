@@ -401,13 +401,14 @@ def plot_bivariate_corner(
     pos = np.dstack((X, Y))
     rv = stats.multivariate_normal(mean_2d, cov_2d)
     Z = rv.pdf(pos)
+    z_min = max(Z.min(), Z.max() * 1e-10)
     pcm = ax10.pcolormesh(
         X,
         Y,
         Z,
         shading="auto",
         cmap=colormap,
-        norm=colors.LogNorm(vmin=Z.min(), vmax=Z.max()),
+        norm=colors.LogNorm(vmin=z_min, vmax=Z.max()),
     )
     ax10.contour(
         X, Y, Z, colors="black", linewidths=0.5, alpha=0.6

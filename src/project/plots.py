@@ -370,9 +370,9 @@ def double_distribution_plot(
         estimate_color,
         f"Distributions at Latitude {actual_lat_0:.1f}˚",
         False,
-        "Value",
+        ax1_ylabel,
         f"Error Distribution at Latitude {actual_lat_0:.1f}˚",
-        "Error",
+        ax2_ylabel,
         ax=(ax3, ax4),
     )
 
@@ -403,9 +403,9 @@ def double_distribution_plot(
         estimate_color,
         f"Distributions at Latitude {actual_lat_1:.1f}˚",
         False,
-        "Value",
+        ax1_ylabel,
         f"Error Distribution at Latitude {actual_lat_1:.1f}˚",
-        "Error",
+        ax2_ylabel,
         ax=(ax5, ax6),
     )
 

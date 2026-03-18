@@ -55,6 +55,8 @@ from pyslfp_extras.ocean_dynamics import OceanDynamics
 # Full-resolution model setup  (lmax=128)
 # =============================================================================
 
+np.random.seed(42)  # for reproducibility
+
 fp = FingerPrint(lmax=128)
 fp.set_state_from_ice_ng(version=IceModel.ICE7G, date=0.0)
 fp_op = fp.as_sobolev_linear_operator(
@@ -710,7 +712,9 @@ def compute_gmsl_posterior(posterior):
     )
     exp_mm = post_measure.expectation[0] * 1000
     var = float(
-        post_measure.covariance.matrix(dense=True)[0, 0]
+        post_measure.covariance.matrix(
+            dense=True, parallel=True
+        )[0, 0]
     )
     std_mm = np.sqrt(max(var, 0.0)) * 1000
     return exp_mm, std_mm
@@ -1042,9 +1046,9 @@ def gmsl_2d_posterior(posterior):
     sum_post = posterior.affine_mapping(
         operator=ice_gmsl_row + firn_gmsl_row
     )
-    var_ice = standard_dev(ice_post) ** 2
-    var_firn = standard_dev(firn_post) ** 2
-    var_sum = standard_dev(sum_post) ** 2
+    var_ice = standard_dev(ice_post, parallel=True) ** 2
+    var_firn = standard_dev(firn_post, parallel=True) ** 2
+    var_sum = standard_dev(sum_post, parallel=True) ** 2
     cross_cov = 0.5 * (var_sum - var_ice - var_firn)
 
     mu_ice = ice_post.expectation[0]
@@ -1107,15 +1111,17 @@ fig_ov, axes_ov = plt.subplots(
         "height_ratios": [1, 2],
     },
 )
-ax_top = axes_ov[0, 0]    # ice GMSL marginals
-ax_main = axes_ov[1, 0]   # 2D joint
+ax_top = axes_ov[0, 0]  # ice GMSL marginals
+ax_main = axes_ov[1, 0]  # 2D joint
 ax_right = axes_ov[1, 1]  # firn GMSL marginals (rotated)
 ax_legend = axes_ov[0, 1]
 ax_legend.axis("off")
 
 for label, measure_2d, color in variants_2d:
     mu = measure_2d.expectation
-    cov = measure_2d.covariance.matrix(dense=True)
+    cov = measure_2d.covariance.matrix(
+        dense=True, parallel=True
+    )
 
     sigma0 = np.sqrt(cov[0, 0])
     sigma1 = np.sqrt(cov[1, 1])
@@ -1143,9 +1149,10 @@ for label, measure_2d, color in variants_2d:
         linewidth=1.6,
     )
 
-    # -- Main: 1-sigma ellipse --
+    # -- Main: 1-sigma and 2-sigma ellipses --
     rv = stats.multivariate_normal(mu, cov)
     sigma_level = rv.pdf(mu) * np.exp(-0.5)
+    sigma_level_2 = rv.pdf(mu) * np.exp(-2.0)
     x_grid = np.linspace(
         mu[0] - 3.75 * sigma0,
         mu[0] + 3.75 * sigma0,
@@ -1166,6 +1173,15 @@ for label, measure_2d, color in variants_2d:
         colors=[color],
         linewidths=1.8,
         linestyles="-",
+    )
+    ax_main.contour(
+        X,
+        Y,
+        Z,
+        levels=[sigma_level_2],
+        colors=[color],
+        linewidths=1.8,
+        linestyles=":",
     )
     ax_main.plot(
         mu[0],
@@ -1222,7 +1238,7 @@ ax_legend.legend(
 
 fig_ov.suptitle(
     "Knockout Sensitivity: Ice vs Firn GMSL\n"
-    "(1-sigma ellipses, all variants)",
+    "(1-sigma and 2-sigma ellipses, all variants)",
     fontsize=13,
 )
 plt.tight_layout()
@@ -1237,55 +1253,11 @@ fig_ov.savefig(
 
 # %%
 # =============================================================================
-# 2. Individual plot_bivariate_corner per variant
+fig_ov.savefig(
+    "figs/knockout_grace_gmsl_bivariate_overlay.png",
+    dpi=200,
+)
+
+# %%
 # =============================================================================
-
-variant_corner_meta = [
-    (
-        "full",
-        "Full (SSH+TG+ice+GRACE)",
-        variants_2d[0][1],
-        colors.new_method,
-    ),
-    (
-        "no_ssh",
-        "No SSH Altimetry",
-        variants_2d[1][1],
-        colors.ice_altimetry,
-    ),
-    (
-        "no_tg",
-        "No Tide Gauges",
-        variants_2d[2][1],
-        colors.ocean_dynamics,
-    ),
-    (
-        "no_ice",
-        "No Ice Altimetry",
-        variants_2d[3][1],
-        colors.ocean_altimetry,
-    ),
-    (
-        "no_grace",
-        "No GRACE",
-        variants_2d[4][1],
-        colors.firn,
-    ),
-]
-
-for slug, title, measure_2d, color in variant_corner_meta:
-    fig_bc, _ = plot_bivariate_corner(
-        measure_2d,
-        true_values=true_values_2d,
-        labels=["Ice GMSL (mm)", "Firn GMSL (mm)"],
-        title=f"Ice vs Firn GMSL — {title}",
-        figsize=(6.5, 6.5),
-        pdf_colors=[color, color],
-    )
-    fig_bc.savefig(
-        f"figs/knockout_grace_gmsl_corner_{slug}.pdf",
-        dpi=600,
-    )
-    plt.close(fig_bc)
-
 print("Bivariate corner figures saved to figs/")

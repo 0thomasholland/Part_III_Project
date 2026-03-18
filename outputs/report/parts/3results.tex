@@ -8,7 +8,7 @@ At the standard altimetry latitude range of $60$--$75^\circ$ \autocite{lickleyBi
 
 \begin{figure}[!h]
 	\includegraphics[width=\columnwidth]{major_source_altimetry_errors_scalar.pdf}
-	\caption{Relative error of GMSL estimation using SSHC as a proxy for SLC, shown as a function of altimetry latitude range for uniform melt from GIS, EAIS, and WAIS. Dashed line indicates the typical altimetry range of $\pm66^\circ$.}\label{fig:simple_major_source}
+	\caption{Relative error of GMSL estimation using SSHC as a proxy for SLC, shown as a function of altimetry latitude range for uniform melt from GIS, EAIS, and WAIS. The dashed line indicates the typical altimetry range of $\pm66^\circ$.}\label{fig:simple_major_source}
 \end{figure}
 
 \subsubsection{Spatial structure of the proxy error}
@@ -157,7 +157,7 @@ The three parameter groups differ in character: length scale affects spatial str
   \label{fig:sensitivity-truth-prior-cross}
 \end{figure}
 
-\autoref{fig:sensitivity-truth-prior-cross-gmsl} shows the corresponding GMSL posterior distributions for each of the four truth/prior combinations. In all cases the posterior contains the true GMSL value; however, prior mismatch widens the posterior and shifts its mean, with the largest effect seen when the truth is spatially structured but the prior is uniform.
+\autoref{fig:sensitivity-truth-prior-cross-gmsl} shows the corresponding GMSL posterior distributions for each of the four truth/prior combinations. In all cases, the posterior contains the true GMSL value; however, prior mismatch widens the posterior and shifts its mean, with the largest effect seen when the truth is spatially structured, but the prior is uniform.
 
 
 
@@ -165,7 +165,7 @@ The three parameter groups differ in character: length scale affects spatial str
 
 \notebookcite{thomasholland08JointInversionipynb2026}
 
-\autoref{fig:joint-inversion} shows the results of a joint inversion for ice thickness change, firn compaction, and ocean dynamic changes from a synthetic test using ocean altimetry, ice altimetry, and GRACE data. The posterior expectation captures the spatial structure of ice and firn thickness change well, with some regions showing a trade-off between them (e.g. Easternmost Antarctica, where both ice thickness gain and firn loss are overestimated in the posterior expectation).
+\autoref{fig:joint-inversion} shows the results of a joint inversion for ice thickness change, thickness change, and ocean dynamic changes from a synthetic test using ocean altimetry, ice altimetry, and GRACE data. The posterior expectation captures the spatial structure of ice and firn thickness change well. However, some regions such as Greenland have poor recovery,
 
 The ocean dynamic change is less well recovered: the posterior expectation is smoother than the true field, but still captures the main large-amplitude features.
 
@@ -174,7 +174,7 @@ The ocean dynamic change is less well recovered: the posterior expectation is sm
 
 \begin{figure}[p]
   \includegraphics[width=\columnwidth]{joint_precon_grace_6panel.pdf}
-  \caption{Joint inversion results from a synthetic test using SSH altimetry, ice altimetry, and GRACE data. Each row shows true (left) and posterior expectation (right) for one model component: ice thickness change (top), firn thickness change (middle), and ocean dynamic topography change (bottom). Colorbars are independent for each row.}
+  \caption{Joint inversion results from a synthetic test using SSH altimetry, ice altimetry, and GRACE data. Each row shows true (left) and posterior expectation (right) for one model component: ice thickness change (top), firn thickness change (middle), and ocean dynamic topography change (bottom). Colourbars are independent for each row.}
   \label{fig:joint-inversion}
 \end{figure}
 
@@ -184,8 +184,10 @@ The ocean dynamic change is less well recovered: the posterior expectation is sm
   \begin{center}
   \includegraphics[width=0.9\columnwidth]{knockout_grace_gmsl_bivariate_overlay.pdf}
   \end{center}
-  \caption{Sensitivity of the joint posterior to each data type, shown as $1\sigma$ ellipses and marginal distributions for ice GMSL (top) and firn GMSL (right) across five inversion variants: full inversion and four knockouts (no SSH altimetry, no ice altimetry, no GRACE). True values are marked by dashed lines. Removing SSH altimetry substantially degrades ocean dynamic topography recovery; removing GRACE or ice altimetry degrades disambiguation between ice and firn.}
+  \caption{Sensitivity of the joint posterior to each data type, shown as $1\sigma$ ellipses and marginal distributions for ice GMSL (top) and firn GMSL (right) across five inversion variants: full inversion and four knockouts (no SSH altimetry, no ice altimetry, no GRACE). Dashed lines mark true values. Removing SSH altimetry substantially degrades ocean dynamic topography recovery; removing GRACE or ice altimetry degrades disambiguation between ice and firn.}
   \label{fig:joint-inversion-data-type-sensitivity}
 \end{figure}
 
-The spatial recovery for each knockout variant is shown in \autoref{fig:appendix_knockout_plot}.
+The firn and ice thickness recovery is shown in \autoref{fig:joint-inversion-data-type-sensitivity} as joint distributions of ice and firn GMSL across the four inversion variants.
+
+The spatial recovery for each knockout variant is shown in \autoref{fig:appendix_knockout_plot}, and shows good

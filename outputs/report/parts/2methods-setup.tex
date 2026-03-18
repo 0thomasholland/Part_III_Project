@@ -39,7 +39,7 @@ where $\operatorslc$ is the fingerprint operator that maps from load change to t
 
 \notebookcite{thomasholland05AltimetrySamplingipynb2026}
 
-To build data spaces, we design operators that map from the continuous fields to the discrete observations that represent those made by satellite altimeters and tide gauges.
+To build data spaces, we design operators that map from the continuous fields to the discrete observations that represent those made by satellite altimeters.
 
 For this, \citetitle{al-attarPygeoinfPythonLibrary2025} uses a linear operator form of a Dirac delta function, which samples the input field at given points and returns a vector of the sampled values.
 
@@ -49,7 +49,7 @@ For this, \citetitle{al-attarPygeoinfPythonLibrary2025} uses a linear operator f
 
 with condition $s > \frac{n}{2}$ \autocite{rudinFunctionalAnalysis1991}.
 
-For example, the tide gauge operator samples the field at tide gauge locations and returns a vector of sampled values. To generate the altimetry points, we generate a regular latitude-longitude grid and apply a point sampling operator to return the subset of points within the ocean or ice sheet domains.
+To generate the altimetry points, we generate a regular latitude-longitude grid and apply a point sampling operator to return the subset of points within the ocean or ice sheet domains.
 
 To generate a list of points to sample, we design a point sampling operator that takes a domain $\Omega$ and a point set $\mathcal{G}$, and returns the subset of points within the domain. This can be represented as
 

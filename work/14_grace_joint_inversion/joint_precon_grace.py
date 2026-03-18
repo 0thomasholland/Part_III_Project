@@ -17,10 +17,8 @@ from pyslfp import (
     FingerPrint,
     IceModel,
     plot,
-    read_gloss_tide_gauge_data,
     sea_level_change_to_load_operator,
     sea_surface_height_operator,
-    tide_gauge_operator,
 )
 from pyslfp.operators import grace_operator
 from tqdm import tqdm
@@ -102,11 +100,6 @@ model_prior = GaussianMeasure.from_direct_sum(
 ssh_altimetry = GridPoints.ocean_altimetry(fp, 10.0, 66.0)
 ice_altimetry = GridPoints.ice(fp, 15.0)
 
-lats, lons = read_gloss_tide_gauge_data()
-filtered_lats = lats.copy()
-filtered_lons = lons.copy()
-tide_gauge_points = list(zip(filtered_lats, filtered_lons))
-
 # %%
 # =============================================================================
 # Full-resolution forward operator with GRACE
@@ -117,7 +110,7 @@ tide_gauge_points = list(zip(filtered_lats, filtered_lons))
 #
 #   L_right (4×3):  load operators + routing permutation  [unchanged]
 #   F_middle(4×4):  block_diag(F, I_odt, I_ice, I_firn)  [unchanged]
-#   P_left  (4×4):  rows = SSH altimetry / tide gauges / ice altimetry / GRACE
+#   P_left  (3×4):  rows = SSH altimetry / ice altimetry / GRACE
 #
 # The GRACE row maps from the fingerprint response_space via the spherical
 # harmonic sampling operator; all other intermediate spaces contribute zero.
@@ -132,7 +125,6 @@ def _build_forward_operator(
     odt,
     ssh_altimetry,
     ice_altimetry,
-    tide_gauge_points,
     grace_observation_degree,
 ):
     """
@@ -140,9 +132,8 @@ def _build_forward_operator(
 
     Observation rows (in order):
       0 — SSH altimetry
-      1 — Tide gauges (SLC)
-      2 — Ice altimetry
-      3 — GRACE spherical harmonic coefficients
+      1 — Ice altimetry
+      2 — GRACE spherical harmonic coefficients
     """
     # -- Spaces --
     load_space = fp_op.domain
@@ -169,13 +160,6 @@ def _build_forward_operator(
         odt_space
     )
 
-    P_T_slc = slc_space.point_evaluation_operator(
-        tide_gauge_points
-    )
-    P_T_odt = odt_space.point_evaluation_operator(
-        tide_gauge_points
-    )
-
     P_I_ice = ice_altimetry.point_evaluation_operator(
         ice_space
     )
@@ -195,7 +179,6 @@ def _build_forward_operator(
 
     # -- Observation spaces --
     ssh_obs = P_S_ssh.codomain
-    tg_obs = P_T_slc.codomain
     ice_obs = P_I_ice.codomain
     grace_obs = grace_op.codomain
 
@@ -234,11 +217,10 @@ def _build_forward_operator(
         [F, id_odt, id_ice, id_firn]
     )
 
-    # == P_left (4×4) ==
-    # [[P_S·S,        P_S_odt,  0,       0        ],
-    #  [P_T·slc_proj, P_T_odt,  0,       0        ],
-    #  [0,            0,        P_I_ice, P_I_firn  ],
-    #  [grace_op,     0,        0,       0         ]]
+    # == P_left (3×4) ==
+    # [[P_S·S,    P_S_odt,  0,       0        ],
+    #  [0,        0,        P_I_ice, P_I_firn  ],
+    #  [grace_op, 0,        0,       0         ]]
     P_left = BlockLinearOperator(
         [
             [
@@ -246,12 +228,6 @@ def _build_forward_operator(
                 P_S_odt,
                 ice_space.zero_operator(codomain=ssh_obs),
                 firn_space.zero_operator(codomain=ssh_obs),
-            ],
-            [
-                P_T_slc @ slc_proj,
-                P_T_odt,
-                ice_space.zero_operator(codomain=tg_obs),
-                firn_space.zero_operator(codomain=tg_obs),
             ],
             [
                 response_space.zero_operator(
@@ -282,7 +258,6 @@ forward_operator, grace_obs = _build_forward_operator(
     odt,
     ssh_altimetry,
     ice_altimetry,
-    tide_gauge_points,
     grace_observation_degree,
 )
 
@@ -300,23 +275,19 @@ model_space_to_slc_operator = RowLinearOperator(
 
 # %%
 # =============================================================================
-# Data error (component-wise: altimetry/TG/ice share measure_error_std;
+# Data error (component-wise: altimetry/ice share measure_error_std;
 # GRACE uses its own grace_std)
 # =============================================================================
 
 # Extract observation sub-spaces from the data_space order:
-# 0: SSH altimetry, 1: tide gauges, 2: ice altimetry, 3: GRACE
+# 0: SSH altimetry, 1: ice altimetry, 2: GRACE
 ssh_obs_space = data_space.subspaces[0]
-tg_obs_space = data_space.subspaces[1]
-ice_obs_space = data_space.subspaces[2]
+ice_obs_space = data_space.subspaces[1]
 
 data_error_measure = GaussianMeasure.from_direct_sum(
     [
         GaussianMeasure.from_standard_deviation(
             ssh_obs_space, measure_error_std
-        ),
-        GaussianMeasure.from_standard_deviation(
-            tg_obs_space, measure_error_std
         ),
         GaussianMeasure.from_standard_deviation(
             ice_obs_space, measure_error_std
@@ -466,12 +437,6 @@ precon_P_S_ssh = (
 precon_P_S_odt = precon_odt_space.point_evaluation_operator(
     ssh_altimetry.coords
 )
-precon_P_T_slc = precon_slc_space.point_evaluation_operator(
-    tide_gauge_points
-)
-precon_P_T_odt = precon_odt_space.point_evaluation_operator(
-    tide_gauge_points
-)
 precon_P_I_ice = precon_ice_space.point_evaluation_operator(
     ice_altimetry.coords
 )
@@ -491,7 +456,6 @@ precon_id_ice = precon_ice_space.identity_operator()
 precon_id_firn = precon_firn_space.identity_operator()
 
 precon_ssh_obs = precon_P_S_ssh.codomain
-precon_tg_obs = precon_P_T_slc.codomain
 precon_ice_obs = precon_P_I_ice.codomain
 precon_grace_obs = precon_grace_op.codomain
 
@@ -542,16 +506,6 @@ precon_P_left = BlockLinearOperator(
             ),
             precon_firn_space.zero_operator(
                 codomain=precon_ssh_obs
-            ),
-        ],
-        [
-            precon_P_T_slc @ precon_slc_proj,
-            precon_P_T_odt,
-            precon_ice_space.zero_operator(
-                codomain=precon_tg_obs
-            ),
-            precon_firn_space.zero_operator(
-                codomain=precon_tg_obs
             ),
         ],
         [
@@ -727,7 +681,7 @@ fig2, ax2, im2 = plot(
     colorbar_label="Ice Thickness Change (mm)",
 )
 ax2.set_title(
-    "b) Posterior Expectation (GRACE + altimetry + TG)"
+    "b) Posterior Expectation (GRACE + altimetry)"
 )
 fig2.tight_layout()
 

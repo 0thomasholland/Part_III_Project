@@ -208,6 +208,8 @@ fig, (ax1, ax2, ax3, ax4, ax5, ax6) = (
         true_label="True GMSL",
         estimate_label="Altimetry Estimated GMSL",
         error_label="Estimation Error",
+        ax1_ylabel="GMSL (mm)",
+        ax2_ylabel="Estimation Error (mm)",
     )
 )
 
