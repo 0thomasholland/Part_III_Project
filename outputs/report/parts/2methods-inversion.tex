@@ -1,8 +1,8 @@
-\subsection{Bayseian Inversion}
+\subsection{Bayesian Inversion}
 
 % Breif introduction
 
-By applying the inversion framework outlined in \autoref{sec:bay} we can combined our understanding of SL physics and with prior distributions built to reflect our knowledge of the system to result in an updated posterior belief of the state of the model space based on observations made in the data space.
+By applying the inversion framework outlined in \autoref{sec:bay} we combine our understanding of SL physics with prior distributions that reflect our knowledge of the system, yielding an updated posterior belief of the state of the model space based on observations made in the data space.
 
 
 
@@ -10,7 +10,7 @@ By applying the inversion framework outlined in \autoref{sec:bay} we can combine
 
 \notebookcite{thomasholland06SimpleInversionipynb2026}
 
-A simple case for this is to invert for ice thickness change, $\thicknesschangeice$, with a single density, from SSH altimetery, $d$ where the forward problem takes the form
+A simple case for this is to invert for ice thickness change, $\thicknesschangeice$, with a single density, from SSH altimetry, $d$ where the forward problem takes the form
 
 \begin{align}
 	d &= \operatoraltimetry{\text{ocean}} \circ \operatorsshc \circ \operatorslc \circ \operatorloadice (\thicknesschangeice) + n,\\
@@ -29,7 +29,7 @@ A true ice-thickness field, $\thicknesschangeice^\dagger$,  is drawn as a single
 	d_{obs} = \operator{O}{simple}(\thicknesschangeice^\dagger) + n
 \end{equation}
 
-Using the Bayesian inversion framework, we are able to generate the posterior model space measure, $m_{\Delta I}^{p}$, which can be inspected to understand the new inversion method. Such inspections can include simple visual inspection of the posterior model expectation compared to the true field is is inverting for. Both of these can be pushed forward through the sea level operator to obtain their respective sea level fingerprints for comparison.
+Using the Bayesian inversion framework, we generate the posterior model space measure, $m_{\Delta I}^{p}$, which can be inspected to understand the new inversion method. Such inspections can include simple visual inspection of the posterior model expectation compared to the true field is is inverting for. Both of these can be pushed forward through the sea level operator to obtain their respective sea level fingerprints for comparison.
 
 The covariance between the major sources can be inspected to understand how well the method is able to disambiguate between them.
 
@@ -64,18 +64,18 @@ The $z$-score is calculated using the expectation and standard deviations, $\mu$
     z^{alt} &= \frac{\gmslctrue - \mu_{\text{alt}}}{\sigma_{\text{alt}}}
 \end{align}
 
-The inversions was run multiple times to generate a suite of $z$-scores for each method, which can be compared to show the improvement of the new method over the old method.
+The inversions were run multiple times to generate a suite of $z$-scores for each method, which can be compared to show the improvement of the new method over the old method.
 
 \subsubsection{Sensitivity tests}
 \notebookcite{thomasholland07InversionSensitivityipynb2026}
 
 With any inverse setup, it is important to understand how sensitive the results are to the various parameters of the method. This is particularly significant for our method, as it relies on a number of assumptions and choices in the construction of the prior model space measure.
 
-To test the inversion method, the scheme described in \textcite{heathcoteScaleableBayesianFramework2026} for testing the inversion sensitivity to changes in the ice lengthscale, covariance, and expectation bias parameters of the prior.
+To test the inversion, we follow the scheme of \textcite{heathcoteScaleableBayesianFramework2026}, testing sensitivity to the ice lengthscale, covariance, and expectation bias parameters of the prior.
 
 Initially, an inversion scenario is set up similar to the inversion, with a fixed truth ice state, $m_{\Delta I}^\dagger$. Inversions for the true field were run with priors generated with the systematically varied parameters of interest, and comparison is made between their results and the true field to assess the method's sensitivity to that parameter.
 
-In addition to the above tests from \textcite{heathcoteScaleableBayesianFramework2026}, the sensitivity of the method to the ice thickness prior model to spatial patters or not. True ice states for both spatially uniform ice change and thickness dependent change patters were generated (see \autoref{sec:ice_thickness_priors}). These were both inverted for using the two types of prior model, resulting in four posteriors, and then compared.
+In addition to the above tests from \textcite{heathcoteScaleableBayesianFramework2026}, the sensitivity of the method to the ice thickness prior model to spatial patterns or not. True ice states for both spatially uniform ice change and thickness dependent change patterns were generated (see \autoref{sec:ice_thickness_priors}). These were both inverted for using the two types of prior model, resulting in four posteriors, and then compared.
 
 \subsubsection{Joint inversion using ice, firn, and ocean dynamic changes}
 
@@ -83,13 +83,13 @@ To demonstrate the extensibility of the Bayesian inversion framework, the model 
 
 By constructing a joint forward operator that maps all three model space parameters to a combined data space of SSH altimetry, tide gauge, and ice altimetry observations, the inversion can exploit the complementary information each data source provides to better constrain and disambiguate between these competing contributions.
 
-The model space would be a direct sum of the ice thickness change, firn thickness change space, and ocean dynamic topography change:
+We take the model space to be the direct sum of the ice thickness change, firn thickness change space, and ocean dynamic topography change:
 
 \begin{equation}
 	m = \thicknesschangeice \oplus \thicknesschange{f} \oplus \thicknesschange{odt}
 \end{equation}
 
-To invert for these data sources, we can use a combination of GRACE gravity data, SSH altimetry data, tide gauge data, and ice altimetry data. Each of these data sources provides different constraints on the model space parameters, so by combining them in a joint inversion, we can leverage their complementary information to better constrain the model space and improve our estimates of the various sources of sea level change. Our data space would be a direct sum of these measuremednts
+To invert for these sources, we combine GRACE gravity data, SSH altimetry data, tide gauge data, and ice altimetry data. Each source constrains the model space differently; a joint inversion leverages their complementary information to better constrain the model space and improve our estimates of the various sources of sea level change. We take the data space to be the direct sum of these measurements
 
 \begin{equation}
 d = d_{\text{SSH altimetry}} \oplus d_{\text{tide gauges}}
