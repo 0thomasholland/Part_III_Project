@@ -733,7 +733,12 @@ col_c = "tab:orange"  # GRACE
 
 def _tv(true_2d):
     """Extract true [gl, ant] values from a 2D field vector."""
-    return [float(true_2d[0]), float(true_2d[1])]
+    import numpy as np
+
+    return [
+        float(np.squeeze(true_2d[0])),
+        float(np.squeeze(true_2d[1])),
+    ]
 
 
 # --- Total thickness (ice + firn GMSL contribution) ---
@@ -791,5 +796,4 @@ fig_firn.savefig(
     "figs/regional_bivariate_firn.pdf", dpi=600
 )
 
-plt.show()
 print("Done. Figures saved to figs/")
