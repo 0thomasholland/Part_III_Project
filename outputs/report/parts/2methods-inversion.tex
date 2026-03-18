@@ -29,14 +29,14 @@ A true ice-thickness field, $\thicknesschangeice^\dagger$,  is drawn as a single
 	d_{obs} = \operator{O}{simple}(\thicknesschangeice^\dagger) + n
 \end{equation}
 
-Using the Bayesian inversion framework, we generate the posterior model space measure, $m_{\Delta I}^{p}$, which can be inspected to understand the new inversion method. Such inspections can include simple visual inspection of the posterior model expectation compared to the true field is is inverting for. Both of these can be pushed forward through the sea level operator to obtain their respective sea level fingerprints for comparison.
+Using the Bayesian inversion framework, we generate the posterior model space measure, $m_{\Delta I}^{p}$, which can be inspected to understand the new inversion method. Such inspections include visual comparison of the posterior model expectation against the true field it is inverting for. Both of these can be pushed forward through the sea level operator to obtain their respective sea level fingerprints for comparison.
 
-The covariance between the major sources can be inspected to understand how well the method is able to disambiguate between them.
+We also inspect the posterior covariance between major sources to assess how well the method disambiguates between them.
 
 \subsubsection{Comparison with previous method}
 \notebookcite{thomasholland06SimpleInversionipynb2026}
 
-To compare our method's estimate of GMSLC with the altimetry estimate, the $z$-scores of the two methods' estimates of GMSL change relative to the true GMSL change can be compared. We generate a true GMSL value, $\gmslctrue$, and the inversion method's estimate, $\gmslcbay$ by applying the mass balance GMSL operator, $\operatorgmsl{\text{true}}$, to the true ice thickness change field and the posterior model expectation, respectively:
+To compare our method's estimate of GMSLC with the altimetry estimate, we compare the $z$-scores of both methods relative to the true GMSL change. We generate a true GMSL value, $\gmslctrue$, and the inversion method's estimate, $\gmslcbay$ by applying the mass balance GMSL operator, $\operatorgmsl{\text{true}}$, to the true ice thickness change field and the posterior model expectation, respectively:
 
 \begin{align}
 	\gmslctrue &= \operatorgmsl{\text{true}} \thicknesschangeice^\dagger, \label{eq:true-gmsl-model} \\
@@ -73,15 +73,15 @@ With any inverse setup, it is important to understand how sensitive the results 
 
 To test the inversion, we follow the scheme of \textcite{heathcoteScaleableBayesianFramework2026}, testing sensitivity to the ice lengthscale, covariance, and expectation bias parameters of the prior.
 
-Initially, an inversion scenario is set up similar to the inversion, with a fixed truth ice state, $m_{\Delta I}^\dagger$. Inversions for the true field were run with priors generated with the systematically varied parameters of interest, and comparison is made between their results and the true field to assess the method's sensitivity to that parameter.
+We set up an inversion scenario similar to the above, with a fixed true ice state, $m_{\Delta I}^\dagger$. Inversions for the true field were run with priors generated with the systematically varied parameters of interest, and comparison is made between their results and the true field to assess the method's sensitivity to that parameter.
 
-In addition to the above tests from \textcite{heathcoteScaleableBayesianFramework2026}, the sensitivity of the method to the ice thickness prior model to spatial patterns or not. True ice states for both spatially uniform ice change and thickness dependent change patterns were generated (see \autoref{sec:ice_thickness_priors}). These were both inverted for using the two types of prior model, resulting in four posteriors, and then compared.
+In addition to the above tests from \textcite{heathcoteScaleableBayesianFramework2026}, we test whether spatial patterns in the ice thickness prior affect the inversion. True ice states for both spatially uniform ice change and thickness-dependent change patterns were generated (see \autoref{sec:ice_thickness_priors}). These were both inverted for using the two types of prior model, resulting in four posteriors, and then compared.
 
 \subsubsection{Joint inversion using ice, firn, and ocean dynamic changes}
 
-To demonstrate the extensibility of the Bayesian inversion framework, the model space can be extended to the direct sum of ice thickness change, firn thickness change, and ocean dynamic topography change, inverted simultaneously. This is motivated by the fact that all three processes contribute to observed sea level change and are therefore entangled in altimetry observations, making correct source attribution difficult. The problem is compounded by the similarity of ice and firn thickness change signals, which produce comparable spatial patterns and both affect ice surface height and load-induced sea level fingerprints.
+To show that the Bayesian framework extends naturally, we extend the model space to the direct sum of ice thickness change, firn thickness change, and ocean dynamic topography change, inverted simultaneously. This is motivated by the fact that all three processes contribute to observed sea level change and are therefore entangled in altimetry observations, making correct source attribution difficult. The problem is compounded by the similarity of ice and firn thickness change signals, which produce comparable spatial patterns and both affect ice surface height and load-induced sea level fingerprints.
 
-By constructing a joint forward operator that maps all three model space parameters to a combined data space of SSH altimetry, tide gauge, and ice altimetry observations, the inversion can exploit the complementary information each data source provides to better constrain and disambiguate between these competing contributions.
+By constructing a joint forward operator that maps all three model space parameters to a combined data space of SSH altimetry, tide gauge, and ice altimetry observations, the inversion exploits the complementary information from each data source to better constrain and disambiguate between these competing contributions.
 
 We take the model space to be the direct sum of the ice thickness change, firn thickness change space, and ocean dynamic topography change:
 
@@ -96,7 +96,7 @@ d = d_{\text{SSH altimetry}} \oplus d_{\text{tide gauges}}
     \oplus d_{\text{ice altimetry}} \oplus d_{\text{GRACE}}
 \end{equation}
 
-It is often the case where multiple model space parameters map to one data space parameter, for example in our case, SSH altimetry points forms the linear equation:
+Often, multiple model space parameters map to one data space parameter. In our case, the SSH altimetry points form the linear equation:
 
 \begin{equation}
 	d_{\text{SSH altimetry}} = \operatorpointocean( \operatorsshc \circ \operatorslc (\operatorloadice m_{\Delta I} + \operatorloadfirn m_{\Delta F} + \operatorloadwater \odtchange) + \odtchange)
@@ -157,10 +157,10 @@ However, this is computationally inefficient, as it requires six independent cal
 \end{equation}
 
 
-see \autoref{sec:joint_operator_factorisation} for full derivation. This reduced each iteration time, with a speed-up of $3\times$.
+see \autoref{sec:joint_operator_factorisation} for full derivation. This reduces each iteration time by a factor of $3\times$.
 
 \subsubsection{Sensitivity tests of joint inversions}
 
-The covariance between ice and firn thickness change in the posterior model space can be inspected to see how well the method can disambiguate between the factors, and how much uncertainty remains.
+We inspect the posterior covariance between ice and firn thickness change to assess how well the method disambiguates between them and how much uncertainty remains.
 
-The importance of each data source can be tested by running the joint inversion with that source removed and comparing the results to the full inversion. This will show how much each data source contributes to constraining the model space parameters, and how much information is lost when that data source is removed.
+We test the importance of each data source by running the joint inversion with that source removed and comparing the results to the full inversion. This shows how much each source contributes to constraining the model space parameters.
