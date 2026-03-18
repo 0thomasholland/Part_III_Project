@@ -45,8 +45,15 @@ To illustrate how the proxy error manifests spatially, \autoref{fig:simple_load_
 
 \autoref{fig:gaussian_uniform} extends the per-source analysis by showing the GMSL estimation error when the ice source distribution is represented as a Gaussian measure rather than a fixed field. The figure shows the true and estimated GMSL distributions, together with the error distribution, at altimetry latitude cutoffs of $66^\circ$ and $80^\circ$.
 
+
+
 At $66^\circ$, the estimated GMSL distribution is shifted slightly below the true distribution, with the error distribution centred near zero but with a small negative bias. At $80^\circ$, the separation between the true and estimated distributions increases, and the error distribution widens and shifts further from zero, reflecting the larger proxy error incurred when the altimetry domain extends closer to the ice sheets.
 
+
+\begin{figure}[hbp]
+	\includegraphics[width=\columnwidth]{double_distribution_66_80.pdf}
+	\caption{True and estimated GMSL distributions, with corresponding error distributions, at altimetry latitude cutoffs of $66^\circ$ (top) and $80^\circ$ (bottom), for a rotationally invariant Gaussian ice thickness prior standardised to 10~mm $\pm$ 1~mm GMSL change.}\label{fig:gaussian_uniform}
+\end{figure}
 
 
 Over multiple runs, we found qualitatively, this pattern varies as the GMSL estimation error varies with the underlying ice source distribution parameters. However, the general trend of a bias and increasing error with higher latitude cutoffs is consistent across runs, confirming the systematic nature of the proxy error under source uncertainty.
@@ -96,11 +103,11 @@ This section is run at a spherical harmonic truncation of 128 for computational 
 \begin{center}
 	\includegraphics[width=0.75\columnwidth]{ridge_kde_all_z_score.pdf}
   \end{center}
-	\caption{}
-	\label{fig:sensitivity-z_score}
+	\caption{}\label{fig:sensitivity-z_score}
 \end{figure}
+\todo{Provide a succinct and clear caption for this figure, as per the report instructions.}
 
-\autoref{fig:sensitivity-z_score} shows the posterior z-scores across all sensitivity cases. In every case the posterior contains the true GMSL value and shows no systematic bias, demonstrating that the Bayesian inversion is robust to prior misspecification. The accurate prior case recovers the true field most tightly, as expected. Spatial recovery across all cases is shown in the supplementary figures (\autoref{fig:sensitivity-true-inversion} to \autoref{fig:sensitivity-variance}).
+\autoref{fig:sensitivity-z_score} shows the posterior z-scores across all sensitivity cases. In every case the posterior contains the true GMSL value and shows no systematic bias, demonstrating that the Bayesian inversion is robust to prior mis-specification. The accurate prior case recovers the true field most tightly, as expected. Spatial recovery across all cases is shown in the supplementary figures (\autoref{fig:sensitivity-true-inversion} to \autoref{fig:sensitivity-variance}).
 
 The three parameter groups differ in character: length scale affects spatial structure but has little effect on GMSL recovery; mean offset tests a worst-case scenario where the true value lies outside the prior support; and covariance amplitude has the most practical implications, with higher variance cases being poorly conditioned and requiring substantially more conjugate gradient iterations to converge (47, 197, and 610 iterations for multipliers of 0.5, 2.0, and 5.0 respectively). The prior mean offset and length scale have comparatively little effect on convergence behaviour.
 
@@ -166,43 +173,27 @@ The three parameter groups differ in character: length scale affects spatial str
 
 \notebookcite{thomasholland09TruthPriorCross2026}
 
-
-
-\begin{figure}[h!]
-\begin{center}
-  \includegraphics[width=0.7\columnwidth]{9-2_posterior_gmsl_pdfs.pdf}
+\begin{figure}[hbp]
+  \begin{center}
+  \includegraphics[width=0.9\columnwidth]{9-1_true_fields.pdf}
+  \includegraphics[width=0.9\columnwidth]{9-3_posterior_mean_maps.pdf}
   \end{center}
-  \caption{}
-  \label{fig:sensitivity-truth-prior-cross-gmsl}
+  \caption{\todo{Provide a succinct and clear caption for this figure, as per the report instructions.}}
+  \label{fig:sensitivity-truth-prior-cross}
 \end{figure}
+
+
+\autoref{fig:sensitivity-truth-prior-cross-gmsl}
+
+
 
 \subsection{Joint inversion using ice, firn, and ocean dynamic changes}
 \notebookcite{thomasholland08JointInversionipynb2026}
 
 
 
-\begin{figure}[h!]
-  \includegraphics[width=0.45\columnwidth]{joint_precon_slc.pdf}
-  \includegraphics[width=0.45\columnwidth]{joint_precon_slc_posterior.pdf}
-  \includegraphics[width=0.45\columnwidth]{joint_precon_total_load.pdf}
-  \includegraphics[width=0.45\columnwidth]{joint_precon_total_load_posterior.pdf}
-  \caption{}
-  \label{fig:joint-inversion-gmsl}
-\end{figure}
 
-\begin{figure}[p]
-	\includegraphics[width=\columnwidth]{double_distribution_66_80.pdf}
-	\caption{True and estimated GMSL distributions, with corresponding error distributions, at altimetry latitude cutoffs of $66^\circ$ (top) and $80^\circ$ (bottom), for a rotationally invariant Gaussian ice thickness prior standardised to 10~mm $\pm$ 1~mm GMSL change.}\label{fig:gaussian_uniform}
-\end{figure}
 
-\begin{figure}[p]
-  \begin{center}
-  \includegraphics[width=0.9\columnwidth]{9-1_true_fields.pdf}
-  \includegraphics[width=0.9\columnwidth]{9-3_posterior_mean_maps.pdf}
-  \end{center}
-  \caption{}
-  \label{fig:sensitivity-truth-prior-cross}
-\end{figure}
 
 \begin{figure}[p]
   \includegraphics[width=0.45\columnwidth]{joint_precon_firn_thickness.pdf}
@@ -211,6 +202,6 @@ The three parameter groups differ in character: length scale affects spatial str
   \includegraphics[width=0.45\columnwidth]{joint_precon_ice_thickness_posterior.pdf}
   \includegraphics[width=0.45\columnwidth]{joint_precon_odt_height.pdf}
   \includegraphics[width=0.45\columnwidth]{joint_precon_odt_height_posterior.pdf}
-  \caption{}
+  \caption{\todo{Provide a succinct and clear caption for this figure, as per the report instructions.}}
   \label{fig:joint-inversion}
 \end{figure}

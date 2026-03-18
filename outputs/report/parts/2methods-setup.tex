@@ -35,7 +35,7 @@ where $\operatorslc$ is the fingerprint operator that maps from load change to t
 
 \subsubsection{Point sampling}
 
-\todo{come back to this to fix it}
+\todo{Clarify this section with precise and watertight descriptions of the methodology and data sampling approach, as per the report instructions.}
 
 \notebookcite{thomasholland05AltimetrySamplingipynb2026}
 
@@ -47,7 +47,7 @@ For this, \citetitle{al-attarPygeoinfPythonLibrary2025} uses a Linear Operator f
   \operatoraltimetry{\cdot}: H^s(\mathbb{S}^2) \to \mathbb{R}^N, \\ (\operatoraltimetry{}\, f)_i = \delta_{\mathbf{x}_i}(f) = f(\mathbf{x}_i),\quad i = 1, \dots, N
 \end{align}
 
-with condition $s > \frac{n}{2}$ \autocite{rudinFunctionalAnalysis1991}
+with condition $s > \frac{n}{2}$ \autocite{rudinFunctionalAnalysis1991}.
 
 For example the tide gauge points are represented as a point sampling operator that samples the field at the locations of the tide gauges, and returns a vector of the sampled values. To generate the altimetery points, first a regular latitude-longitude grid is generated, and then a point sampling operator is applied to this grid to return the subset of points that are within the ocean or ice sheet domains, which represent the points that are observed by satellite altimeters.
 

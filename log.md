@@ -406,3 +406,11 @@
 - Implemented improved covariance visualisation and regional analysis plots.
 - Updated bibliography references and continued report drafting.
 
+## 18 March 2026
+
+- Investigated the knockout sensitivity test result where the 'no tide gauges' case appeared to produce a tighter confidence ellipse than the full inversion, arriving at the iterative solver / conditioning explanation.
+- Integrated GRACE data source into the joint operator derivation with careful physical reasoning about what GRACE does and does not observe (ODT, fingerprint potential, ocean masking).
+- Decided to drop tide gauges from main results with a brief methodological note. Resolved figure captioning confusion in the error results section.
+- Simplified the joint inversion to the GRACE-only case.
+- Updated z-score computations and continued report revisions for clarity and conciseness.
+

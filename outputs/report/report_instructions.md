@@ -8,8 +8,3 @@
 - Critical, analytical, and uses sophisticated argument. Engages closely with the key question(s).
 - Highly appropriate and effective use of graphics; succinct and clear captions.
 - Critical analysis of majority of relevant literature. Accurate and complete citations and bibliography.
-
-
-
-
-
