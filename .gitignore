@@ -84,3 +84,4 @@ scratch/
 
 uv.lock
 outputs/report/report.bcf-SAVE-ERROR
+outputs/report/style_guide.md
