@@ -60,7 +60,7 @@ max_val = max(
     np.abs(df["gmsl_true"] - df["posterior_mean"]).max(),
 )
 
-fig, ax = plt.subplots(figsize=(7, 7))
+fig, ax = plt.subplots(figsize=(3.25, 3.25))
 
 # KDE Plot
 sns.kdeplot(
@@ -125,7 +125,6 @@ ax.yaxis.label.set_color(colors.new_method)
 ax.tick_params(axis="y", colors=colors.new_method)
 
 ax.legend()
-plt.show()
 fig.savefig("bias_comparison_contour.pdf", dpi=600)
 
 
@@ -136,7 +135,7 @@ max_val = max(
     np.abs(df["gmsl_true"] - df["posterior_mean"]).max(),
 )
 
-fig, ax = plt.subplots(figsize=(7, 7))
+fig, ax = plt.subplots(figsize=(3.25, 3.25))
 
 # sns scatter plot, where hue is one color if true value is postiive, and another color if true value is negative
 
@@ -200,7 +199,6 @@ ax.yaxis.label.set_color(colors.new_method)
 ax.tick_params(axis="y", colors=colors.new_method)
 
 ax.legend()
-plt.show()
 
 # %%
 
@@ -226,7 +224,7 @@ max_val = max(
     np.abs(z_score_posterior).max(),
 )
 
-fig, ax = plt.subplots(figsize=(4.5, 4.5))
+fig, ax = plt.subplots(figsize=(3.25, 3.25))
 
 # KDE Plot
 sns.kdeplot(
@@ -291,7 +289,6 @@ ax.yaxis.label.set_color(colors.new_method)
 ax.tick_params(axis="y", colors=colors.new_method)
 
 ax.legend()
-plt.show()
 fig.savefig("z_score_comparison_contour.pdf", dpi=600)
 
 
@@ -316,7 +313,7 @@ df["pct_error_bayesian"] = (
 # This shows which method is more "centered" on zero.
 
 # %%
-plt.figure(figsize=(10, 5))
+plt.figure(figsize=(3.25, 3.25))
 sns.kdeplot(
     df["error_ssh"],
     fill=True,
@@ -357,7 +354,6 @@ plt.title(
 plt.xlabel("Error (mm)")
 plt.ylabel("Density")
 plt.legend()
-plt.show()
 
 
 # Calculate the number of times that the new method is within one sigma of the true value, compared to the old method
@@ -378,7 +374,7 @@ print(
 # %%
 # do the residuals plot but with z scores instead of raw errors
 colors.apply_style()
-fig, ax = plt.subplots(figsize=(4.5, 3.0))
+fig, ax = plt.subplots(figsize=(3.25, 3.25))
 sns.kdeplot(
     z_score_ssh,
     fill=True,
@@ -404,7 +400,6 @@ plt.xlabel("z-score")
 plt.ylabel("Density")
 plt.legend(loc="upper left")
 plt.tight_layout()
-plt.show()
 fig.savefig("z_score_comparison_kde.pdf", dpi=600)
 
 # %%
