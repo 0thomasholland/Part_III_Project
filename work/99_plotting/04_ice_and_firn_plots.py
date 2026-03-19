@@ -161,12 +161,12 @@ def save_variability_side_by_side(weighted_pattern, fp):
     gs = fig.add_gridspec(
         2,
         2,
-        hspace=0.3,
+        hspace=0.4,
         wspace=0.2,
         left=0.08,
         right=0.95,
         top=0.93,
-        bottom=0.08,
+        bottom=0.15,
     )
 
     # Top left: Activator function
@@ -199,20 +199,22 @@ def save_variability_side_by_side(weighted_pattern, fp):
     ax_activator.plot(
         input_range,
         ice_melt,
-        label="Ice Melt Function",
+        label="Ice function",
         color="black",
     )
     ax_activator.plot(
         input_range,
         firn_melt,
-        label="Firn Melt Function",
+        label="Firn function",
         color="black",
         linestyle="dashed",
     )
-    ax_activator.legend()
+    ax_activator.legend(loc="upper right")
     ax_activator.set_xlabel("Ice thickness (m)")
     ax_activator.set_ylim(-0.0, 1.0)
-    ax_activator.set_ylabel("Melt field std dev multiplier")
+    ax_activator.set_ylabel(
+        "Change field std dev multiplier"
+    )
     ax_activator.set_title("Activation Function")
 
     # Plot ice thickness field
@@ -244,7 +246,7 @@ def save_variability_side_by_side(weighted_pattern, fp):
         vmax=0.9,
     )
     ax_firn.set_title(
-        "Firn melt pointwise standard deviation field"
+        "Firn change pointwise standard deviation field"
     )
     fig.colorbar(
         im_firn,
@@ -265,7 +267,7 @@ def save_variability_side_by_side(weighted_pattern, fp):
         vmax=0.9,
     )
     ax_ice.set_title(
-        "Ice melt pointwise standard deviation field"
+        "Ice change pointwise standard deviation field"
     )
     fig.colorbar(
         im_ice,
@@ -402,21 +404,21 @@ def save_activator_function_plot(fp):
     ax.plot(
         input_range,
         ice_melt,
-        label="Ice Melt Function",
+        label="Ice function",
         color="black",
     )
     ax.plot(
         input_range,
         firn_melt,
-        label="Firn Melt Function",
+        label="Firn function",
         color="black",
         linestyle="dashed",
     )
-    ax.legend()
+    ax.legend(loc="upper right")
     ax.set_xlabel("Input (ice thickness in m)")
     ax.set_ylim(-0.0, 1.0)
     ax.set_ylabel(
-        "Output (melt field standard deviation multiplier)"
+        "Output (change field standard deviation multiplier)"
     )
 
     fig.savefig(

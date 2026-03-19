@@ -16,10 +16,10 @@ This framework accommodates both deterministic fields, which enter as fixed elem
 \mu = \mathcal{N}(m, \mathcal{C}).
 \end{equation}
 
-There are suitable conditions that $\mathcal{C}$ must satisfy to be a valid covariance operator on an infinite-dimensional space, which are ensured by \citetitle{al-attarPygeoinfPythonLibrary2025}. An example is the heat kernel covariance structure. Let $\Delta$ be the Laplace-Beltrami operator on the sphere, $\alpha$ and $\lambda$ parameters controlling the pointwise standard deviation and the lengthscale of spatial correlations respectively, and $\braket{\cdot,\cdot}$ the inner product of the space (a generalisation of the dot product \autocite{parkerGeophysicalInverseTheory1994}). The heat kernel covariance then takes the form
+There are suitable conditions that $\mathcal{C}$ must satisfy to be a valid covariance operator on an infinite-dimensional space, which are ensured by \citetitle{al-attarPygeoinfPythonLibrary2025}. An example is the heat kernel covariance structure. Let $\Delta$ be the Laplace-Beltrami operator on the sphere, $\heatamp$ and $\heatlen$ parameters controlling the pointwise standard deviation and the lengthscale of spatial correlations respectively, and $\braket{\cdot,\cdot}$ the inner product of the space (a generalisation of the dot product \autocite{parkerGeophysicalInverseTheory1994}). The heat kernel covariance then takes the form
 
 \begin{equation}
-  \covariance{} = \frac{\alpha^2}{\braket{e^{-\lambda^2\Delta}\delta_x,\delta_x}} e^{-\lambda^2 \Delta}\label{eq:heat_kernel_covariance}
+  \covariance{} = \frac{\heatamp^2}{\braket{e^{-\heatlen^2\Delta}\delta_x,\delta_x}} e^{-\heatlen^2 \Delta}\label{eq:heat_kernel_covariance}
 \end{equation} This covariance structure ensures the resulting Gaussian measure is well-defined and rotationally invariant (covariance equal at any point). It is useful for geophysical problems, encoding the physical intuition of scaled point-wise variance and spatial correlation that decays with distance.
 
 Linear operators acting on Gaussian measures produce a valid Gaussian pushforward measure on the target space:
@@ -68,7 +68,7 @@ which we push forward using an operator $A$ that represents the physical relatio
 Applying the Gaussian inverse problem form of Bayes' theorem, first presented in \textcite{stuartInverseProblemsBayesian2010} and implemented in \textcite{heathcoteScaleableBayesianFramework2026}, we compute the posterior in closed form. It is a Gaussian measure with mean and covariance
 
 \begin{align}
-	m_p \sim \mathcal{N}(\bar{m}+K(d_{obs}-A\bar{m}-\bar{n}),\quad (1-KA)\mathcal{C}_{m}))
+	m_p \sim \mathcal{N}(\bar{m}+K(\dobs-A\bar{m}-\bar{n}),\quad (1-KA)\mathcal{C}_{m}))
 \end{align}
 
 where $K$ is the Kalman gain, defined as

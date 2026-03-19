@@ -150,20 +150,20 @@ To find the GMSL approximation with regards to SSHC, from \autoref{eq:gmsl_ssh_i
 
 
 \begin{equation}
-    \gmslc = \dfrac{1}{|\Omega|}\int_\Omega \sshc(\phi, \lambda) \, dA \label{eq:gmsl_sshc_integral}
+    \gmslc = \dfrac{1}{|\Omega|}\int_\Omega \sshc(\varphi, \lambda) \, dA \label{eq:gmsl_sshc_integral}
 \end{equation}
 
-Where $\sshc(\phi, \lambda)$ is the sea surface height change at a given longitude $\phi$ and latidue $\lambda$. With a spherical radius of $R$, the area, $dA$, is non-uniform in size and shrinks towards the poles, and can be expressed as:
+Where $\sshc(\varphi, \lambda)$ is the sea surface height change at a given longitude $\varphi$ and latitude $\lambda$. With a spherical radius of $R$, the area, $dA$, is non-uniform in size and shrinks towards the poles, and can be expressed as:
 
 \begin{align}
-    dA &= (R\cos \lambda d\phi)(R d\lambda) \\
-    &= R^2 \cos \lambda \, d\phi \, d\lambda
+    dA &= (R\cos \lambda \, d\varphi)(R \, d\lambda) \\
+    &= R^2 \cos \lambda \, d\varphi \, d\lambda
 \end{align}
 
-When we take discrete samples across a uniform grid, with spacings of $\Delta \phi$ and $\Delta \lambda$, we convert \autoref{eq:gmsl_sshc_integral} into a double summation over N points:
+When we take discrete samples across a uniform grid, with spacings of $\Delta \varphi$ and $\Delta \lambda$, we convert \autoref{eq:gmsl_sshc_integral} into a double summation over N points:
 
 \begin{equation}
-  \gmslc \approx \dfrac{\sum^N_{i=1}\sshc(\mathbf{x}_i)\cdot(R^2\cos \lambda_i \Delta \phi \Delta \lambda)}{\sum^N_{j=1}(R^2 \cos \lambda_j\Delta \phi\Delta \lambda)}
+  \gmslc \approx \dfrac{\sum^N_{i=1}\sshc(\mathbf{x}_i)\cdot(R^2\cos \lambda_i \Delta \varphi \Delta \lambda)}{\sum^N_{j=1}(R^2 \cos \lambda_j\Delta \varphi\Delta \lambda)}
 \end{equation}
 
 Which can simplify to:

@@ -20,6 +20,17 @@
     $\odtchange$                 & Ocean dynamic topography change \\
     $\mathrm{C}(\mathbf{x})$    & Ocean function; 1 on ocean, 0 on land \\
     $\mathrm{I}(\mathbf{x})$    & Ice thickness at position $\mathbf{x}$ \\
+    \midrule
+    \multicolumn{2}{@{}l}{\textit{Gravitational and rotational potential quantities}} \\
+    \midrule
+    $\Phi(\mathbf{x})$           & Gravitational potential at position $\mathbf{x}$ \\
+    $\phi$                       & First-order perturbation to the gravitational potential \\
+    $\phi_{lm}$                  & Fully normalised spherical harmonic coefficients of $\phi$; degrees $l \geq 2$ \\
+    $\Phi_0$                     & Reference (equilibrium) value of the gravitational potential at the sea surface \\
+    $\Phi_g$                     & Shift in the reference equipotential; fixed by conservation of mass \\
+    $\psi$                       & Perturbation to the centrifugal potential due to polar wander \\
+    $g$                          & Gravitational acceleration at the Earth's surface \\
+    $\boldsymbol{\omega}$        & Perturbation to the Earth's rotation vector \\
     \bottomrule
 \end{longtable}
 
@@ -32,10 +43,8 @@
     \textbf{Symbol} & \textbf{Description} \\
     \midrule
     $\thicknesschangeice$              & Ice thickness change field \\
-    $\thicknesschangefirn$              & Firn thickness change field \\
-    $\odtchange$            & Ocean dynamic topography thickness change field \\
-    $\thicknesschangeice$            & Ice thickness change (block-matrix notation) \\
-    $\thicknesschangefirn$           & Firn thickness change (block-matrix notation) \\
+    $\thicknesschangefirn$             & Firn thickness change field \\
+    $\odtchange$                       & Ocean dynamic topography change field \\
     $\masschange{i}$                   & Ice mass change \\
     $m$                                & Generic model space element \\
     $\bar{m}$                          & Prior mean of model space element \\
@@ -91,7 +100,9 @@
     $A$                                     & Generic forward operator; $A: X \to Y$ \\
     $A^*$                                   & Adjoint of operator $A$; $A^*: Y \to X$ \\
     $\alpha(\mathbf{x})$                    & Spatial ice/firn partitioning function (generalised logistic curve) \\
-    $W$                                     & Diagonal weighting operator; $W = \operatorname{diag}(\alpha(T_i))$ \\
+    $W$                                     & Diagonal weighting operator for ice; $W = \operatorname{diag}(\alpha(T_i))$ \\
+    $\tilde{W}$                             & Diagonal weighting operator for firn; $\tilde{W} = \operatorname{diag}(1-\alpha(T_i))$ \\
+    $\operatorgrace$                        & GRACE gravity operator; maps load change to spherical harmonic coefficients $\{\phi_{lm}\}_{l=2}^{L}$ \\
     \bottomrule
 \end{longtable}
 
@@ -108,11 +119,11 @@
     $\Omega_{\altimetry}$       & Ocean domain within satellite altimetry coverage \\
     $\Omega_I$                  & Ice field domain \\
     $|\Omega|$                  & Surface area of domain $\Omega$ \\
-    $\phi$                      & Longitude \\
+    $\varphi$                   & Longitude \\
     $\lambda$                   & Latitude \\
     $dA$                        & Surface area element \\
     $dS$                        & Surface area element (spherical) \\
-    $\Delta\phi,\,\Delta\lambda$& Grid spacing in longitude and latitude \\
+    $\Delta\varphi,\,\Delta\lambda$ & Grid spacing in longitude and latitude \\
     $N$                         & Number of discrete sampling points \\
     $w_i$                       & Area-weighting coefficient for point $i$;\\&$w_i = \cos\lambda_i / \sum_j \cos\lambda_j$ \\
     \bottomrule
@@ -131,8 +142,13 @@
     $h, k$                   & Elements of $H^s(\mathbb{S}^2)$ \\
     $X,\, Y$                 & Generic Hilbert spaces \\
     $\braket{\cdot,\cdot}_Y$ & Inner product on space $Y$ \\
-    $\phi$                   & Continuous linear functional $\phi: H^s(\mathbb{S}^2) \to \mathbb{R}$ \\
-    $\oplus$        & Direct sum of model or data spaces \\
+    $\ell$                   & Continuous linear functional $\ell: H^s(\mathbb{S}^2) \to \mathbb{R}$ \\
+    $\Delta$                 & Laplace-Beltrami operator on $\mathbb{S}^2$ \\
+    $\delta_{\mathbf{x}}$   & Dirac delta functional at point $\mathbf{x}$ \\
+    $a_0,\, l_s$             & Heat-kernel covariance parameters: pointwise amplitude and spatial lengthscale \\
+    $l,\, m$                 & Spherical harmonic degree and order \\
+    $L$                      & Spherical harmonic truncation degree \\
+    $\oplus$                 & Direct sum of model or data spaces \\
     \bottomrule
 \end{longtable}
 \vspace{1em}
@@ -142,24 +158,28 @@
     \toprule
     \textbf{Symbol} & \textbf{Description} \\
     \midrule
-    $\mu$                           & Gaussian measure; also used as prior measure \\
+    $\mu$                           & Gaussian measure (probability distribution); also used as prior measure \\
     $\mathcal{N}(m, \mathcal{C})$   & Gaussian measure with mean $m$ and covariance operator $\mathcal{C}$ \\
     $\mathcal{C}$                   & Generic covariance operator \\
     $\covariance{0}$                & Base (heat-kernel) covariance operator \\
     $\covariance{m}$                & Prior model covariance operator \\
     $\covariance{n}$                & Noise / observation covariance operator \\
     $\covariance{\thicknesschangeice}$ & Covariance operator for ice thickness change \\
-    $\covariance{\thicknesschange{f}}$ & Covariance operator for firn thickness change \\
+    $\covariance{\thicknesschangefirn}$ & Covariance operator for firn thickness change \\
     $d$                             & Data space vector \\
-    $d_{\text{obs}}$                & Observed data vector \\
+    $\dobs$                         & Observed data vector \\
     $d_{\Delta\mathrm{SSH}}$        & SSH altimetry data vector \\
     $d_{\Delta\mathrm{TG}}$         & Tide gauge data vector \\
     $d_{\Delta\mathrm{ISH}}$        & Ice surface height altimetry data vector \\
     $n$                             & Observation noise vector; $n \sim \mathcal{N}(0, \covariance{n})$ \\
     $K$                             & Kalman gain matrix \\
     $z$                             & $z$-score of the true value under a predicted distribution \\
-    $\sigma_{\text{target}}$        & Target standard deviation of GMSL contribution \\
-    $\sigma_{\text{gmsl}}$          & Implied GMSL standard deviation of a thickness change prior \\
+    $z^{\text{bay}},\, z^{\text{alt}}$ & $z$-scores for the Bayesian inversion and altimetry proxy estimates respectively \\
+    $\mu_{\text{bay}},\, \mu_{\text{alt}}$ & Scalar means of the Bayesian and altimetry GMSL distributions \\
+    $\sigma_{\text{bay}},\, \sigma_{\text{alt}}$ & Scalar standard deviations of the Bayesian and altimetry GMSL distributions \\
+    $\sigma_{\text{target}}$        & Target standard deviation of GMSL contribution used to scale ice/firn priors \\
+    $\sigma_{\text{gmsl}}$          & Implied GMSL standard deviation of a thickness change field under the base covariance $\covariance{0}$ \\
+    $T_i$                           & Ice thickness at grid point $i$, used as input to the partitioning function $\alpha$ \\
     $p(\cdot|\cdot)$                & Conditional probability density \\
     \bottomrule
 \end{longtable}
