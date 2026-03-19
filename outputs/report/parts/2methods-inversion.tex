@@ -2,7 +2,7 @@
 
 % Breif introduction
 
-By applying the inversion framework outlined in \autoref{sec:bay} we combine our understanding of SL physics with prior distributions that reflect our knowledge of the system, yielding an updated posterior belief of the state of the model space based on observations made in the data space.
+By applying the inversion framework outlined in \autoref{sec:bay}, prior knowledge of SL physics is encoded in prior distributions reflecting the state of the system, yielding an updated posterior belief of the state of the model space based on observations made in the data space.
 
 
 
@@ -31,12 +31,12 @@ A true ice-thickness field, $\thicknesschangeice^\dagger$,  is drawn as a single
 
 Using the Bayesian inversion framework, we generate the posterior model space measure, $m_{\Delta I}^{p}$, which can be inspected to understand the new inversion method. Such inspections include visual comparison of the posterior model expectation against the true field it is inverting for. Both of these can be pushed forward through the sea level operator to obtain their respective sea level fingerprints for comparison.
 
-We also inspect the posterior covariance between major sources to assess how well the method disambiguates between them.
+The posterior covariance between major sources is also inspected to assess how well the method disambiguates between them.
 
 \subsubsection{Comparison with previous method}
 \notebookcite{thomasholland06SimpleInversionipynb2026}
 
-To compare our method's estimate of GMSLC with the altimetry estimate, we compare the $z$-scores of both methods relative to the true GMSLC. We generate a true GMSL value, $\gmslctrue$, and the inversion method's estimate, $\gmslcbay$ by applying the mass balance GMSL operator, $\operatorgmsl{\text{true}}$, to the true ice thickness change field and the posterior model expectation, respectively:
+To compare the inversion method's estimate of GMSLC with the altimetry estimate, the $z$-scores are compared of both methods relative to the true GMSLC. We generate a true GMSL value, $\gmslctrue$, and the inversion method's estimate, $\gmslcbay$ by applying the mass balance GMSL operator, $\operatorgmsl{\text{true}}$, to the true ice thickness change field and the posterior model expectation, respectively:
 
 \begin{align}
 	\gmslctrue &= \operatorgmsl{\text{true}} \thicknesschangeice^\dagger, \label{eq:true-gmsl-model} \\
@@ -64,12 +64,12 @@ The $z$-score is calculated using the expectation and standard deviations, $\mu$
     z^{alt} &= \frac{\gmslctrue - \mu_{\text{alt}}}{\sigma_{\text{alt}}}
 \end{align}
 
-The inversions were run multiple times to generate a suite of $z$-scores for each method, which can be compared to show the improvement of the new method over the old method.
+The inversions were run multiple times to generate a suite of $z$-scores for each method, which can be compared to show the improvement of the Bayesian inversion method over the SSHC proxy method.
 
 \subsubsection{Sensitivity tests}
 \notebookcite{thomasholland07InversionSensitivityipynb2026}
 
-With any inverse setup, it is important to understand how sensitive the results are to the various parameters of the method. This is particularly significant for our method, as it relies on a number of assumptions and choices in the construction of the prior model space measure.
+With any inverse setup, it is important to understand how sensitive the results are to the various parameters of the method. This is particularly significant for this method, as it relies on a number of assumptions and choices in the construction of the prior model space measure.
 
 To test the inversion, we follow the scheme of \textcite{heathcoteScaleableBayesianFramework2026}, testing sensitivity to the ice lengthscale, covariance, and expectation bias parameters of the prior.
 
@@ -79,9 +79,9 @@ In addition to the above tests from \textcite{heathcoteScaleableBayesianFramewor
 
 \subsubsection{Joint inversion using ice, firn, and ocean dynamic changes}
 
-We now extend the model space to the direct sum of ice thickness change, firn thickness change, and ocean dynamic topography change, inverted simultaneously. This is motivated by the fact that all three processes contribute to observed SLC and are therefore entangled in altimetry observations, making correct source attribution difficult. The problem is compounded by the similarity of ice and firn thickness change signals, which produce comparable spatial patterns and both affect ice surface height and load-induced sea level fingerprints.
+The model space is now extended to the direct sum of ice thickness change, firn thickness change, and ocean dynamic topography change, inverted simultaneously. This is motivated by the fact that all three processes contribute to observed SLC and are therefore entangled in altimetry observations, making correct source attribution difficult. The problem is compounded by the similarity of ice and firn thickness change signals, which produce comparable spatial patterns and both affect ice surface height and load-induced sea level fingerprints.
 
-We exploit the complementary information from each data source by constructing a joint forward operator that maps all three model space parameters to a combined data space of SSH altimetry, ice altimetry, and GRACE observations, to better constrain and disambiguate between these competing contributions.
+The joint inversion exploits the complementary information from each data source by constructing a joint forward operator that maps all three model space parameters to a combined data space of SSH altimetry, ice altimetry, and GRACE observations, to better constrain and disambiguate between these competing contributions.
 
 We take the model space to be the direct sum of the ice thickness change, firn thickness change space, and ocean dynamic topography change:
 
@@ -97,7 +97,7 @@ d = d_{\text{SSH altimetry}} \oplus d_{\text{ice altimetry}} \oplus d_{\text{GRA
 
 Tide gauge observations were considered as an additional data source and tested in preliminary inversions, but were ultimately excluded. Their inclusion is redundant with SSH altimetry for constraining the sea surface signal, and their integration introduced computational difficulties; we therefore defer their inclusion to future work.
 
-Often, multiple model space parameters map to one data space parameter. In our case, the SSH altimetry points form the linear equation:
+Often, multiple model space parameters map to one data space parameter. For this inversion, the SSH altimetry points form the linear equation:
 
 \begin{equation}
 	d_{\text{SSH altimetry}} = \operatorpointocean( \operatorsshc \circ \operatorslc (\operatorloadice m_{\Delta I} + \operatorloadfirn m_{\Delta F} + \operatorloadwater \odtchange) + \odtchange)
@@ -158,6 +158,6 @@ see \autoref{sec:joint_operator_factorisation} for full derivation. This reduces
 
 \subsubsection{Sensitivity tests of joint inversions}
 
-We inspect the posterior covariance between ice and firn thickness change to assess how well the method disambiguates between them and how much uncertainty remains.
+The posterior covariance between ice and firn thickness change is inspected to assess how well the method disambiguates between them and how much uncertainty remains.
 
-We test the importance of each data source by running the joint inversion with that source removed and comparing the results to the full inversion. This shows how much each source contributes to constraining the model space parameters.
+The importance of each data source is tested by running the joint inversion with that source removed and comparing the results to the full inversion. This shows how much each source contributes to constraining the model space parameters.

@@ -1,8 +1,8 @@
-To quantify the error of using SSHC as a proxy for GMSLC, and to develop a new method that uses the Bayesian framework, it is necessary to design a suitable model space, data space, and operators that map between these spaces. These must be consistent with the underlying physics and the available data. They are then used to test and quantify the error of the old method. Once this is understood, the new method can be developed, compared, and tested.
+To quantify the error of using SSHC as a proxy for GMSLC, and to develop a new method that uses the Bayesian framework, it is necessary to design a suitable model space, data space, and operators that map between these spaces. These must be consistent with the underlying physics and the available data. They are then used to test and quantify the error of the SSHC proxy method. Once this is understood, the Bayesian inversion method can be developed, compared, and tested.
 
 \subsection{Designing the model space, data space, and suitable operators}
 
-Under this mathematical framework, we define model spaces and data spaces, and design linear operators that map between these spaces in a way consistent with the underlying physics and the available data.
+Within the mathematical framework (\autoref{sec:maths_background}), we define model spaces and data spaces, and design linear operators that map between these spaces in a way consistent with the underlying physics and the available data.
 
 \subsubsection{Sea Surface Height operator}
 
@@ -35,45 +35,24 @@ where $\operatorslc$ is the fingerprint operator that maps from load change to t
 
 \subsubsection{Point sampling}
 
-\todo{Clarify this section with precise and watertight descriptions of the methodology and data sampling approach, as per the report instructions.}
-
 \notebookcite{thomasholland05AltimetrySamplingipynb2026}
 
-To build data spaces, we design operators that map from the continuous fields to the discrete observations that represent those made by satellite altimeters.
-
-For this, \citetitle{al-attarPygeoinfPythonLibrary2025} uses a linear operator form of a Dirac delta function, which samples the input field at given points and returns a vector of the sampled values.
+To build data spaces, we design operators that map from the continuous fields to the discrete observations made by satellite altimeters. Following \citetitle{al-attarPygeoinfPythonLibrary2025}, we use a linear operator in the form of a Dirac delta function, which samples the input field at given points and returns a vector of sampled values:
 
 \begin{align}
-  \operatoraltimetry{\cdot}: H^s(\mathbb{S}^2) \to \mathbb{R}^N, \\ (\operatoraltimetry{}\, f)_i = \delta_{\mathbf{x}_i}(f) = f(\mathbf{x}_i),\quad i = 1, \dots, N
+  \operatoraltimetry{.}&: H^s(\mathbb{S}^2) \to \mathbb{R}^N, \\
+  (\operatoraltimetry{}\, f)_i &= \delta_{\mathbf{x}_i}(f) = f(\mathbf{x}_i), \quad i = 1, \dots, N
 \end{align}
 
-with condition $s > \frac{n}{2}$ \autocite{rudinFunctionalAnalysis1991}.
-
-To generate the altimetry points, we generate a regular latitude-longitude grid and apply a point sampling operator to return the subset of points within the ocean or ice sheet domains.
-
-To generate a list of points to sample, we design a point sampling operator that takes a domain $\Omega$ and a point set $\mathcal{G}$, and returns the subset of points within the domain. This can be represented as
-
-\begin{equation}
-  \operator{point}{} : \Omega \times \mathcal{G} \to \mathcal{P}_\Omega, \quad \mathcal{P}_\Omega = \{\mathbf{x}_i \in \mathcal{G} \mid \mathbf{x}_i \in \Omega\}
-\end{equation}
-
-
-
-If $\mathcal{G}$ is a regular latitude-longitude grid with spacings ($\Delta \phi$, $\Delta \lambda$), then the masked point set for domain $\Omega$ is:
-
-\begin{equation}
-  \mathcal{P}_\Omega = \left\{ \mathbf{x}_i \in \mathcal{G}(\Delta\phi, \Delta\lambda) \;\middle|\; \mathbf{x}_i \in \Omega \right\}
-\end{equation}
-
-To simulate tide gauge data, ocean satellite altimetry, and ice altimetry data, we implement three different point sampling operators, each selecting points from a tide gauge dataset, gridded data at regular degree spacing masked to oceans, and the same masked for ice shelves, respectively
+with the condition $s > \frac{n}{2}$ \autocite{rudinFunctionalAnalysis1991}. Points are selected as the subset of a regular latitude-longitude grid $\mathcal{G}(\Delta\phi, \Delta\lambda)$ lying within the relevant domain. We define three point sets for the construction of data spaces:
 
 \begin{align}
-  \operatorpointocean: \quad \Omega &= \Omega_{\text{ocean}} \cap \Omega_{\altimetry} \\
-  \operatorpointice: \quad \Omega &= \Omega_{\text{ice}} \\
-  \operatorpointtg: \quad \mathcal{P} &= \{\mathbf{x}_1, \dots, \mathbf{x}_{N_{tg}}\}
-  \subset \partial\Omega_{\text{ocean}}
+  \operatoraltimetry{S} &= \{ \mathbf{x} \in \mathcal{G} \mid \mathbf{x} \in \Omega_{\text{ocean}} \}, \\
+  \operatoraltimetry{I} &= \{ \mathbf{x} \in \mathcal{G} \mid \mathbf{x} \in \Omega_{\text{ice}} \}, \\
+  \operatoraltimetry{alt} &= \{ \mathbf{x} \in \mathcal{G} \mid \mathbf{x} \in \Omega_{\text{alt}} \},
 \end{align}
 
+where $\Omega_{\text{alt}}$ denotes the ocean domain masked to the satellite altimetry coverage region.
 
 
 \subsubsection{GMSL operators}

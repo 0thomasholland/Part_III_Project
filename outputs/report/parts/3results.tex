@@ -53,10 +53,10 @@ At $66^\circ$, the estimated GMSLC distribution is shifted slightly below the tr
 \subsection{Method comparison}
 
 % A single representative inversion example, using figure 2 - note the posterior is well-centred on the true value, the altimetry estimate is biased low, both are tight distributions
-\autoref{fig:simple_inversion_example} shows the posterior distribution of ice-driven GMSL from an inversion, alongside the old method's estimate. The Bayesian inversion's distribution contains the true value (vertical dashed line), while the old method's does not contain it.
+\autoref{fig:simple_inversion_example} shows the posterior distribution of ice-driven GMSL from an inversion, alongside the SSHC proxy method's estimate. The Bayesian inversion's distribution contains the true value (vertical dashed line), while the SSHC proxy method's does not.
 
 
-\autoref{fig:z_score_method_comparison} shows the z-score distribution of the true value under the predicted distribution for both methods across 261 runs. The Bayesian inversion's z-scores cluster tightly around zero, indicating that it is unbiased and has well-calibrated uncertainty quantification. In contrast, the old method's z-scores show a broader distribution, suggesting that it has larger variance. The old method is only within $1\sigma$ of the true value in 14.6\% of runs, while the new method is within $1\sigma$ in 60.5\% of runs.
+\autoref{fig:z_score_method_comparison} shows the z-score distribution of the true value under the predicted distribution for both methods across 261 runs. The Bayesian inversion's z-scores cluster tightly around zero, indicating that it is unbiased and has well-calibrated uncertainty quantification. In contrast, the SSHC proxy method's z-scores show a broader distribution, suggesting that it has larger variance. The SSHC proxy method is only within $1\sigma$ of the true value in 14.6\% of runs, while the Bayesian inversion method is within $1\sigma$ in 60.5\% of runs.
 
 \begin{figure}[h!]
 	\begin{center}
@@ -73,7 +73,7 @@ At $66^\circ$, the estimated GMSLC distribution is shifted slightly below the tr
 
 \notebookcite{thomasholland07InversionSensitivityipynb2026}
 
-We run this section at a spherical harmonic truncation of 128 for computational speed. This is not expected to affect the sensitivity test results, which concern relative changes as parameters vary rather than absolute values.
+Inversions in this section are run at a spherical harmonic truncation of 128 for computational speed. This is not expected to affect the sensitivity test results, which concern relative changes as parameters vary rather than absolute values.
 
 \autoref{fig:sensitivity-z_score} shows the posterior z-scores across all sensitivity cases. In every case the posterior contains the true GMSL value and shows no systematic bias, demonstrating that the Bayesian inversion is robust to prior misspecification. The accurate prior case best recovers the true field, as expected. Spatial recovery across all cases is shown in the supplementary figures (\autoref{fig:sensitivity-true-inversion} to \autoref{fig:sensitivity-variance}).
 

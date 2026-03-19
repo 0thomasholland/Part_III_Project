@@ -1,4 +1,4 @@
-Our methods rely on a mathematical framework implemented in the \citetitle{al-attarPygeoinfPythonLibrary2025} python package as described in \textcite{heathcoteScaleableBayesianFramework2026}. This framework consistently represents continuous fields over the sphere, applies linear operators to these fields, and uses Gaussian measures to quantify uncertainty. The mathematical properties of this framework are critical to the development and implementation of the methods described in this report, and so a brief overview is given here to provide context for the subsequent sections.
+The methods presented here rely on a mathematical framework implemented in the \citetitle{al-attarPygeoinfPythonLibrary2025} python package as described in \textcite{heathcoteScaleableBayesianFramework2026}. This framework consistently represents continuous fields over the sphere; applies linear operators to these fields; and uses Gaussian measures to quantify uncertainty. The mathematical properties of this framework are critical to the development and implementation of the methods described in this report, and so a brief overview is given here to provide context for the subsequent sections.
 
 For most readers, the framing given should be sufficient to understand the remainder of the paper. Full details of the mathematical framework surrounding the underlying python packages can be found in \textcite{heathcoteScaleableBayesianFramework2026}. Other useful texts for a wider background are \citetitle{stuartInverseProblemsBayesian2010} \autocite{stuartInverseProblemsBayesian2010, bui-thanhComputationalFrameworkInfiniteDimensional2013} for Bayesian inversion on infinite dimensions, \citetitle{parkerGeophysicalInverseTheory1994} \autocite{parkerGeophysicalInverseTheory1994} for geophysical inverse theory, and \citetitle{rudinFunctionalAnalysis1991} \autocite{rudinFunctionalAnalysis1991} for background on functional analysis and introduction to Hilbert Spaces, linear operators, Sobolev spaces, Adjoints, etc.
 
@@ -10,7 +10,7 @@ To represent a continuous field over the sphere ($\mathbb{S}^2$ scaled to the di
 
 Linear operators (e.g. $A$) map between these spaces, with their adjoints mapping back to the original space (e.g. $A^*$). For example, if we have a linear operator $A: X \to Y$ that maps from a space $X$ to a space $Y$, then its adjoint $A^*: Y \to X$ maps back from $Y$ to $X$.
 
-This framework accommodates both deterministic fields, which enter as fixed elements of $H^s(\mathbb{S}^2)$, and Gaussian measures, which are used to quantify our understanding of various parameters, as described later in \autoref{sec:bay}. These Gaussian measures are characterised by their mean, $m \in H^s(\mathbb{S}^2)$, and covariance operator $\mathcal{C}$, and are written as
+This framework accommodates both deterministic fields, which enter as fixed elements of $H^s(\mathbb{S}^2)$; and Gaussian measures, which are used to quantify our understanding of various parameters, as described later in \autoref{sec:bay}. These Gaussian measures are characterised by their mean, $m \in H^s(\mathbb{S}^2)$, and covariance operator $\mathcal{C}$, and are written as
 
 \begin{equation}
 \mu = \mathcal{N}(m, \mathcal{C}).
@@ -44,32 +44,28 @@ for a unique representer $k \in H^s(\mathbb{S}^2)$. A representer for GMSL, for 
 
 \subsection{Bayesian inference framework}\label{sec:bay}
 
-\todo{tidy this}
-
-Recovering ice sheet change from altimetry is an inverse problem, which can be framed using Bayesian inference.
-
-Bayesian inference is framed as a specific implementation of Bayes' theorem:
+Recovering ice sheet change from altimetry is an inverse problem, which we address here using Bayesian inference. This implements Bayes' theorem as:
 
 \begin{equation}
 	p(\text{model} | \text{data}) = \dfrac{p(\text{data} | \text{model})p(\text{model})}{p(\text{data})}
 \end{equation}
 
-where the data are the observations we collect, or synthetically generate when developing the methods, and the model comprises the parameters we define across the model space, and $p(\cdot)$ is the probability of the argument. The likelihood, $p(\text{data} | \text{model})$, is the probability of observing the data given a particular model, and the prior, $p(\text{model})$, is our initial belief about the model before seeing the data. The posterior, $p(\text{model} | \text{data})$, is our updated belief about the model after observing the data.
+where $p(\cdot)$ denotes probability, the data are the observations we collect or synthetically generate when developing the methods, and the model comprises the parameters we define across the model space. The likelihood, $p(\text{data} | \text{model})$, is the probability of observing the data given a particular model. The prior, $p(\text{model})$, is our initial belief about the model before seeing the data. The posterior, $p(\text{model} | \text{data})$, is our updated belief after observing the data.
 
-Bayesian inversion is the specific application of this framework to inverse problems, where, rather than seeking a single best-fit solution, it characterises the entire probability distribution of unknown physical parameters from noisy data. To show this simply, if we state our prior knowledge of a model space in terms of a Gaussian measure, with some expectation $\bar{m}$ and covariance $\mathcal{C}_m$, the model space can be represented as
+Bayesian inversion applies this framework to inverse problems. Rather than seeking a single best-fit solution, it characterises the entire probability distribution of unknown physical parameters from noisy data. Concretely, if we express the prior over the model space as a Gaussian measure with expectation $\bar{m}$ and covariance $\mathcal{C}_m$, the model space can be represented as
 
 \begin{equation*}
 	m \sim \mathcal{N}(\bar{m}, \mathcal{C}_m)
 \end{equation*}
 
-which we push forward using an operator $A$ that represents the physical relation between model and data spaces. Some random noise is associated with the measurements, given as a vector, $n$, and can sensibly be assumed Gaussian. With an expectation $\bar{n}$ and covariance $\mathcal{C}_n$ of the noise, the data space vector, $d$, would be
+which we push forward using an operator $A$ that represents the physical relation between model and data spaces. Measurements carry random noise, modelled as a Gaussian vector $n$ with expectation $\bar{n}$ and covariance $\mathcal{C}_n$. The data vector $d$ then satisfies
 
 \begin{align*}
 	d &= Am +n,\\
 	\implies  d &\sim \mathcal{N}(A\bar{m} + \bar{n},\quad A\mathcal{C}_mA^* + \mathcal{C}_n).
 \end{align*}
 
-Using a form of Bayes' theorem implemented in \textcite{heathcoteScaleableBayesianFramework2026} originally presented in \textcite{stuartInverseProblemsBayesian2010} for the inverse problem, we calculate the posterior distribution of the model space in closed form as a Gaussian measure with mean and covariance given as
+Applying the Gaussian inverse problem form of Bayes' theorem, first presented in \textcite{stuartInverseProblemsBayesian2010} and implemented in \textcite{heathcoteScaleableBayesianFramework2026}, we compute the posterior in closed form. It is a Gaussian measure with mean and covariance
 
 \begin{align}
 	m_p \sim \mathcal{N}(\bar{m}+K(d_{obs}-A\bar{m}-\bar{n}),\quad (1-KA)\mathcal{C}_{m}))
@@ -83,8 +79,8 @@ where $K$ is the Kalman gain, defined as
 
 Priors defined in the model space are critical to the inversion results, as they encode our beliefs about the system and significantly influence the posterior. The choice of prior is therefore discussed in detail in \autoref{sec:ice_thickness_priors}.
 
-Priors that incorporate specific prior knowledge about the physical system are known as informative priors. An example is using spatial patterns of ice thickness change or constraints based on physical laws to restrict prior distributions. These informative priors can help to regularise the inversion and guide it towards physically plausible solutions, especially in cases where the data is sparse or very noisy.
+Priors that encode physical knowledge of the system are called informative priors. An example is using spatial patterns of ice thickness change or constraints based on physical laws to restrict prior distributions. These informative priors can help to regularise the inversion and guide it towards physically plausible solutions, especially in cases where the data is sparse or very noisy.
 
-Using informative priors, however, is not without its flaws. It is important to assess the impact of how informative priors affect the posterior distribution, as this is an unintended way in which overly biased results can be introduced \autocite{vandeschootBayesianStatisticsModelling2021}. The distinction is nuanced, but for our purposes can be summarised as restrictions based on what we think happens in a physical system are valid, but restrictions based on what we think has happened to generate our data are not. For example, when generating ice sheet priors, it is physically motivated to restrict ice loss to ice sheet margins, however biasing these priors to have a expectation of ice loss, due to some understanding of our data, is not, as this is a restriction based on what we think has happened to generate our data, and thus can lead to overly biased results.
+Using informative priors, however, is not without its flaws. We must assess how informative priors affect the posterior distribution, as poorly chosen ones can introduce bias \autocite{vandeschootBayesianStatisticsModelling2021}. The distinction is nuanced. For our purposes: restrictions motivated by physical principles are valid; restrictions motivated by what we believe has generated the observed data are not. For example, restricting ice loss to the margins of ice sheets is physically motivated and so constitutes a valid informative prior. However, biasing these priors towards an expectation of ice loss based on prior knowledge of the observations is not, as it introduces a restriction driven by what we expect the data to show, and thus can lead to overly biased results.
 
 A further distinction separates restricting priors based on physical knowledge, as just described, from restricting them through artificial discretisation schemes. The former is defensible within a Bayesian framework; the latter is a restriction imposed by computational or mathematical need, and, as discussed in \textcite{stuartInverseProblemsBayesian2010}, can result in artefacts or overly constrained posteriors.
