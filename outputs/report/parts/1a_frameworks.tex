@@ -1,10 +1,10 @@
-Our methods rely on a rigorously defined mathematical framework, which is implemented in the \citetitle{al-attarPygeoinfPythonLibrary2025} python package as described in \textcite{heathcoteScaleableBayesianFramework2026}. This framework allows for the consistent representation of continuous fields over the sphere, the application of linear operators to these fields, and the use of Gaussian measures to quantify uncertainty. The mathematical properties of this framework are critical to the development and implementation of the methods described in this report, and so a brief overview is given here to provide context for the subsequent sections.
+Our methods rely on a mathematical framework implemented in the \citetitle{al-attarPygeoinfPythonLibrary2025} python package as described in \textcite{heathcoteScaleableBayesianFramework2026}. This framework consistently represents continuous fields over the sphere, applies linear operators to these fields, and uses Gaussian measures to quantify uncertainty. The mathematical properties of this framework are critical to the development and implementation of the methods described in this report, and so a brief overview is given here to provide context for the subsequent sections.
 
 For most readers, the framing given should be sufficient to understand the remainder of the paper. Full details of the mathematical framework surrounding the underlying python packages can be found in \textcite{heathcoteScaleableBayesianFramework2026}. Other useful texts for a wider background are \citetitle{stuartInverseProblemsBayesian2010} \autocite{stuartInverseProblemsBayesian2010, bui-thanhComputationalFrameworkInfiniteDimensional2013} for Bayesian inversion on infinite dimensions, \citetitle{parkerGeophysicalInverseTheory1994} \autocite{parkerGeophysicalInverseTheory1994} for geophysical inverse theory, and \citetitle{rudinFunctionalAnalysis1991} \autocite{rudinFunctionalAnalysis1991} for background on functional analysis and introduction to Hilbert Spaces, linear operators, Sobolev spaces, Adjoints, etc.
 
 \subsection{Mathematical framework}\label{sec:maths_background}
 
-For sea-level physics problems at the lengthscales and timescales relevant to this problem, it is physically appropriate to pose our problem on spaces where the realised fields are guaranteed to be spatially smooth, and where linear operators represent the physical mapping between these spaces.
+For sea-level physics at the relevant lengthscales and timescales, it is physically appropriate to pose our problem on spaces where the realised fields are guaranteed to be spatially smooth, and where linear operators represent the physical mapping between these spaces.
 
 To represent a continuous field over the sphere ($\mathbb{S}^2$ scaled to the dimensions of the Earth) we work within a Sobolev space, $h \in H^s(\mathbb{S}^2)$, where the index $s$ controls the smoothness of admissible fields.
 
@@ -33,10 +33,10 @@ A\mu_X &= \mathcal{N}(Am, A\mathcal{C}A^*) \in Y.
 That is, pushing $\mu_X$ forward through $A$ transforms the mean and covariance consistently, and the result remains a well-defined Gaussian measure in $Y$. This closure under linear maps holds uniformly, whether the input is a deterministic field or a Gaussian measure: the same operator formulation applies to both without distinction. For example, a known ice thickness distribution and a prior distribution over ice thickness change are acted upon by the same forward operators, giving the framework its mathematical consistency. As shown in \autoref{sec:bay}, it is precisely this property that permits the posterior distribution to be computed in closed form.
 
 
-It is often the case that we wish to extract scalar-valued quantities of interest, such as the Global Mean Sea Level (GMSL). These can be represented as continuous linear functionals $\phi: H^s(\mathbb{S}^2) \rightarrow \mathbb{R}$. By the Riesz representation theorem \autocite{rudinFunctionalAnalysis1991}, any such functional can be written as
+It is often the case that we wish to extract scalar-valued quantities of interest, such as the Global Mean Sea Level (GMSL). These can be represented as continuous linear functionals $\ell: H^s(\mathbb{S}^2) \rightarrow \mathbb{R}$. By the Riesz representation theorem \autocite{rudinFunctionalAnalysis1991}, any such functional can be written as
 
 \begin{equation}
-\phi(h) = \braket{h, k}_{H^s}
+\ell(h) = \braket{h, k}_{H^s}
 \end{equation}
 
 for a unique representer $k \in H^s(\mathbb{S}^2)$. A representer for GMSL, for example, would be a constant function over the ocean area and zero elsewhere, such that the inner product with a sea level change field yields the spatial average over the oceans. This allows us to compute the distribution of GMSL change directly from the distribution of sea level change.
@@ -48,9 +48,7 @@ for a unique representer $k \in H^s(\mathbb{S}^2)$. A representer for GMSL, for 
 
 Recovering ice sheet change from altimetry is an inverse problem, which can be framed using Bayesian inference.
 
-A Bayesian view of probability differs from a frequentists' perspective \autocite{stuartInverseProblemsBayesian2010, calvettiInverseProblemsRegularization2018}. Frequentist statistics interprets probability as long-run frequency, treating parameters as fixed and data as random, using $p$-values and confidence intervals to accept or reject hypotheses. Conversely, Bayesian statistics treats parameters as random, incorporating prior beliefs and updating them with data to produce a posterior distribution, allowing for direct probability statements about hypotheses.
-
-This benefits the inverse method: the posterior distribution combines the uncertainty from the data with the prior uncertainty. Bayesian inference is framed as a specific implementation of Bayes' theorem:
+Bayesian inference is framed as a specific implementation of Bayes' theorem:
 
 \begin{equation}
 	p(\text{model} | \text{data}) = \dfrac{p(\text{data} | \text{model})p(\text{model})}{p(\text{data})}

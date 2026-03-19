@@ -692,7 +692,7 @@ tasks = [
     ),
 ]
 
-results = Parallel(n_jobs=-1, require="sharedmem")(
+results = Parallel(n_jobs=-1, backend="multiprocessing")(
     delayed(run_inversion_task)(args) for args in tasks
 )
 
