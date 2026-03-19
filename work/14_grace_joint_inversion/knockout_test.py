@@ -2,12 +2,11 @@
 # =============================================================================
 # Knockout Test: Joint Inversion with Ice, Firn, Ocean Dynamics, and GRACE
 #
-# Runs five inversions from the same synthetic true model:
-#   1. Full      - SSH altimetry + tide gauges + ice altimetry + GRACE
-#   2. No SSH    - tide gauges + ice altimetry + GRACE
-#   3. No TG     - SSH altimetry + ice altimetry + GRACE
-#   4. No ice    - SSH altimetry + tide gauges + GRACE
-#   5. No GRACE  - SSH altimetry + tide gauges + ice altimetry
+# Runs four inversions from the same synthetic true model:
+#   1. Full      - SSH altimetry + ice altimetry + GRACE
+#   2. No SSH    - ice altimetry + GRACE
+#   3. No ice    - SSH altimetry + GRACE
+#   4. No GRACE  - SSH altimetry + ice altimetry
 #
 # Uses the factored forward operator (P_left @ F_middle @ L_right) so that
 # the expensive fingerprint evaluation is shared across variants.
@@ -20,6 +19,7 @@
 import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
 import numpy as np
+from joblib import Parallel, delayed
 from pygeoinf import (
     BlockDiagonalLinearOperator,
     BlockLinearOperator,
@@ -35,7 +35,6 @@ from pygeoinf import (
 from pyslfp import (
     FingerPrint,
     IceModel,
-    read_gloss_tide_gauge_data,
     sea_level_change_to_load_operator,
     sea_surface_height_operator,
 )
@@ -116,11 +115,6 @@ model_prior = GaussianMeasure.from_direct_sum(
 ssh_altimetry = GridPoints.ocean_altimetry(fp, 10.0, 66.0)
 ice_altimetry = GridPoints.ice(fp, 15.0)
 
-lats, lons = read_gloss_tide_gauge_data()
-filtered_lats = lats.copy()
-filtered_lons = lons.copy()
-tide_gauge_points = list(zip(filtered_lats, filtered_lons))
-
 # %%
 # =============================================================================
 # Build shared intermediate operators (F_middle, L_right, and row components)
@@ -151,12 +145,6 @@ P_S_ssh = ssh_altimetry.point_evaluation_operator(
     S.codomain
 )
 P_S_odt = ssh_altimetry.point_evaluation_operator(odt_space)
-P_T_slc = slc_space.point_evaluation_operator(
-    tide_gauge_points
-)
-P_T_odt = odt_space.point_evaluation_operator(
-    tide_gauge_points
-)
 P_I_ice = ice_altimetry.point_evaluation_operator(ice_space)
 P_I_firn = ice_altimetry.point_evaluation_operator(
     firn_space
@@ -170,7 +158,6 @@ id_ice = ice_space.identity_operator()
 id_firn = firn_space.identity_operator()
 
 ssh_obs = P_S_ssh.codomain
-tg_obs = P_T_slc.codomain
 ice_obs = P_I_ice.codomain
 grace_obs = grace_op.codomain
 
@@ -210,12 +197,6 @@ row_ssh = [
     ice_space.zero_operator(codomain=ssh_obs),
     firn_space.zero_operator(codomain=ssh_obs),
 ]
-row_tg = [
-    P_T_slc @ slc_proj,
-    P_T_odt,
-    ice_space.zero_operator(codomain=tg_obs),
-    firn_space.zero_operator(codomain=tg_obs),
-]
 row_ice = [
     response_space.zero_operator(codomain=ice_obs),
     odt_space.zero_operator(codomain=ice_obs),
@@ -232,9 +213,6 @@ row_grace = [
 # Per-row data error measures
 err_ssh = GaussianMeasure.from_standard_deviation(
     ssh_obs, measure_error_std
-)
-err_tg = GaussianMeasure.from_standard_deviation(
-    tg_obs, measure_error_std
 )
 err_ice = GaussianMeasure.from_standard_deviation(
     ice_obs, measure_error_std
@@ -270,24 +248,20 @@ def build_variant(selected_rows, selected_errors):
 
 # Build the five variants
 forward_op_full, data_error_full = build_variant(
-    [row_ssh, row_tg, row_ice, row_grace],
-    [err_ssh, err_tg, err_ice, err_grace],
-)
-forward_op_no_ssh, data_error_no_ssh = build_variant(
-    [row_tg, row_ice, row_grace],
-    [err_tg, err_ice, err_grace],
-)
-forward_op_no_tg, data_error_no_tg = build_variant(
     [row_ssh, row_ice, row_grace],
     [err_ssh, err_ice, err_grace],
 )
+forward_op_no_ssh, data_error_no_ssh = build_variant(
+    [row_ice, row_grace],
+    [err_ice, err_grace],
+)
 forward_op_no_ice, data_error_no_ice = build_variant(
-    [row_ssh, row_tg, row_grace],
-    [err_ssh, err_tg, err_grace],
+    [row_ssh, row_grace],
+    [err_ssh, err_grace],
 )
 forward_op_no_grace, data_error_no_grace = build_variant(
-    [row_ssh, row_tg, row_ice],
-    [err_ssh, err_tg, err_ice],
+    [row_ssh, row_ice],
+    [err_ssh, err_ice],
 )
 
 # %%
@@ -332,9 +306,6 @@ def make_data(forward_op, data_error):
 
 data_no_ssh, _ = make_data(
     forward_op_no_ssh, data_error_no_ssh
-)
-data_no_tg, _ = make_data(
-    forward_op_no_tg, data_error_no_tg
 )
 data_no_ice, _ = make_data(
     forward_op_no_ice, data_error_no_ice
@@ -414,12 +385,6 @@ precon_P_S_ssh = (
 precon_P_S_odt = precon_odt_space.point_evaluation_operator(
     ssh_altimetry.coords
 )
-precon_P_T_slc = precon_slc_space.point_evaluation_operator(
-    tide_gauge_points
-)
-precon_P_T_odt = precon_odt_space.point_evaluation_operator(
-    tide_gauge_points
-)
 precon_P_I_ice = precon_ice_space.point_evaluation_operator(
     ice_altimetry.coords
 )
@@ -484,16 +449,6 @@ precon_row_ssh = [
         codomain=precon_P_S_ssh.codomain
     ),
 ]
-precon_row_tg = [
-    precon_P_T_slc @ precon_slc_proj,
-    precon_P_T_odt,
-    precon_ice_space.zero_operator(
-        codomain=precon_P_T_slc.codomain
-    ),
-    precon_firn_space.zero_operator(
-        codomain=precon_P_T_slc.codomain
-    ),
-]
 precon_row_ice = [
     precon_response_space.zero_operator(
         codomain=precon_P_I_ice.codomain
@@ -541,32 +496,22 @@ def build_preconditioner(
 
 
 precon_inv_full = build_preconditioner(
-    [
-        precon_row_ssh,
-        precon_row_tg,
-        precon_row_ice,
-        precon_row_grace,
-    ],
+    [precon_row_ssh, precon_row_ice, precon_row_grace],
     data_error_full,
     "full",
 )
 precon_inv_no_ssh = build_preconditioner(
-    [precon_row_tg, precon_row_ice, precon_row_grace],
+    [precon_row_ice, precon_row_grace],
     data_error_no_ssh,
     "no SSH altimetry",
 )
-precon_inv_no_tg = build_preconditioner(
-    [precon_row_ssh, precon_row_ice, precon_row_grace],
-    data_error_no_tg,
-    "no tide gauges",
-)
 precon_inv_no_ice = build_preconditioner(
-    [precon_row_ssh, precon_row_tg, precon_row_grace],
+    [precon_row_ssh, precon_row_grace],
     data_error_no_ice,
     "no ice altimetry",
 )
 precon_inv_no_grace = build_preconditioner(
-    [precon_row_ssh, precon_row_tg, precon_row_ice],
+    [precon_row_ssh, precon_row_ice],
     data_error_no_grace,
     "no GRACE",
 )
@@ -613,41 +558,166 @@ def run_inversion(
 
 
 print("\nRunning inversions...")
-posterior_full, res_full = run_inversion(
-    forward_op_full,
-    data_error_full,
-    data_full,
-    precon_inv_full,
-    "full",
+
+# =============================================================================
+# GMSL operators
+# =============================================================================
+
+ice_gmsl_op = ice.ice_thickness_to_gmsl_operator
+firn_gmsl_op = ice.firn_thickness_to_gmsl_operator
+odt_zero_gmsl_op = odt.height_measure.domain.zero_operator(
+    codomain=ice_gmsl_op.codomain
 )
-posterior_no_ssh, res_no_ssh = run_inversion(
-    forward_op_no_ssh,
-    data_error_no_ssh,
-    data_no_ssh,
-    precon_inv_no_ssh,
-    "no SSH",
+total_gmsl_op = RowLinearOperator(
+    [ice_gmsl_op, firn_gmsl_op, odt_zero_gmsl_op]
 )
-posterior_no_tg, res_no_tg = run_inversion(
-    forward_op_no_tg,
-    data_error_no_tg,
-    data_no_tg,
-    precon_inv_no_tg,
-    "no TG",
+
+total_gmsl_true_mm = total_gmsl_op(model_true)[0] * 1000
+
+
+def compute_gmsl_posterior(posterior):
+    """Return (posterior mean in mm, posterior std in mm)."""
+    post_measure = posterior.affine_mapping(
+        operator=total_gmsl_op
+    )
+    exp_mm = post_measure.expectation[0] * 1000
+    var = float(
+        post_measure.covariance.matrix(
+            dense=True, parallel=False
+        )[0, 0]
+    )
+    std_mm = np.sqrt(max(var, 0.0)) * 1000
+    return exp_mm, std_mm
+
+
+# Row operators mapping the full 3-component model space to a scalar GMSL (mm)
+ice_gmsl_row = RowLinearOperator(
+    [
+        1000 * ice_gmsl_op,
+        ice.firn_thickness.domain.zero_operator(
+            codomain=ice_gmsl_op.codomain
+        ),
+        odt.height_measure.domain.zero_operator(
+            codomain=ice_gmsl_op.codomain
+        ),
+    ]
 )
-posterior_no_ice, res_no_ice = run_inversion(
-    forward_op_no_ice,
-    data_error_no_ice,
-    data_no_ice,
-    precon_inv_no_ice,
-    "no ice",
+firn_gmsl_row = RowLinearOperator(
+    [
+        ice.ice_thickness.domain.zero_operator(
+            codomain=firn_gmsl_op.codomain
+        ),
+        1000 * firn_gmsl_op,
+        odt.height_measure.domain.zero_operator(
+            codomain=firn_gmsl_op.codomain
+        ),
+    ]
 )
-posterior_no_grace, res_no_grace = run_inversion(
-    forward_op_no_grace,
-    data_error_no_grace,
-    data_no_grace,
-    precon_inv_no_grace,
-    "no GRACE",
+
+true_ice_gmsl_mm = ice_gmsl_row(model_true)[0]
+true_firn_gmsl_mm = firn_gmsl_row(model_true)[0]
+true_values_2d = np.array(
+    [true_ice_gmsl_mm, true_firn_gmsl_mm]
 )
+
+
+def gmsl_2d_posterior(posterior):
+    """
+    Compute the 2D joint Gaussian measure for
+    (ice GMSL [mm], firn GMSL [mm]) from a full posterior.
+
+    Uses the polarization identity to extract the cross-covariance
+    without computing the full dense covariance of the posterior.
+    """
+    ice_post = posterior.affine_mapping(
+        operator=ice_gmsl_row
+    )
+    firn_post = posterior.affine_mapping(
+        operator=firn_gmsl_row
+    )
+    sum_post = posterior.affine_mapping(
+        operator=ice_gmsl_row + firn_gmsl_row
+    )
+    var_ice = standard_dev(ice_post, parallel=False) ** 2
+    var_firn = standard_dev(firn_post, parallel=False) ** 2
+    var_sum = standard_dev(sum_post, parallel=False) ** 2
+    cross_cov = 0.5 * (var_sum - var_ice - var_firn)
+
+    mu_ice = ice_post.expectation[0]
+    mu_firn = firn_post.expectation[0]
+    return GaussianMeasure.from_covariance_matrix(
+        EuclideanSpace(2),
+        np.array(
+            [[var_ice, cross_cov], [cross_cov, var_firn]]
+        ),
+        expectation=np.array([mu_ice, mu_firn]),
+    )
+
+
+def run_inversion_task(args):
+    posterior, residuals = run_inversion(*args)
+    gmsl = compute_gmsl_posterior(posterior)
+    posterior_2d = gmsl_2d_posterior(posterior)
+    return posterior, residuals, gmsl, posterior_2d
+
+
+tasks = [
+    (
+        forward_op_full,
+        data_error_full,
+        data_full,
+        precon_inv_full,
+        "full",
+    ),
+    (
+        forward_op_no_ssh,
+        data_error_no_ssh,
+        data_no_ssh,
+        precon_inv_no_ssh,
+        "no SSH",
+    ),
+    (
+        forward_op_no_ice,
+        data_error_no_ice,
+        data_no_ice,
+        precon_inv_no_ice,
+        "no ice",
+    ),
+    (
+        forward_op_no_grace,
+        data_error_no_grace,
+        data_no_grace,
+        precon_inv_no_grace,
+        "no GRACE",
+    ),
+]
+
+results = Parallel(n_jobs=-1, require="sharedmem")(
+    delayed(run_inversion_task)(args) for args in tasks
+)
+
+(
+    (posterior_full, res_full, gmsl_full, post2d_full),
+    (
+        posterior_no_ssh,
+        res_no_ssh,
+        gmsl_no_ssh,
+        post2d_no_ssh,
+    ),
+    (
+        posterior_no_ice,
+        res_no_ice,
+        gmsl_no_ice,
+        post2d_no_ice,
+    ),
+    (
+        posterior_no_grace,
+        res_no_grace,
+        gmsl_no_grace,
+        post2d_no_grace,
+    ),
+) = results
+
 print("All inversions complete.")
 
 # %%
@@ -657,12 +727,11 @@ print("All inversions complete.")
 
 variant_residuals = [
     (
-        "Full (SSH+TG+ice+GRACE)",
+        "Full (SSH+ice+GRACE)",
         res_full,
         colors.new_method,
     ),
     ("No SSH altimetry", res_no_ssh, colors.ice_altimetry),
-    ("No tide gauges", res_no_tg, colors.firn),
     (
         "No ice altimetry",
         res_no_ice,
@@ -690,44 +759,6 @@ fig_cg.savefig(
 
 # %%
 # =============================================================================
-# GMSL operators
-# =============================================================================
-
-ice_gmsl_op = ice.ice_thickness_to_gmsl_operator
-firn_gmsl_op = ice.firn_thickness_to_gmsl_operator
-odt_zero_gmsl_op = odt.height_measure.domain.zero_operator(
-    codomain=ice_gmsl_op.codomain
-)
-total_gmsl_op = RowLinearOperator(
-    [ice_gmsl_op, firn_gmsl_op, odt_zero_gmsl_op]
-)
-
-total_gmsl_true_mm = total_gmsl_op(model_true)[0] * 1000
-
-
-def compute_gmsl_posterior(posterior):
-    """Return (posterior mean in mm, posterior std in mm)."""
-    post_measure = posterior.affine_mapping(
-        operator=total_gmsl_op
-    )
-    exp_mm = post_measure.expectation[0] * 1000
-    var = float(
-        post_measure.covariance.matrix(
-            dense=True, parallel=True
-        )[0, 0]
-    )
-    std_mm = np.sqrt(max(var, 0.0)) * 1000
-    return exp_mm, std_mm
-
-
-gmsl_full = compute_gmsl_posterior(posterior_full)
-gmsl_no_ssh = compute_gmsl_posterior(posterior_no_ssh)
-gmsl_no_tg = compute_gmsl_posterior(posterior_no_tg)
-gmsl_no_ice = compute_gmsl_posterior(posterior_no_ice)
-gmsl_no_grace = compute_gmsl_posterior(posterior_no_grace)
-
-# %%
-# =============================================================================
 # GMSL comparison: posterior distributions for all five variants
 # =============================================================================
 
@@ -740,7 +771,7 @@ def gaussian(x, mean, std):
 
 variant_gmsl = [
     (
-        "Full (SSH+TG+ice+GRACE)",
+        "Full (SSH+ice+GRACE)",
         gmsl_full,
         colors.new_method,
     ),
@@ -748,11 +779,6 @@ variant_gmsl = [
         "No SSH altimetry",
         gmsl_no_ssh,
         colors.ice_altimetry,
-    ),
-    (
-        "No tide gauges",
-        gmsl_no_tg,
-        colors.ocean_dynamics,
     ),
     (
         "No ice altimetry",
@@ -832,13 +858,12 @@ for label, (exp_mm, std_mm), _ in variant_gmsl:
 # =============================================================================
 # Component grid: true vs posterior expectations
 # Rows: ice thickness, firn thickness, ODT height
-# Columns: true | full | no SSH | no TG | no ice | no GRACE
+# Columns: true | full | no SSH | no ice | no GRACE
 # =============================================================================
 
 posteriors_ordered = [
-    ("Full\n(SSH+TG+\nice+GRACE)", posterior_full),
+    ("Full\n(SSH+ice+GRACE)", posterior_full),
     ("No SSH\naltimetry", posterior_no_ssh),
-    ("No tide\ngauges", posterior_no_tg),
     ("No ice\naltimetry", posterior_no_ice),
     ("No GRACE", posterior_no_grace),
 ]
@@ -995,98 +1020,26 @@ print("\nAll figures saved to figs/")
 #      separately for detailed inspection.
 # =============================================================================
 
-ice_gmsl_op = ice.ice_thickness_to_gmsl_operator
-firn_gmsl_op = ice.firn_thickness_to_gmsl_operator
-
-# Row operators mapping the full 3-component model space to a scalar GMSL (mm)
-ice_gmsl_row = RowLinearOperator(
-    [
-        1000 * ice_gmsl_op,
-        ice.firn_thickness.domain.zero_operator(
-            codomain=ice_gmsl_op.codomain
-        ),
-        odt.height_measure.domain.zero_operator(
-            codomain=ice_gmsl_op.codomain
-        ),
-    ]
-)
-firn_gmsl_row = RowLinearOperator(
-    [
-        ice.ice_thickness.domain.zero_operator(
-            codomain=firn_gmsl_op.codomain
-        ),
-        1000 * firn_gmsl_op,
-        odt.height_measure.domain.zero_operator(
-            codomain=firn_gmsl_op.codomain
-        ),
-    ]
-)
-
-true_ice_gmsl_mm = ice_gmsl_row(model_true)[0]
-true_firn_gmsl_mm = firn_gmsl_row(model_true)[0]
-true_values_2d = np.array(
-    [true_ice_gmsl_mm, true_firn_gmsl_mm]
-)
-
-
-def gmsl_2d_posterior(posterior):
-    """
-    Compute the 2D joint Gaussian measure for
-    (ice GMSL [mm], firn GMSL [mm]) from a full posterior.
-
-    Uses the polarization identity to extract the cross-covariance
-    without computing the full dense covariance of the posterior.
-    """
-    ice_post = posterior.affine_mapping(
-        operator=ice_gmsl_row
-    )
-    firn_post = posterior.affine_mapping(
-        operator=firn_gmsl_row
-    )
-    sum_post = posterior.affine_mapping(
-        operator=ice_gmsl_row + firn_gmsl_row
-    )
-    var_ice = standard_dev(ice_post, parallel=True) ** 2
-    var_firn = standard_dev(firn_post, parallel=True) ** 2
-    var_sum = standard_dev(sum_post, parallel=True) ** 2
-    cross_cov = 0.5 * (var_sum - var_ice - var_firn)
-
-    mu_ice = ice_post.expectation[0]
-    mu_firn = firn_post.expectation[0]
-    return GaussianMeasure.from_covariance_matrix(
-        EuclideanSpace(2),
-        np.array(
-            [[var_ice, cross_cov], [cross_cov, var_firn]]
-        ),
-        expectation=np.array([mu_ice, mu_firn]),
-    )
-
-
 # Compute 2D posteriors for all variants
 variants_2d = [
     (
-        "Full (SSH+TG+ice+GRACE)",
-        gmsl_2d_posterior(posterior_full),
+        "Full (SSH+ice+GRACE)",
+        post2d_full,
         colors.new_method,
     ),
     (
         "No SSH altimetry",
-        gmsl_2d_posterior(posterior_no_ssh),
+        post2d_no_ssh,
         colors.ice_altimetry,
     ),
     (
-        "No tide gauges",
-        gmsl_2d_posterior(posterior_no_tg),
-        colors.ocean_dynamics,
-    ),
-    (
         "No ice altimetry",
-        gmsl_2d_posterior(posterior_no_ice),
+        post2d_no_ice,
         colors.ocean_altimetry,
     ),
     (
         "No GRACE",
-        gmsl_2d_posterior(posterior_no_grace),
+        post2d_no_grace,
         colors.firn,
     ),
 ]
@@ -1120,7 +1073,7 @@ ax_legend.axis("off")
 for label, measure_2d, color in variants_2d:
     mu = measure_2d.expectation
     cov = measure_2d.covariance.matrix(
-        dense=True, parallel=True
+        dense=True, parallel=False
     )
 
     sigma0 = np.sqrt(cov[0, 0])

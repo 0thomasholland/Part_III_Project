@@ -558,7 +558,7 @@ precon_normal_operator = (
 print(
     "Forming the preconditioner via eigen-decomposition..."
 )
-solver = EigenSolver(parallel=False)
+solver = EigenSolver(parallel=True)
 precon_inverse_normal_operator = solver(
     precon_normal_operator
 )
