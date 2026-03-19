@@ -1,4 +1,4 @@
-To quantify the error of using sea surface height change as a proxy for global mean sea level change, and to develop a new method that uses the Bayesian framework, it is necessary to design a suitable model space, data space, and operators that map between these spaces. These must be consistent with the underlying physics and the available data. They are then used to test and quantify the error of the old method. Once this is understood, the new method can be developed, compared, and tested.
+To quantify the error of using SSHC as a proxy for GMSLC, and to develop a new method that uses the Bayesian framework, it is necessary to design a suitable model space, data space, and operators that map between these spaces. These must be consistent with the underlying physics and the available data. They are then used to test and quantify the error of the old method. Once this is understood, the new method can be developed, compared, and tested.
 
 \subsection{Designing the model space, data space, and suitable operators}
 
@@ -17,7 +17,7 @@ As discussed in \autoref{sec:slp}, the relation between SSHC and SLC is
   \sshc = \slc + \mathbf{u} \cdot \hat{\mathbf{r}} + \frac{\psi}{g} \label{eq:slc_ssh_eq}
 \end{equation}
 
-and as the fingerprint code implemented in \citetitle{al-attarPySLFPPythonSea2025} returns the response of the Earth to a load. This response space is a direct sum containing sea level change, displacement, potential change, and angular velocity change, $\slc \oplus \mathbf{u} \oplus \psi \oplus \omega$. Using the response space, it is possible to implement a linear operator that maps to the sea surface height space.
+and as the fingerprint code implemented in \citetitle{al-attarPySLFPPythonSea2025} returns the response of the Earth to a load. This response space is a direct sum containing SLC, displacement, potential change, and angular velocity change, $\slc \oplus \mathbf{u} \oplus \psi \oplus \omega$. Using the response space, it is possible to implement a linear operator that maps to the sea surface height space.
 
 This operator computes the sea surface height change using the radial displacement and angular velocity change, removes rotational contributions, and applies an ocean projection operator to restrict the field to the ocean domain. This can be represented as
 
@@ -86,14 +86,14 @@ We calculate true GMSLC from a simple mass balance from ice change, $\gmslc$, ac
     \gmslc: \operatorgmsl{\text{true}} = \frac{\rho_W}{A_{ocean} \rho_I} \int_{\Omega_I} \thicknesschangeice (\mathbf{x})\, \mathrm{d}S(\mathbf{x}). \label{eq:gmsl_integral}
 \end{equation}
 
-An SSH-based GMSL estimate is the surface integral of the SSHC field over the oceans
+An SSH-based GMSLC estimate is the surface integral of the SSHC field over the oceans
 
 \begin{equation}
     \gmslc^{\sshc}: \operatorgmsl{\sshc} = \frac{1}{|\Omega|}\int_{\Omega} \sshc(\mathbf{x})\, \mathrm{d}S(\mathbf{x}), \label{eq:gmsl_ssh_integral}
 \end{equation}
 
 where $|\Omega| = \int_{\Omega} \mathrm{d}S(\mathbf{x})$ is the total surface area of the ocean domain, $\Omega$.
-A SSH altimetry based GMSL can be calculated by a surface integral of the SSHC over the oceans within a defined latitudinal range, which represents what is sampled by satellite altimeters:
+A SSH altimetry based GMSLC can be calculated by a surface integral of the SSHC over the oceans within a defined latitudinal range, which represents what is sampled by satellite altimeters:
 
 \begin{equation}
     \gmslc^{\altimetry}: \operatorgmsl{\altimetry} = \frac{1}{|\Omega_{\altimetry}|}\int_{\Omega_{\altimetry}} \sshc(\mathbf{x})\, \mathrm{d}S(\mathbf{x}) \label{eq:gmsl_ssh_alt_integral}
@@ -101,7 +101,7 @@ A SSH altimetry based GMSL can be calculated by a surface integral of the SSHC o
 
 where $|\Omega_{\altimetry}| = \int_{\Omega_{\altimetry}} \mathrm{d}S(\mathbf{x})$ is the total surface area of the ocean within the altimetry coverage domain, $\Omega_{\altimetry}$.
 
-An SSH point-altimetry-based GMSL estimate is computed by sampling the SSHC field at the altimetry points, which more accurately reflects satellite altimetry practice. A naive arithmetic mean of the form
+An SSH point-altimetry-based GMSLC estimate is computed by sampling the SSHC field at the altimetry points, which more accurately reflects satellite altimetry practice. A naive arithmetic mean of the form
 
 \begin{equation}
     % \gmslc^{\text{point}}: \operatorgmsl{\text{point, naive}} =
@@ -118,7 +118,7 @@ The full derivation of this quadrature scheme is given in \autoref{sec:point_gms
 
 % This weighted estimator converges to $\operatorgmsl{\altimetry}$ as $N \to \infty$ and grid spacing tends to zero, since the discrete sum approximates the spherical surface integral with the correct area element $R^2 \cos(\lambda) \, \mathrm{d}\phi \, \mathrm{d}\lambda$, providing a natural consistency check between the two approaches.
 
-To give lower error bounds for the altimetry-based GMSL estimate, we adopt a best-case assumption of dense, uniform sampling across the altimetry domain $\Omega$. In this limit, the discrete sum over altimetry measurement points converges to a continuous surface integral so that the estimated global mean sea level reduces to the true spatial average of the field:
+To give lower error bounds for the altimetry-based GMSLC estimate, we adopt a best-case assumption of dense, uniform sampling across the altimetry domain $\Omega$. In this limit, the discrete sum over altimetry measurement points converges to a continuous surface integral so that the estimated GMSLC reduces to the true spatial average of the field:
 
 \begin{equation}
     \frac{1}{|\Omega_{ALT}|}\sum_{i=1}^{N} \sshc(\mathbf{x}_i)\, \delta A_i
@@ -152,7 +152,7 @@ where $\phi_{lm}$ are the fully normalised, Condon-Shortley-phased spherical har
 	\caption{a}\label{fig:spatial_ice_function}
 \end{figure}
 
-The starting point for the error quantification and models is the ice model space, which represents our prior belief about possible ice thickness change. To do this, an initial covariance structure, $\covariance{0}$, can be generated that has decaying spatial correlation, which is a common choice for representing spatial fields, and is consistent with the idea that changes in ice thickness are more likely to be similar at nearby locations than at distant ones. This can be implemented using a heat kernel covariance (\autoref{eq:heat_kernel_covariance}), which has a structure that decays exponentially with distance, and is parameterised by a length scale that controls the rate of decay and a pointwise standard deviation based on an amplitude. To control the amplitude of the field, the standard deviation can be scaled to have a prescribed standard deviation for the implied GMSL change, which is a physically meaningful way to set the prior scale rather than an arbitrary choice. A sensible way to do this is to generate a field to act as the initial ice thickness change
+The starting point for the error quantification and models is the ice model space, which represents our prior belief about possible ice thickness change. To do this, an initial covariance structure, $\covariance{0}$, can be generated that has decaying spatial correlation, which is a common choice for representing spatial fields, and is consistent with the idea that changes in ice thickness are more likely to be similar at nearby locations than at distant ones. This can be implemented using a heat kernel covariance (\autoref{eq:heat_kernel_covariance}), which has a structure that decays exponentially with distance, and is parameterised by a length scale that controls the rate of decay and a pointwise standard deviation based on an amplitude. To control the amplitude of the field, the standard deviation can be scaled to have a prescribed standard deviation for the implied GMSLC, which is a physically meaningful way to set the prior scale rather than an arbitrary choice. A sensible way to do this is to generate a field to act as the initial ice thickness change
 
 \begin{equation}
 	\thicknesschangeice \sim \mathcal{N}(0, \covariance{0})
@@ -164,7 +164,7 @@ which we can then measure equivalent GMSLC variance by applying the GMSL operato
     \sigma_{\gmslc}^2 = \operatorgmsl{\text{true}} \covariance{0} \operatorgmsl{\text{true}}^*
 \end{equation}
 
-and then use this to scale the original operator to have the desired GMSL standard deviation, $\sigma_{\gmslc}^{\text{desired}}$, by applying a scaling factor to the original operator
+and then use this to scale the original operator to have the desired GMSLC standard deviation, $\sigma_{\gmslc}^{\text{desired}}$, by applying a scaling factor to the original operator
 
 \begin{equation}
     \thicknesschangeice \sim \frac{\left(\sigma_{\gmslc}^{\text{desired}}\right)^2}{\sigma_{\gmslc}^2} \mathcal{N}(0, \covariance{0})
@@ -211,7 +211,7 @@ To map these two height fields into the load space, we multiply the thickness fi
 
 
 
-When considering ocean dynamics, on shorter time scales for example less than a month, the spatial structure of the variance is likely to be more variable, and it is unlikely that there are regions of the ocean that have higher variability than others REF. This could be due to a variety of factors, such as ocean currents, eddies, and other dynamic processes that can lead to spatially heterogeneous patterns of sea level change. However, on longer time scales, on month to year or more, it is likely that there are regions of the ocean that have higher variability than others, due to factors such as ocean circulation patterns, topography, and other factors that can lead to spatially heterogeneous patterns of sea level change \autocite{koppGeographicVariabilitySeaLevel2015, coulsonDetectionSeaLevel2022}.
+When considering ocean dynamics, on shorter time scales for example less than a month, the spatial structure of the variance is likely to be more variable, and it is unlikely that there are regions of the ocean that have higher variability than others REF. This could be due to a variety of factors, such as ocean currents, eddies, and other dynamic processes that can lead to spatially heterogeneous patterns of SLC. However, on longer time scales, on month to year or more, it is likely that there are regions of the ocean that have higher variability than others, due to factors such as ocean circulation patterns, topography, and other factors that can lead to spatially heterogeneous patterns of SLC \autocite{koppGeographicVariabilitySeaLevel2015, coulsonDetectionSeaLevel2022}.
 
 For the former, a spatially uniform covariance could be used, which would assume that the variance of ocean dynamics is the same across the entire ocean domain. This could be implemented using a heat kernel covariance with a constant pointwise standard deviation, which would result in a spatially homogeneous field of ocean dynamics.
 

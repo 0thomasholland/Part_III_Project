@@ -2,38 +2,38 @@
 
 \subsubsection{Per-source proxy errors}
 
-\autoref{fig:simple_major_source} shows the relative error of estimating GMSL from the integral average of SSHC over the altimetry-observable ocean for each major ice sheet independently.
+\autoref{fig:simple_major_source} shows the relative error of estimating GMSLC from the integral average of SSHC over the altimetry-observable ocean for each major ice sheet independently.
 
 At the standard altimetry latitude range of $60$--$75^\circ$ \autocite{lickleyBiasEstimatesGlobal2018}, the GIS contribution is underestimated by 5.8--8.2\%, the EAIS contribution is underestimated by 0--2\%, and the WAIS contribution ranges from a 2.3\% overestimation to a 0.5\% underestimation. The GIS and EAIS errors increase with the latitude of the altimetry boundary. The WAIS error changes sign near $72^\circ$, transitioning from a slight overestimation at lower latitudes to a slight underestimation at higher latitudes.
 
 \begin{figure}[!h]
 	\includegraphics[width=\columnwidth]{major_source_altimetry_errors_scalar.pdf}
-	\caption{Relative error of GMSL estimation using SSHC as a proxy for SLC, shown as a function of altimetry latitude range for uniform melt from GIS, EAIS, and WAIS. The dashed line indicates the typical altimetry range of $\pm66^\circ$.}\label{fig:simple_major_source}
+	\caption{Relative error of GMSLC estimation using SSHC as a proxy for SLC, shown as a function of altimetry latitude range for uniform melt from GIS, EAIS, and WAIS. The dashed line indicates the typical altimetry range of $\pm66^\circ$.}\label{fig:simple_major_source}
 \end{figure}
 
 \subsubsection{Spatial structure of the proxy error}
 
-To illustrate how the proxy error manifests spatially, \autoref{fig:simple_load_to_obs} shows the expected fields from a synthetic scenario in which a spatially uniform ice change, standardised to $\mathcal{N}(10\,\text{mm},\,1\,\text{mm}^2)$ GMSL change, is propagated forwards. The top row shows the ice thickness change expectation and the resulting SLC field; the middle row shows the corresponding SSHC field and the SSHC observed within the $\pm66^\circ$ altimetry band. The true GMSL expectation is 9.951~mm with a standard deviation of 0.998~mm, while the SSHC-based estimate yields 9.831~mm with a standard deviation of 0.988~mm, confirming a small but consistent negative bias (bottom panel).
+To illustrate how the proxy error manifests spatially, \autoref{fig:simple_load_to_obs} shows the expected fields from a synthetic scenario in which a spatially uniform ice change, standardised to $\mathcal{N}(10\,\text{mm},\,1\,\text{mm}^2)$ GMSLC, is propagated forwards. The top row shows the ice thickness change expectation and the resulting SLC field; the middle row shows the corresponding SSHC field and the SSHC observed within the $\pm66^\circ$ altimetry band. The true GMSLC expectation is 9.951~mm with a standard deviation of 0.998~mm, while the SSHC-based estimate yields 9.831~mm with a standard deviation of 0.988~mm, confirming a small but consistent negative bias (bottom panel).
 
 \begin{figure}[htp]
   \begin{center}
   \includegraphics[width=0.8\columnwidth]{10_ssh_expectations.pdf}
 	\end{center}
-  \caption{Expected fields for a synthetic error quantification scenario with ice change standardised to $\mathcal{N}(10\,\text{mm},\,1\,\text{mm}^2)$ GMSL. Top row: expectation of the ice thickness change (left) and resulting SLC field (right). Middle row: expectation of the SSHC field (left) and observed SSHC within the $\pm66^\circ$ altimetry band (right). Bottom: distributions of the true and estimated GMSL and the estimation error.}
+  \caption{Expected fields for a synthetic error quantification scenario with ice change standardised to $\mathcal{N}(10\,\text{mm},\,1\,\text{mm}^2)$ GMSL. Top row: expectation of the ice thickness change (left) and resulting SLC field (right). Middle row: expectation of the SSHC field (left) and observed SSHC within the $\pm66^\circ$ altimetry band (right). Bottom: distributions of the true and estimated GMSLC and the estimation error.}
 	\label{fig:simple_load_to_obs}
 \end{figure}
 
 
 \subsubsection{Error under source uncertainty}
 
-\autoref{fig:gaussian_uniform} extends this analysis to the case where the ice source distribution is itself uncertain, represented as a Gaussian measure rather than a fixed field. The figure shows the true and estimated GMSL distributions, together with the error distribution, at altimetry latitude cutoffs of $66^\circ$ and $80^\circ$.
+\autoref{fig:gaussian_uniform} extends this analysis to the case where the ice source distribution is itself uncertain, represented as a Gaussian measure rather than a fixed field. The figure shows the true and estimated GMSLC distributions, together with the error distribution, at altimetry latitude cutoffs of $66^\circ$ and $80^\circ$.
 
 \begin{figure}[htp]
 	\includegraphics[width=\columnwidth]{double_distribution_66_80.pdf}
-	\caption{True and estimated GMSL distributions, with corresponding error distributions, at altimetry latitude cutoffs of $66^\circ$ (top) and $80^\circ$ (bottom), for a rotationally invariant Gaussian ice thickness prior standardised to 10~mm $\pm$ 1~mm GMSL change.}\label{fig:gaussian_uniform}
+	\caption{True and estimated GMSLC distributions, with corresponding error distributions, at altimetry latitude cutoffs of $66^\circ$ (top) and $80^\circ$ (bottom), for a rotationally invariant Gaussian ice thickness prior standardised to 10~mm $\pm$ 1~mm GMSLC.}\label{fig:gaussian_uniform}
 \end{figure}
 
-At $66^\circ$, the estimated GMSL distribution is shifted slightly below the true distribution, with the error distribution centred near zero but with a small negative bias. At $80^\circ$, the separation between the true and estimated distributions increases, and the error distribution widens and shifts further from zero, reflecting the larger proxy error incurred when the altimetry domain extends closer to the ice sheets. Over multiple runs, the general trend of a bias and increasing error with higher latitude cutoffs is consistent, confirming the systematic nature of the proxy error under source uncertainty.
+At $66^\circ$, the estimated GMSLC distribution is shifted slightly below the true distribution, with the error distribution centred near zero but with a small negative bias. At $80^\circ$, the separation between the true and estimated distributions increases, and the error distribution widens and shifts further from zero, reflecting the larger proxy error incurred when the altimetry domain extends closer to the ice sheets. Over multiple runs, the general trend of a bias and increasing error with higher latitude cutoffs is consistent, confirming the systematic nature of the proxy error under source uncertainty.
 
 
 \subsection{Inversion for Ice Thickness Change from Ocean Altimetry}
@@ -63,7 +63,7 @@ At $66^\circ$, the estimated GMSL distribution is shifted slightly below the tru
 		\includegraphics[width=0.49\columnwidth]{z_score_comparison_contour_b.pdf}
 		\includegraphics[width=0.49\columnwidth]{z_score_comparison_kde.pdf}
 	\end{center}
-	\caption{Z-score of the true GMSL value under each method's predicted distribution across 261 runs. Left: joint distribution of old-method (x-axis) and Bayesian (y-axis) z-scores, with each point representing one run. Right: marginal KDE of z-scores for each method. The Bayesian inversion clusters tightly around zero; the old altimetry method shows a broader distribution offset from zero.}
+	\caption{Z-score of the true GMSLC value under each method's predicted distribution across 261 runs. Left: joint distribution of old-method (x-axis) and Bayesian (y-axis) z-scores, with each point representing one run. Right: marginal KDE of z-scores for each method. The Bayesian inversion clusters tightly around zero; the old altimetry method shows a broader distribution offset from zero.}
 	\label{fig:z_score_method_comparison}
 \end{figure}
 
@@ -157,7 +157,7 @@ The three parameter groups differ in character: length scale affects spatial str
   \label{fig:sensitivity-truth-prior-cross}
 \end{figure}
 
-\autoref{fig:sensitivity-truth-prior-cross-gmsl} shows the corresponding GMSL posterior distributions for each of the four truth/prior combinations. In all cases, the posterior contains the true GMSL value; however, prior mismatch widens the posterior and shifts its mean, with the largest effect seen when the truth is spatially structured, but the prior is uniform.
+\autoref{fig:sensitivity-truth-prior-cross-gmsl} shows the corresponding GMSLC posterior distributions for each of the four truth/prior combinations. In all cases, the posterior contains the true GMSL value; however, prior mismatch widens the posterior and shifts its mean, with the largest effect seen when the truth is spatially structured, but the prior is uniform.
 
 
 

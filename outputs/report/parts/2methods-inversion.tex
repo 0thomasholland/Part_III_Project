@@ -36,7 +36,7 @@ We also inspect the posterior covariance between major sources to assess how wel
 \subsubsection{Comparison with previous method}
 \notebookcite{thomasholland06SimpleInversionipynb2026}
 
-To compare our method's estimate of GMSLC with the altimetry estimate, we compare the $z$-scores of both methods relative to the true GMSL change. We generate a true GMSL value, $\gmslctrue$, and the inversion method's estimate, $\gmslcbay$ by applying the mass balance GMSL operator, $\operatorgmsl{\text{true}}$, to the true ice thickness change field and the posterior model expectation, respectively:
+To compare our method's estimate of GMSLC with the altimetry estimate, we compare the $z$-scores of both methods relative to the true GMSLC. We generate a true GMSL value, $\gmslctrue$, and the inversion method's estimate, $\gmslcbay$ by applying the mass balance GMSL operator, $\operatorgmsl{\text{true}}$, to the true ice thickness change field and the posterior model expectation, respectively:
 
 \begin{align}
 	\gmslctrue &= \operatorgmsl{\text{true}} \thicknesschangeice^\dagger, \label{eq:true-gmsl-model} \\
@@ -57,7 +57,7 @@ where $\covariance{n,\,i}$ represents the noise variance at that specific point.
  &\sim \mathcal{N}\left( \sum_{i=1}^{N} w_i d_i, \sum_{i=1}^{N} w_i^2 \covariance{n,\,i} \right) \label{eq:alt-gmsl-model}
 \end{align}
 
-The $z$-score is calculated using the expectation and standard deviations, $\mu$ and $\sigma$ respectively, for both the old altimetry method and the new inversion method, to compare the performance of the two methods in estimating the true GMSL change:
+The $z$-score is calculated using the expectation and standard deviations, $\mu$ and $\sigma$ respectively, for both the old altimetry method and the new inversion method, to compare the performance of the two methods in estimating the true GMSLC:
 
 \begin{align}
     z^{bay} &= \frac{\gmslctrue - \mu_{\text{bay}}}{\sigma_{\text{bay}}} \\[7pt]
@@ -79,7 +79,7 @@ In addition to the above tests from \textcite{heathcoteScaleableBayesianFramewor
 
 \subsubsection{Joint inversion using ice, firn, and ocean dynamic changes}
 
-We now extend the model space to the direct sum of ice thickness change, firn thickness change, and ocean dynamic topography change, inverted simultaneously. This is motivated by the fact that all three processes contribute to observed sea level change and are therefore entangled in altimetry observations, making correct source attribution difficult. The problem is compounded by the similarity of ice and firn thickness change signals, which produce comparable spatial patterns and both affect ice surface height and load-induced sea level fingerprints.
+We now extend the model space to the direct sum of ice thickness change, firn thickness change, and ocean dynamic topography change, inverted simultaneously. This is motivated by the fact that all three processes contribute to observed SLC and are therefore entangled in altimetry observations, making correct source attribution difficult. The problem is compounded by the similarity of ice and firn thickness change signals, which produce comparable spatial patterns and both affect ice surface height and load-induced sea level fingerprints.
 
 We exploit the complementary information from each data source by constructing a joint forward operator that maps all three model space parameters to a combined data space of SSH altimetry, ice altimetry, and GRACE observations, to better constrain and disambiguate between these competing contributions.
 
