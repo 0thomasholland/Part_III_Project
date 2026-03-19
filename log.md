@@ -414,3 +414,12 @@
 - Simplified the joint inversion to the GRACE-only case.
 - Updated z-score computations and continued report revisions for clarity and conciseness.
 
+## 19 March 2026
+
+- Worked on conclusion and discussion: identified that the Coulson et al. comparison set up in the introduction needed returning to in the discussion, that poor Greenland recovery in the joint inversion required explanation, and that z-score calibration needed more physical interpretation.
+- Refined introduction text and the joint inversion motivation paragraph. Wrote figure captions for the Richards curve activator function and ocean dynamics plots.
+- Articulated the three-part conclusion argument comparing the framework to the proxy method and to Coulson et al.
+- Updated acronym definitions and added proper cross-references to dangling figures.
+- Added the abstract and prepared the report for blind grading with candidate number.
+- Updated joint inversion demonstration notebook.
+

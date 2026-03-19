@@ -1,21 +1,20 @@
 
-\todo{Draw relevant, evidence-based conclusions, linking back to hypotheses and research questions posed. Ensure conclusions are precise, compelling, and robustly supported.}
-
-\todo{Check this paragraph to ensure the conclusions are precise, compelling, and robustly supported by evidence.}
-
-Good recovery over longer lengthscales means that if the lengthscale of the true ice loss is shorter than the prior, the method can still be expected to perform well. This is encouraging, as the longer lengthscales act to reduce the effect of noise, which affects shorter lengthscales more.
-
-
-\todo{Formalize the discussion of further work. Use rigorous and sophisticated language.}
-
-z score complimation of sensitivities
+% For the conclusion, given that the conclusion is currently empty, here is a suggested structure rather than text:
+% First, a brief restatement of the problem framing - why existing methods are limited and what this work set out to do differently. One short paragraph, no new information.
 
 
 
-\todo{Rephrase this into a professional 'Future Work' section, maintaining a lucid and original exposition of ideas.}
+% Second, a synthesis of the three main results in order: the error quantification result (with the key numbers - the 5.8-8.2% GIS underestimation, the source-dependence that precludes a scalar correction), the simple inversion result (the 60.5% vs 14.6% within-1-sigma comparison is a strong quantitative claim), and the joint inversion result (what the knockout tests specifically showed about data type contributions).
 
-Look at sensitivity of joint inversions to the initial priors, especially the density choices, spatial fields and the trade-offs that occur between the thickness changes.
+% Third, a brief paragraph on what the work collectively demonstrates at a higher level - specifically the argument that the Bayesian infinite-dimensional framework gives you things that neither the old proxy method nor the Coulson et al. mascon approach provide: principled uncertainty propagation, spatially-correlated posteriors, and joint inference over competing signals.
 
-Consider data sources better, such that the method can be better tailored to suitable data sources, and the method can be applied to real data in the future.
 
-Of course, implementing this with real-world data would be the ultimate test of the method, and would be a natural next step for future work. As a proof of concept we loaded the REF DUACS dataset into the method, and found that the method can be applied to real data, but we have not yet had an opportunity to explore the results of this in any detail nor apply the necessary corrections. However, the outcome from a subsampled version of the dataset is promising and matches other studies, and suggests that the method can be successfully applied to real data with some further work.
+
+
+This method shows promise, and combined with the underlying work within \textcite{heathcoteScaleableBayesianFramework2026} and the ongoing work within \citetitle{al-attarPySLFPPythonSea2025}, the implementation of this method would be a significant step forward in understanding ice change driven sea level change, and would provide a more principled framework for incorporating the full physics of sea level fingerprints into the estimation process.
+
+However, there are areas of future work that would need to be explored to further develop the method and ensure its applicability to real data. Namely, investigating the sensitivity of the joint inversion to the choice of priors, especially the density choices and spatial fields, and understanding the trade-offs that occur between the thickness changes. This would help to ensure that the method is robust to different assumptions and can be applied to a wide range of scenarios.
+
+Also, there is the possibility of using these methods to recover wider oceanographic details, such as the thermosteric and halosteric effects \autocite{heathcoteScaleableBayesianFramework2026}, which would be useful for understanding the ocean dynamic contributions to sea level change. This would be a powerful tool for understanding the drivers of sea level change, and would provide a more comprehensive picture of the contributions from different sources and could lead to a more complete understanding of the sea level budget.
+
+Of course, implementing the method proposed within this report with real-world data would be the ultimate test of the method, and would be a natural next step for future work. As a proof of concept, a test was run with the \textcite{copernicusclimatechangeserviceGLOBALOCEANGRIDDED2021} dataset, and found that the method can be applied to real data. But without the opportunity to explore the results of this in any detail nor apply the necessary corrections, these would not be presentable. However, the outcome from a subsampled version of the dataset is promising and matches other studies predictions, and suggests that the method can be successfully applied to real data with some further work.
