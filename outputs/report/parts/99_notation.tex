@@ -4,7 +4,7 @@
 
 \subsection*{Physical fields and scalar quantities}
 
-\begin{tabular}{@{}lp{10cm}@{}}
+\begin{longtable}{@{}lp{10cm}@{}}
     \toprule
     \textbf{Symbol} & \textbf{Description} \\
     \midrule
@@ -21,19 +21,19 @@
     $\mathrm{C}(\mathbf{x})$    & Ocean function; 1 on ocean, 0 on land \\
     $\mathrm{I}(\mathbf{x})$    & Ice thickness at position $\mathbf{x}$ \\
     \bottomrule
-\end{tabular}
+\end{longtable}
 
 \vspace{1em}
 
 \subsection*{Model space variables}
 
-\begin{tabular}{@{}lp{10cm}@{}}
+\begin{longtable}{@{}lp{10cm}@{}}
     \toprule
     \textbf{Symbol} & \textbf{Description} \\
     \midrule
     $\thicknesschangeice$              & Ice thickness change field \\
-    $\thicknesschange{f}$              & Firn thickness change field \\
-    $\thicknesschange{odt}$            & Ocean dynamic topography thickness change field \\
+    $\thicknesschangefirn$              & Firn thickness change field \\
+    $\odtchange$            & Ocean dynamic topography thickness change field \\
     $\thicknesschangeice$            & Ice thickness change (block-matrix notation) \\
     $\thicknesschangefirn$           & Firn thickness change (block-matrix notation) \\
     $\masschange{i}$                   & Ice mass change \\
@@ -44,19 +44,19 @@
     $m_{\Delta I}^{p}$                 & Posterior ice thickness field \\
     $\mathbf{x}$                       & State vector; also used as a position on the sphere \\
     \bottomrule
-\end{tabular}
+\end{longtable}
 
 \vspace{1em}
 
 \subsection*{Densities, areas, and physical constants}
 
-\begin{tabular}{@{}lp{10cm}@{}}
+\begin{longtable}{@{}lp{10cm}@{}}
     \toprule
     \textbf{Symbol} & \textbf{Description} \\
     \midrule
-    $\rho_w$            & Density of water \\
-    $\rho_i$            & Density of ice \\
-    $\rho_{\text{firn}}$& Density of firn \\
+    $\densitywater$            & Density of water \\
+    $\densityice$            & Density of ice \\
+    $\densityfirn$ & Density of firn \\
     $A$                 & Total ocean surface area \\
     $A_{\text{ocean}}$  & Total ocean surface area (mass-balance form) \\
     $R$                 & Radius of the Earth \\
@@ -64,53 +64,13 @@
     $\hat{r}$           & Radial unit vector \\
     $\mathbf{u}$        & Solid-earth displacement vector \\
     \bottomrule
-\end{tabular}
-
-\vspace{1em}
-
-\subsection*{Domains and geometry}
-
-\begin{tabular}{@{}lp{10cm}@{}}
-    \toprule
-    \textbf{Symbol} & \textbf{Description} \\
-    \midrule
-    $\mathbb{S}^2$              & Unit two-sphere (used as a model for the Earth's surface) \\
-    $\Omega$                    & Ocean domain (full altimetry-observable ocean) \\
-    $\Omega_{\altimetry}$       & Ocean domain within satellite altimetry coverage \\
-    $\Omega_I$                  & Ice field domain \\
-    $|\Omega|$                  & Surface area of domain $\Omega$ \\
-    $\phi$                      & Longitude \\
-    $\lambda$                   & Latitude \\
-    $dA$                        & Surface area element \\
-    $dS$                        & Surface area element (spherical) \\
-    $\Delta\phi,\,\Delta\lambda$& Grid spacing in longitude and latitude \\
-    $N$                         & Number of discrete sampling points \\
-    $w_i$                       & Area-weighting coefficient for point $i$; $w_i = \cos\lambda_i / \sum_j \cos\lambda_j$ \\
-    \bottomrule
-\end{tabular}
-
-\vspace{1em}
-
-\subsection*{Function spaces}
-
-\begin{tabular}{@{}lp{10cm}@{}}
-    \toprule
-    \textbf{Symbol} & \textbf{Description} \\
-    \midrule
-    $H^s(\mathbb{S}^2)$     & Sobolev space of index $s$ on the sphere \\
-    $s$                      & Sobolev smoothness index \\
-    $h, k$                   & Elements of $H^s(\mathbb{S}^2)$ \\
-    $X,\, Y$                 & Generic Hilbert spaces \\
-    $\braket{\cdot,\cdot}_Y$ & Inner product on space $Y$ \\
-    $\phi$                   & Continuous linear functional $\phi: H^s(\mathbb{S}^2) \to \mathbb{R}$ \\
-    \bottomrule
-\end{tabular}
+\end{longtable}
 
 \vspace{1em}
 
 \subsection*{Operators}
 
-\begin{tabular}{@{}lp{10cm}@{}}
+\begin{longtable}{@{}lp{10cm}@{}}
     \toprule
     \textbf{Symbol} & \textbf{Description} \\
     \midrule
@@ -133,13 +93,52 @@
     $\alpha(\mathbf{x})$                    & Spatial ice/firn partitioning function (generalised logistic curve) \\
     $W$                                     & Diagonal weighting operator; $W = \operatorname{diag}(\alpha(T_i))$ \\
     \bottomrule
-\end{tabular}
+\end{longtable}
 
 \vspace{1em}
 
+\subsection*{Domains and geometry}
+
+\begin{longtable}{@{}lp{10cm}@{}}
+    \toprule
+    \textbf{Symbol} & \textbf{Description} \\
+    \midrule
+    $\mathbb{S}^2$              & Unit two-sphere (used as a model for the Earth's surface) \\
+    $\Omega$                    & Ocean domain (full altimetry-observable ocean) \\
+    $\Omega_{\altimetry}$       & Ocean domain within satellite altimetry coverage \\
+    $\Omega_I$                  & Ice field domain \\
+    $|\Omega|$                  & Surface area of domain $\Omega$ \\
+    $\phi$                      & Longitude \\
+    $\lambda$                   & Latitude \\
+    $dA$                        & Surface area element \\
+    $dS$                        & Surface area element (spherical) \\
+    $\Delta\phi,\,\Delta\lambda$& Grid spacing in longitude and latitude \\
+    $N$                         & Number of discrete sampling points \\
+    $w_i$                       & Area-weighting coefficient for point $i$;\\&$w_i = \cos\lambda_i / \sum_j \cos\lambda_j$ \\
+    \bottomrule
+\end{longtable}
+
+\vspace{1em}
+
+\subsection*{Function spaces}
+
+\begin{longtable}{@{}lp{10cm}@{}}
+    \toprule
+    \textbf{Symbol} & \textbf{Description} \\
+    \midrule
+    $H^s(\mathbb{S}^2)$     & Sobolev space of index $s$ on the sphere \\
+    $s$                      & Sobolev smoothness index \\
+    $h, k$                   & Elements of $H^s(\mathbb{S}^2)$ \\
+    $X,\, Y$                 & Generic Hilbert spaces \\
+    $\braket{\cdot,\cdot}_Y$ & Inner product on space $Y$ \\
+    $\phi$                   & Continuous linear functional $\phi: H^s(\mathbb{S}^2) \to \mathbb{R}$ \\
+    $\oplus$        & Direct sum of model or data spaces \\
+    \bottomrule
+\end{longtable}
+\vspace{1em}
 \subsection*{Probabilistic quantities}
 
-\begin{tabular}{@{}lp{10cm}@{}}
+\begin{longtable}{@{}lp{10cm}@{}}
     \toprule
     \textbf{Symbol} & \textbf{Description} \\
     \midrule
@@ -163,36 +162,4 @@
     $\sigma_{\text{gmsl}}$          & Implied GMSL standard deviation of a thickness change prior \\
     $p(\cdot|\cdot)$                & Conditional probability density \\
     \bottomrule
-\end{tabular}
-
-\vspace{1em}
-
-\subsection*{Block-matrix and joint inversion}
-
-\begin{tabular}{@{}lp{10cm}@{}}
-    \toprule
-    \textbf{Symbol} & \textbf{Description} \\
-    \midrule
-    $\oplus$        & Direct sum of model or data spaces \\
-    $M$             & Full joint forward operator matrix \\
-    $A,\,B,\,C$     & Sparse factor matrices in the factorisation $M = ABC$ \\
-    $\mathbf{L}$    & Combined load operator matrix \\
-    \bottomrule
-\end{tabular}
-
-\vspace{1em}
-
-\subsection*{Ice/firn partitioning function parameters}
-
-\begin{tabular}{@{}lp{10cm}@{}}
-    \toprule
-    \textbf{Symbol} & \textbf{Description} \\
-    \midrule
-    $x$     & Standardised ice thickness value; $x \in [0,1]$ \\
-    $a$     & Lower asymptote of the generalised logistic curve \\
-    $k$     & Upper asymptote of the generalised logistic curve \\
-    $b$     & Steepness parameter of the generalised logistic curve \\
-    $m$     & Inflection threshold of the generalised logistic curve \\
-    $\nu$   & Asymmetry parameter of the generalised logistic curve \\
-    \bottomrule
-\end{tabular}
+\end{longtable}
