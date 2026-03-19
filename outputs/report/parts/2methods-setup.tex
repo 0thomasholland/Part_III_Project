@@ -224,7 +224,7 @@ Ocean dynamics does not result in a change in mass, but rather a redistribution 
   \hfill\includegraphics[width=0.5\columnwidth]{03_Ocean_Dynamics_cell_3_01.pdf}\\
   \includegraphics[width=0.5\columnwidth]{03_Ocean_Dynamics_cell_2_01.pdf}
   \includegraphics[width=0.5\columnwidth]{03_Ocean_Dynamics_cell_4_01.pdf}
-	\caption{ODT }\label{fig:spatial_odt}
+	\caption{Construction of the ocean dynamic topography prior. Top: spatially varying variability multiplier derived from the standard deviation of sea level anomaly (SLA) observations, used to modulate the prior covariance. Bottom: representative draws from the uniform prior (left) and the data-weighted prior (right), illustrating the spatial redistribution of prior variance toward regions of high observed SSH variability.}\label{fig:spatial_odt}
 \end{figure}
 
 Note that the redistribution of mass due to ocean dynamics affects the equipotential surface. Whenever calculating the fingerprint, we therefore also pass the height change due to ocean dynamics. This results in the total change due to ocean dynamics being the combination of the thickness change and the fingerprint response:
