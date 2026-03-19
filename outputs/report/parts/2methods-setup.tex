@@ -97,7 +97,7 @@ The full derivation of this quadrature scheme is given in \autoref{sec:point_gms
 
 % This weighted estimator converges to $\operatorgmsl{\altimetry}$ as $N \to \infty$ and grid spacing tends to zero, since the discrete sum approximates the spherical surface integral with the correct area element $R^2 \cos(\lambda) \, \mathrm{d}\phi \, \mathrm{d}\lambda$, providing a natural consistency check between the two approaches.
 
-To give lower error bounds for the altimetry-based GMSLC estimate, we adopt a best-case assumption of dense, uniform sampling across the altimetry domain $\Omega$. In this limit, the discrete sum over altimetry measurement points converges to a continuous surface integral so that the estimated GMSLC reduces to the true spatial average of the field:
+To give lower error bounds for the altimetry-based GMSLC estimate, we adopt a best-case assumption of dense, uniform sampling across the altimetry domain $\Omega_{\altimetry}$. In this limit, the discrete sum over altimetry measurement points converges to a continuous surface integral so that the estimated GMSLC reduces to the true spatial average of the field:
 
 \begin{equation}
     \frac{1}{|\Omega_{\altimetry}|}\sum_{i=1}^{N} \sshc(\mathbf{x}_i)\, \delta A_i
@@ -161,7 +161,7 @@ Representative samples of the firn and ice thickness fields generated from these
 \begin{figure}[]
 	\includegraphics[width=\columnwidth]{04_variable_fields_thickness_load_grid.pdf}
 	\caption{Firn and ice measures generated from spatially variable fields.
-	Firn has been scaled to produce the standard deviation equivalent of 10 mm GMSL; Ice has been scaled to produce the standard deviation equivalent of 20 mm GMSL; with firn having a density 0.4 times that of ice \autocite{ligtenbergImprovedSemiempiricalModel2011}.}\label{fig:ice_samples}
+	Firn has been scaled to produce the standard deviation equivalent of 10 mm GMSL; Ice has been scaled to produce the standard deviation equivalent of 20 mm GMSL; with firn having a density 0.3 times that of ice (i.e.\ approximately 275~kg\,m$^{-3}$) as used throughout this work.}\label{fig:ice_samples}
 \end{figure}
 
 Studies \autocite[e.g.][]{mcmillanRapidDynamicActivation2014, nilssonElevationChangeAntarctic2022} have shown spatial patterns suggesting that thickness changes that occur near the edges of the ice sheets are more likely to be from denser ice loss, compared to thickness change in more central, thicker locations, which is more likely to be surficial fluctuation in firn \autocite{liModelingFirnCompaction2011}. Firn is the intermediate stage between snow and ice, and is characterised by a lower density than ice, as well as a different response to climate forcing \autocite{ligtenbergImprovedSemiempiricalModel2011}.
@@ -191,11 +191,9 @@ To map these two thickness change fields into the load space, we multiply the th
 
 
 
-When considering ocean dynamics  on shorter time scales (e.g. less than a month) the spatial structure of the variance is likely to be more variable, and it is unlikely that there are regions of the ocean that have higher variability than others \autocite{stammerCausesContemporaryRegional2013}. This could be due to a variety of factors such as ocean currents, eddies, and other dynamic processes that can lead to short timescale hetergeneous patterns of SLC. However, on time scales of a month or more, it is likely that there are regions of the ocean that have higher variability than others. This consistent variability is due to longterm factors such as ocean circulation patterns, topography, and other factors that can lead to spatially heterogeneous patterns of SLC \autocite{koppGeographicVariabilitySeaLevel2015, coulsonDetectionSeaLevel2022, stammerCausesContemporaryRegional2013}.
+On short timescales (less than a month), ocean variability is dominated by transient mesoscale eddies and wind-driven fluctuations, which produce stochastic spatial patterns with no persistent regional structure; in this regime a spatially uniform prior variance is appropriate \autocite{stammerCausesContemporaryRegional2013}. On longer timescales (monthly and above), persistent circulation patterns, basin geometry, and topographic steering give rise to spatially coherent variability, with certain regions consistently more active than others \autocite{koppGeographicVariabilitySeaLevel2015, coulsonDetectionSeaLevel2022, stammerCausesContemporaryRegional2013}.
 
-For the former, a spatially uniform covariance could be used, which would assume that the variance of ocean dynamics is the same across the entire ocean domain. This could be implemented using a heat kernel covariance with a constant pointwise standard deviation, which would result in a spatially homogeneous field of ocean dynamics.
-
-For the longer time scales, a spatially variable covariance could be used, which would allow for different variances in different regions of the ocean. This can be implemented by applying a pointwise scaling function to the covariance.
+For short timescales, a spatially uniform covariance is used, implemented as a heat kernel with constant pointwise standard deviation. For the longer timescales of relevance to this work, a spatially variable covariance is used, implemented by applying a pointwise scaling function derived from observations to the base covariance.
 
 To derive spatially variable ocean variance, the DUACS dataset \autocite{copernicusclimatechangeserviceGLOBALOCEANGRIDDED2021} was sub-sampled into the required fields, binned into monthly changes and averaged,
 
