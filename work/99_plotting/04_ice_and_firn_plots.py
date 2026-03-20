@@ -20,7 +20,7 @@ from project.projections import (
 from pyslfp_extras.ice_thickness import IceSheetChange
 from pyslfp_extras.plotting import plot
 
-np.random.seed(423991)
+np.random.seed(42241)
 
 
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -135,7 +135,7 @@ def activator_richards(x, x_min, x_max):
 
 
 def setup_ice_models():
-    lmax = 256
+    lmax = 512
     fp = FingerPrint(lmax=lmax)
     fp.set_state_from_ice_ng(
         version=IceModel.ICE7G, date=0.0
@@ -166,7 +166,8 @@ def setup_ice_models():
     ice_change_spatial = IceSheetChange.global_ice(
         finger_print=fp,
         finger_print_operator=fp_op,
-        length_scale=0.01 * fp.mean_sea_floor_radius,
+        length_scale=0.015 * fp.mean_sea_floor_radius,
+        firn_length_scale=0.002 * fp.mean_sea_floor_radius,
         pattern=weighted_pattern,
         ice_gmsl_std=0.02,
         firn_gmsl_std=0.015,
@@ -336,32 +337,89 @@ def save_variability_polar_grid(weighted_pattern, fp):
     ice_std_field = weighted_pattern.spatial_weights(fp)
     firn_std_field = weighted_pattern.firn_weights(fp)
 
-    fig = plt.figure(figsize=(10.0, 8.0))
+    fig = plt.figure(figsize=(8.0, 11.0))
     gs = fig.add_gridspec(
+        3,
         2,
-        2,
-        hspace=0.2,
+        hspace=0.3,
         wspace=0.1,
-        left=0.08,
+        left=0.05,
         right=0.95,
-        top=0.93,
-        bottom=0.15,
+        top=0.95,
+        bottom=0.05,
     )
 
     proj_greenland = PROJ_GREENLAND
     proj_antarctica = PROJ_ANTARCTICA
 
+    # Top left: Activator function
+    ax_activator = fig.add_subplot(gs[0, 0])
+    ax_activator.set_box_aspect(1)
+
+    # Top right: Ice thickness field
+    ax_ice_thickness = fig.add_subplot(
+        gs[0, 1], projection=ccrs.Robinson()
+    )
+
     ax_firn_gl = fig.add_subplot(
-        gs[0, 0], projection=proj_greenland
-    )
-    ax_firn_ant = fig.add_subplot(
-        gs[0, 1], projection=proj_antarctica
-    )
-    ax_ice_gl = fig.add_subplot(
         gs[1, 0], projection=proj_greenland
     )
-    ax_ice_ant = fig.add_subplot(
+    ax_firn_ant = fig.add_subplot(
         gs[1, 1], projection=proj_antarctica
+    )
+    ax_ice_gl = fig.add_subplot(
+        gs[2, 0], projection=proj_greenland
+    )
+    ax_ice_ant = fig.add_subplot(
+        gs[2, 1], projection=proj_antarctica
+    )
+
+    # Plot activator function
+    data = fp.ice_thickness.data.flatten()
+    input_range = np.linspace(data.min(), data.max(), 100)
+    ice_melt = activator_richards(
+        input_range, data.min(), data.max()
+    )
+    firn_melt = 1 - ice_melt
+
+    ax_activator.plot(
+        input_range,
+        ice_melt,
+        label="Ice function",
+        color="black",
+    )
+    ax_activator.plot(
+        input_range,
+        firn_melt,
+        label="Firn function",
+        color="black",
+        linestyle="dashed",
+    )
+    ax_activator.legend(loc="upper right")
+    ax_activator.set_xlabel("Ice thickness (m)")
+    ax_activator.set_ylim(-0.0, 1.0)
+    ax_activator.set_ylabel(
+        "Change field std dev multiplier"
+    )
+    ax_activator.set_title("Activation Function")
+
+    # Plot ice thickness field
+    im_thickness = plot_shgrid_robinson_on_ax(
+        fp.ice_thickness,
+        ax_ice_thickness,
+        cmap=cc.cm.blues,
+        symmetric=False,
+        vmin=0.0,
+        vmax=4000.0,
+    )
+    ax_ice_thickness.set_title("Present-day Ice Thickness")
+    fig.colorbar(
+        im_thickness,
+        ax=ax_ice_thickness,
+        orientation="horizontal",
+        pad=0.04,
+        shrink=0.85,
+        label="Ice thickness (m)",
     )
 
     extent_gl = EXTENT_GREENLAND
@@ -414,7 +472,7 @@ def save_variability_polar_grid(weighted_pattern, fp):
         im_firn_gl,
         ax=[ax_firn_gl, ax_firn_ant],
         orientation="horizontal",
-        pad=0.04,
+        pad=0.08,
         shrink=0.5,
         label="Firn variability multiplier",
     )
@@ -422,7 +480,7 @@ def save_variability_polar_grid(weighted_pattern, fp):
         im_ice_gl,
         ax=[ax_ice_gl, ax_ice_ant],
         orientation="horizontal",
-        pad=0.04,
+        pad=0.08,
         shrink=0.5,
         label="Ice variability multiplier",
     )
@@ -744,13 +802,20 @@ def main():
 
     uniform_sample = ice_change_uniform.sample()
     samples = ice_change_spatial.sample()
-
+    print("plotting...")
     save_uniform_field_plot(uniform_sample)
+    print("  saved uniform field plot")
     save_variability_side_by_side(weighted_pattern, fp)
+    print("  saved variability side-by-side plot")
     save_variability_polar_grid(weighted_pattern, fp)
+    print("  saved variability polar grid plot")
     save_variable_thickness_load_grid(samples)
+    print("  saved variable thickness/load grid plot")
     save_variable_thickness_load_polar_grid(samples)
+    print("  saved variable thickness/load polar grid plot")
     save_activator_function_plot(fp)
+    print("  saved activator function plot")
+    print("All plots saved!")
 
 
 if __name__ == "__main__":

@@ -262,6 +262,7 @@ class IceSheetChange(IceThicknessGMSLOperators):
         point_degree_spacing: float = 5.0,
         ice_density: Optional[float] = None,
         firn_density: Optional[float] = None,
+        firn_length_scale: Optional[float] = None,
     ):
         super().__init__(
             finger_print,
@@ -271,7 +272,12 @@ class IceSheetChange(IceThicknessGMSLOperators):
         )
         self._fp = finger_print
         self._op = finger_print_operator
-        self._length_scale = length_scale
+        self._ice_length_scale = length_scale
+        self._firn_length_scale = (
+            firn_length_scale
+            if firn_length_scale is not None
+            else self._ice_length_scale
+        )
         self._region_projection = region_projection
         self._pattern = pattern
         self._include_firn = include_firn
@@ -328,10 +334,11 @@ class IceSheetChange(IceThicknessGMSLOperators):
         gmsl_mean: float,
         density: float,
         gmsl_operator: LinearOperator,
+        length_scale: float,
     ) -> GaussianMeasure:
         _base = (
             self._load_space.heat_kernel_gaussian_measure(
-                self._length_scale
+                length_scale
             )
         )
         _weight_op = spatial_mutliplication_operator(
@@ -386,6 +393,7 @@ class IceSheetChange(IceThicknessGMSLOperators):
             self._gmsl_target_mean,
             density=self.ice_density,
             gmsl_operator=self.ice_thickness_to_gmsl_operator,
+            length_scale=self._ice_length_scale,
         )
 
     @cached_property
@@ -398,6 +406,7 @@ class IceSheetChange(IceThicknessGMSLOperators):
             gmsl_mean=0.0,
             density=self.firn_density,
             gmsl_operator=self.firn_thickness_to_gmsl_operator,
+            length_scale=self._firn_length_scale,
         )
 
     @cached_property

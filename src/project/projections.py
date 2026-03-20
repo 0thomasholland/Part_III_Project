@@ -18,4 +18,4 @@ PROJ_GREENLAND = ccrs.Stereographic(
 )
 
 # [lon_min, lon_max, lat_min, lat_max] in PlateCarree
-EXTENT_GREENLAND = [-65, -10, 58, 80]
+EXTENT_GREENLAND = [-65, -10, 58, 85]
