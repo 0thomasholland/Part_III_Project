@@ -1,16 +1,15 @@
 # Auto-generated from notebook code cells.
 # Source: notebooks/06 - Simple Inversion.ipynb
-
+# %%
 # ---- Notebook code cell 1 ----
 import colorcet as cc
 import matplotlib.pyplot as plt
 import numpy as np
 
 np.random.seed(120106)
-import seaborn as sns
 from pathlib import Path
-from tqdm import tqdm
 
+import seaborn as sns
 from pygeoinf import (
     CGMatrixSolver,
     GaussianMeasure,
@@ -22,6 +21,7 @@ from pyslfp import (
     IceModel,
     averaging_operator,
 )
+from tqdm import tqdm
 
 from project import colors
 from pygeoinf_extras import standard_dev
@@ -32,8 +32,11 @@ from pyslfp_extras.ice_thickness import IceSheetChange
 from pyslfp_extras.plotting import plot
 
 fig_format = "pdf"
-SCRIPT_DIR = Path(__file__).resolve().parent
-FIGURES_DIR = SCRIPT_DIR / "figures"
+# SCRIPT_DIR = Path(__file__).resolve().parent
+# FIGURES_DIR = SCRIPT_DIR / "figures"
+# FIGURES_DIR.mkdir(parents=True, exist_ok=True)
+
+FIGURES_DIR = Path("figures")
 FIGURES_DIR.mkdir(parents=True, exist_ok=True)
 plt.show = lambda *args, **kwargs: None
 print = lambda *args, **kwargs: None
@@ -314,17 +317,25 @@ posterior_expectation = GMSL_posterior_measure.expectation[
 ]
 prior_std_dev = standard_dev(GMSL_prior_measure)
 posterior_std_dev = standard_dev(GMSL_posterior_measure)
-
+# %%
 x_prior = np.linspace(
-    prior_expectation - 5 * prior_std_dev,
-    prior_expectation + 5 * prior_std_dev,
+    prior_expectation - 6 * prior_std_dev,
+    prior_expectation + 6 * prior_std_dev,
     1000,
 )
-x_post = np.linspace(
+xmin = min(
+    GMSL_true - 6 * posterior_std_dev,
     posterior_expectation - 6 * posterior_std_dev,
-    posterior_expectation + 6 * posterior_std_dev,
-    1000,
+    ssh_estimation_alt - 6 * ssh_std,
 )
+xmax = max(
+    GMSL_true + 6 * posterior_std_dev,
+    posterior_expectation + 6 * posterior_std_dev,
+    ssh_estimation_alt + 6 * ssh_std,
+)
+
+x_post = np.linspace(xmin, xmax, 1000)
+# %%
 
 
 def gaussian(x, mean, std_dev):
@@ -349,27 +360,33 @@ y_max = max(
     ssh_pdf.max(),
 )
 
+# %%
 fig, ax = plt.subplots(1, 1, figsize=(6, 4))
 ax.axvline(
     GMSL_true,
     color=colors.true,
     linestyle="--",
+    linewidth=3,
     label=f"True GMSL ({GMSL_true:.2e} mm)",
 )
 
 ax.plot(
     x_post,
-    posterior_pdf,
-    label=f"Posterior (mean={posterior_expectation:.2e} mm, std={posterior_std_dev:.2e} mm)",
-    color=colors.new_method,
-)
-ax.plot(
-    x_post,
     ssh_pdf,
     label=f"Altimetry (mean={ssh_estimation_alt:.2e} mm, std={ssh_std:.2e} mm)",
     color=colors.old_method,
+    linewidth=3,
+)
+ax.plot(
+    x_post,
+    posterior_pdf,
+    label=f"Posterior (mean={posterior_expectation:.2e} mm, std={posterior_std_dev:.2e} mm)",
+    color=colors.new_method,
+    linewidth=3,
 )
 
+
+ax.set_xlim(xmin, xmax)
 
 ax.get_yaxis().set_visible(False)
 ax.set_ylim(-0.1, y_max * 1.1)
@@ -390,5 +407,107 @@ print(
 print(
     f"Altimetry estimation is {(GMSL_true - ssh_estimation_alt) / ssh_std:.2e} sigma away from true value."
 )
+
+# %%
+from project.projections import (
+    EXTENT_ANTARCTICA,
+    EXTENT_GREENLAND,
+    PROJ_ANTARCTICA,
+    PROJ_GREENLAND,
+)
+
+fig_ant_true, ax_ant_true, im_ant_true = plot(
+    1000
+    * model_true
+    * fp.length_scale
+    * fp.ice_projection(),
+    projection=PROJ_ANTARCTICA,
+    map_extent=EXTENT_ANTARCTICA,
+    figsize=(3.25, 3.25),
+    colorbar=False,
+    coasts=True,
+    cmap="seismic",
+    vmin=-max_abs_ice_change,
+    vmax=max_abs_ice_change,
+)
+ax_ant_true.set_title(
+    "True Ice Thickness Change (Antarctica)"
+)
+fig_ant_true.savefig(
+    FIGURES_DIR
+    / f"6-8_true_ice_thickness_antarctica.{fig_format}",
+    dpi=600,
+    bbox_inches="tight",
+)
+
+fig_ant_post, ax_ant_post, im_ant_post = plot(
+    1000
+    * model_posterior_expectation
+    * fp.length_scale
+    * fp.ice_projection(),
+    projection=PROJ_ANTARCTICA,
+    map_extent=EXTENT_ANTARCTICA,
+    figsize=(3.25, 3.25),
+    colorbar=False,
+    coasts=True,
+    cmap="seismic",
+    vmin=-max_abs_ice_change,
+    vmax=max_abs_ice_change,
+)
+ax_ant_post.set_title("Posterior Expectation (Antarctica)")
+fig_ant_post.savefig(
+    FIGURES_DIR
+    / f"6-9_posterior_ice_thickness_antarctica.{fig_format}",
+    dpi=600,
+    bbox_inches="tight",
+)
+
+fig_grn_true, ax_grn_true, im_grn_true = plot(
+    1000
+    * model_true
+    * fp.length_scale
+    * fp.ice_projection(),
+    projection=PROJ_GREENLAND,
+    map_extent=EXTENT_GREENLAND,
+    figsize=(3.25, 3.25),
+    colorbar=False,
+    coasts=True,
+    cmap="seismic",
+    vmin=-max_abs_ice_change,
+    vmax=max_abs_ice_change,
+)
+ax_grn_true.set_title(
+    "True Ice Thickness Change (Greenland)"
+)
+fig_grn_true.savefig(
+    FIGURES_DIR
+    / f"6-10_true_ice_thickness_greenland.{fig_format}",
+    dpi=600,
+    bbox_inches="tight",
+)
+
+fig_grn_post, ax_grn_post, im_grn_post = plot(
+    1000
+    * model_posterior_expectation
+    * fp.length_scale
+    * fp.ice_projection(),
+    projection=PROJ_GREENLAND,
+    map_extent=EXTENT_GREENLAND,
+    figsize=(3.25, 3.25),
+    colorbar=False,
+    coasts=True,
+    cmap="seismic",
+    vmin=-max_abs_ice_change,
+    vmax=max_abs_ice_change,
+)
+ax_grn_post.set_title("Posterior Expectation (Greenland)")
+fig_grn_post.savefig(
+    FIGURES_DIR
+    / f"6-11_posterior_ice_thickness_greenland.{fig_format}",
+    dpi=600,
+    bbox_inches="tight",
+)
+
+plt.show()
 
 _save_all_figures("06_simple_inversion")

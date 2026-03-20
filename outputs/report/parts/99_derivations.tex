@@ -206,7 +206,7 @@ We can factorise this matrix into three sparse matrices $A$, $B$, and $C$ such t
 \textbf{Step 1: Isolate the fingerprint structure}
 
 Notice that $\operatorslc$ appears applied to $\operatorloadice$, $\operatorloadfirn$, $\operatorloadwater$
-in rows 1, 2, and 4, but never in row 3. This suggests introducing an intermediate quantity
+in rows 1 and 3, but never in row 2. This suggests introducing an intermediate quantity
 $\mathbf{u} = \operatorslc\mathbf{L}\,\mathbf{x}$ where $\mathbf{L}$ collects the load operators,
 so that $\operatorslc$ is called only once. Define
 
@@ -260,7 +260,7 @@ so that
 Linearity of $\operatorslc$ then distributes the first component into
 $\operatorslc\operatorloadice\,\thicknesschangeice + \operatorslc\operatorloadfirn\,\thicknesschangefirn
 + \operatorslc\operatorloadwater\,\odtchange$, which is precisely the fingerprint contribution
-needed in rows 1, 2, and 4 of $M$.
+needed in rows 1 and 3 of $O$.
 
 \textbf{Step 3: Recover the original rows by projection}
 

@@ -18,7 +18,7 @@ To build physical intuition for the proxy error, we first consider the case wher
 We then estimate GMSL from SSHC (\autoref{eq:gmsl_ssh_alt_integral}) and compute the percentage error relative to the true mass-balance GMSL (\autoref{eq:gmsl_integral}):
 
 \begin{align}
-    \gmslctrue &= \operatorgmsl{\text{true}} \circ \operatorslc \circ \operatorloadice \left(\thicknesschangeice\right),\\
+    \gmslctrue &= \operatorgmsl{\text{true}} \left(\thicknesschangeice\right),\\
     \gmslcalt &= \operatorgmsl{\text{alt}} \circ \operatorsshc \circ \operatorslc \circ \operatorloadice \left(\thicknesschangeice\right),\\
     \text{error} &= \frac{\gmslcalt - \gmslctrue}{\gmslctrue} \times 100\%.
 \end{align}

@@ -7,7 +7,7 @@ The sea surface is the time-varying upper boundary of the ocean \autocite{gregor
   \begin{center}
     \includegraphics[width=0.8\textwidth]{ssh_vs_sl.pdf}
   \end{center}
-  \caption{Schematic illustrating the distinction between sea level (SL) and sea surface height (SSH). SL is measured relative to the solid Earth surface, while SSH is measured relative to a fixed reference ellipsoid. Satellite altimeters directly observe SSH by timing the return of a radar pulse (red dotted line) reflected from the sea surface. The geoid, which approximates the mean sea surface under the influence of gravity alone, sits between the two reference frames. SL and SSH deviate from the geoid due to ocean dynamic effects (e.g. currents, tides, wind forces). Recovering SL changes from altimetric SSH observations therefore requires accounting for vertical crustal motion and geoid perturbations.}
+  \caption{Schematic illustrating the distinction between sea level (SL) and sea surface height (SSH). SL is measured relative to the solid Earth surface, while SSH is measured relative to a fixed reference ellipsoid. Satellite altimeters directly observe SSH by timing the return of a radar pulse (red dotted line) reflected from the sea surface. The geoid, which approximates the mean sea surface under the influence of gravity alone, sits between the two reference frames. SL and SSH deviate from the geoid due to ocean dynamic effects (e.g. currents, tides, wind forces).}
   \label{fig:ssh_vs_sl}
 \end{figure}
 
@@ -25,6 +25,7 @@ Until recently, there was difficulty separating ocean dynamic variability from a
 Traditional methods for estimating GMSLC from satellite altimeters have used satellite surface altimetry to measure SSH change (\textbf{SSHC}), and then applied an approximate correction to account for the difference between SSH and SL \autocites[e.g.][]{neremEstimatingMeanSea2010, peltierClosureBudgetGlobal2009}; this is referred to here as the \textbf{SSHC proxy method}. These corrections rest on loose assumptions and are poorly constrained \autocite{lickleyBiasEstimatesGlobal2018, tamisieaOngoingGlacialIsostatic2011}, producing locationally variable errors that no single scalar factor can remove.
 
 \begin{figure}[htb]
+\vspace{0.5cm}
 \begin{center}
   \includegraphics[width=0.8\textwidth]{explainer.pdf}
 \end{center}

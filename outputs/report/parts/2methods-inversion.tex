@@ -13,7 +13,7 @@ By applying the inversion framework outlined in \autoref{sec:bay}, prior knowled
 A simple case for this is to invert for ice thickness change, $\thicknesschangeice$, from SSH altimetry data, $d$, where the forward problem takes the form
 
 \begin{align}
-	d &= \operatoraltimetry{\text{ocean}} \circ \operatorsshc \circ \operatorslc \circ \operatorloadice \left(\thicknesschangeice\right) + n,\\
+	d &= \operatorpointocean \circ \operatorsshc \circ \operatorslc \circ \operatorloadice \left(\thicknesschangeice\right) + n,\\
 	d &= \operator{O}{simple}\left(\thicknesschangeice\right) + n, \label{eq:simple_case}
 \end{align}
 
@@ -101,7 +101,7 @@ Tide gauge observations were considered as an additional data source and tested 
 Often, multiple model space parameters map to one data space parameter. For example in this inversion, the SSH altimetry points form the linear equation:
 
 \begin{equation}
-	d_{\text{SSH altimetry}} = \operatorpointocean\left( \operatorsshc \circ \operatorslc \left(\operatorloadice m_{\Delta I} + \operatorloadfirn m_{\Delta F} + \operatorloadwater \odtchange\right) + \odtchange\right).
+	d_{\text{SSH altimetry}} = \operatorpointocean\left( \operatorsshc \circ \operatorslc \left(\operatorloadice \thicknesschangeice + \operatorloadfirn \thicknesschangefirn + \operatorloadwater \odtchange\right) + \odtchange\right).
 \end{equation}
 
 The forward operator for the joint inversion can be written as a block matrix, with each element being the mapping of the respective model space parameter to the respective data space parameter:
