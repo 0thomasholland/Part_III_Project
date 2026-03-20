@@ -8,24 +8,23 @@ import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
-from scipy import stats
-
 from pygeoinf import (
     CGMatrixSolver,
     GaussianMeasure,
     LinearBayesianInversion,
     LinearForwardProblem,
 )
-from pyslfp import FingerPrint, IceModel, averaging_operator
-from pyslfp_extras.altimetry import GridPoints
-from pyslfp_extras.ice_thickness import IceSheetChange
 from pyshtools import SHGrid
+from pyslfp import FingerPrint, IceModel, averaging_operator
+from scipy import stats
 
 from project import colors
 from pygeoinf_extras import standard_dev
 from pygeoinf_extras.operators import (
     point_averaging_area_weighted_operator,
 )
+from pyslfp_extras.altimetry import GridPoints
+from pyslfp_extras.ice_thickness import IceSheetChange
 
 np.random.seed(349549)
 
@@ -467,7 +466,11 @@ plt.close(fig)
 
 # ---- Notebook code cell 9 ----
 ordered = sorted(
-    results, key=lambda r: (r["truth"], r["prior"])
+    results,
+    key=lambda r: (
+        r["prior"] == "spatial",
+        r["truth"] == "spatial",
+    ),
 )
 vmax = max(
     np.nanmax(np.abs(np.asarray(r["post_grid_m"].data)))
