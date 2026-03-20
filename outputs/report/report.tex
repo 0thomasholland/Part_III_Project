@@ -47,19 +47,24 @@ I would also like to thank Helen Soane and Cara Hardwick for proofreading the dr
 
 Lastly, thanks to the fellow occupants of the Part III Geophysics lab, Peter Jackson, Candela Gil, Tom Devenish-Arzuza, Jiarui Sheng, and Oliver Tang. They have been great company and fun to bounce ideas off and have also listened to my tangents about optimisation and coding best practices and colormaps.
 
+{\let\clearpage\relax
+\addcontentsline{toc}{section}{Further Reading}
+\section*{Further Reading}}
 
+Readers seeking deeper background on the mathematical and statistical frameworks employed in this report may find the following texts useful: \citetitle{stuartInverseProblemsBayesian2010} \autocite{stuartInverseProblemsBayesian2010} and \textcite{bui-thanhComputationalFrameworkInfiniteDimensional2013} for Bayesian inversion in infinite dimensions; \citetitle{parkerGeophysicalInverseTheory1994} \autocite{parkerGeophysicalInverseTheory1994} for geophysical inverse theory; and \citetitle{rudinFunctionalAnalysis1991} \autocite{rudinFunctionalAnalysis1991} for functional analysis and Hilbert space theory.
 
-\printbibliography
+\printbibliography[heading=bibintoc]
+
 
 \appendix
 \renewcommand{\thefigure}{A\arabic{figure}}
 \setcounter{figure}{0}
 
-\section{Supplementary figures}
-\input{parts/99_supplementary.tex}
-
 \section{Derivations}
 \input{parts/99_derivations.tex}
+
+\section{Supplementary figures}
+\input{parts/99_supplementary.tex}
 
 \section{Mathematical notation}
 \input{parts/99_notation.tex}

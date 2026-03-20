@@ -423,3 +423,10 @@
 - Added the abstract and prepared the report for blind grading with candidate number.
 - Updated joint inversion demonstration notebook.
 
+## 20 March 2026
+
+- Continued mathematical framework polishing: covariance operator descriptions, Riesz representation framing, iterative solver discussion, spherical harmonic convention verification.
+- Cross-checked covariance equations in the report against the code implementation. Wrote the acknowledgements section.
+- Generated new plots for ice sheet variability analysis.
+- Final release of the project report.
+

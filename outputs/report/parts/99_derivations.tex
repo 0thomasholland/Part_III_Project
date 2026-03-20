@@ -19,7 +19,7 @@ present-day ice mass flux.
 Sea level (SL) is defined upon the equipotential surface such that
 %
 \begin{equation}
-    \Phi(\mathbf{x} + \mathrm{SL}\,\hat{\mathbf{r}}) = \Phi_0,
+    \Phi\left(\mathbf{x} + \mathrm{SL}\,\hat{\mathbf{r}}\right) = \Phi_0,
     \label{eq:sl_definition}
 \end{equation}
 %
@@ -46,8 +46,8 @@ This results in the SL changing, from SL to $\mathrm{SL} + \Delta\mathrm{SL}$,
 in the form of
 %
 \begin{equation}
-    (\Phi + \phi + \psi)\!\left(
-        \mathbf{x} + \mathbf{u} + (\mathrm{SL} + \Delta\mathrm{SL})\,\hat{\mathbf{r}}
+    \left(\Phi + \phi + \psi\right)\!\left(
+        \mathbf{x} + \mathbf{u} + \left(\mathrm{SL} + \Delta\mathrm{SL}\right)\,\hat{\mathbf{r}}
     \right) = \Phi_0 + \Phi_g,
     \label{eq:sl_perturbed}
 \end{equation}
@@ -55,7 +55,7 @@ in the form of
 to which we apply a first-order Taylor expansion of the left-hand side to get
 %
 \begin{equation}
-    \Phi(\mathbf{x} + \mathrm{SL}\,\hat{\mathbf{r}})
+    \Phi\left(\mathbf{x} + \mathrm{SL}\,\hat{\mathbf{r}}\right)
     + \phi + \psi
     + \nabla\Phi \cdot \left(\mathbf{u} + \Delta\mathrm{SL}\,\hat{\mathbf{r}}\right)
     = \Phi_0 + \Phi_g.
@@ -111,7 +111,7 @@ SLC by
 %
 Since $\nabla\Phi$ points approximately radially with magnitude $g$ at the
 Earth's surface, we make the approximation
-$\mathbf{u} \cdot \nabla\Phi \approx g\,(\hat{\mathbf{r}} \cdot \mathbf{u})$,
+$\mathbf{u} \cdot \nabla\Phi \approx g\,\left(\hat{\mathbf{r}} \cdot \mathbf{u}\right)$,
 which neglects the contribution of lateral surface displacement to the
 potential change. Substituting \autoref{eq:slc} into \autoref{eq:ssh_from_sl}:
 %
@@ -119,7 +119,7 @@ potential change. Substituting \autoref{eq:slc} into \autoref{eq:ssh_from_sl}:
     \Delta\mathrm{SSH} =
     \underbrace{
         -\frac{1}{g}\!\left(
-            g\,(\hat{\mathbf{r}} \cdot \mathbf{u}) + \phi + \psi
+            g\,\left(\hat{\mathbf{r}} \cdot \mathbf{u}\right) + \phi + \psi
         \right)
         + \frac{\Phi_g}{g}
     }_{\Delta\mathrm{SL}}
@@ -150,26 +150,26 @@ To find the GMSL approximation with regards to SSHC, from \autoref{eq:gmsl_ssh_i
 
 
 \begin{equation}
-    \gmslc = \dfrac{1}{|\Omega|}\int_\Omega \sshc(\varphi, \lambda) \, dA \label{eq:gmsl_sshc_integral}
+    \gmslc = \dfrac{1}{|\Omega|}\int_\Omega \sshc\left(\varphi, \lambda\right) \, dA \label{eq:gmsl_sshc_integral}
 \end{equation}
 
-Where $\sshc(\varphi, \lambda)$ is the sea surface height change at a given longitude $\varphi$ and latitude $\lambda$. With a spherical radius of $R$, the area, $dA$, is non-uniform in size and shrinks towards the poles, and can be expressed as:
+Where $\sshc\left(\varphi, \lambda\right)$ is the sea surface height change at a given longitude $\varphi$ and latitude $\lambda$. With a spherical radius of $R$, the area, $dA$, is non-uniform in size and shrinks towards the poles, and can be expressed as:
 
 \begin{align}
-    dA &= (R\cos \lambda \, d\varphi)(R \, d\lambda) \\
+    dA &= \left(R\cos \lambda \, d\varphi\right)\left(R \, d\lambda\right) \\
     &= R^2 \cos \lambda \, d\varphi \, d\lambda
 \end{align}
 
 When we take discrete samples across a uniform grid, with spacings of $\Delta \varphi$ and $\Delta \lambda$, we convert \autoref{eq:gmsl_sshc_integral} into a double summation over N points:
 
 \begin{equation}
-  \gmslc \approx \dfrac{\sum^N_{i=1}\sshc(\mathbf{x}_i)\cdot(R^2\cos \lambda_i \Delta \varphi \Delta \lambda)}{\sum^N_{j=1}(R^2 \cos \lambda_j\Delta \varphi\Delta \lambda)}
+  \gmslc \approx \dfrac{\sum^N_{i=1}\sshc\left(\mathbf{x}_i\right)\cdot\left(R^2\cos \lambda_i \Delta \varphi \Delta \lambda\right)}{\sum^N_{j=1}\left(R^2 \cos \lambda_j\Delta \varphi\Delta \lambda\right)}
 \end{equation}
 
 Which can simplify to:
 
 \begin{equation}
-  \gmslc \approx \sum^N_{i=1}\sshc(\mathbf{x}_i)\cdot\dfrac{\cos \lambda_i}{\sum^N_{j=1}\cos \lambda_j}
+  \gmslc \approx \sum^N_{i=1}\sshc\left(\mathbf{x}_i\right)\cdot\dfrac{\cos \lambda_i}{\sum^N_{j=1}\cos \lambda_j}
 \end{equation}
 
 Which for ease within an averaging quadrature scheme, we can define the weights for each width, $w_i$, as a ratio of it's local cosine width to the sum of all the cosine widths of the avaliable data points:
@@ -181,7 +181,7 @@ Which for ease within an averaging quadrature scheme, we can define the weights 
 Which then leads to the final expression for the GMSL approximation as a weighted sum of the SSHC values across the altimetry domain:
 
 \begin{equation}
-    \gmslc \approx \sum^N_{i=1} w_i \sshc(\mathbf{x}_i)
+    \gmslc \approx \sum^N_{i=1} w_i \sshc\left(\mathbf{x}_i\right)
 \end{equation}
 
 
@@ -191,13 +191,13 @@ We have the forward operator matrix:
 
 \begin{equation}
     O = \begin{pmatrix}
-        \operatorpointocean \operatorsshc \operatorslc \operatorloadice & \operatorpointocean \operatorsshc \operatorslc \operatorloadfirn & \operatorpointocean(\operatorsshc \operatorslc \operatorloadwater + 1) \\
+        \operatorpointocean \operatorsshc \operatorslc \operatorloadice & \operatorpointocean \operatorsshc \operatorslc \operatorloadfirn & \operatorpointocean\left(\operatorsshc \operatorslc \operatorloadwater + 1\right) \\
         \operatorpointice & \operatorpointice & 0 \\
         \operatorgrace \operatorslc \operatorloadice & \operatorgrace \operatorslc \operatorloadfirn & \operatorgrace \operatorslc \operatorloadwater
     \end{pmatrix}
 \end{equation}
 
-Which maps the model space vector $\mathbf{x} = (\thicknesschangeice,\, \thicknesschangefirn,\, \odtchange)$ to the data space vector $d = (d_{\Delta SSH},\, d_{\Delta ISH},\, d_{\text{GRACE}})$.
+Which maps the model space vector $\mathbf{x} = \left(\thicknesschangeice,\, \thicknesschangefirn,\, \odtchange\right)$ to the data space vector $d = \left(d_{\Delta SSH},\, d_{\Delta ISH},\, d_{\text{GRACE}}\right)$.
 
 This is an inefficient operator, as it requires three independent calls to the fingerprint numerical solver $\operatorslc$, which is the most computationally expensive part of the forward model, due to its numerical implementation.
 
@@ -220,7 +220,7 @@ so that $\operatorslc$ is called only once. Define
 \end{equation}
 
 where the bottom three rows simply route the state variables
-$(\thicknesschangeice,\, \thicknesschangefirn,\, \odtchange)$ to slots that will be
+$\left(\thicknesschangeice,\, \thicknesschangefirn,\, \odtchange\right)$ to slots that will be
 used by the outer operators. The action of $C$ on $\mathbf{x}$ gives the intermediate vector
 
 \begin{equation}
@@ -250,7 +250,7 @@ so that
 
 \begin{equation}
     BC\mathbf{x} = \begin{pmatrix}
-        \operatorslc(\operatorloadice\,\thicknesschangeice + \operatorloadfirn\,\thicknesschangefirn + \operatorloadwater\,\odtchange) \\
+        \operatorslc\left(\operatorloadice\,\thicknesschangeice + \operatorloadfirn\,\thicknesschangefirn + \operatorloadwater\,\odtchange\right) \\
         \odtchange \\
         \thicknesschangeice \\
         \thicknesschangefirn
