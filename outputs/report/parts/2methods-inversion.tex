@@ -101,14 +101,14 @@ Tide gauge observations were considered as an additional data source and tested 
 Often, multiple model space parameters map to one data space parameter. For example in this inversion, the SSH altimetry points form the linear equation:
 
 \begin{equation}
-	d_{\text{SSH altimetry}} = \operatorpointocean\left( \operatorsshc \circ \operatorslc \left(\operatorloadice m_{\Delta I} + \operatorloadfirn m_{\Delta F} + \operatorloadwater \odtchange\right) + \odtchange\right)
+	d_{\text{SSH altimetry}} = \operatorpointocean\left( \operatorsshc \circ \operatorslc \left(\operatorloadice m_{\Delta I} + \operatorloadfirn m_{\Delta F} + \operatorloadwater \odtchange\right) + \odtchange\right).
 \end{equation}
 
 The forward operator for the joint inversion can be written as a block matrix, with each element being the mapping of the respective model space parameter to the respective data space parameter:
 
 \begin{align}
 \begin{pmatrix}
-    d_{\text{SSH}} \\ d_{\text{ice}} \\ d_{\text{GRACE}}
+    d_{\text{SSH alt}} \\ d_{\text{ice alt}} \\ d_{\text{GRACE}}
 \end{pmatrix}
 =
 \begin{pmatrix}
