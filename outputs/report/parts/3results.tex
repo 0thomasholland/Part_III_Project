@@ -4,7 +4,7 @@
 
 \autoref{fig:simple_major_source} shows the relative error of estimating GMSLC from the integral average of SSHC over the altimetry-observable ocean for each major ice sheet independently.
 
-At the standard altimetry latitude range of $60$--$75^\circ$ \autocite{lickleyBiasEstimatesGlobal2018}, the GIS contribution is underestimated by 5.8--8.2\%, the EAIS contribution is underestimated by 0--2\%, and the WAIS contribution ranges from a 2.3\% overestimation to a 0.5\% underestimation. The GIS and EAIS errors increase with the latitude of the altimetry boundary. The WAIS error changes sign near $72^\circ$, transitioning from a slight overestimation at lower latitudes to a slight underestimation at higher latitudes.
+At the standard altimetry latitude range of $60$--$75^\circ$ \autocite{lickleyBiasEstimatesGlobal2018}, the GIS contribution is underestimated by 5.8--8.2\%, the EAIS contribution is underestimated by 0--2\%, and the WAIS contribution ranges from a 2.3\% overestimation to a 0.5\% underestimation. The GIS and EAIS errors increase with the latitude of the altimetry boundary.
 
 \begin{figure}[!h]
 	\includegraphics[width=\columnwidth]{major_source_altimetry_errors_scalar.pdf}
@@ -72,8 +72,6 @@ At $66^\circ$, the estimated GMSLC distribution is shifted slightly below the tr
 \subsection{Sensitivity tests}
 
 \notebookcite{thomasholland07InversionSensitivityipynb2026}
-
-Inversions in this section are run at a spherical harmonic truncation of 128 for computational speed. This is not expected to affect the sensitivity test results, which concern relative changes as parameters vary rather than absolute values.
 
 \autoref{fig:sensitivity-z_score} shows the posterior z-scores across all sensitivity cases. In every case the posterior contains the true GMSL value and shows no systematic bias, demonstrating that the Bayesian inversion is robust to prior misspecification. The accurate prior case best recovers the true field, as expected. Spatial recovery across all cases is shown in the supplementary figures (\autoref{fig:sensitivity-true-inversion} to \autoref{fig:sensitivity-variance}).
 
