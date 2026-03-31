@@ -36,10 +36,8 @@ ANNUAL_FILE = OUTPUT_DIR / "duacs_annual.nc"
 # Product:  SEALEVEL_GLO_PHY_L4_MY_008_047
 DATASET_ID = "cmems_obs-sl_glo_phy-ssh_my_allsat-l4-duacs-0.125deg_P1M-m"
 
-# Spatial extent: match pyslfp altimetry_projection bounds (±66° latitude)
-# Longitude in 0–360° convention (consistent with pyshtools)
-LAT_MIN = -66.0
-LAT_MAX = 66.0
+LAT_MIN = -90.0
+LAT_MAX = 90.0
 LON_MIN = 0.0
 LON_MAX = 360.0
 

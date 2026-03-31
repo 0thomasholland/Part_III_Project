@@ -430,3 +430,7 @@
 - Generated new plots for ice sheet variability analysis.
 - Final release of the project report.
 
+## 31 March 2026
+
+- Post-submission repository staging and image archiving.
+
