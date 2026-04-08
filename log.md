@@ -434,3 +434,6 @@
 
 - Post-submission repository staging and image archiving.
 
+## 8 April 2026
+
+- Post-submission repository upload and Git LFS configuration update.
