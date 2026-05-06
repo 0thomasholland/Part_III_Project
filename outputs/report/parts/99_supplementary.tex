@@ -1,7 +1,7 @@
 
 \begin{figure}[h]
   \begin{center}
-  \includegraphics[width=0.9\columnwidth]{7-0_baseline_inversion.pdf}
+  \includegraphics[width=0.9\columnwidth]{png/7-0_baseline_inversion.png}
   \end{center}
 
 	\caption{The true ice thickness change field used across all sensitivity tests, drawn as a single sample from the prior, alongside the posterior expectation and uncertainty for an inversion where the prior exactly matches the generating distribution. The posterior expectation recovers the spatial structure of the true field well, and the true field lies comfortably within the posterior.}
@@ -13,7 +13,7 @@
 
 \begin{figure}[h]
   \begin{center}
-  \includegraphics[width=0.9\columnwidth]{7-1_length_scale.pdf}
+  \includegraphics[width=0.9\columnwidth]{png/7-1_length_scale.png}
   \end{center}
 
 	\caption{Results for priors with length scales of 318.4 km (0.5x), 955.2 km (1.5x), and 2547.2 km (4.0x) relative to the true length scale of 636.8 km. All three posteriors contain the true GMSL value, with z-scores of -0.82, -0.37, and 0.20 respectively. Longer length scales recover the field with more spatial smoothing but converge faster (108, 74, and 52 CG iterations respectively). Some artefacts are visible in eastern Greenland for the shortest length scale.
@@ -25,7 +25,7 @@
 
 \begin{figure}[h]
   \begin{center}
-  \includegraphics[width=0.9\columnwidth]{7-2_mean_translation.pdf}
+  \includegraphics[width=0.9\columnwidth]{png/7-2_mean_translation.png}
   \end{center}
 
 	\caption{Results for prior means offset to 1, 10, and 50 mm GMSL relative to the true value of 1.67 mm. Despite the 50 mm case placing the prior mean well outside the data-constrained range (prior z-score of 4.83), the posterior still recovers the true GMSL with a z-score of -1.12 and a mean of 1.56 mm. Posterior widths are similar across all offset cases, and the prior mean offset has negligible effect on CG convergence (76 to 82 iterations).}
@@ -36,7 +36,7 @@
 
 \begin{figure}[h]
   \begin{center}
-  \includegraphics[width=0.9\columnwidth]{7-3_covariance_scaling.pdf}
+  \includegraphics[width=0.9\columnwidth]{png/7-3_covariance_scaling.png}
   \end{center}
 
 	\caption{Results for prior standard deviation multipliers of 0.5, 2.0, and 5.0 relative to the baseline of 10 mm. All posteriors contain the true GMSL value (z-scores of 0.22, -1.60, and -1.30 respectively). The higher-variance cases are poorly conditioned and require substantially more CG iterations to converge, with the 5x case taking approximately five times longer than the baseline inversion (47, 197, and 610 iterations respectively).}
@@ -47,7 +47,7 @@
 
 \begin{figure}[h!]
 \begin{center}
-  \includegraphics[width=0.7\columnwidth]{9-2_posterior_gmsl_pdfs.pdf}
+  \includegraphics[width=0.7\columnwidth]{png/9-2_posterior_gmsl_pdfs.png}
   \end{center}
   \caption{GMSL posterior distributions for all four truth/prior combinations in the cross-test. Each panel shows the posterior (blue) alongside the true GMSL value (dashed line), with z-score and RMSE annotated. The diagonal cases (prior matches truth) show tighter, better-centred posteriors; prior mismatch increases posterior width and shifts the mean, but all four posteriors contain the true value.}
   \label{fig:sensitivity-truth-prior-cross-gmsl}
@@ -55,7 +55,7 @@
 
 \begin{sidewaysfigure}[h!]
 \begin{center}
-  \includegraphics[width=\columnwidth]{knockout_grace_component_grid.pdf}
+  \includegraphics[width=\columnwidth]{png/knockout_grace_component_grid.png}
   \end{center}
   \caption{Spatial recovery of ice thickness (top), firn thickness (middle), and ocean dynamic topography (bottom) for all five inversion variants: full inversion and four knockouts (no SSH altimetry, no ice altimetry, no GRACE). The true field is shown in the first column. Removing SSH altimetry substantially degrades ocean dynamic topography recovery; ice altimetry is critical for disambiguating ice and firn; GRACE contributes additional mass-change constraint. With the removal of GRACE and ice altimetry, ocean dynamic topography recovery is poor, possibly due to poorer constraints on the ice and firn fields leading to lower constraints on the ocean dynamic signals that can be absorbed into the ice/firn fields.}
   \label{fig:appendix_knockout_plot}
