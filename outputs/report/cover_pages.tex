@@ -1,0 +1,103 @@
+\documentclass[titlepage, a4paper,12pt, twoside]{article}
+
+\input{parts/0frontmatter.tex}
+
+\begin{document}
+
+\begin{titlepage}
+	\newgeometry{margin=2.8cm}
+
+	\begin{center}
+		\vspace*{0.5cm}
+
+		\makebox[\textwidth][l]{\includegraphics[width=0.55\textwidth]{ucam_dep_of_earth_sciences_h_col.pdf}}
+
+		\vspace{2.2cm}
+
+		{\LARGE\bfseries
+			Improving Methods for\\[0.15em]
+			Estimating Modern Ice-Driven\\[0.15em]
+			Sea Level Change\\[0.15em]
+			using Bayesian Inference\par}
+
+		\vspace{2.1cm}
+
+		\includegraphics[width=3.6cm]{crest.pdf}
+
+		\vspace{1.7cm}
+
+		{\Large\bfseries Thomas Holland\par}
+
+		\vspace{0.18cm}
+
+		{\normalsize
+			Jesus College
+			\par}
+
+		\vfill
+
+		{\large
+			Supervised by Dr David Al-Attar
+			\par}
+
+		\vfill
+
+		{\normalsize
+			Project submitted for degree of\\[0.2em]
+			\textit{Natural Sciences MSci (Earth Sciences)}
+			\par}
+
+		\vfill
+
+		{\large March 2026\par}
+
+	\end{center}
+
+	\restoregeometry
+\end{titlepage}
+
+\clearpage
+\thispagestyle{empty}
+\newgeometry{margin=1.2cm}
+
+\begin{center}
+	\vspace*{\fill}
+	\setlength{\tabcolsep}{6pt}
+	\renewcommand{\arraystretch}{0}
+	\begin{tabular}{cc}
+		\includegraphics[width=0.29\textwidth]{6-9_posterior_ice_thickness_antarctica.pdf}      &
+		\includegraphics[width=0.29\textwidth]{6-11_posterior_ice_thickness_greenland.pdf}        \\
+		\includegraphics[width=0.29\textwidth]{joint_precon_grace_ice_firn_gmsl_covariance.pdf} &
+		\includegraphics[width=0.29\textwidth]{z_score_comparison_contour_a.pdf}
+	\end{tabular}
+
+	\vspace{0.3cm}
+
+	\includegraphics[width=0.44\textwidth]{major_source_altimetry_errors_scalar.pdf}
+	\vspace*{\fill}
+
+	\begin{minipage}{0.9\textwidth}
+		\centering
+		\footnotesize
+		This report is submitted for the degree of Natural Sciences MSci. (Earth Sciences).
+
+		\vspace{6pt}
+
+		{7489 words.}
+
+		\vspace{6pt}
+
+		All work and data found within this report can be found here:\\
+		\url{https://github.com/0thomasholland/Part_III_Project}
+
+		References to specific code notebooks are made throughout via links and references section.
+
+		\vspace{6pt}
+
+		I declare that the submitted work is my own, except where acknowledgement is given to the work of others or to work done in collaboration. Code authorship is my own and verifiable via the GitHub link above. The work within builds upon the work done by Heathcote and Al-Attar (2026), and so naturally some figures and method validation are as such similar. I used contextual autocomplete within Zed for programming and Claude (Anthropic) for broad assists with improving clarity and structure in writing.\\ All substantive ideas, analyses, and conclusions are my own.
+	\end{minipage}
+\end{center}
+
+\restoregeometry
+
+\end{document}
