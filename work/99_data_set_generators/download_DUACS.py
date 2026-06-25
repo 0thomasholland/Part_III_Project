@@ -55,11 +55,9 @@ LMAX_VALUES = [512, 256, 128, 64, 32]
 SLA_CANDIDATES = ["sla", "msla"]
 ADT_CANDIDATES = ["adt", "madt"]
 
-
 # ---------------------------------------------------------------------------
 # Helper: resolve variable names present in the remote dataset
 # ---------------------------------------------------------------------------
-
 
 def resolve_variables(dataset_id: str) -> list[str]:
     """
@@ -94,11 +92,9 @@ def resolve_variables(dataset_id: str) -> list[str]:
         )
         return []
 
-
 # ---------------------------------------------------------------------------
 # Helper: detect which SSH variable is present in an open dataset
 # ---------------------------------------------------------------------------
-
 
 def detect_ssh_variable(ds: xr.Dataset) -> str:
     """Return the name of the SLA (or ADT) variable in *ds*."""
@@ -110,11 +106,9 @@ def detect_ssh_variable(ds: xr.Dataset) -> str:
         f"Available: {list(ds.data_vars)}"
     )
 
-
 # ---------------------------------------------------------------------------
 # Step 1: Download monthly data (skip if already present)
 # ---------------------------------------------------------------------------
-
 
 def download_monthly() -> None:
     """Download the DUACS monthly file if it does not already exist."""
@@ -144,11 +138,9 @@ def download_monthly() -> None:
     )
     print(f"Download complete: {MONTHLY_FILE}")
 
-
 # ---------------------------------------------------------------------------
 # Step 2: Compute yearly averages and save to raw cache
 # ---------------------------------------------------------------------------
-
 
 def compute_annual() -> None:
     """Resample the monthly file to annual means and save to raw cache."""
@@ -187,11 +179,9 @@ def compute_annual() -> None:
         f"{int(ds_annual.time.dt.year[-1])}"
     )
 
-
 # ---------------------------------------------------------------------------
 # Helper: interpolate one 2-D SSH snapshot onto a pyshtools DH grid
 # ---------------------------------------------------------------------------
-
 
 def _ssh_to_shgrid(
     ssh_values: np.ndarray,
@@ -272,11 +262,9 @@ def _ssh_to_shgrid(
 
     return grid_out
 
-
 # ---------------------------------------------------------------------------
 # Step 3: Subsample onto multi-resolution grids and compute monthly-diff std
 # ---------------------------------------------------------------------------
-
 
 def process_resolutions() -> None:
     """
@@ -405,11 +393,9 @@ def process_resolutions() -> None:
 
     print("\nAll resolutions processed.")
 
-
 # ---------------------------------------------------------------------------
 # Step 4: Quick sanity check
 # ---------------------------------------------------------------------------
-
 
 def sanity_check() -> None:
     """Print a brief summary of all output files in DATA_DIR."""
@@ -425,7 +411,6 @@ def sanity_check() -> None:
                 val = npz[key]
                 if hasattr(val, "shape"):
                     print(f"      {key}: shape={val.shape}")
-
 
 # ---------------------------------------------------------------------------
 # Entry point

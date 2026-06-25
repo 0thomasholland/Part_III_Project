@@ -1,4 +1,12 @@
 # %%
+from pyslfp.linear_operators import (
+    FingerPrintOperator,
+    grace_observation_operator,
+    l2_products_operator,
+    read_gloss_tide_gauge_data,
+    tide_gauge_operator,
+)
+from pyslfp.state import EarthState
 """
 Regional Greenland vs Antarctica comparison.
 Only GRACE case (ice + firn + ODT + GRACE) is considered.
@@ -20,20 +28,9 @@ from pygeoinf import (
     LinearBayesianInversion,
     LinearForwardProblem,
 )
-from pyslfp import (
-    FingerPrint,
-    IceModel,
-    averaging_operator,
-    read_gloss_tide_gauge_data,
-    sea_level_change_to_load_operator,
-    sea_surface_height_operator,
-    tide_gauge_operator,
-)
-from pyslfp.operators import grace_operator
 from scipy import stats
 from tqdm import tqdm
 
-from project import colors
 from pyslfp_extras.altimetry import GridPoints
 from pyslfp_extras.ice_thickness import IceSheetChange
 from pyslfp_extras.ocean_dynamics import OceanDynamics
@@ -49,11 +46,10 @@ lmax = 128
 lmax_precon = 32
 measure_error_std = 0.001
 
-fp = FingerPrint(lmax=lmax)
-fp.set_state_from_ice_ng(version=IceModel.ICE7G, date=0.0)
-fp_op = fp.as_sobolev_linear_operator(
-    2, fp.mean_sea_floor_radius * 0.1
-)
+fp = EarthState.from_defaults(lmax=lmax)
+fp_op = FingerPrintOperator(fp, load_parameters=(2, fp.model.parameters.mean_sea_floor_radius * 0.1
+), response_parameters=(2 + 1, fp.model.parameters.mean_sea_floor_radius * 0.1
+))
 
 # %%
 # --- Observation points ---
@@ -61,7 +57,9 @@ fp_op = fp.as_sobolev_linear_operator(
 ssh_altimetry = GridPoints.ocean_altimetry(fp, 10.0, 66.0)
 ice_altimetry = GridPoints.ice(fp, 10.0)
 
-lats, lons = read_gloss_tide_gauge_data()
+_, tide_gauge_points = read_gloss_tide_gauge_data()
+lats = [point[0] for point in tide_gauge_points]
+lons = [point[1] for point in tide_gauge_points]
 filtered_lats = lats.copy()
 filtered_lons = lons.copy()
 for i in range(len(lats)):
@@ -81,46 +79,42 @@ OD_pattern = OceanDynamics.DataPattern()
 # %%
 # --- Preconditioner fingerprint ---
 
-precon_fp = FingerPrint(lmax=lmax_precon)
-precon_fp.set_state_from_ice_ng(
-    version=IceModel.ICE7G, date=0.0
-)
-precon_fp_op = precon_fp.as_sobolev_linear_operator(
-    2, precon_fp.mean_sea_floor_radius * 0.1
-)
+precon_fp = EarthState.from_defaults(lmax=lmax_precon)
+precon_fp_op = FingerPrintOperator(precon_fp, load_parameters=(2, precon_fp.model.parameters.mean_sea_floor_radius * 0.1
+), response_parameters=(2 + 1, precon_fp.model.parameters.mean_sea_floor_radius * 0.1
+))
 
 # %%
 # =============================================================================
 # Regional weighting functions (Greenland and Antarctica)
-# The * 1000 * fp.length_scale converts non-dimensional thickness → mm GMSL.
+# The * 1000 * fp.model.parameters.length_scale converts non-dimensional thickness → mm GMSL.
 # =============================================================================
 
 gl_wf = (
-    -fp.ice_density
+    -fp.model.parameters.ice_density
     * fp.one_minus_ocean_function
     * fp.greenland_projection(value=0)
     * 1000
-    * fp.length_scale
-    / (fp.water_density * fp.ocean_area)
+    * fp.model.parameters.length_scale
+    / (fp.model.parameters.water_density * fp.ocean_area)
 )
 
 ant_wf = (
-    -fp.ice_density
+    -fp.model.parameters.ice_density
     * fp.one_minus_ocean_function
     * (
         fp.west_antarctic_projection(value=0)
         + fp.east_antarctic_projection(value=0)
     )
     * 1000
-    * fp.length_scale
-    / (fp.water_density * fp.ocean_area)
+    * fp.model.parameters.length_scale
+    / (fp.model.parameters.water_density * fp.ocean_area)
 )
 
 # %%
 # =============================================================================
 # Overlay plotting helper
 # =============================================================================
-
 
 def plot_bivariate_overlay(
     measures_info,
@@ -245,7 +239,6 @@ def plot_bivariate_overlay(
     plt.tight_layout(rect=[0, 0, 1, 0.96])
     return fig, axes
 
-
 # %%
 # =============================================================================
 # INVERSION C — GRACE: ice + firn + ODT + GRACE
@@ -256,17 +249,17 @@ print("INVERSION C: GRACE (ice + firn + ODT + GRACE)")
 print("=" * 60)
 
 grace_std_dev_m = 0.0027
-grace_std_c = grace_std_dev_m / fp.length_scale
+grace_std_c = grace_std_dev_m / fp.model.parameters.length_scale
 grace_obs_degree = 96
 
 ice_c = IceSheetChange.global_ice(
     finger_print=fp,
     finger_print_operator=fp_op,
-    length_scale=0.1 * fp.mean_sea_floor_radius,
+    length_scale=0.1 * fp.model.parameters.mean_sea_floor_radius,
     pattern=IceSheetChange.ThicknessWeightedPattern(),
     ice_gmsl_std=0.003,
     firn_gmsl_std=0.002,
-    firn_density=0.3 * fp.ice_density,
+    firn_density=0.3 * fp.model.parameters.ice_density,
     include_firn=True,
 )
 odt_c = OceanDynamics(
@@ -326,7 +319,7 @@ P_I_ice_c = ice_altimetry.point_evaluation_operator(
 P_I_firn_c = ice_altimetry.point_evaluation_operator(
     ice_c.firn_thickness.domain
 )
-grace_op_c = grace_operator(
+grace_op_c = grace_observation_operator(
     response_space_c, grace_obs_degree
 )
 
@@ -443,7 +436,7 @@ model_true_c, data_c = (
 precon_ice_c = IceSheetChange.global_ice(
     finger_print=precon_fp,
     finger_print_operator=precon_fp_op,
-    length_scale=0.1 * precon_fp.mean_sea_floor_radius,
+    length_scale=0.1 * precon_fp.model.parameters.mean_sea_floor_radius,
     pattern=IceSheetChange.ThicknessWeightedPattern(),
     ice_gmsl_std=0.003,
     include_firn=True,
@@ -518,7 +511,7 @@ precon_P_I_firn_c = (
         ice_altimetry.coords
     )
 )
-precon_grace_op_c = grace_operator(
+precon_grace_op_c = grace_observation_operator(
     precon_response_space_c, grace_obs_degree
 )
 
@@ -647,16 +640,15 @@ print("Inversion C complete.\n")
 # Regional 2D (Greenland, Antarctica) operators
 # =============================================================================
 
-
 def make_3comp_regional_ops(ice_obj, odt_obj):
     i_sp = ice_obj.ice_thickness.domain
     f_sp = ice_obj.firn_thickness.domain
     o_sp = odt_obj.height_measure.domain
 
-    gl_i = averaging_operator(i_sp, [gl_wf])
-    ant_i = averaging_operator(i_sp, [ant_wf])
-    gl_f = averaging_operator(f_sp, [gl_wf])
-    ant_f = averaging_operator(f_sp, [ant_wf])
+    gl_i = l2_products_operator(i_sp, [gl_wf])
+    ant_i = l2_products_operator(i_sp, [ant_wf])
+    gl_f = l2_products_operator(f_sp, [gl_wf])
+    ant_f = l2_products_operator(f_sp, [ant_wf])
     sc = gl_i.codomain
 
     C_tot = BlockLinearOperator(
@@ -695,7 +687,6 @@ def make_3comp_regional_ops(ice_obj, odt_obj):
     )
     return C_tot, C_ice, C_firn
 
-
 C_total_c, C_ice_c, C_firn_c = make_3comp_regional_ops(
     ice_c, odt_c
 )
@@ -705,13 +696,11 @@ C_total_c, C_ice_c, C_firn_c = make_3comp_regional_ops(
 # Compute 2D regional posterior measures and true values
 # =============================================================================
 
-
 def regional_measure_and_true(posterior, model_true, C):
     """Map posterior and true model to (Greenland, Antarctica) 2D measure."""
     measure_2d = posterior.affine_mapping(operator=C)
     true_2d = C(model_true)
     return measure_2d, true_2d
-
 
 post_total_c, true_total_c = regional_measure_and_true(
     posterior_c, model_true_c, C_total_c
@@ -730,7 +719,6 @@ post_firn_c, true_firn_c = regional_measure_and_true(
 
 col_c = "tab:orange"  # GRACE
 
-
 def _tv(true_2d):
     """Extract true [gl, ant] values from a 2D field vector."""
     import numpy as np
@@ -739,7 +727,6 @@ def _tv(true_2d):
         float(np.squeeze(true_2d[0])),
         float(np.squeeze(true_2d[1])),
     ]
-
 
 # --- Total thickness (ice + firn GMSL contribution) ---
 

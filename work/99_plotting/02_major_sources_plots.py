@@ -2,6 +2,10 @@
 # Source: notebooks/02 - Major Sources.ipynb
 
 # ---- Notebook code cell 1 ----
+from pyslfp.linear_operators import (
+    FingerPrintOperator,
+)
+from pyslfp.state import EarthState
 from pathlib import Path
 
 import numpy as np
@@ -11,7 +15,6 @@ import pandas as pd
 import seaborn as sns
 from IPython.display import display
 from matplotlib import pyplot as plt
-from pyslfp import FingerPrint, IceModel, plot
 
 from project import colors
 from pygeoinf_extras.stats import expectation, standard_dev
@@ -22,7 +25,6 @@ FIGURES_DIR = SCRIPT_DIR / "figures"
 FIGURES_DIR.mkdir(parents=True, exist_ok=True)
 plt.show = lambda *args, **kwargs: None
 print = lambda *args, **kwargs: None
-
 
 def _save_all_figures(prefix):
     for index, figure_number in enumerate(
@@ -36,7 +38,6 @@ def _save_all_figures(prefix):
         )
     plt.close("all")
 
-
 SOURCE_COLOURS = {
     "GIS": colors.gis,
     "WAIS": colors.wais,
@@ -46,19 +47,16 @@ TARGET_GMSL_MEAN_M = 0.010
 TARGET_GMSL_STD_M = 0.003
 ALTIMETRY_LATITUDE_RANGE = 66.0
 
-
 def stats_in_mm(measure):
     return {
         "mean_mm": 1e3 * expectation(measure),
         "std_mm": 1e3 * standard_dev(measure),
     }
 
-
 def normal_pdf(x, mean, std):
     return np.exp(-0.5 * ((x - mean) / std) ** 2) / (
         std * np.sqrt(2 * np.pi)
     )
-
 
 def plot_scalar_distributions(measures, title, xlabel):
     stats = {
@@ -99,7 +97,6 @@ def plot_scalar_distributions(measures, title, xlabel):
 
     return pd.DataFrame.from_dict(stats, orient="index")
 
-
 def resolve_scalar_data_path(filename):
     relative_paths = [
         Path("notebooks") / "data" / filename,
@@ -114,15 +111,13 @@ def resolve_scalar_data_path(filename):
                 return candidate
     raise FileNotFoundError(filename)
 
-
 # ---- Notebook code cell 2 ----
-fp = FingerPrint(lmax=96)
-fp.set_state_from_ice_ng(version=IceModel.ICE7G, date=0.0)
+fp = EarthState.from_defaults(lmax=96)
 
-fp_op = fp.as_sobolev_linear_operator(
-    2, fp.mean_sea_floor_radius * 0.1
-)
-length_scale = 0.2 * fp.mean_sea_floor_radius
+fp_op = FingerPrintOperator(fp, load_parameters=(2, fp.model.parameters.mean_sea_floor_radius * 0.1
+), response_parameters=(2 + 1, fp.model.parameters.mean_sea_floor_radius * 0.1
+))
+length_scale = 0.2 * fp.model.parameters.mean_sea_floor_radius
 pattern = IceSheetChange.UniformPattern()
 
 source_builders = {

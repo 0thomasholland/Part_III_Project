@@ -7,7 +7,7 @@
 # ice-load GaussianMeasure through three different GMSL operators:
 #
 #   1. Continuous  — area-weighted surface integral over the altimetry
-#                    band via fp.integrate()  (the reference)
+#                    band via fp.model.integrate()  (the reference)
 #   2. Unweighted  — arithmetic mean (1/N) at a regular lat/lon point grid
 #   3. Area-weighted — cos(lat)-weighted mean at the same point grid
 #
@@ -20,15 +20,16 @@
 # =============================================================================
 
 # %%
+from pyslfp.linear_operators import (
+    FingerPrintOperator,
+)
+from pyslfp.state import EarthState
 import matplotlib.pyplot as plt
 import numpy as np
-from pyslfp import FingerPrint, IceModel
 from scipy.stats import norm
 
-from project import colors
 from pygeoinf_extras.operators import (
     point_averaging_area_weighted_operator,
-    point_averaging_operator,
 )
 from pygeoinf_extras.stats import expectation, standard_dev
 from pyslfp_extras.altimetry import GridPoints
@@ -40,12 +41,11 @@ from pyslfp_extras.ice_thickness import IceSheetChange
 # -----------------------------------------------------------------------------
 print("Setting up fingerprint model...")
 
-fp = FingerPrint(lmax=256)
-fp.set_state_from_ice_ng(version=IceModel.ICE7G, date=0.0)
+fp = EarthState.from_defaults(lmax=256)
 
-fp_op = fp.as_sobolev_linear_operator(
-    2, fp.mean_sea_floor_radius * 0.1
-)
+fp_op = FingerPrintOperator(fp, load_parameters=(2, fp.model.parameters.mean_sea_floor_radius * 0.1
+), response_parameters=(2 + 1, fp.model.parameters.mean_sea_floor_radius * 0.1
+))
 
 # %%
 # -----------------------------------------------------------------------------
@@ -56,7 +56,7 @@ print("Building ice-sheet change prior...")
 ice_change = IceSheetChange.global_ice(
     finger_print=fp,
     finger_print_operator=fp_op,
-    length_scale=0.15 * fp.mean_sea_floor_radius,
+    length_scale=0.15 * fp.model.parameters.mean_sea_floor_radius,
     pattern=IceSheetChange.UniformPattern(),
     ice_gmsl_std=0.005,
     gmsl_target_mean=0.02,
@@ -93,7 +93,7 @@ print(f"  Points in grid: {len(grid_points)}")
 
 # -- Operator 1: continuous area-weighted integral --
 # GMSLOperatorBase.load_to_estimated_gmsl_operator integrates SSH against
-# the normalised altimetry projection weight via fp.integrate(), which
+# the normalised altimetry projection weight via fp.model.integrate(), which
 # uses the exact spherical area element (cos-lat weighting implicit in SH).
 gmsl_op_continuous = (
     ice_change.load_to_estimated_gmsl_operator
@@ -117,7 +117,7 @@ load_to_point_ssh = (
 )
 point_ssh_space = load_to_point_ssh.codomain
 
-avg_unweighted = point_averaging_operator(point_ssh_space)
+avg_unweighted = point_l2_products_operator(point_ssh_space)
 avg_area_weighted = point_averaging_area_weighted_operator(
     point_ssh_space,
     latitudes,
@@ -282,7 +282,6 @@ plt.tight_layout()
 fig.savefig("gmsl_averaging_comparison.pdf", dpi=600)
 plt.show()
 #
-
 
 # %%
 

@@ -1,17 +1,19 @@
 # %%
+from pyslfp import LinearSeaLevelEquation
+from pyslfp.linear_operators import (
+    FingerPrintOperator,
+    l2_products_operator,
+)
+from pyslfp.linear_operators.physics import (
+    centrifugal_potential_operator,
+)
+from pyslfp.state import EarthState
 import matplotlib as mpl
 import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 import numpy as np
 from Part_III_Project import (
     ice_thickness_change_measures,
-)
-from pyslfp import (
-    FingerPrint,
-    averaging_operator,
-    plot,
-    sea_surface_height_operator,
-    spatial_mutliplication_operator,
 )
 from scipy.stats import norm
 
@@ -31,12 +33,10 @@ print("Working directory:", os.getcwd())
 # %%
 # Setup
 lmax = 256
-fp = FingerPrint(lmax=lmax)
-fp.set_state_from_ice_ng()
-fingerprint_operator = fp.as_sobolev_linear_operator(
-    2,
-    0.1 * fp.mean_sea_floor_radius,
-)
+fp = EarthState.from_defaults(lmax=lmax)
+fingerprint_operator = FingerPrintOperator(fp, load_parameters=(2, 0.1 * fp.model.parameters.mean_sea_floor_radius,
+), response_parameters=(2 + 1, 0.1 * fp.model.parameters.mean_sea_floor_radius,
+))
 response_space = fingerprint_operator.codomain
 sea_surface_height_op = sea_surface_height_operator(
     fp,
@@ -44,25 +44,23 @@ sea_surface_height_op = sea_surface_height_operator(
 )
 measurement_space = sea_surface_height_op.codomain
 
-
 # %%
 # Parameters
-ice_length_scale = 0.5 * fp.mean_sea_floor_radius
+ice_length_scale = 0.5 * fp.model.parameters.mean_sea_floor_radius
 ice_gmsl_target_std = 0.005
 net_ice_thickness_change = -5.0
 
-odt_length_scale = 0.1 * fp.mean_sea_floor_radius
-odt_standard_deviation_factor = 0.001 / fp.length_scale
+odt_length_scale = 0.1 * fp.model.parameters.mean_sea_floor_radius
+odt_standard_deviation_factor = 0.001 / fp.model.parameters.length_scale
 
 altimetry_error_length_scale = (
-    0.01 * fp.mean_sea_floor_radius
+    0.01 * fp.model.parameters.mean_sea_floor_radius
 )
 altimetry_error_standard_deviation = (
-    0.0005 / fp.length_scale
+    0.0005 / fp.model.parameters.length_scale
 )
 
 altimetry_range = 74.0  # degrees
-
 
 # %%
 
@@ -86,15 +84,11 @@ ice_load_measure_sample = (
         ice_thickness_change_measure_sample,
     )
 )
-ice_slc_sample_response = fp(
-    direct_load=ice_load_measure_sample
+ice_slc_sample_response = LinearSeaLevelEquation(fp).solve_sea_level_equation(ice_load_measure_sample
 )
 
-ice_ssh_sample = fp.sea_surface_height_change(
-    ice_slc_sample_response[0],
-    ice_slc_sample_response[1],
-    ice_slc_sample_response[3],
-)
+ice_ssh_sample = (ice_slc_sample_response[0] + ice_slc_sample_response[1] + centrifugal_potential_operator(fp.model)(ice_slc_sample_response[3],
+) / fp.model.parameters.gravitational_acceleration)
 
 ice_slc_sample = ice_slc_sample_response[0]
 
@@ -129,22 +123,16 @@ odt_measure_sample = odt_measure.sample()
 odt_load_sample = fp.direct_load_from_sea_level_change(
     odt_measure_sample,
 )
-odt_fingerprint_response = fp(direct_load=odt_load_sample)
-odt_fingerprint_sample = fp.sea_surface_height_change(
-    odt_fingerprint_response[0],
-    odt_fingerprint_response[1],
-    odt_fingerprint_response[3],
-)
+odt_fingerprint_response = LinearSeaLevelEquation(fp).solve_sea_level_equation(odt_load_sample)
+odt_fingerprint_sample = (odt_fingerprint_response[0] + odt_fingerprint_response[1] + centrifugal_potential_operator(fp.model)(odt_fingerprint_response[3],
+) / fp.model.parameters.gravitational_acceleration)
 odt_error_sample = (
     odt_fingerprint_sample + odt_measure_sample
 )
 
-
 ### OPERATORS
 
-
 odt_error_measure = odt.ssh_measure
-
 
 # %%
 altimetry_error_measure = measurement_space.point_value_scaled_sobolev_kernel_gaussian_measure(
@@ -153,7 +141,6 @@ altimetry_error_measure = measurement_space.point_value_scaled_sobolev_kernel_ga
     altimetry_error_standard_deviation,
 )
 altimetry_error_sample = altimetry_error_measure.sample()
-
 
 # %%
 
@@ -249,7 +236,6 @@ plots = [
         "mm",
     ),
 ]
-
 
 for x in plots:
     fig, ax, im = plot(
@@ -350,13 +336,12 @@ plots = [
     ),
 ]
 
-
 # %%
-ice_gmsl_spatial_average = averaging_operator(
+ice_gmsl_spatial_average = l2_products_operator(
     ice_slc_measure.domain,
     [
         fp.ocean_projection(value=0)
-        / fp.integrate(fp.ocean_projection(value=0)),
+        / fp.model.integrate(fp.ocean_projection(value=0)),
     ],
 )
 ice_gmsl_averaged_measure = ice_slc_measure.affine_mapping(
@@ -369,20 +354,20 @@ ice_gmsl_std = (
     ** 0.5
 )
 ice_gmsl_std_scaled = (
-    ice_gmsl_std * 1000.0 * fp.length_scale
+    ice_gmsl_std * 1000.0 * fp.model.parameters.length_scale
 )  # Convert to mm and plot units
 
 ice_gmsl_expectation_scaled = (
     ice_gmsl_averaged_measure.expectation[0]
     * 1000.0
-    * fp.length_scale
+    * fp.model.parameters.length_scale
 )  # Convert to mm and plot units
 
 # %%
 for data in plots:
-    spatial_average = averaging_operator(
+    spatial_average = l2_products_operator(
         data[1].domain,
-        [data[2] / fp.integrate(data[2])],
+        [data[2] / fp.model.integrate(data[2])],
     )
     averaged_measure = data[1].affine_mapping(
         operator=spatial_average,
@@ -416,8 +401,8 @@ for data in plots:
     else:
         color = "black"
     ax.plot(
-        x_space * fp.length_scale,
-        pdf * fp.length_scale,
+        x_space * fp.model.parameters.length_scale,
+        pdf * fp.model.parameters.length_scale,
         color=color,
         linewidth=3,
     )
@@ -430,10 +415,10 @@ for data in plots:
         ax2 = ax.secondary_xaxis(
             -0.25,
             functions=(
-                lambda x, e=expectation * fp.length_scale, s=ice_gmsl_std_scaled: (
+                lambda x, e=expectation * fp.model.parameters.length_scale, s=ice_gmsl_std_scaled: (
                     (x - e) / s
                 ),
-                lambda x, e=expectation * fp.length_scale, s=ice_gmsl_std_scaled: (
+                lambda x, e=expectation * fp.model.parameters.length_scale, s=ice_gmsl_std_scaled: (
                     x * s + e
                 ),
             ),
@@ -460,7 +445,7 @@ for data in plots:
 gmsl_true_expectation = (
     ice_gmsl_averaged_measure.expectation[0]
     * 1000.0
-    * fp.length_scale
+    * fp.model.parameters.length_scale
 )
 gmsl_true_std = (
     (
@@ -470,7 +455,7 @@ gmsl_true_std = (
         ** 0.5
     )
     * 1000.0
-    * fp.length_scale
+    * fp.model.parameters.length_scale
 )
 
 alt_projection = fp.altimetry_projection(
@@ -479,9 +464,9 @@ alt_projection = fp.altimetry_projection(
     value=0,
 ) * fp.ocean_projection(value=0)
 
-alt_projection_avg_op = averaging_operator(
+alt_projection_avg_op = l2_products_operator(
     total_observed_measure.domain,
-    [alt_projection / fp.integrate(alt_projection)],
+    [alt_projection / fp.model.integrate(alt_projection)],
 )
 
 gmsl_estimated = total_observed_measure.affine_mapping(
@@ -489,7 +474,7 @@ gmsl_estimated = total_observed_measure.affine_mapping(
 )
 
 gmsl_estimated_expectation = (
-    gmsl_estimated.expectation[0] * 1000.0 * fp.length_scale
+    gmsl_estimated.expectation[0] * 1000.0 * fp.model.parameters.length_scale
 )
 gmsl_estimated_std = (
     (
@@ -497,7 +482,7 @@ gmsl_estimated_std = (
         ** 0.5
     )
     * 1000.0
-    * fp.length_scale
+    * fp.model.parameters.length_scale
 )
 
 error_mean = (
@@ -511,7 +496,7 @@ print(
     f"True GMSL Expectation: {gmsl_true_expectation:.4e} mm"
 )
 print(
-    f"True GMSL Std: {gmsl_true_std * fp.length_scale:.4e} mm",
+    f"True GMSL Std: {gmsl_true_std * fp.model.parameters.length_scale:.4e} mm",
 )
 print(
     f"Estimated GMSL Expectation: {gmsl_estimated_expectation:.4e} mm",
@@ -519,7 +504,6 @@ print(
 print(f"Estimated GMSL Std: {gmsl_estimated_std:.4e} mm")
 print(f"GMSL Error Mean: {error_mean:.4e} mm")
 print(f"GMSL Error Std: {error_std:.4e} mm")
-
 
 # %%
 fig, (ax1, ax2) = plt.subplots(
@@ -580,7 +564,6 @@ ax1_sec.set_xlabel("Relative to True GMSL (σ)")
 ax1.legend(
     loc="lower center", bbox_to_anchor=(0.5, -0.7), ncol=2
 )
-
 
 # Error distribution
 error_x = np.linspace(

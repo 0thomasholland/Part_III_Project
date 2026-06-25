@@ -1,6 +1,4 @@
-"""
-Module for plotting functions using matplotlib and cartopy.
-"""
+"""Plotting helpers built on pyslfp's modern matplotlib API."""
 
 from typing import List, Optional, Tuple, Union
 
@@ -9,8 +7,8 @@ from cartopy.mpl.geoaxes import GeoAxes
 from matplotlib.collections import QuadMesh
 from matplotlib.contour import QuadContourSet
 from matplotlib.figure import Figure
-from pygeoinf.symmetric_space.sphere import SphereHelper
 from pyshtools import SHGrid
+from pyslfp import create_map_figure, plot as pyslfp_plot
 
 
 def plot(
@@ -84,14 +82,7 @@ def plot(
     if not isinstance(f, SHGrid):
         raise ValueError("must be of SHGrid type.")
 
-    # Instantiate the helper class from pygeoinf.
-    sphere_helper = SphereHelper(
-        f.lmax, 1, f.grid, f.extend
-    )
-
-    # --- Create a dictionary to hold all keyword arguments ---
     plot_options = {
-        "projection": projection,
         "contour": contour,
         "cmap": cmap,
         "coasts": coasts,
@@ -100,13 +91,30 @@ def plot(
         "map_extent": map_extent,
         "gridlines": gridlines,
         "symmetric": symmetric,
-        "figsize": figsize,
     }
 
     plot_options.update(kwargs)
 
-    # Call the underlying plot method, unpacking the collected options.
-    fig, ax, im = sphere_helper.plot(f, **plot_options)
+    if projection is None:
+        projection = ccrs.Robinson()
+
+    fig: Figure
+    if "ax" in kwargs and kwargs["ax"] is not None:
+        ax = kwargs.pop("ax")
+        fig = ax.figure
+    else:
+        fig, ax = create_map_figure(
+            figsize=figsize,
+            projection=projection,
+        )
+
+    ax, im = pyslfp_plot(
+        f,
+        ax=ax,
+        projection=projection,
+        colorbar=False,
+        **plot_options,
+    )
 
     if tight_layout:
         fig.tight_layout()

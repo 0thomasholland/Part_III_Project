@@ -1,9 +1,9 @@
 from pygeoinf import LinearOperator
-from pyslfp import (
-    FingerPrint,
+from pyslfp.linear_operators import (
     ice_thickness_change_to_load_operator,
     ocean_projection_operator,
 )
+from pyslfp.state import EarthState
 
 from pyslfp_extras.ice_thickness import (
     IceThicknessGMSLOperators,
@@ -11,19 +11,21 @@ from pyslfp_extras.ice_thickness import (
 
 
 def _ice_thickness_to_finger_print_operator(
-    finger_print: FingerPrint,
+    finger_print: EarthState,
     finger_print_operator: LinearOperator,
 ) -> LinearOperator:
     return (
         finger_print_operator
         @ ice_thickness_change_to_load_operator(
-            finger_print, finger_print_operator.domain
+            finger_print,
+            finger_print_operator.domain,
+            finger_print_operator.domain,
         )
     )
 
 
 def ice_thickness_to_slc_operator(
-    finger_print: FingerPrint,
+    finger_print: EarthState,
     finger_print_operator: LinearOperator,
 ) -> LinearOperator:
     return (
@@ -40,7 +42,7 @@ def ice_thickness_to_slc_operator(
 
 
 def ice_thickness_to_ssh_operator(
-    finger_print: FingerPrint,
+    finger_print: EarthState,
     finger_print_operator: LinearOperator,
     altimetry_latitude_range: float = 66.0,
 ) -> LinearOperator:
@@ -56,7 +58,7 @@ def ice_thickness_to_ssh_operator(
 
 
 def ice_thickness_to_estimated_gmsl_operator(
-    finger_print: FingerPrint,
+    finger_print: EarthState,
     finger_print_operator: LinearOperator,
     altimetry_latitude_range: float = 66.0,
 ) -> LinearOperator:
@@ -72,7 +74,7 @@ def ice_thickness_to_estimated_gmsl_operator(
 
 
 def ice_thickness_to_ssh_point_estimations_operator(
-    finger_print: FingerPrint,
+    finger_print: EarthState,
     finger_print_operator: LinearOperator,
     altimetry_latitude_range: float = 66.0,
     point_degree_spacing: float = 5.0,
@@ -86,7 +88,7 @@ def ice_thickness_to_ssh_point_estimations_operator(
 
 
 def ice_thickness_to_point_estimated_gmsl_operator(
-    finger_print: FingerPrint,
+    finger_print: EarthState,
     finger_print_operator: LinearOperator,
     altimetry_latitude_range: float = 66.0,
     point_degree_spacing: float = 5.0,
@@ -100,7 +102,7 @@ def ice_thickness_to_point_estimated_gmsl_operator(
 
 
 def ice_thickness_to_gmsl_estimation_error_operator(
-    finger_print: FingerPrint,
+    finger_print: EarthState,
     finger_print_operator: LinearOperator,
     altimetry_latitude_range: float = 66.0,
 ) -> LinearOperator:
@@ -112,7 +114,7 @@ def ice_thickness_to_gmsl_estimation_error_operator(
 
 
 def ice_thickness_to_gmsl_point_estimation_error_operator(
-    finger_print: FingerPrint,
+    finger_print: EarthState,
     finger_print_operator: LinearOperator,
     altimetry_latitude_range: float = 66.0,
     point_degree_spacing: float = 5.0,

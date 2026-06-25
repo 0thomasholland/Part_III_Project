@@ -1,4 +1,10 @@
 # %%
+from pyslfp.linear_operators import (
+    FingerPrintOperator,
+    read_gloss_tide_gauge_data,
+    tide_gauge_operator,
+)
+from pyslfp.state import EarthState
 import matplotlib.pyplot as plt
 import numpy as np
 from pygeoinf import (
@@ -13,19 +19,10 @@ from pygeoinf import (
     RowLinearOperator,
     plot_corner_distributions,
 )
-from pyslfp import (
-    FingerPrint,
-    IceModel,
-    read_gloss_tide_gauge_data,
-    tide_gauge_operator,
-)
 from tqdm import tqdm
 
 from project import colors
-from pygeoinf_extras import expectation, standard_dev
-from pygeoinf_extras.operators import (
-    point_averaging_operator,
-)
+from pygeoinf_extras import standard_dev
 from pyslfp_extras import plot
 from pyslfp_extras.altimetry import GridPoints
 from pyslfp_extras.ice_thickness import IceSheetChange
@@ -35,11 +32,10 @@ from pyslfp_extras.ice_thickness import IceSheetChange
 # Full-resolution model setup
 # =============================================================================
 
-fp = FingerPrint(lmax=128)
-fp.set_state_from_ice_ng(version=IceModel.ICE7G, date=0.0)
-fp_op = fp.as_sobolev_linear_operator(
-    2, fp.mean_sea_floor_radius * 0.1
-)
+fp = EarthState.from_defaults(lmax=128)
+fp_op = FingerPrintOperator(fp, load_parameters=(2, fp.model.parameters.mean_sea_floor_radius * 0.1
+), response_parameters=(2 + 1, fp.model.parameters.mean_sea_floor_radius * 0.1
+))
 
 measure_error_std = 0.001
 ice_measurement_angle = 5.0
@@ -48,13 +44,13 @@ ocean_measurement_angle = 10.0
 ice = IceSheetChange.global_ice(
     finger_print=fp,
     finger_print_operator=fp_op,
-    length_scale=0.1 * fp.mean_sea_floor_radius,
+    length_scale=0.1 * fp.model.parameters.mean_sea_floor_radius,
     pattern=IceSheetChange.ThicknessWeightedPattern(),
     ice_gmsl_std=0.01,
     firn_gmsl_std=0.008,
     include_firn=True,
-    firn_density=fp.ice_density * 0.4,
-    ice_density=fp.ice_density,
+    firn_density=fp.model.parameters.ice_density * 0.4,
+    ice_density=fp.model.parameters.ice_density,
     point_degree_spacing=ocean_measurement_angle,  # Ensure ocean points are included in the model space
 )
 
@@ -86,8 +82,9 @@ ssh_altimetry = GridPoints.ocean_altimetry(
 )
 ice_altimetry = GridPoints.ice(fp, ice_measurement_angle)
 
-lats, lons = read_gloss_tide_gauge_data()
-
+_, tide_gauge_points = read_gloss_tide_gauge_data()
+lats = [point[0] for point in tide_gauge_points]
+lons = [point[1] for point in tide_gauge_points]
 
 filtered_lats = lats.copy()
 filtered_lons = lons.copy()
@@ -108,7 +105,6 @@ filtered_lats = [
 filtered_lons = [
     lon for lon in filtered_lons if lon is not None
 ]
-
 
 tide_gauge_points = list(zip(filtered_lats, filtered_lons))
 tide_sampling_op = tide_gauge_operator(
@@ -166,12 +162,10 @@ model_space_to_slc_operator = RowLinearOperator(
     ]
 )
 
-
 # %%
 # =============================================================================
 # Data error and forward problem
 # =============================================================================
-
 
 data_error_measure = (
     GaussianMeasure.from_standard_deviation(
@@ -195,24 +189,20 @@ model_true, data = forward_problem.synthetic_model_and_data(
 
 lmax_precon = 32
 
-precon_fp = FingerPrint(lmax=lmax_precon)
-precon_fp.set_state_from_ice_ng(
-    version=IceModel.ICE7G, date=0.0
-)
-precon_fp_op = precon_fp.as_sobolev_linear_operator(
-    2, precon_fp.mean_sea_floor_radius * 0.1
-)
+precon_fp = EarthState.from_defaults(lmax=lmax_precon)
+precon_fp_op = FingerPrintOperator(precon_fp, load_parameters=(2, precon_fp.model.parameters.mean_sea_floor_radius * 0.1
+), response_parameters=(2 + 1, precon_fp.model.parameters.mean_sea_floor_radius * 0.1
+))
 
 # --- Preconditioner ice model ---
 precon_ice = IceSheetChange.global_ice(
     finger_print=precon_fp,
     finger_print_operator=precon_fp_op,
-    length_scale=0.1 * precon_fp.mean_sea_floor_radius,
+    length_scale=0.1 * precon_fp.model.parameters.mean_sea_floor_radius,
     pattern=IceSheetChange.ThicknessWeightedPattern(),
     ice_gmsl_std=0.003,
     include_firn=True,
 )
-
 
 # --- Preconditioner prior ---
 precon_model_prior = GaussianMeasure.from_direct_sum(
@@ -335,7 +325,6 @@ precon_forward_operator = BlockLinearOperator(
 # Form the preconditioner inverse via eigen-decomposition
 # =============================================================================
 
-
 precon_data_error_measure = (
     GaussianMeasure.from_standard_deviation(
         data_space, measure_error_std
@@ -377,12 +366,10 @@ print("Starting inversion...")
 residuals = []
 pbar = tqdm(desc="CG solve")
 
-
 def progress_callback(xk):
     residuals.append(np.linalg.norm(xk))
     pbar.set_postfix({"||x||": f"{residuals[-1]:.2e}"})
     pbar.update(1)
-
 
 model_posterior_measure = (
     bayesian_inversion.model_posterior_measure(
@@ -444,13 +431,13 @@ max_abs_ice_change = (
         )
     )
     * 1000
-    * fp.length_scale
+    * fp.model.parameters.length_scale
 )
 
 fig1, ax1, im1 = plot(
     1000
     * ice_thickness_true
-    * fp.length_scale
+    * fp.model.parameters.length_scale
     * fp.ice_projection(),
     coasts=True,
     cmap="seismic",
@@ -464,7 +451,7 @@ fig1.tight_layout()
 fig2, ax2, im2 = plot(
     1000
     * ice_thickness_posterior_expectation
-    * fp.length_scale
+    * fp.model.parameters.length_scale
     * fp.ice_projection(),
     coasts=True,
     cmap="seismic",
@@ -490,13 +477,13 @@ max_abs_firn_change = (
         )
     )
     * 1000
-    * fp.length_scale
+    * fp.model.parameters.length_scale
 )
 
 fig3, ax3, im3 = plot(
     1000
     * firn_thickness_true
-    * fp.length_scale
+    * fp.model.parameters.length_scale
     * fp.ice_projection(),
     coasts=True,
     cmap="seismic",
@@ -510,7 +497,7 @@ fig3.tight_layout()
 fig4, ax4, im4 = plot(
     1000
     * firn_thickness_posterior_expectation
-    * fp.length_scale
+    * fp.model.parameters.length_scale
     * fp.ice_projection(),
     coasts=True,
     cmap="seismic",
@@ -524,7 +511,6 @@ ax4.set_title(
 fig4.tight_layout()
 
 # --- Ocean dynamics ---
-
 
 # %%
 # operator that maps from the model space to slc
@@ -553,14 +539,13 @@ max_abs_sl_change = (
         )
     )
     * 1000
-    * fp.length_scale
+    * fp.model.parameters.length_scale
 )
-
 
 fig7, ax7, im7 = plot(
     1000
     * slc_true
-    * fp.length_scale
+    * fp.model.parameters.length_scale
     * fp.ocean_projection(),
     coasts=True,
     cmap="seismic",
@@ -574,7 +559,7 @@ fig7.tight_layout()
 fig8, ax8, im8 = plot(
     1000
     * slc_posterior_expectation
-    * fp.length_scale
+    * fp.model.parameters.length_scale
     * fp.ocean_projection(),
     coasts=True,
     cmap="seismic",
@@ -637,7 +622,7 @@ max_total_thickness_change = (
         )
     )
     * 1000
-    * fp.length_scale
+    * fp.model.parameters.length_scale
 )
 
 max_total_load_change = (
@@ -652,14 +637,13 @@ max_total_load_change = (
         )
     )
     * 1000
-    * fp.length_scale
+    * fp.model.parameters.length_scale
 )
-
 
 fig9, ax9, im9 = plot(
     1000
     * total_thickness_true
-    * fp.length_scale
+    * fp.model.parameters.length_scale
     * fp.ice_projection(),
     coasts=True,
     cmap="seismic",
@@ -673,7 +657,7 @@ fig9.tight_layout()
 fig10, ax10, im10 = plot(
     1000
     * total_thickness_posterior_expectation
-    * fp.length_scale
+    * fp.model.parameters.length_scale
     * fp.ice_projection(),
     coasts=True,
     cmap="seismic",
@@ -828,7 +812,7 @@ firn_alt_gmsl = (
 ssh_point_space = (
     ice.load_to_ssh_point_estimations_operator.codomain
 )
-F_avg = point_averaging_operator(ssh_point_space)
+F_avg = point_l2_products_operator(ssh_point_space)
 ssh_error_measure = GaussianMeasure.from_standard_deviation(
     ssh_point_space, measure_error_std
 )
@@ -839,7 +823,6 @@ alt_std = standard_dev(averaged_ssh_error) * 1000  # mm
 
 # %%
 
-
 # --- Helper: Gaussian PDF ---
 def gaussian(x, mean, std_dev):
     return (
@@ -847,7 +830,6 @@ def gaussian(x, mean, std_dev):
         / (std_dev * np.sqrt(2 * np.pi))
         * np.exp(-0.5 * ((x - mean) / std_dev) ** 2)
     )
-
 
 # --- Plot function for old vs new comparison ---
 def plot_gmsl_comparison(
@@ -921,7 +903,6 @@ def plot_gmsl_comparison(
     fig.tight_layout()
     fig.savefig(save_name, dpi=600)
     return fig, ax
-
 
 # --- 1) Total GMSL change ---
 fig_gmsl_total, _ = plot_gmsl_comparison(

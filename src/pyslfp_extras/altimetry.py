@@ -3,8 +3,9 @@ from __future__ import annotations
 import inspect
 
 import numpy as np
-from pygeoinf import HilbertSpace, LinearOperator
-from pyslfp import FingerPrint
+from pygeoinf import GaussianMeasure, HilbertSpace, LinearOperator
+from pygeoinf.symmetric_space.sphere import Sobolev
+from pyslfp.state import EarthState
 
 
 class GridPoints:
@@ -122,7 +123,7 @@ class GridPoints:
     @classmethod
     def ocean(
         cls,
-        finger_print: FingerPrint,
+        finger_print: EarthState,
         degree_spacing: float = 5.0,
     ) -> GridPoints:
         """Grid points over the ocean."""
@@ -134,7 +135,7 @@ class GridPoints:
     @classmethod
     def ocean_altimetry(
         cls,
-        finger_print: FingerPrint,
+        finger_print: EarthState,
         degree_spacing: float = 5.0,
         latitude_range: float = 66.0,
     ) -> GridPoints:
@@ -151,7 +152,7 @@ class GridPoints:
     @classmethod
     def ice(
         cls,
-        finger_print: FingerPrint,
+        finger_print: EarthState,
         degree_spacing: float = 5.0,
     ) -> GridPoints:
         """Grid points over ice regions."""
@@ -166,7 +167,7 @@ def altimetry_error_gaussian_measure(
     order: float = 1.5,
     length_scale: float | None = None,
     amplitude: float | None = None,
-    finger_print: FingerPrint | None = None,
+    finger_print: EarthState | None = None,
     altimetry_operator: LinearOperator | None = None,
 ) -> GaussianMeasure:
     """Create a Gaussian measure for altimetry observation errors on the SSH measurement space.

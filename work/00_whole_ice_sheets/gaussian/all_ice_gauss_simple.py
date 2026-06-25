@@ -1,14 +1,13 @@
 # %%
+from pyslfp.linear_operators import (
+    FingerPrintOperator,
+)
+from pyslfp.state import EarthState
 import numpy as np
 from matplotlib import pyplot as plt
 from pygeoinf import (
     GaussianMeasure,
     LinearOperator,
-)
-from pyslfp import (
-    FingerPrint,
-    IceModel,
-    plot,
 )
 
 from project import ice_thickness_to_slc_operator
@@ -28,21 +27,18 @@ from pyslfp_extras.ice_thickness import (
 
 # %%
 
+fp = EarthState.from_defaults(lmax=128)
 
-fp = FingerPrint(lmax=128)
-fp.set_state_from_ice_ng(version=IceModel.ICE7G, date=0.0)
-
-fp_op = fp.as_sobolev_linear_operator(
-    2, fp.mean_sea_floor_radius * 0.1
-)
-
+fp_op = FingerPrintOperator(fp, load_parameters=(2, fp.model.parameters.mean_sea_floor_radius * 0.1
+), response_parameters=(2 + 1, fp.model.parameters.mean_sea_floor_radius * 0.1
+))
 
 # %%
 
 ice_change = IceSheetChange.global_ice(
     finger_print=fp,
     finger_print_operator=fp_op,
-    length_scale=0.2 * fp.mean_sea_floor_radius,
+    length_scale=0.2 * fp.model.parameters.mean_sea_floor_radius,
     pattern=IceSheetChange.UniformPattern(),
     ice_gmsl_std=0.001,
     gmsl_target_mean=0.01,
@@ -58,7 +54,6 @@ gmsl_from_ice_thickness_operator_op: LinearOperator = (
         finger_print=fp, finger_print_operator=fp_op
     )
 )
-
 
 print(
     standard_dev(

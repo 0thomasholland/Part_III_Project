@@ -1,4 +1,9 @@
 # %%
+from pyslfp.linear_operators import (
+    FingerPrintOperator,
+    grace_observation_operator,
+)
+from pyslfp.state import EarthState
 import matplotlib.pyplot as plt
 import numpy as np
 from pygeoinf import (
@@ -13,20 +18,9 @@ from pygeoinf import (
     LinearForwardProblem,
     RowLinearOperator,
 )
-from pyslfp import (
-    FingerPrint,
-    IceModel,
-    plot,
-    sea_level_change_to_load_operator,
-    sea_surface_height_operator,
-)
-from pyslfp.operators import grace_operator
 from tqdm import tqdm
 
 from project import colors
-from project.operators import (
-    ice_thickness_to_estimated_gmsl_operator,
-)
 from pygeoinf_extras import standard_dev
 from pygeoinf_extras.plots import plot_bivariate_corner
 from pyslfp_extras.altimetry import GridPoints
@@ -38,28 +32,27 @@ from pyslfp_extras.ocean_dynamics import OceanDynamics
 # Full-resolution model setup
 # =============================================================================
 
-fp = FingerPrint(lmax=128)
-fp.set_state_from_ice_ng(version=IceModel.ICE7G, date=0.0)
-fp_op = fp.as_sobolev_linear_operator(
-    2, fp.mean_sea_floor_radius * 0.1
-)
+fp = EarthState.from_defaults(lmax=128)
+fp_op = FingerPrintOperator(fp, load_parameters=(2, fp.model.parameters.mean_sea_floor_radius * 0.1
+), response_parameters=(2 + 1, fp.model.parameters.mean_sea_floor_radius * 0.1
+))
 
 dir = "figs1"
 measure_error_std = 0.001
 
 # GRACE-specific error (in non-dimensionalised units)
 grace_std_dev_m = 0.0027
-grace_std = grace_std_dev_m / fp.length_scale
+grace_std = grace_std_dev_m / fp.model.parameters.length_scale
 grace_observation_degree = 96
 
 ice = IceSheetChange.global_ice(
     finger_print=fp,
     finger_print_operator=fp_op,
-    length_scale=0.1 * fp.mean_sea_floor_radius,
+    length_scale=0.1 * fp.model.parameters.mean_sea_floor_radius,
     pattern=IceSheetChange.ThicknessWeightedPattern(),
     ice_gmsl_std=0.003,
     firn_gmsl_std=0.002,
-    firn_density=0.3 * fp.ice_density,
+    firn_density=0.3 * fp.model.parameters.ice_density,
     include_firn=True,
 )
 
@@ -117,7 +110,6 @@ ice_altimetry = GridPoints.ice(fp, 15.0)
 #
 # =============================================================================
 
-
 def _build_forward_operator(
     fp,
     fp_op,
@@ -168,7 +160,7 @@ def _build_forward_operator(
     )
 
     # -- GRACE operator --
-    grace_op = grace_operator(
+    grace_op = grace_observation_operator(
         response_space, grace_observation_degree
     )
 
@@ -250,7 +242,6 @@ def _build_forward_operator(
 
     return P_left @ F_middle @ L_right, grace_op.codomain
 
-
 forward_operator, grace_obs = _build_forward_operator(
     fp,
     fp_op,
@@ -314,18 +305,15 @@ model_true, data = forward_problem.synthetic_model_and_data(
 
 lmax_precon = 32
 
-precon_fp = FingerPrint(lmax=lmax_precon)
-precon_fp.set_state_from_ice_ng(
-    version=IceModel.ICE7G, date=0.0
-)
-precon_fp_op = precon_fp.as_sobolev_linear_operator(
-    2, precon_fp.mean_sea_floor_radius * 0.1
-)
+precon_fp = EarthState.from_defaults(lmax=lmax_precon)
+precon_fp_op = FingerPrintOperator(precon_fp, load_parameters=(2, precon_fp.model.parameters.mean_sea_floor_radius * 0.1
+), response_parameters=(2 + 1, precon_fp.model.parameters.mean_sea_floor_radius * 0.1
+))
 
 precon_ice = IceSheetChange.global_ice(
     finger_print=precon_fp,
     finger_print_operator=precon_fp_op,
-    length_scale=0.1 * precon_fp.mean_sea_floor_radius,
+    length_scale=0.1 * precon_fp.model.parameters.mean_sea_floor_radius,
     pattern=IceSheetChange.ThicknessWeightedPattern(),
     ice_gmsl_std=0.003,
     include_firn=True,
@@ -447,7 +435,7 @@ precon_P_I_firn = (
 )
 
 # GRACE operator at low resolution — same observation_degree
-precon_grace_op = grace_operator(
+precon_grace_op = grace_observation_operator(
     precon_response_space, grace_observation_degree
 )
 
@@ -577,12 +565,10 @@ print("Starting inversion...")
 residuals = []
 pbar = tqdm(desc="CG solve")
 
-
 def progress_callback(xk):
     residuals.append(np.linalg.norm(xk))
     pbar.set_postfix({"||x||": f"{residuals[-1]:.2e}"})
     pbar.update(1)
-
 
 model_posterior_measure = (
     bayesian_inversion.model_posterior_measure(
@@ -648,13 +634,13 @@ max_abs_ice_change = (
         )
     )
     * 1000
-    * fp.length_scale
+    * fp.model.parameters.length_scale
 )
 
 fig1, ax1, im1 = plot(
     1000
     * ice_thickness_true
-    * fp.length_scale
+    * fp.model.parameters.length_scale
     * fp.ice_projection(),
     coasts=True,
     cmap="seismic",
@@ -670,7 +656,7 @@ fig1.tight_layout()
 fig2, ax2, im2 = plot(
     1000
     * ice_thickness_posterior_expectation
-    * fp.length_scale
+    * fp.model.parameters.length_scale
     * fp.ice_projection(),
     coasts=True,
     cmap="seismic",
@@ -702,13 +688,13 @@ max_abs_firn_change = (
         )
     )
     * 1000
-    * fp.length_scale
+    * fp.model.parameters.length_scale
 )
 
 fig3, ax3, im3 = plot(
     1000
     * firn_thickness_true
-    * fp.length_scale
+    * fp.model.parameters.length_scale
     * fp.ice_projection(),
     coasts=True,
     cmap="seismic",
@@ -724,7 +710,7 @@ fig3.tight_layout()
 fig4, ax4, im4 = plot(
     1000
     * firn_thickness_posterior_expectation
-    * fp.length_scale
+    * fp.model.parameters.length_scale
     * fp.ice_projection(),
     coasts=True,
     cmap="seismic",
@@ -756,13 +742,13 @@ max_abs_odt_height_change = (
         )
     )
     * 1000
-    * fp.length_scale
+    * fp.model.parameters.length_scale
 )
 
 fig5, ax5, im5 = plot(
     1000
     * odt_height_true
-    * fp.length_scale
+    * fp.model.parameters.length_scale
     * fp.ocean_projection(),
     coasts=True,
     cmap="seismic",
@@ -778,7 +764,7 @@ fig5.tight_layout()
 fig6, ax6, im6 = plot(
     1000
     * odt_height_posterior_expectation
-    * fp.length_scale
+    * fp.model.parameters.length_scale
     * fp.ocean_projection(),
     coasts=True,
     cmap="seismic",
@@ -820,13 +806,13 @@ max_abs_sl_change = (
         )
     )
     * 1000
-    * fp.length_scale
+    * fp.model.parameters.length_scale
 )
 
 fig7, ax7, im7 = plot(
     1000
     * slc_true
-    * fp.length_scale
+    * fp.model.parameters.length_scale
     * fp.ocean_projection(),
     coasts=True,
     cmap="seismic",
@@ -842,7 +828,7 @@ fig7.tight_layout()
 fig8, ax8, im8 = plot(
     1000
     * slc_posterior_expectation
-    * fp.length_scale
+    * fp.model.parameters.length_scale
     * fp.ocean_projection(),
     coasts=True,
     cmap="seismic",
@@ -1016,7 +1002,6 @@ fig_cov.savefig(
 import cartopy.crs as ccrs
 from pyshtools import SHGrid
 
-
 def plot_shgrid_robinson_on_ax(
     shgrid: SHGrid,
     ax,
@@ -1060,7 +1045,6 @@ def plot_shgrid_robinson_on_ax(
     ax.set_global()
     return im
 
-
 fig, axs = plt.subplots(
     3,
     2,
@@ -1072,7 +1056,7 @@ fig, axs = plt.subplots(
 im1 = plot_shgrid_robinson_on_ax(
     1000
     * ice_thickness_true
-    * fp.length_scale
+    * fp.model.parameters.length_scale
     * fp.ice_projection(),
     axs[0, 0],
     cmap="seismic",
@@ -1085,7 +1069,7 @@ axs[0, 0].set_title("True Ice Change (mm)", fontsize=10)
 im2 = plot_shgrid_robinson_on_ax(
     1000
     * ice_thickness_posterior_expectation
-    * fp.length_scale
+    * fp.model.parameters.length_scale
     * fp.ice_projection(),
     axs[0, 1],
     cmap="seismic",
@@ -1101,7 +1085,7 @@ axs[0, 1].set_title(
 im3 = plot_shgrid_robinson_on_ax(
     1000
     * firn_thickness_true
-    * fp.length_scale
+    * fp.model.parameters.length_scale
     * fp.ice_projection(),
     axs[1, 0],
     cmap="seismic",
@@ -1114,7 +1098,7 @@ axs[1, 0].set_title("True Firn Change (mm)", fontsize=10)
 im4 = plot_shgrid_robinson_on_ax(
     1000
     * firn_thickness_posterior_expectation
-    * fp.length_scale
+    * fp.model.parameters.length_scale
     * fp.ice_projection(),
     axs[1, 1],
     cmap="seismic",
@@ -1130,7 +1114,7 @@ axs[1, 1].set_title(
 im5 = plot_shgrid_robinson_on_ax(
     1000
     * odt_height_true
-    * fp.length_scale
+    * fp.model.parameters.length_scale
     * fp.ocean_projection(),
     axs[2, 0],
     cmap="seismic",
@@ -1143,7 +1127,7 @@ axs[2, 0].set_title("True ODT Change (mm)", fontsize=10)
 im6 = plot_shgrid_robinson_on_ax(
     1000
     * odt_height_posterior_expectation
-    * fp.length_scale
+    * fp.model.parameters.length_scale
     * fp.ocean_projection(),
     axs[2, 1],
     cmap="seismic",

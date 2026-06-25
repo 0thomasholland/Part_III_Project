@@ -1,5 +1,10 @@
 # %%
-import matplotlib.pyplot as plt
+from pyslfp.linear_operators import (
+    FingerPrintOperator,
+    read_gloss_tide_gauge_data,
+    tide_gauge_operator,
+)
+from pyslfp.state import EarthState
 import numpy as np
 from pygeoinf import (
     BlockLinearOperator,
@@ -10,33 +15,21 @@ from pygeoinf import (
     LinearForwardProblem,
     RowLinearOperator,
 )
-from pyslfp import (
-    FingerPrint,
-    IceModel,
-    plot,
-    read_gloss_tide_gauge_data,
-    tide_gauge_operator,
-)
 from tqdm import tqdm
 
-from project.operators import (
-    ice_thickness_to_estimated_gmsl_operator,
-)
 from pyslfp_extras.altimetry import GridPoints
 from pyslfp_extras.ice_thickness import IceSheetChange
 from pyslfp_extras.ocean_dynamics import OceanDynamics
 
-fp = FingerPrint(lmax=128)
-fp.set_state_from_ice_ng(version=IceModel.ICE7G, date=0.0)
-fp_op = fp.as_sobolev_linear_operator(
-    2, fp.mean_sea_floor_radius * 0.1
-)
-
+fp = EarthState.from_defaults(lmax=128)
+fp_op = FingerPrintOperator(fp, load_parameters=(2, fp.model.parameters.mean_sea_floor_radius * 0.1
+), response_parameters=(2 + 1, fp.model.parameters.mean_sea_floor_radius * 0.1
+))
 
 ice = IceSheetChange.global_ice(
     finger_print=fp,
     finger_print_operator=fp_op,
-    length_scale=0.1 * fp.mean_sea_floor_radius,
+    length_scale=0.1 * fp.model.parameters.mean_sea_floor_radius,
     pattern=IceSheetChange.ThicknessWeightedPattern(),
     ice_gmsl_std=0.003,  # gmsl std = 5mm
     include_firn=True,
@@ -52,7 +45,6 @@ odt = OceanDynamics(
 )
 
 # %%
-
 
 model_space = HilbertSpaceDirectSum(
     [
@@ -79,13 +71,14 @@ ssh_altimetry = GridPoints.ocean_altimetry(fp, 5.0, 66.0)
 
 ice_altimetry = GridPoints.ice(fp, 2.5)
 
-lats, lons = read_gloss_tide_gauge_data()
+_, tide_gauge_points = read_gloss_tide_gauge_data()
+lats = [point[0] for point in tide_gauge_points]
+lons = [point[1] for point in tide_gauge_points]
 tide_gauge_points = list(zip(lats, lons))
 
 tide_sampling_op = tide_gauge_operator(
     ice.load_to_slc_operator.codomain, tide_gauge_points
 )
-
 
 # %%
 
@@ -133,7 +126,6 @@ f33 = ice_altimetry.point_evaluation_operator(
         odt.height_measure.domain
     ).codomain
 )
-
 
 forward_operator = BlockLinearOperator(
     [[f11, f12, f13], [f21, f22, f23], [f31, f32, f33]]
@@ -185,12 +177,10 @@ print("Starting inversion...")
 residuals = []
 pbar = tqdm(desc="CG solve")
 
-
 def progress_callback(xk):
     residuals.append(np.linalg.norm(xk))
     pbar.set_postfix({"||x||": f"{residuals[-1]:.2e}"})
     pbar.update(1)
-
 
 model_posterior_measure = (
     bayesian_inversion.model_posterior_measure(
@@ -200,7 +190,6 @@ model_posterior_measure = (
 pbar.close()
 print("")
 print("Inversion complete.")
-
 
 model_posterior_expectation = (
     model_posterior_measure.expectation
@@ -219,7 +208,6 @@ odt_height_posterior_expectation = (
     model_posterior_expectation[2]
 )
 
-
 max_abs_ice_change = (
     np.nanmax(
         np.abs(
@@ -234,14 +222,14 @@ max_abs_ice_change = (
         )
     )
     * 1000
-    * fp.length_scale
+    * fp.model.parameters.length_scale
 )
 
 # --- Plot 1: The "Ground Trutsh" Model ---
 fig1, ax1, im1 = plot(
     1000
     * ice_thickness_true
-    * fp.length_scale
+    * fp.model.parameters.length_scale
     * fp.ice_projection(),
     coasts=True,
     cmap="seismic",
@@ -255,7 +243,7 @@ ax1.set_title("a) True Ice Thickness Change")
 fig2, ax2, im2 = plot(
     1000
     * ice_thickness_posterior_expectation
-    * fp.length_scale
+    * fp.model.parameters.length_scale
     * fp.ice_projection(),
     coasts=True,
     cmap="seismic",
@@ -284,13 +272,13 @@ max_abs_firn_change = (
         )
     )
     * 1000
-    * fp.length_scale
+    * fp.model.parameters.length_scale
 )
 
 fig3, ax3, im3 = plot(
     1000
     * firn_thickness_true
-    * fp.length_scale
+    * fp.model.parameters.length_scale
     * fp.ice_projection(),
     coasts=True,
     cmap="seismic",
@@ -303,7 +291,7 @@ ax3.set_title("c) True Firn Thickness Change")
 fig4, ax4, im4 = plot(
     1000
     * firn_thickness_posterior_expectation
-    * fp.length_scale
+    * fp.model.parameters.length_scale
     * fp.ice_projection(),
     coasts=True,
     cmap="seismic",
@@ -332,13 +320,13 @@ max_abs_odt_height_change = (
         )
     )
     * 1000
-    * fp.length_scale
+    * fp.model.parameters.length_scale
 )
 
 fig5, ax5, im5 = plot(
     1000
     * odt_height_true
-    * fp.length_scale
+    * fp.model.parameters.length_scale
     * fp.ocean_projection(),
     coasts=True,
     cmap="seismic",
@@ -351,7 +339,7 @@ ax5.set_title("e) True Ocean Height Change")
 fig6, ax6, im6 = plot(
     1000
     * odt_height_posterior_expectation
-    * fp.length_scale
+    * fp.model.parameters.length_scale
     * fp.ocean_projection(),
     coasts=True,
     cmap="seismic",

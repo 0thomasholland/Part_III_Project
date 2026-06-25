@@ -12,6 +12,12 @@
 #   - GMSL posterior comparison plot (all 4 variants)
 #   - Component grid: true vs posterior for ice, firn, and ODT (3 rows × 5 cols)
 # =============================================================================
+from pyslfp.linear_operators import (
+    FingerPrintOperator,
+    read_gloss_tide_gauge_data,
+    tide_gauge_operator,
+)
+from pyslfp.state import EarthState
 import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
 import numpy as np
@@ -27,12 +33,6 @@ from pygeoinf import (
     RowLinearOperator,
 )
 from scipy import stats
-from pyslfp import (
-    FingerPrint,
-    IceModel,
-    read_gloss_tide_gauge_data,
-    tide_gauge_operator,
-)
 from tqdm import tqdm
 
 from project import colors
@@ -47,18 +47,17 @@ from pyslfp_extras.ocean_dynamics import OceanDynamics
 # Full-resolution model setup  (lmax=128)
 # =============================================================================
 
-fp = FingerPrint(lmax=128)
-fp.set_state_from_ice_ng(version=IceModel.ICE7G, date=0.0)
-fp_op = fp.as_sobolev_linear_operator(
-    2, fp.mean_sea_floor_radius * 0.1
-)
+fp = EarthState.from_defaults(lmax=128)
+fp_op = FingerPrintOperator(fp, load_parameters=(2, fp.model.parameters.mean_sea_floor_radius * 0.1
+), response_parameters=(2 + 1, fp.model.parameters.mean_sea_floor_radius * 0.1
+))
 
 measure_error_std = 0.0005
 
 ice = IceSheetChange.global_ice(
     finger_print=fp,
     finger_print_operator=fp_op,
-    length_scale=0.1 * fp.mean_sea_floor_radius,
+    length_scale=0.1 * fp.model.parameters.mean_sea_floor_radius,
     pattern=IceSheetChange.ThicknessWeightedPattern(),
     ice_gmsl_std=0.003,
     include_firn=True,
@@ -101,7 +100,9 @@ model_prior = GaussianMeasure.from_direct_sum(
 ssh_altimetry = GridPoints.ocean_altimetry(fp, 10.0, 66.0)
 ice_altimetry = GridPoints.ice(fp, 10.0)
 
-lats, lons = read_gloss_tide_gauge_data()
+_, tide_gauge_points = read_gloss_tide_gauge_data()
+lats = [point[0] for point in tide_gauge_points]
+lons = [point[1] for point in tide_gauge_points]
 
 filtered_lats = lats.copy()
 filtered_lons = lons.copy()
@@ -236,7 +237,6 @@ model_true, data_full = (
 )
 print("True model sampled.")
 
-
 def make_data(forward_op):
     """Apply forward_op to model_true and add independent noise."""
     data_error = GaussianMeasure.from_standard_deviation(
@@ -245,7 +245,6 @@ def make_data(forward_op):
     return forward_op(
         model_true
     ) + data_error.sample(), data_error
-
 
 data_no_ssh, data_error_no_ssh = make_data(
     forward_op_no_ssh
@@ -262,18 +261,15 @@ data_no_ice, data_error_no_ice = make_data(
 
 lmax_precon = 32
 
-precon_fp = FingerPrint(lmax=lmax_precon)
-precon_fp.set_state_from_ice_ng(
-    version=IceModel.ICE7G, date=0.0
-)
-precon_fp_op = precon_fp.as_sobolev_linear_operator(
-    2, precon_fp.mean_sea_floor_radius * 0.1
-)
+precon_fp = EarthState.from_defaults(lmax=lmax_precon)
+precon_fp_op = FingerPrintOperator(precon_fp, load_parameters=(2, precon_fp.model.parameters.mean_sea_floor_radius * 0.1
+), response_parameters=(2 + 1, precon_fp.model.parameters.mean_sea_floor_radius * 0.1
+))
 
 precon_ice = IceSheetChange.global_ice(
     finger_print=precon_fp,
     finger_print_operator=precon_fp_op,
-    length_scale=0.1 * precon_fp.mean_sea_floor_radius,
+    length_scale=0.1 * precon_fp.model.parameters.mean_sea_floor_radius,
     pattern=IceSheetChange.ThicknessWeightedPattern(),
     ice_gmsl_std=0.003,
     include_firn=True,
@@ -371,7 +367,6 @@ precon_op_no_ice = BlockLinearOperator(
 # Build preconditioners via eigen-decomposition
 # =============================================================================
 
-
 def build_preconditioner(
     precon_forward_op, full_res_data_space, label
 ):
@@ -393,7 +388,6 @@ def build_preconditioner(
     precon_inv = solver(precon_inversion.normal_operator)
     print(f"  Done: {label}")
     return precon_inv
-
 
 precon_inv_full = build_preconditioner(
     precon_op_full, forward_op_full.codomain, "full"
@@ -418,7 +412,6 @@ precon_inv_no_ice = build_preconditioner(
 # =============================================================================
 # Run all four inversions
 # =============================================================================
-
 
 def run_inversion(
     forward_op, data_error, data, precon_inv, label
@@ -453,7 +446,6 @@ def run_inversion(
     is_solving_mean[0] = False
     print(f"  Inversion complete: {label}")
     return posterior, residuals
-
 
 print("\nRunning inversions...")
 posterior_full, res_full = run_inversion(
@@ -533,7 +525,6 @@ total_gmsl_op = RowLinearOperator(
 # True total GMSL (mm)
 total_gmsl_true_mm = total_gmsl_op(model_true)[0] * 1000
 
-
 def compute_gmsl_posterior(posterior):
     """Return (posterior mean in mm, posterior std in mm)."""
     post_measure = posterior.affine_mapping(
@@ -548,7 +539,6 @@ def compute_gmsl_posterior(posterior):
     std_mm = np.sqrt(max(var, 0.0)) * 1000
     return exp_mm, std_mm
 
-
 gmsl_full = compute_gmsl_posterior(posterior_full)
 gmsl_no_ssh = compute_gmsl_posterior(posterior_no_ssh)
 gmsl_no_tg = compute_gmsl_posterior(posterior_no_tg)
@@ -559,12 +549,10 @@ gmsl_no_ice = compute_gmsl_posterior(posterior_no_ice)
 # GMSL comparison: posterior distributions for all four variants
 # =============================================================================
 
-
 def gaussian(x, mean, std):
     return np.exp(-0.5 * ((x - mean) / std) ** 2) / (
         std * np.sqrt(2 * np.pi)
     )
-
 
 variant_gmsl = [
     ("Full (SSH+TG+ice)", gmsl_full, colors.new_method),
@@ -589,7 +577,7 @@ x_range = np.linspace(
 )
 
 fig_gmsl, ax_gmsl = plt.subplots(figsize=(8, 4))
-ax_gmsl.axvline(
+ax_gmaxvline(
     total_gmsl_true_mm,
     color=colors.true,
     linestyle="--",
@@ -599,7 +587,7 @@ ax_gmsl.axvline(
 for label, (exp_mm, std_mm), color in variant_gmsl:
     if std_mm < 1e-6:
         # Posterior is essentially a delta function — draw a vertical line
-        ax_gmsl.axvline(
+        ax_gmaxvline(
             exp_mm,
             color=color,
             linestyle="-",
@@ -608,14 +596,14 @@ for label, (exp_mm, std_mm), color in variant_gmsl:
         )
     else:
         pdf = gaussian(x_range, exp_mm, std_mm)
-        ax_gmsl.plot(
+        ax_gmplot(
             x_range,
             pdf,
             label=f"{label}\n(mean={exp_mm:.2f}, std={std_mm:.2e} mm)",
             color=color,
             linewidth=1.8,
         )
-        ax_gmsl.axvline(
+        ax_gmaxvline(
             exp_mm,
             color=color,
             linestyle=":",
@@ -623,14 +611,14 @@ for label, (exp_mm, std_mm), color in variant_gmsl:
             alpha=0.6,
         )
 
-ax_gmsl.get_yaxis().set_visible(False)
-ax_gmsl.set_xlabel("GMSL Contribution (mm)")
-ax_gmsl.set_title(
+ax_gmget_yaxis().set_visible(False)
+ax_gmset_xlabel("GMSL Contribution (mm)")
+ax_gmset_title(
     "Knockout Test: GMSL Posterior Distributions"
 )
-ax_gmsl.legend(fontsize=8, loc="upper left")
-fig_gmsl.tight_layout()
-fig_gmsl.savefig("figs/knockout_gmsl.pdf", dpi=600)
+ax_gmlegend(fontsize=8, loc="upper left")
+fig_gmtight_layout()
+fig_gmsavefig("figs/knockout_gmpdf", dpi=600)
 
 # Print summary table
 print("\nGMSL Summary")
@@ -656,16 +644,14 @@ posteriors_ordered = [
     ("No ice\naltimetry", posterior_no_ice),
 ]
 
-
 # Helper: extract SHGrid as a 2D array in mm, masked by the projection.
 # Non-masked pixels will be near-zero (not NaN), appearing as the neutral
 # colour on the seismic colormap — matching the existing plotting pattern.
 def field_mm(shgrid, projection_mask):
-    scale = fp.length_scale * 1000  # m → mm
+    scale = fp.model.parameters.length_scale * 1000  # m → mm
     return (shgrid * projection_mask * scale).data.astype(
         float
     )
-
 
 # Helper: compute symmetric colour limit across a list of 2D arrays
 def sym_clim(*arrays):
@@ -673,7 +659,6 @@ def sym_clim(*arrays):
         [a[np.isfinite(a)].ravel() for a in arrays]
     )
     return np.nanmax(np.abs(vals))
-
 
 # Pre-compute expectations and build arrays for all cells
 ice_true = model_true[0]
@@ -851,7 +836,6 @@ true_values_2d = np.array(
     [true_ice_gmsl_mm, true_firn_gmsl_mm]
 )
 
-
 def gmsl_2d_posterior(posterior):
     """
     Compute the 2D joint Gaussian measure for
@@ -883,7 +867,6 @@ def gmsl_2d_posterior(posterior):
         ),
         expectation=np.array([mu_ice, mu_firn]),
     )
-
 
 # Compute 2D posteriors for all variants
 variants_2d = [

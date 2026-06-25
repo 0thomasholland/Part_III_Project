@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
-from project import colors
 
 FIGURES_DIR = Path(__file__).resolve().parent / "figures"
 MASTER_RESULTS_WIDE_PATH = (
@@ -13,13 +12,11 @@ MASTER_RESULTS_WIDE_PATH = (
     / "master_results_wide.csv"
 )
 
-
 def _require_data(df: pd.DataFrame) -> None:
     if df.empty:
         raise ValueError(
             "master_results_wide.csv has no rows."
         )
-
 
 def _save_figure(fig, output_path: Path) -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -28,10 +25,8 @@ def _save_figure(fig, output_path: Path) -> None:
     plt.close(fig)
     print(f"Saved {output_path}")
 
-
 def _parse_sweep_value_token(token: str) -> float:
     return float(token.replace("m", "-").replace("p", "."))
-
 
 def _wide_to_long(df_wide: pd.DataFrame) -> pd.DataFrame:
     case_cols = [
@@ -69,7 +64,6 @@ def _wide_to_long(df_wide: pd.DataFrame) -> pd.DataFrame:
 
     return pd.DataFrame(records)
 
-
 def _ordered_sweep_types(df: pd.DataFrame) -> list[str]:
     preferred = [
         "std_multiplier",
@@ -81,7 +75,6 @@ def _ordered_sweep_types(df: pd.DataFrame) -> list[str]:
     ordered.extend(sorted(available.difference(ordered)))
     return ordered
 
-
 def _accurate_prior_posterior_z_by_setup(
     df: pd.DataFrame,
 ) -> pd.Series:
@@ -90,7 +83,6 @@ def _accurate_prior_posterior_z_by_setup(
         ["setup_index", "posterior_z"],
     ].drop_duplicates(subset=["setup_index"])
     return accurate.set_index("setup_index")["posterior_z"]
-
 
 def plot_true_vs_case_z_kde_grid(
     df: pd.DataFrame,
@@ -225,7 +217,6 @@ def plot_true_vs_case_z_kde_grid(
         fig,
         FIGURES_DIR / output_name,
     )
-
 
 def plot_grouped_ridge_kde(
     df: pd.DataFrame,
@@ -368,7 +359,6 @@ def plot_grouped_ridge_kde(
         FIGURES_DIR / output_name,
     )
 
-
 def main() -> None:
     master_path = MASTER_RESULTS_WIDE_PATH
     if not master_path.exists():
@@ -394,7 +384,6 @@ def main() -> None:
         title=f"Ridge KDE Across All Sensitivity Cases (z-score) [n={df.shape[0]}]",
     )
     plot_true_vs_case_z_kde_grid(df)
-
 
 if __name__ == "__main__":
     main()

@@ -20,7 +20,7 @@ from pygeoinf import (
     BlockDiagonalLinearOperator,
     BlockLinearOperator,
 )
-from pyslfp import (
+from pyslfp.linear_operators import (
     sea_level_change_to_load_operator,
     sea_surface_height_operator,
 )
@@ -76,7 +76,9 @@ def build_factored_forward_operator(
 
     L_I = ice.ice_thickness_to_load_operator
     L_F = ice.firn_thickness_to_load_operator
-    L_W = sea_level_change_to_load_operator(fp, load_space)
+    L_W = sea_level_change_to_load_operator(
+        fp, odt_space, load_space
+    )
 
     # -- Point evaluation operators --
     P_S_ssh = ssh_altimetry.point_evaluation_operator(
@@ -238,7 +240,7 @@ def build_factored_forward_operator_precon(
     L_I = precon_ice.ice_thickness_to_load_operator
     L_F = precon_ice.firn_thickness_to_load_operator
     L_W = sea_level_change_to_load_operator(
-        precon_fp, load_space
+        precon_fp, odt_space, load_space
     )
 
     # -- Point evaluation at FULL-RESOLUTION coordinates --

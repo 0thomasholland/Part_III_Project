@@ -5,15 +5,17 @@
 #
 
 # %%
+from pyslfp import LinearSeaLevelEquation
+from pyslfp.linear_operators.physics import (
+    centrifugal_potential_operator,
+)
+from pyslfp.state import EarthState
 import numpy as np
-from numpy.typing import NDArray
-from pyslfp import FingerPrint, IceModel
 
 from pyslfp_extras.gmsl import altimetry_gmsl, gmsl_error
 
 # %%
 # variable setting
-
 
 alimetry_resolution = (
     1440  # number of points from 0 to 90˚ that are sampled
@@ -21,8 +23,7 @@ alimetry_resolution = (
 
 latitudes = np.linspace(1, 90, alimetry_resolution)
 
-fp = FingerPrint(lmax=256)
-fp.set_state_from_ice_ng(version=IceModel.ICE7G, date=0.0)
+fp = EarthState.from_defaults(lmax=256)
 
 gis_load = fp.greenland_load()
 eais_load = fp.east_antarctic_load()
@@ -31,36 +32,30 @@ wais_load = fp.west_antarctic_load()
 # %%
 # fingerprint response to major ice sheets
 
-gis_slc, gis_dis, _, gis_avc = fp(direct_load=gis_load)
-gis_ssh = fp.sea_surface_height_change(
-    gis_slc, gis_dis, gis_avc
-)
+gis_slc, gis_dis, _, gis_avc = LinearSeaLevelEquation(fp).solve_sea_level_equation(gis_load)
+gis_ssh = (gis_slc + gis_dis + centrifugal_potential_operator(fp.model)(gis_avc
+) / fp.model.parameters.gravitational_acceleration)
 
-eais_slc, eais_dis, _, eais_avc = fp(direct_load=eais_load)
-eais_ssh = fp.sea_surface_height_change(
-    eais_slc, eais_dis, eais_avc
-)
+eais_slc, eais_dis, _, eais_avc = LinearSeaLevelEquation(fp).solve_sea_level_equation(eais_load)
+eais_ssh = (eais_slc + eais_dis + centrifugal_potential_operator(fp.model)(eais_avc
+) / fp.model.parameters.gravitational_acceleration)
 
-wais_slc, wais_dis, _, wais_avc = fp(direct_load=wais_load)
-wais_ssh = fp.sea_surface_height_change(
-    wais_slc, wais_dis, wais_avc
-)
+wais_slc, wais_dis, _, wais_avc = LinearSeaLevelEquation(fp).solve_sea_level_equation(wais_load)
+wais_ssh = (wais_slc + wais_dis + centrifugal_potential_operator(fp.model)(wais_avc
+) / fp.model.parameters.gravitational_acceleration)
 # %%
 # calculate true gmsl from ice load
 
-gis_gmsl: float = fp.mean_sea_level_change(
-    direct_load=gis_load
-)
+gis_gmsl: float = -fp.model.integrate(gis_load
+) / (fp.model.parameters.water_density * fp.ocean_area)
 gis_estimated_gmsl = np.zeros_like(latitudes)
 
-eais_gmsl: float = fp.mean_sea_level_change(
-    direct_load=eais_load
-)
+eais_gmsl: float = -fp.model.integrate(eais_load
+) / (fp.model.parameters.water_density * fp.ocean_area)
 eais_estimated_gmsl = np.zeros_like(latitudes)
 
-wais_gmsl: float = fp.mean_sea_level_change(
-    direct_load=wais_load
-)
+wais_gmsl: float = -fp.model.integrate(wais_load
+) / (fp.model.parameters.water_density * fp.ocean_area)
 wais_estimated_gmsl = np.zeros_like(latitudes)
 
 for i, lat in enumerate(latitudes):
@@ -108,7 +103,6 @@ wais_errors = gmsl_error(
 )
 
 print(gis_errors)
-
 
 # %% save data
 

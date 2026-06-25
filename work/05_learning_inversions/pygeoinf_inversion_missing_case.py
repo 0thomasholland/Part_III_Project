@@ -54,7 +54,6 @@ forward_operator_low = (
 data_space_high = forward_operator_high.codomain
 data_space_low = forward_operator_low.codomain
 
-
 standard_deviation_high = standard_deviation
 standard_deviation_low = standard_deviation
 
@@ -91,7 +90,6 @@ true_model, data_high = (
 data_low = data_high[selected_indices]
 
 # %% plotting helper for comparison
-
 
 def plot_comparison_results(
     space: CircleHelper,
@@ -186,7 +184,6 @@ def plot_comparison_results(
     #     "pygeoinf_inversion_missing_case.png", dpi=600
     # )
     plt.show()
-
 
 # %% perform Bayesian inversion for high observations
 

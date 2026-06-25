@@ -1,6 +1,10 @@
 # Auto-generated from notebook code cells.
 # Source: notebooks/03 - Ocean Dynamics.ipynb
 
+from pyslfp.linear_operators import (
+    FingerPrintOperator,
+)
+from pyslfp.state import EarthState
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -10,7 +14,6 @@ FIGURES_DIR = SCRIPT_DIR / "figures"
 FIGURES_DIR.mkdir(parents=True, exist_ok=True)
 plt.show = lambda *args, **kwargs: None
 print = lambda *args, **kwargs: None
-
 
 def _save_all_figures(prefix):
     for index, figure_number in enumerate(
@@ -24,34 +27,29 @@ def _save_all_figures(prefix):
         )
     plt.close("all")
 
-
 # ---- Notebook code cell 1 ----
 import colorcet as cc
 import numpy as np
-from pyslfp import FingerPrint, IceModel
 
-from project import colors
 from pyslfp_extras.ocean_dynamics import OceanDynamics
 from pyslfp_extras.plotting import plot
 
 np.random.seed(423991)
 
 lmax = 256
-fp = FingerPrint(lmax=lmax)
-fp.set_state_from_ice_ng(version=IceModel.ICE7G, date=0.0)
-fp_op = fp.as_sobolev_linear_operator(
-    2, fp.mean_sea_floor_radius * 0.1
-)
+fp = EarthState.from_defaults(lmax=lmax)
+fp_op = FingerPrintOperator(fp, load_parameters=(2, fp.model.parameters.mean_sea_floor_radius * 0.1
+), response_parameters=(2 + 1, fp.model.parameters.mean_sea_floor_radius * 0.1
+))
 
 _save_all_figures("03_Ocean_Dynamics_cell_1")
-
 
 # ---- Notebook code cell 2 ----
 od_uniform = OceanDynamics(
     finger_print=fp,
     finger_print_operator=fp_op,
     std=0.03,  # Target std of SSH variability in m
-    length_scale=0.01 * fp.mean_sea_floor_radius,
+    length_scale=0.01 * fp.model.parameters.mean_sea_floor_radius,
     pattern=OceanDynamics.UniformPattern(),
 )
 
@@ -69,7 +67,6 @@ plt.show()
 
 _save_all_figures("03_Ocean_Dynamics_cell_2")
 
-
 # ---- Notebook code cell 3 ----
 data_pattern = OceanDynamics.DataPattern()
 field = data_pattern.spatial_field(fp)
@@ -85,13 +82,12 @@ plt.show()
 
 _save_all_figures("03_Ocean_Dynamics_cell_3")
 
-
 # ---- Notebook code cell 4 ----
 od_data = OceanDynamics(
     finger_print=fp,
     finger_print_operator=fp_op,
     std=0.03,  # Target std of SSH variability in m
-    length_scale=0.01 * fp.mean_sea_floor_radius,
+    length_scale=0.01 * fp.model.parameters.mean_sea_floor_radius,
     pattern=data_pattern,
 )
 

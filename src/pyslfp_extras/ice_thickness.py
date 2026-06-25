@@ -9,14 +9,14 @@ import numpy as np
 from pygeoinf import GaussianMeasure, LinearOperator
 from pygeoinf.symmetric_space.sphere import Sobolev
 from pyshtools import SHGrid
-from pyslfp import (
-    FingerPrint,
+from pyslfp.linear_operators import (
     ice_projection_operator,
     ice_thickness_change_to_load_operator,
     ocean_projection_operator,
     sea_surface_height_operator,
-    spatial_mutliplication_operator,
+    spatial_multiplication_operator,
 )
+from pyslfp.state import EarthState
 
 from pygeoinf_extras import standard_dev
 from pyslfp_extras.gmsl import (
@@ -62,7 +62,7 @@ class IceThicknessGMSLOperators(GMSLOperatorBase):
     @cached_property
     def _thickness_to_load_op(self) -> LinearOperator:
         return ice_thickness_change_to_load_operator(
-            self._fp, self._op.domain
+            self._fp, self._op.domain, self._op.domain
         )
 
     @cached_property
@@ -87,7 +87,10 @@ class IceThicknessGMSLOperators(GMSLOperatorBase):
     def ice_thickness_to_load_operator(
         self,
     ) -> LinearOperator:
-        scale = self.ice_density / self._fp.ice_density
+        scale = (
+            self.ice_density
+            / self._fp.model.parameters.ice_density
+        )
         return (
             scale * self._thickness_to_load_op
             if scale != 1.0
@@ -98,7 +101,10 @@ class IceThicknessGMSLOperators(GMSLOperatorBase):
     def ice_thickness_to_gmsl_operator(
         self,
     ) -> LinearOperator:
-        scale = self.ice_density / self._fp.ice_density
+        scale = (
+            self.ice_density
+            / self._fp.model.parameters.ice_density
+        )
         return (
             scale * self._gmsl_operator
             if scale != 1.0
@@ -110,7 +116,10 @@ class IceThicknessGMSLOperators(GMSLOperatorBase):
     def firn_thickness_to_load_operator(
         self,
     ) -> LinearOperator:
-        scale = self.firn_density / self._fp.ice_density
+        scale = (
+            self.firn_density
+            / self._fp.model.parameters.ice_density
+        )
         return (
             scale * self._thickness_to_load_op
             if scale != 1.0
@@ -121,7 +130,10 @@ class IceThicknessGMSLOperators(GMSLOperatorBase):
     def firn_thickness_to_gmsl_operator(
         self,
     ) -> LinearOperator:
-        scale = self.firn_density / self._fp.ice_density
+        scale = (
+            self.firn_density
+            / self._fp.model.parameters.ice_density
+        )
         return (
             scale * self._gmsl_operator
             if scale != 1.0
@@ -162,12 +174,12 @@ class IceSheetChange(IceThicknessGMSLOperators):
 
         @abstractmethod
         def spatial_weights(
-            self, finger_print: FingerPrint
+            self, finger_print: EarthState
         ):
             """Return an SHGrid of ice spatial weights over the ice extent."""
             ...
 
-        def firn_weights(self, finger_print: FingerPrint):
+        def firn_weights(self, finger_print: EarthState):
             """Return an SHGrid of firn spatial weights over the ice extent.
 
             Defaults to the same as spatial_weights. Override in subclasses
@@ -179,7 +191,7 @@ class IceSheetChange(IceThicknessGMSLOperators):
         """Rotationally invariant — uniform weight over the ice projection."""
 
         def spatial_weights(
-            self, finger_print: FingerPrint
+            self, finger_print: EarthState
         ):
             return finger_print.ice_projection(value=0)
 
@@ -224,7 +236,7 @@ class IceSheetChange(IceThicknessGMSLOperators):
             )
 
         def spatial_weights(
-            self, finger_print: FingerPrint
+            self, finger_print: EarthState
         ):
             grid = finger_print.ice_thickness.copy()
             grid.data = self._activator(
@@ -234,7 +246,7 @@ class IceSheetChange(IceThicknessGMSLOperators):
                 value=0
             )
 
-        def firn_weights(self, finger_print: FingerPrint):
+        def firn_weights(self, finger_print: EarthState):
             grid = finger_print.ice_thickness.copy()
             grid.data = 1.0 - self._activator(
                 self._standardise(grid.data)
@@ -249,7 +261,7 @@ class IceSheetChange(IceThicknessGMSLOperators):
 
     def __init__(
         self,
-        finger_print: FingerPrint,
+        finger_print: EarthState,
         finger_print_operator: LinearOperator,
         length_scale: float,
         region_projection: Callable,
@@ -293,7 +305,7 @@ class IceSheetChange(IceThicknessGMSLOperators):
         self.ice_density = (
             ice_density
             if ice_density is not None
-            else self._fp.ice_density
+            else self._fp.model.parameters.ice_density
         )
         self.firn_density = (
             firn_density
@@ -341,8 +353,8 @@ class IceSheetChange(IceThicknessGMSLOperators):
                 length_scale
             )
         )
-        _weight_op = spatial_mutliplication_operator(
-            weights, self._load_space
+        _weight_op = spatial_multiplication_operator(
+            self._load_space, weights
         )
         _ice_proj_op = ice_projection_operator(
             self._fp, self._load_space
@@ -560,7 +572,7 @@ class IceSheetChange(IceThicknessGMSLOperators):
     @classmethod
     def greenland(
         cls,
-        finger_print: FingerPrint,
+        finger_print: EarthState,
         finger_print_operator: LinearOperator,
         length_scale: float,
         pattern: MeltPattern,
@@ -578,7 +590,7 @@ class IceSheetChange(IceThicknessGMSLOperators):
     @classmethod
     def west_antarctic(
         cls,
-        finger_print: FingerPrint,
+        finger_print: EarthState,
         finger_print_operator: LinearOperator,
         length_scale: float,
         pattern: MeltPattern,
@@ -596,7 +608,7 @@ class IceSheetChange(IceThicknessGMSLOperators):
     @classmethod
     def east_antarctic(
         cls,
-        finger_print: FingerPrint,
+        finger_print: EarthState,
         finger_print_operator: LinearOperator,
         length_scale: float,
         pattern: MeltPattern,
@@ -614,7 +626,7 @@ class IceSheetChange(IceThicknessGMSLOperators):
     @classmethod
     def global_ice(
         cls,
-        finger_print: FingerPrint,
+        finger_print: EarthState,
         finger_print_operator: LinearOperator,
         length_scale: float,
         pattern: MeltPattern,

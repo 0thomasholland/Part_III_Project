@@ -13,7 +13,6 @@ print("Unique input stds (mm):", df["std_in"].unique())
 
 # %%
 
-
 for mean_val in df["mean_in"].unique():
     subset = df[df["mean_in"] == mean_val]
     # two subplots, left is true and estimate, other is error
@@ -130,11 +129,9 @@ for std_val in df["std_in"].unique():
     print("Error Means:")
     print(subset[["mean_in", "error_exp"]])
 
-
 ### NON DIM'ed STD and MEANS
 
 # %%
-
 
 for mean_val in df["mean_in"].unique():
     subset = df[df["mean_in"] == mean_val]
@@ -292,7 +289,6 @@ for std_val in df["std_in"].unique():
     )
     ax2.legend()
     plt.show()
-
 
 # %%
 # %%

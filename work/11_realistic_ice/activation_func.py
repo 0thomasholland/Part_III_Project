@@ -1,13 +1,11 @@
 # %%
 import matplotlib.pyplot as plt
 import numpy as np
-import pyslfp as sl
-from patsy.builtins import Q
+from pyslfp.state import EarthState
 
 lmax = 256
-fp = sl.FingerPrint(lmax=lmax)
-fp.set_state_from_ice_ng(
-    version=sl.IceModel.ICE7G, date=0.0
+fp = EarthState.from_defaults(
+    lmax=lmax, version="ICE7G", date=0.0
 )
 # %%
 
@@ -15,19 +13,16 @@ data = fp.ice_thickness.data.flatten()
 
 plt.hist(data[data > 0], bins=50)
 
-
 # %%
 def activator_logistic(x, x_min, x_max):
     _x = (x - x_min) / (x_max - x_min)
     _x = 1 / (1 + np.exp(-10 * (0.45 - _x)))
     return _x
 
-
 def activator_cloglog(x, x_min, x_max):
     _x = (x - x_min) / (x_max - x_min)
     _x = np.exp(-np.exp(-10 * (-_x + 0.45)))
     return _x
-
 
 def activator_richards(x, x_min, x_max):
     # Standardize input: 0 at min thickness, 1 at max thickness
@@ -45,7 +40,6 @@ def activator_richards(x, x_min, x_max):
         1 / nu
     )
     return _x
-
 
 input = np.linspace(data.min(), data.max(), 100)
 fig, ax = plt.subplots(figsize=(6, 4))

@@ -1,10 +1,8 @@
-import glob
 import os
 import pickle
 from pathlib import Path
 
 import pandas as pd
-
 
 def consolidate_results(master_file="master_results.csv"):
     temp_dir = Path("inversion_results")
@@ -53,7 +51,6 @@ def consolidate_results(master_file="master_results.csv"):
         for f in temp_files:
             os.remove(f)
         print("Temporary files cleared.")
-
 
 # Run this after your Parallel block finishes
 consolidate_results()

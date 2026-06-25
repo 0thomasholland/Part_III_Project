@@ -1,9 +1,13 @@
 # %%
+from pyslfp.linear_operators import (
+    read_gloss_tide_gauge_data,
+)
 import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
-from pyslfp import read_gloss_tide_gauge_data
 
-lats, lons = read_gloss_tide_gauge_data()
+_, tide_gauge_points = read_gloss_tide_gauge_data()
+lats = [point[0] for point in tide_gauge_points]
+lons = [point[1] for point in tide_gauge_points]
 
 print(len(lats), len(lons))
 print(lats[:5], lons[:5])

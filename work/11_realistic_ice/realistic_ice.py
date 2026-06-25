@@ -1,22 +1,21 @@
 # %%
 import colorcet as cc
-import matplotlib.pyplot as plt
 import numpy as np
-import pyslfp as sl
-from dask.dataframe import melt
+from pyslfp.linear_operators import (
+    FingerPrintOperator,
+)
+from pyslfp.state import EarthState
 from pyshtools import SHGrid
 
 from pyslfp_extras.plotting import plot
 
 lmax = 256
-fp = sl.FingerPrint(lmax=lmax)
-fp.set_state_from_ice_ng(
-    version=sl.IceModel.ICE7G, date=0.0
+fp = EarthState.from_defaults(
+    lmax=lmax, version="ICE7G", date=0.0
 )
-fp_op = fp.as_sobolev_linear_operator(
-    2, fp.mean_sea_floor_radius * 0.1
-)
-
+fp_op = FingerPrintOperator(fp, load_parameters=(2, fp.model.parameters.mean_sea_floor_radius * 0.1
+), response_parameters=(2 + 1, fp.model.parameters.mean_sea_floor_radius * 0.1
+))
 
 # %%
 
@@ -30,7 +29,6 @@ plot(
 )[0].savefig("figs/state_ice_thickness.pdf", dpi=600)
 
 # %%
-
 
 def activator(x, x_min, x_max):
     # Standardize input: 0 at min thickness, 1 at max thickness
@@ -48,7 +46,6 @@ def activator(x, x_min, x_max):
         1 / nu
     )
     return _x
-
 
 activator = np.vectorize(activator)
 
@@ -66,9 +63,7 @@ plot(
     colorbar_label="Ice melt pointwise standard deviation field",
 )[0].savefig("figs/ice_melt_likelihood.pdf", dpi=600)
 
-
 # %%
-
 
 def activator(x, x_min, x_max):
     # Standardize input: 0 at min thickness, 1 at max thickness
@@ -86,7 +81,6 @@ def activator(x, x_min, x_max):
         1 / nu
     )
     return _x
-
 
 activator = np.vectorize(activator)
 

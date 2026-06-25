@@ -1,5 +1,9 @@
 # %%
-import cartopy.crs as ccrs
+from pyslfp.linear_operators import (
+    FingerPrintOperator,
+    l2_products_operator,
+)
+from pyslfp.state import EarthState
 import colorcet as cc
 import matplotlib.pyplot as plt
 import numpy as np
@@ -10,34 +14,14 @@ from pygeoinf import (
     LinearBayesianInversion,
     LinearForwardProblem,
     LinearOperator,
-    plot_1d_distributions,
-    plot_corner_distributions,
-)
-from pyslfp import (
-    FingerPrint,
-    IceModel,
-    averaging_operator,
 )
 from tqdm import tqdm
 
 from project import (
     colors,
-    error_plot,
-    ice_thickness_to_slc_operator,
 )
-from project.operators import (
-    ice_thickness_to_point_estimated_gmsl_operator,
-    ice_thickness_to_ssh_point_estimations_operator,
-)
-from pygeoinf_extras import expectation, standard_dev
-from pygeoinf_extras.operators import (
-    point_averaging_operator,
-)
+from pygeoinf_extras import standard_dev
 from pyslfp_extras.altimetry import GridPoints
-from pyslfp_extras.gmsl import (
-    altimetry_gmsl,
-    gmsl_from_ice_thickness_operator,
-)
 from pyslfp_extras.ice_thickness import (
     IceSheetChange,
 )
@@ -47,13 +31,11 @@ palette = sns.color_palette("deep")
 blue = palette[0]
 orange = palette[1]
 
+fp = EarthState.from_defaults(lmax=256)
 
-fp = FingerPrint(lmax=256)
-fp.set_state_from_ice_ng(version=IceModel.ICE7G, date=0.0)
-
-fp_op = fp.as_sobolev_linear_operator(
-    2, fp.mean_sea_floor_radius * 0.1
-)
+fp_op = FingerPrintOperator(fp, load_parameters=(2, fp.model.parameters.mean_sea_floor_radius * 0.1
+), response_parameters=(2 + 1, fp.model.parameters.mean_sea_floor_radius * 0.1
+))
 
 # %%
 
@@ -64,7 +46,7 @@ altimetry_degree_density = 5.0
 ice_change = IceSheetChange.global_ice(
     finger_print=fp,
     finger_print_operator=fp_op,
-    length_scale=0.1 * fp.mean_sea_floor_radius,
+    length_scale=0.1 * fp.model.parameters.mean_sea_floor_radius,
     pattern=IceSheetChange.ThicknessWeightedPattern(),
     ice_gmsl_std=0.01,  # gmsl std = 5mm
     point_degree_spacing=altimetry_degree_density,
@@ -72,7 +54,6 @@ ice_change = IceSheetChange.global_ice(
 ice_thickness_measure: GaussianMeasure = (
     ice_change.ice_thickness
 )
-
 
 ice_thickness_to_ssh_point_estimations_op: LinearOperator = (
     ice_change.load_to_ssh_point_estimations_operator
@@ -84,7 +65,6 @@ grid_points = GridPoints.ocean_altimetry(
     degree_spacing=altimetry_degree_density,
     latitude_range=66.0,
 )
-
 
 plot(ice_thickness_measure.sample(), symmetric=True)
 
@@ -120,12 +100,10 @@ print("Starting inversion...")
 residuals = []
 pbar = tqdm(desc="CG solve")
 
-
 def progress_callback(xk):
     residuals.append(np.linalg.norm(xk))
     pbar.set_postfix({"||x||": f"{residuals[-1]:.2e}"})
     pbar.update(1)
-
 
 model_posterior_measure = (
     bayesian_inversion.model_posterior_measure(
@@ -155,14 +133,14 @@ max_abs_ice_change = (
         )
     )
     * 1000
-    * fp.length_scale
+    * fp.model.parameters.length_scale
 )
 
 # --- Plot 1: The "Ground Trutsh" Model ---
 fig1, ax1, im1 = plot(
     1000
     * model_true
-    * fp.length_scale
+    * fp.model.parameters.length_scale
     * fp.ice_projection(),
     coasts=True,
     cmap="seismic",
@@ -177,7 +155,7 @@ fig1.savefig("true_ice_thickness_change.pdf", dpi=600)
 fig2, ax2, im2 = plot(
     1000
     * model_posterior_expectation
-    * fp.length_scale
+    * fp.model.parameters.length_scale
     * fp.ice_projection(),
     coasts=True,
     cmap="seismic",
@@ -193,18 +171,16 @@ fig2.savefig(
     dpi=600,
 )
 
-
 fig2_1, ax2_1, im2_1 = plot(
     1000
     * np.abs(model_true - model_posterior_expectation)
-    * fp.length_scale
+    * fp.model.parameters.length_scale
     * fp.ice_projection(),
     coasts=True,
     cmap=cc.cm.CET_L17,
     colorbar_label="error (mm)",
 )
 ax2_1.set_title("Difference")
-
 
 # %%
 
@@ -238,10 +214,9 @@ ocean_mask = fp.ocean_projection()
 #     * 1000
 # )
 
-
 # --- Plot 3: The "True" Sea-Level Field ---
 fig3, ax3, im13 = plot(
-    1000 * sea_level_true * ocean_mask * fp.length_scale,
+    1000 * sea_level_true * ocean_mask * fp.model.parameters.length_scale,
     coasts=True,
     cmap="seismic",
     # vmin=-max_abs_sl_change,
@@ -256,7 +231,6 @@ ax3.set_title("a) True Sea-Level Fingerprint")
 #     label="Altimetry Point Estimations",
 #     transform=ccrs.PlateCarree(),
 # )
-
 
 # --- Plot 4: The Sea-Level Field Predicted by the Inversion ---
 fig4, ax4, im4 = plot(
@@ -280,28 +254,27 @@ fig4_a, ax4_a, im4_a = plot(
     1000
     * np.abs(sea_level_posterior - sea_level_true)
     * fp.ocean_projection()
-    * fp.length_scale,
+    * fp.model.parameters.length_scale,
     coasts=True,
     cmap=cc.cm.CET_L17,
     colorbar_label="Sea Level Change Error (mm)",
 )
 # %%
 
-
 model_space = ice_thickness_measure.domain
 
 # Set the weighting function for GMSL estimates  - Note that length scale factor to dimensionalise the result into mm
 GMSL_weighting_function = (
-    -fp.ice_density
+    -fp.model.parameters.ice_density
     * fp.one_minus_ocean_function
     * fp.ice_projection(value=0)
     * 1000
-    * fp.length_scale
-    / (fp.water_density * fp.ocean_area)
+    * fp.model.parameters.length_scale
+    / (fp.model.parameters.water_density * fp.ocean_area)
 )
 
 # Form the mapping to GSML.
-B = averaging_operator(
+B = l2_products_operator(
     model_space, [GMSL_weighting_function]
 )
 
@@ -337,7 +310,7 @@ ssh_esimation_alt = (
 data_space = (
     ice_thickness_to_ssh_point_estimations_op.codomain
 )
-F = point_averaging_operator(data_space)
+F = point_l2_products_operator(data_space)
 
 averaged_error = data_error_measure.affine_mapping(
     operator=F
@@ -371,14 +344,12 @@ x2_range = np.linspace(
     1000,
 )
 
-
 def gaussian(x, mean, std_dev):
     return (
         1
         / (std_dev * np.sqrt(2 * np.pi))
         * np.exp(-0.5 * ((x - mean) / std_dev) ** 2)
     )
-
 
 prior_func = gaussian(
     x1_range, prior_expectation, prior_std_dev
@@ -432,7 +403,6 @@ ax1.axvline(
     linestyle="--",
     # label=f"Prior Mean ({prior_expectation:.2f} mm)",
 )
-
 
 ax1.get_yaxis().set_visible(False)
 # ax1.set_xlabel("GMSL Contribution (mm)")

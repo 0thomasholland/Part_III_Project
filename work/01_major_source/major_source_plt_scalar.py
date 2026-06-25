@@ -22,7 +22,6 @@ wais_errors_abs = np.abs(wais_errors)
 
 print(data)
 
-
 # %%
 # same as above but with seaborn, using pandas dataframe
 #
@@ -48,7 +47,6 @@ df = pd.DataFrame(
         ),
     }
 )
-
 
 plt.figure(figsize=(6.5, 4))
 sns.lineplot(

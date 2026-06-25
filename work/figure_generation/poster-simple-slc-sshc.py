@@ -1,13 +1,12 @@
 # %%
+from pyslfp import LinearSeaLevelEquation
+from pyslfp.linear_operators.physics import (
+    centrifugal_potential_operator,
+)
+from pyslfp.state import EarthState
 import matplotlib as mpl
 import matplotlib.colors as mcolors
-import matplotlib.pyplot as plt
 import numpy as np
-from pyshtools import SHGrid
-from pyslfp import (
-    FingerPrint,
-    plot,
-)
 from scipy.stats import norm
 
 mpl.rcParams["figure.dpi"] = 600
@@ -16,8 +15,7 @@ mpl.rcParams["font.size"] = 24
 # %%
 # Setup
 lmax = 256
-fp = FingerPrint(lmax=lmax)
-fp.set_state_from_ice_ng()
+fp = EarthState.from_defaults(lmax=lmax)
 
 # %%
 
@@ -37,25 +35,21 @@ direct_load = fp.direct_load_from_ice_thickness_change(ice_change)
     displacement,
     gravity_potential_change,
     angular_velocity_change,
-) = fp(
-    direct_load=direct_load,
+) = LinearSeaLevelEquation(fp).solve_sea_level_equation(direct_load,
 )
 
-sea_surface_height_change = fp.sea_surface_height_change(
-    sea_level_change,
-    displacement,
-    angular_velocity_change,
-)
+sea_surface_height_change = (sea_level_change + displacement + centrifugal_potential_operator(fp.model)(angular_velocity_change,
+) / fp.model.parameters.gravitational_acceleration)
 
 sea_level_change *= fp.ocean_function
 sea_surface_height_change *= fp.ocean_function
 error = sea_surface_height_change - sea_level_change
 
-gmsl = fp.integrate(sea_level_change) / fp.ocean_area
+gmsl = fp.model.integrate(sea_level_change) / fp.ocean_area
 gmsl_estimate = (
-    fp.integrate(sea_surface_height_change) / fp.ocean_area
+    fp.model.integrate(sea_surface_height_change) / fp.ocean_area
 )
-error_calc = fp.integrate(error) / fp.ocean_area
+error_calc = fp.model.integrate(error) / fp.ocean_area
 alt_error = gmsl_estimate - gmsl
 
 print(f"GMSL: {gmsl * 1000:.4f} mm")
@@ -63,7 +57,7 @@ print(f"GMSL Estimate: {gmsl_estimate * 1000:.4f} mm")
 print(f"Error: {error_calc * 1000:.4f} mm")
 
 absolute_error_mean = (
-    fp.integrate(np.abs(error) * fp.ocean_function) / fp.ocean_area
+    fp.model.integrate(np.abs(error) * fp.ocean_function) / fp.ocean_area
 )
 
 print(f"Mean Absolute Error: {absolute_error_mean * 1000:.4f} mm")
@@ -97,7 +91,6 @@ norm = mcolors.TwoSlopeNorm(
 
 # %%
 # Plotting
-
 
 fig_ice, ax_ice, im_ice = plot(
     ice_change * fp.ice_projection(),
@@ -144,7 +137,6 @@ cbar_displacement = fig_displacement.colorbar(
     shrink=0.8,
 )
 cbar_displacement.set_label("Vertical Displacement (m)")
-
 
 fig_slc, ax_slc, im_slc = plot(
     sea_level_change * fp.ocean_projection() * 1000,
@@ -204,7 +196,6 @@ cbar_error = fig_error.colorbar(
 cbar_error.set_label(
     "Error: SSHC - SLC (mm)",
 )
-
 
 # %%
 # save all the figures at 600 dpi in ../../outputs/posters/AutomatedFigures/

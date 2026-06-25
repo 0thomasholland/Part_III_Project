@@ -1,3 +1,8 @@
+from pyslfp.linear_operators import (
+    FingerPrintOperator,
+    l2_products_operator,
+)
+from pyslfp.state import EarthState
 import pickle
 import random
 import time
@@ -13,15 +18,14 @@ from pygeoinf import (
     LinearBayesianInversion,
     LinearForwardProblem,
 )
-from pyslfp import FingerPrint, IceModel, averaging_operator
 
 from pygeoinf_extras import standard_dev
 from pygeoinf_extras.operators import (
     point_averaging_area_weighted_operator,
 )
+from pyslfp.state import EarthState
 from pyslfp_extras.altimetry import GridPoints
 from pyslfp_extras.ice_thickness import IceSheetChange
-
 
 # ---- Runner configuration (edit these variables directly) ----
 OUTPUT_DIR = (
@@ -51,14 +55,12 @@ ACCURATE_PRIOR_MARKER = 1.0
 CG_MAXITER = 1000
 BASE_RANDOM_SEED = 20260313
 
-
 def _seed_worker_rng(setup_index: int) -> int:
     """Seed Python and NumPy RNGs per setup for reproducible diversity."""
     seed = BASE_RANDOM_SEED + int(setup_index)
     random.seed(seed)
     np.random.seed(seed)
     return seed
-
 
 def scalar_z_score(
     estimate: float, truth: float, std_dev: float
@@ -68,7 +70,6 @@ def scalar_z_score(
             "Standard deviation must be positive."
         )
     return (estimate - truth) / std_dev
-
 
 def gaussian_measure_summary(
     measure: GaussianMeasure,
@@ -81,20 +82,16 @@ def gaussian_measure_summary(
     z_score = scalar_z_score(mean, truth, std_dev)
     return z_score, mean, std_dev
 
-
 def build_truth_setup(
     *, setup_index: int
 ) -> dict[str, Any]:
-    fp = FingerPrint(lmax=L_MAX)
-    fp.set_state_from_ice_ng(
-        version=IceModel.ICE7G, date=0.0
-    )
-    fp_op = fp.as_sobolev_linear_operator(
-        2, fp.mean_sea_floor_radius * 0.1
-    )
+    fp = EarthState.from_defaults(lmax=L_MAX)
+    fp_op = FingerPrintOperator(fp, load_parameters=(2, fp.model.parameters.mean_sea_floor_radius * 0.1
+    ), response_parameters=(2 + 1, fp.model.parameters.mean_sea_floor_radius * 0.1
+    ))
 
     truth_length_scale = (
-        TRUTH_LENGTH_SCALE_FACTOR * fp.mean_sea_floor_radius
+        TRUTH_LENGTH_SCALE_FACTOR * fp.model.parameters.mean_sea_floor_radius
     )
 
     truth_ice_change = IceSheetChange.global_ice(
@@ -131,14 +128,14 @@ def build_truth_setup(
     )
 
     gmsl_weighting_function = (
-        -fp.ice_density
+        -fp.model.parameters.ice_density
         * fp.one_minus_ocean_function
         * fp.ice_projection(value=0)
         * 1000
-        * fp.length_scale
-        / (fp.water_density * fp.ocean_area)
+        * fp.model.parameters.length_scale
+        / (fp.model.parameters.water_density * fp.ocean_area)
     )
-    B = averaging_operator(
+    B = l2_products_operator(
         model_space, [gmsl_weighting_function]
     )
     gmsl_true = float(B(model_true)[0])
@@ -179,10 +176,9 @@ def build_truth_setup(
         "truth_length_scale": truth_length_scale,
     }
 
-
 def build_ice_change_for_case(
     *,
-    fp: FingerPrint,
+    fp: EarthState,
     fp_op,
     sweep_type: str,
     sweep_value: float,
@@ -199,10 +195,10 @@ def build_ice_change_for_case(
 
     if sweep_type == "length_scale":
         kwargs["length_scale"] = (
-            sweep_value * fp.mean_sea_floor_radius
+            sweep_value * fp.model.parameters.mean_sea_floor_radius
         )
     elif sweep_type == "mean_offset":
-        target_nd = sweep_value / (1000 * fp.length_scale)
+        target_nd = sweep_value / (1000 * fp.model.parameters.length_scale)
         kwargs["gmsl_target_mean"] = target_nd
     elif sweep_type == "std_multiplier":
         kwargs["ice_gmsl_std"] = (
@@ -217,7 +213,6 @@ def build_ice_change_for_case(
         )
 
     return IceSheetChange.global_ice(**kwargs)
-
 
 def run_inversion_case(
     *,
@@ -277,7 +272,6 @@ def run_inversion_case(
         "cg_iterations": int(iterations),
         "runtime_s": runtime_s,
     }
-
 
 def _worker(setup_index: int) -> str:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -379,7 +373,6 @@ def _worker(setup_index: int) -> str:
     except Exception as exc:
         return f"Worker {setup_index} failed: {exc}"
 
-
 def main() -> None:
     stop_index = START_INDEX + TOTAL_SETUPS
 
@@ -402,7 +395,6 @@ def main() -> None:
 
     for message in results:
         print(message)
-
 
 if __name__ == "__main__":
     main()

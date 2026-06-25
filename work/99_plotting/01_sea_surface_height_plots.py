@@ -2,18 +2,21 @@
 # Source: notebooks/01 - Sea Surface Height.ipynb
 
 # ---- Notebook code cell 1 ----
+from pyslfp import LinearSeaLevelEquation
+from pyslfp.linear_operators import (
+    FingerPrintOperator,
+    l2_products_operator,
+)
+from pyslfp.linear_operators.physics import (
+    centrifugal_potential_operator,
+)
+from pyslfp.state import EarthState
 from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
 
 np.random.seed(120101)
-import seaborn as sns
-from pyslfp import (
-    FingerPrint,
-    IceModel,
-    averaging_operator,
-)
 
 from project import error_plot
 from pygeoinf_extras import expectation, standard_dev
@@ -25,7 +28,6 @@ FIGURES_DIR = SCRIPT_DIR / "figures"
 FIGURES_DIR.mkdir(parents=True, exist_ok=True)
 plt.show = lambda *args, **kwargs: None
 print = lambda *args, **kwargs: None
-
 
 def _save_all_figures(prefix):
     for index, figure_number in enumerate(
@@ -39,17 +41,14 @@ def _save_all_figures(prefix):
         )
     plt.close("all")
 
-
 # ---- Notebook code cell 2 ----
-fp = FingerPrint(lmax=512)
-fp.set_state_from_ice_ng(version=IceModel.ICE7G, date=0.0)
+fp = EarthState.from_defaults(lmax=512)
 
 load = fp.direct_load_from_ice_thickness_change(
     fp.ice_projection(value=0)
 )
-load /= fp.mean_sea_level_change(
-    direct_load=load
-)  # normalise to 1mm GMSL change
+load /= -fp.model.integrate(load
+) / (fp.model.parameters.water_density * fp.ocean_area)  # normalise to 1mm GMSL change
 
 fig, ax, im = plot(
     load * fp.ice_projection(),
@@ -58,7 +57,7 @@ fig, ax, im = plot(
 plt.show()
 
 # ---- Notebook code cell 3 ----
-slc, dis, _, avc = fp(direct_load=load)
+slc, dis, _, avc = LinearSeaLevelEquation(fp).solve_sea_level_equation(load)
 
 fig, ax, im = plot(
     slc * fp.ocean_projection(),
@@ -68,7 +67,7 @@ fig, ax, im = plot(
 )
 plt.show()
 
-sshc = fp.sea_surface_height_change(slc, dis, avc)
+sshc = (slc + dis + centrifugal_potential_operator(fp.model)(avc) / fp.model.parameters.gravitational_acceleration)
 
 fig, ax, im = plot(
     sshc * fp.ocean_projection(),
@@ -92,11 +91,11 @@ fig, ax, im = plot(
 plt.show()
 
 # ---- Notebook code cell 5 ----
-true_gmsl = fp.ocean_average(slc)
-ssh_gmsl = fp.ocean_average(sshc)
-estimated_gmsl = fp.integrate(
+true_gmsl = fp.model.integrate(fp.ocean_function * slc) / fp.ocean_area
+ssh_gmsl = fp.model.integrate(fp.ocean_function * sshc) / fp.ocean_area
+estimated_gmsl = fp.model.integrate(
     sshc * fp.altimetry_projection(value=0)
-) / fp.integrate(fp.altimetry_projection(value=0))
+) / fp.model.integrate(fp.altimetry_projection(value=0))
 
 percentage_error = (
     100 * abs(true_gmsl - estimated_gmsl) / abs(true_gmsl)
@@ -110,15 +109,15 @@ print(
 print(f"Percentage error: {percentage_error:.2f}%")
 
 # ---- Notebook code cell 6 ----
-fp_op = fp.as_sobolev_linear_operator(
-    2, fp.mean_sea_floor_radius * 0.1
-)
+fp_op = FingerPrintOperator(fp, load_parameters=(2, fp.model.parameters.mean_sea_floor_radius * 0.1
+), response_parameters=(2 + 1, fp.model.parameters.mean_sea_floor_radius * 0.1
+))
 
 # ---- Notebook code cell 7 ----
 ice_change = IceSheetChange.global_ice(
     finger_print=fp,
     finger_print_operator=fp_op,
-    length_scale=0.2 * fp.mean_sea_floor_radius,
+    length_scale=0.2 * fp.model.parameters.mean_sea_floor_radius,
     pattern=IceSheetChange.UniformPattern(),
     ice_gmsl_std=0.001,
     gmsl_target_mean=0.01,
@@ -176,18 +175,17 @@ fig, ax, im = plot(
 plt.show()
 
 # ---- Notebook code cell 11 ----
-altimetry_operator = averaging_operator(
+altimetry_operator = l2_products_operator(
     sshc.domain,
     [
         fp.altimetry_projection(value=0)
-        / fp.integrate(fp.altimetry_projection(value=0))
+        / fp.model.integrate(fp.altimetry_projection(value=0))
     ],
 )
 
 estimated_gmsl_from_sshc = sshc.affine_mapping(
     operator=altimetry_operator
 )
-
 
 print(
     f"Expectation of GMSL change from SSHC: {expectation(estimated_gmsl_from_sshc * 1000):.3f} mm"
@@ -261,14 +259,14 @@ fig, ax, im = plot(
 plt.show()
 
 # ---- Notebook code cell 14 ----
-car_sshc_averaging_op = averaging_operator(
+car_sshc_averaging_op = l2_products_operator(
     sshc.domain,
     [
         (
             fp.regionmask_projection(region, value=0.0)
             * fp.ocean_projection(value=0)
         )
-        / fp.integrate(
+        / fp.model.integrate(
             (
                 fp.regionmask_projection(region, value=0)
                 * fp.ocean_projection(value=0)
@@ -276,14 +274,14 @@ car_sshc_averaging_op = averaging_operator(
         )
     ],
 )
-car_slc_averaging_op = averaging_operator(
+car_slc_averaging_op = l2_products_operator(
     slc.domain,
     [
         (
             fp.regionmask_projection(region, value=0.0)
             * fp.ocean_projection(value=0)
         )
-        / fp.integrate(
+        / fp.model.integrate(
             (
                 fp.regionmask_projection(region, value=0)
                 * fp.ocean_projection(value=0)

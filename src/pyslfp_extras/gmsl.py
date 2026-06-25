@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from functools import cached_property
-from typing import Literal, Optional
+from typing import Literal
 
 from numpy import ndarray
 from pygeoinf import (
@@ -15,13 +15,12 @@ from pygeoinf.symmetric_space.sphere import (
     Sobolev,
 )
 from pyshtools import SHGrid
-from pyslfp import (
-    FingerPrint,
+from pyslfp.linear_operators import (
     averaging_operator,
-    ice_thickness_change_to_load_operator,
     sea_surface_height_operator,
-    spatial_mutliplication_operator,
+    spatial_multiplication_operator,
 )
+from pyslfp.state import EarthState
 
 from pygeoinf_extras.operators import (
     point_averaging_operator,
@@ -41,7 +40,7 @@ class GMSLOperatorBase(ABC):
 
     def __init__(
         self,
-        finger_print: FingerPrint,
+        finger_print: EarthState,
         finger_print_operator: LinearOperator,
         altimetry_latitude_range: float = 66.0,
         point_degree_spacing: float = 5.0,
@@ -54,7 +53,7 @@ class GMSLOperatorBase(ABC):
         self._point_degree_spacing = point_degree_spacing
 
     @property
-    def finger_print(self) -> FingerPrint:
+    def finger_print(self) -> EarthState:
         return self._fp
 
     @property
@@ -79,7 +78,7 @@ class GMSLOperatorBase(ABC):
 
     @cached_property
     def _altimetry_weighting_grid(self) -> SHGrid:
-        projection_integral = self._fp.integrate(
+        projection_integral = self._fp.model.integrate(
             self._altimetry_projection
         )
         return (
@@ -110,8 +109,8 @@ class GMSLOperatorBase(ABC):
 
     @cached_property
     def _altimetry_mask_operator(self) -> LinearOperator:
-        return spatial_mutliplication_operator(
-            self._altimetry_projection, self._ssh_space
+        return spatial_multiplication_operator(
+            self._ssh_space, self._altimetry_projection
         )
 
     @cached_property
@@ -136,6 +135,7 @@ class GMSLOperatorBase(ABC):
         """Load -> estimated GMSL by surface-averaged SSH (altimetry mask)."""
         return (
             averaging_operator(
+                self._fp,
                 self._ssh_space,
                 [self._altimetry_weighting_grid],
             )
@@ -191,18 +191,19 @@ class GMSLOperatorBase(ABC):
 
 
 def gmsl_from_ice_thickness_operator(
-    finger_print: FingerPrint,
+    finger_print: EarthState,
     finger_print_operator: LinearOperator,
 ) -> LinearOperator:
     _op: LinearOperator = averaging_operator(
+        finger_print,
         finger_print_operator.domain,
         [
-            -finger_print.ice_density
+            -finger_print.model.parameters.ice_density
             * finger_print.one_minus_ocean_function
             * finger_print.ice_projection(value=0)
-            * finger_print.length_scale
+            * finger_print.model.parameters.length_scale
             / (
-                finger_print.water_density
+                finger_print.model.parameters.water_density
                 * finger_print.ocean_area
             ),
         ],
@@ -212,7 +213,7 @@ def gmsl_from_ice_thickness_operator(
 
 def gmsl_from_ice_load_operator(
     load_space: Lebesgue | Sobolev | HilbertSpace,
-    fp: FingerPrint,
+    fp: EarthState,
 ) -> LinearOperator:
     """Convenience wrapper when the load space equals the thickness space."""
     identity_op = load_space.identity_operator()
@@ -221,7 +222,7 @@ def gmsl_from_ice_load_operator(
 
 def altimetry_gmsl(
     ssh: SHGrid,
-    fp: FingerPrint,
+    fp: EarthState,
     latitude: float = 66.0,
 ) -> float:
     _alt_projection = fp.altimetry_projection(
@@ -229,11 +230,13 @@ def altimetry_gmsl(
         latitude_min=-latitude,
         value=0,
     )
-    _alt_projection_integral = fp.integrate(_alt_projection)
+    _alt_projection_integral = fp.model.integrate(
+        _alt_projection
+    )
     _alt_weighting_func = (
         _alt_projection / _alt_projection_integral
     )
-    _estimated_gmsl: float = fp.integrate(
+    _estimated_gmsl: float = fp.model.integrate(
         _alt_weighting_func * ssh
     )
     return _estimated_gmsl

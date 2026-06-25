@@ -23,7 +23,6 @@ observation_points_low = model_space.random_points(
     n_data_low
 )
 
-
 # Create forward operators for both cases
 forward_operator_high = (
     model_space.point_evaluation_operator(
@@ -50,7 +49,6 @@ data_error_measure_low = (
         standard_deviation_low,
     )
 )
-
 
 forward_problem_high = inf.LinearForwardProblem(
     forward_operator_high,
@@ -81,7 +79,6 @@ noise_low = np.random.normal(
 data_low = data_low_clean + noise_low
 
 # %% plotting helper for comparison
-
 
 def plot_comparison_results(
     space: CircleHelper,
@@ -177,7 +174,6 @@ def plot_comparison_results(
     #     "bayesian_inversion_comparison.png", dpi=600
     # )
     plt.show()
-
 
 # %% perform Bayesian inversion for high observations
 

@@ -36,7 +36,6 @@ CASE_METRICS = [
     "runtime_s",
 ]
 
-
 def _load_records_from_pickle(path: Path) -> list[dict]:
     with open(path, "rb") as handle:
         payload = pickle.load(handle)
@@ -57,7 +56,6 @@ def _load_records_from_pickle(path: Path) -> list[dict]:
 
     return records
 
-
 def _format_sweep_value(value: float) -> str:
     # Compact and stable float formatting for column names.
     return (
@@ -66,14 +64,12 @@ def _format_sweep_value(value: float) -> str:
         .replace(".", "p")
     )
 
-
 def _build_case_id_column(df: pd.DataFrame) -> pd.Series:
     return (
         df["sweep_type"].astype(str)
         + "__"
         + df["sweep_value"].map(_format_sweep_value)
     )
-
 
 def _to_wide_format(df_long: pd.DataFrame) -> pd.DataFrame:
     required = set(
@@ -111,7 +107,6 @@ def _to_wide_format(df_long: pd.DataFrame) -> pd.DataFrame:
 
     cases = pd.concat(case_tables, axis=1).sort_index()
     return base.join(cases, how="left").reset_index()
-
 
 def consolidate_results(
     *,
@@ -184,10 +179,8 @@ def consolidate_results(
         f"Kept {len(failed_files)} unreadable files for inspection."
     )
 
-
 def main() -> None:
     consolidate_results()
-
 
 if __name__ == "__main__":
     main()

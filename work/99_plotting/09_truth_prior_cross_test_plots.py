@@ -2,6 +2,11 @@
 # Source: notebooks/09 - Truth-Prior Cross Test.ipynb
 
 # ---- Notebook code cell 1 ----
+from pyslfp.linear_operators import (
+    FingerPrintOperator,
+    l2_products_operator,
+)
+from pyslfp.state import EarthState
 from pathlib import Path
 
 import cartopy.crs as ccrs
@@ -15,7 +20,6 @@ from pygeoinf import (
     LinearForwardProblem,
 )
 from pyshtools import SHGrid
-from pyslfp import FingerPrint, IceModel, averaging_operator
 from scipy import stats
 
 from project import colors
@@ -42,13 +46,11 @@ truth_length_scale = None
 truth_gmsl_std = 0.01
 altimetry_std_dev = 0.003
 
-fp = FingerPrint(lmax=lmax)
-fp.set_state_from_ice_ng(version=IceModel.ICE7G, date=0.0)
-fp_op = fp.as_sobolev_linear_operator(
-    2, fp.mean_sea_floor_radius * 0.1
-)
-truth_length_scale = 0.1 * fp.mean_sea_floor_radius
-
+fp = EarthState.from_defaults(lmax=lmax)
+fp_op = FingerPrintOperator(fp, load_parameters=(2, fp.model.parameters.mean_sea_floor_radius * 0.1
+), response_parameters=(2 + 1, fp.model.parameters.mean_sea_floor_radius * 0.1
+))
+truth_length_scale = 0.1 * fp.model.parameters.mean_sea_floor_radius
 
 def build_ice_change(pattern_name: str) -> IceSheetChange:
     if pattern_name == "uniform":
@@ -69,7 +71,6 @@ def build_ice_change(pattern_name: str) -> IceSheetChange:
         point_degree_spacing=altimetry_degree_density,
     )
 
-
 uniform_ic = build_ice_change("uniform")
 spatial_ic = build_ice_change("spatial")
 
@@ -86,14 +87,14 @@ data_error_measure = (
 )
 
 GMSL_weighting_function = (
-    -fp.ice_density
+    -fp.model.parameters.ice_density
     * fp.one_minus_ocean_function
     * fp.ice_projection(value=0)
     * 1000
-    * fp.length_scale
-    / (fp.water_density * fp.ocean_area)
+    * fp.model.parameters.length_scale
+    / (fp.model.parameters.water_density * fp.ocean_area)
 )
-B = averaging_operator(
+B = l2_products_operator(
     model_space, [GMSL_weighting_function]
 )
 
@@ -108,7 +109,6 @@ print(
     f"Model dim: {model_space.dim}, Data dim: {data_space.dim}"
 )
 
-
 # ---- Notebook code cell 3 ----
 def scalar_z_score(
     estimate: float, truth: float, std_dev: float
@@ -119,7 +119,6 @@ def scalar_z_score(
         )
     return (estimate - truth) / std_dev
 
-
 def gaussian_measure_summary(
     measure: GaussianMeasure, truth: float
 ):
@@ -129,7 +128,6 @@ def gaussian_measure_summary(
     )
     z_score = scalar_z_score(mean, truth, std_dev)
     return z_score, mean, std_dev
-
 
 def plot_shgrid_robinson_on_ax(
     shgrid: SHGrid,
@@ -167,7 +165,6 @@ def plot_shgrid_robinson_on_ax(
     ax.set_global()
     return im
 
-
 def run_inversion(
     ice_change_prior: IceSheetChange, data: np.ndarray
 ):
@@ -184,7 +181,6 @@ def run_inversion(
         data, CGMatrixSolver()
     )
     return posterior, prior
-
 
 # ---- Notebook code cell 4 ----
 def generate_truth_and_data(
@@ -225,7 +221,6 @@ def generate_truth_and_data(
         "ssh_std": ssh_std,
         "altimetry_z": altimetry_z,
     }
-
 
 truth_cases = {
     "uniform": generate_truth_and_data(uniform_ic),
@@ -268,12 +263,12 @@ for truth_name, truth_info in truth_cases.items():
 
         true_grid_m = (
             truth_info["model_true"]
-            * fp.length_scale
+            * fp.model.parameters.length_scale
             * fp.ice_projection()
         )
         post_grid_m = (
             posterior.expectation
-            * fp.length_scale
+            * fp.model.parameters.length_scale
             * fp.ice_projection()
         )
         rmse_m = np.sqrt(

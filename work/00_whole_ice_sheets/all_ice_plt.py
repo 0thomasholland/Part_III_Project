@@ -59,14 +59,12 @@ latitudes_gauss = data_gauss["latitudes"]
 estimate_means_gauss = data_gauss["estimate_means"]
 estimate_stds_gauss = data_gauss["estimate_stds"]
 
-
 # %%
 
 # for each unique gmsl values, plot the error means with fill for 2x standard deviations
 
 unique_gmsl_means = np.unique(gmsl_means_gauss)
 unique_gmsl_stds = np.unique(gmsl_stds_gauss)
-
 
 for gmsl_mean in unique_gmsl_means:
     for gmsl_std in unique_gmsl_stds:
@@ -166,7 +164,6 @@ for gmsl_mean in unique_gmsl_means:
         #     dpi=600,
         # )
         plt.close(fig)
-
 
 # %%
 

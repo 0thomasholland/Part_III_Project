@@ -1,7 +1,7 @@
 """Part III Project - Sea level change analysis tools.
 
 This package provides tools for analyzing sea level changes using
-Gaussian measures and pyslfp FingerPrint objects.
+Gaussian measures and modern pyslfp state/operator objects.
 """
 
 from project import colors

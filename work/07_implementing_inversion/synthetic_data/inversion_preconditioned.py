@@ -1,4 +1,9 @@
 # %%
+from pyslfp.linear_operators import (
+    FingerPrintOperator,
+    l2_products_operator,
+)
+from pyslfp.state import EarthState
 import cartopy.crs as ccrs
 import numpy as np
 from pygeoinf import (
@@ -11,38 +16,25 @@ from pygeoinf import (
     plot_1d_distributions,
     plot_corner_distributions,
 )
-from pyslfp import (
-    FingerPrint,
-    IceModel,
-    averaging_operator,
-    plot,
-)
 from tqdm import tqdm
 
 from project import (
-    error_plot,
     ice_thickness_to_slc_operator,
 )
 from project.operators import (
-    ice_thickness_to_point_estimated_gmsl_operator,
     ice_thickness_to_ssh_operator,
     ice_thickness_to_ssh_point_estimations_operator,
 )
 from pyslfp_extras.altimetry import GridPoints
-from pyslfp_extras.gmsl import (
-    altimetry_gmsl,
-    gmsl_from_ice_thickness_operator,
-)
 from pyslfp_extras.ice_thickness import (
     IceSheetChange,
 )
 
-fp = FingerPrint(lmax=128)
-fp.set_state_from_ice_ng(version=IceModel.ICE7G, date=0.0)
+fp = EarthState.from_defaults(lmax=128)
 
-fp_op = fp.as_sobolev_linear_operator(
-    2, fp.mean_sea_floor_radius * 0.1
-)
+fp_op = FingerPrintOperator(fp, load_parameters=(2, fp.model.parameters.mean_sea_floor_radius * 0.1
+), response_parameters=(2 + 1, fp.model.parameters.mean_sea_floor_radius * 0.1
+))
 
 # %%
 
@@ -53,7 +45,7 @@ altimetry_degree_density = 15.0
 ice_change = IceSheetChange.global_ice(
     finger_print=fp,
     finger_print_operator=fp_op,
-    length_scale=0.1 * fp.mean_sea_floor_radius,
+    length_scale=0.1 * fp.model.parameters.mean_sea_floor_radius,
     pattern=IceSheetChange.UniformPattern(),
     ice_gmsl_std=0.01,  # gmsl std = 1cm
     gmsl_target_mean=0.02,  # gmsl mean = 2cm
@@ -106,19 +98,16 @@ model_true, data = forward_problem.synthetic_model_and_data(
 
 lmax_precon = 32
 
-precon_fp = FingerPrint(lmax=lmax_precon)
-precon_fp.set_state_from_ice_ng(
-    version=IceModel.ICE7G, date=0.0
-)
+precon_fp = EarthState.from_defaults(lmax=lmax_precon)
 
-precon_fp_op = precon_fp.as_sobolev_linear_operator(
-    2, precon_fp.mean_sea_floor_radius * 0.1
-)
+precon_fp_op = FingerPrintOperator(precon_fp, load_parameters=(2, precon_fp.model.parameters.mean_sea_floor_radius * 0.1
+), response_parameters=(2 + 1, precon_fp.model.parameters.mean_sea_floor_radius * 0.1
+))
 
 precon_ice_change = IceSheetChange.global_ice(
     finger_print=precon_fp,
     finger_print_operator=precon_fp_op,
-    length_scale=0.1 * precon_fp.mean_sea_floor_radius,
+    length_scale=0.1 * precon_fp.model.parameters.mean_sea_floor_radius,
     pattern=IceSheetChange.UniformPattern(),
     ice_gmsl_std=0.01,
     gmsl_target_mean=0.02,
@@ -203,12 +192,10 @@ print("Starting inversion...")
 residuals = []
 pbar = tqdm(desc="CG solve")
 
-
 def progress_callback(xk):
     residuals.append(np.linalg.norm(xk))
     pbar.set_postfix({"||x||": f"{residuals[-1]:.2e}"})
     pbar.update(1)
-
 
 model_posterior_measure = (
     bayesian_inversion.model_posterior_measure(
@@ -240,14 +227,14 @@ max_abs_ice_change = (
         )
     )
     * 1000
-    * fp.length_scale
+    * fp.model.parameters.length_scale
 )
 
 # --- Plot 1: The "Ground Trutsh" Model ---
 fig1, ax1, im1 = plot(
     1000
     * model_true
-    * fp.length_scale
+    * fp.model.parameters.length_scale
     * fp.ice_projection(),
     coasts=True,
     cmap="seismic",
@@ -261,7 +248,7 @@ ax1.set_title("a) True Ice Thickness Change")
 fig2, ax2, im2 = plot(
     1000
     * model_posterior_expectation
-    * fp.length_scale
+    * fp.model.parameters.length_scale
     * fp.ice_projection(),
     coasts=True,
     cmap="seismic",
@@ -303,13 +290,12 @@ max_abs_sl_change = (
         )
     )
     * 1000
-    * fp.length_scale
+    * fp.model.parameters.length_scale
 )
-
 
 # --- Plot 3: The "True" Sea-Level Field ---
 fig3, ax3, im13 = plot(
-    1000 * sea_level_true * ocean_mask * fp.length_scale,
+    1000 * sea_level_true * ocean_mask * fp.model.parameters.length_scale,
     coasts=True,
     cmap="seismic",
     vmin=-max_abs_sl_change,
@@ -325,13 +311,12 @@ ax3.set_title("a) True Sea-Level Fingerprint")
 #     transform=ccrs.PlateCarree(),
 # )
 
-
 # --- Plot 4: The Sea-Level Field Predicted by the Inversion ---
 fig4, ax4, im4 = plot(
     1000
     * sea_level_posterior
     * fp.ocean_projection()
-    * fp.length_scale,
+    * fp.model.parameters.length_scale,
     coasts=True,
     cmap="seismic",
     vmin=-max_abs_sl_change,
@@ -348,21 +333,20 @@ ax4.plot(
 )
 # %%
 
-
 model_space = ice_thickness_measure.domain
 
 # Set the weighting function for GMSL estimates  - Note that length scale factor to dimensionalise the result into mm
 GMSL_weighting_function = (
-    -fp.ice_density
+    -fp.model.parameters.ice_density
     * fp.one_minus_ocean_function
     * fp.ice_projection(value=0)
     * 1000
-    * fp.length_scale
-    / (fp.water_density * fp.ocean_area)
+    * fp.model.parameters.length_scale
+    / (fp.model.parameters.water_density * fp.ocean_area)
 )
 
 # Form the mapping to GSML.
-B = averaging_operator(
+B = l2_products_operator(
     model_space, [GMSL_weighting_function]
 )
 
@@ -389,31 +373,31 @@ fig, ax = plot_1d_distributions(
 # %%
 
 GLI_weighting_function = (
-    -fp.ice_density
+    -fp.model.parameters.ice_density
     * fp.one_minus_ocean_function
     * fp.greenland_projection(value=0)
     * 1000
-    * fp.length_scale
-    / (fp.water_density * fp.ocean_area)
+    * fp.model.parameters.length_scale
+    / (fp.model.parameters.water_density * fp.ocean_area)
 )
 WAI_weighting_function = (
-    -fp.ice_density
+    -fp.model.parameters.ice_density
     * fp.one_minus_ocean_function
     * fp.west_antarctic_projection(value=0)
     * 1000
-    * fp.length_scale
-    / (fp.water_density * fp.ocean_area)
+    * fp.model.parameters.length_scale
+    / (fp.model.parameters.water_density * fp.ocean_area)
 )
 EAI_weighting_function = (
-    -fp.ice_density
+    -fp.model.parameters.ice_density
     * fp.one_minus_ocean_function
     * fp.east_antarctic_projection(value=0)
     * 1000
-    * fp.length_scale
-    / (fp.water_density * fp.ocean_area)
+    * fp.model.parameters.length_scale
+    / (fp.model.parameters.water_density * fp.ocean_area)
 )
 
-C = averaging_operator(
+C = l2_products_operator(
     model_space,
     [
         GLI_weighting_function,
@@ -426,7 +410,6 @@ property_true = C(model_true)
 property_posterior_measure = (
     model_posterior_measure.affine_mapping(operator=C)
 )
-
 
 property_true = C(model_true)
 property_posterior_measure = (

@@ -22,3 +22,15 @@ from pyslfp_extras.ocean_dynamics import (
 from pyslfp_extras.plotting import (
     plot,
 )
+
+__all__ = [
+    "GridPoints",
+    "altimetry_error_gaussian_measure",
+    "GMSLOperatorBase",
+    "gmsl_from_ice_thickness_operator",
+    "IceSheetChange",
+    "IceSheetChangeSample",
+    "IceThicknessGMSLOperators",
+    "OceanDynamics",
+    "plot",
+]

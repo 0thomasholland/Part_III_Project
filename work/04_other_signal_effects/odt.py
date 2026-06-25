@@ -14,24 +14,28 @@ Run with a cell-aware runner or as a script:
 # %%
 from __future__ import annotations
 
+from pyslfp.linear_operators import (
+    FingerPrintOperator,
+)
+from pyslfp.state import EarthState
+
 import matplotlib.pyplot as plt
 import numpy as np
-import pyslfp as sl
-from pyslfp import FingerPrint, IceModel, plot
+from pyslfp.linear_operators import (
+    FingerPrintOperator,
+)
+from pyslfp.state import EarthState
 
 from pyslfp_extras.ocean_dynamics import OceanDynamics
 
 # %%
 # --- Setup: FingerPrint and operator ---
 lmax = 128
-fp = FingerPrint(lmax=lmax)
-fp.set_state_from_ice_ng(version=IceModel.ICE7G, date=0.0)
+fp = EarthState.from_defaults(lmax=lmax)
 
-fp_op = fp.as_sobolev_linear_operator(
-    2,
-    0.1 * fp.mean_sea_floor_radius,
-)
-
+fp_op = FingerPrintOperator(fp, load_parameters=(2, 0.1 * fp.model.parameters.mean_sea_floor_radius,
+), response_parameters=(2 + 1, 0.1 * fp.model.parameters.mean_sea_floor_radius,
+))
 
 # %%
 # --- Pattern: Uniform ---

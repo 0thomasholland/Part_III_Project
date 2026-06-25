@@ -6,13 +6,16 @@
 
 # %%
 
+from pyslfp import LinearSeaLevelEquation
+from pyslfp.linear_operators.physics import (
+    centrifugal_potential_operator,
+)
+from pyslfp.state import EarthState
 import numpy as np
-from pyslfp import FingerPrint, IceModel, plot
 
 from pyslfp_extras.gmsl import (
     altimetry_gmsl,
     gmsl_error,
-    gmsl_from_ice_load_operator,
 )
 
 # %%
@@ -24,24 +27,22 @@ eais_contribution = np.linspace(0, 1, 20)
 
 print(gis_contribution)
 
-fp = FingerPrint(lmax=128)
-fp.set_state_from_ice_ng(version=IceModel.ICE7G, date=0.0)
+fp = EarthState.from_defaults(lmax=128)
 
 gis_load = fp.greenland_load()
-print(fp.mean_sea_level_change(direct_load=gis_load))
-gis_load /= fp.mean_sea_level_change(direct_load=gis_load)
-print(fp.mean_sea_level_change(direct_load=gis_load))
+print(-fp.model.integrate(gis_load) / (fp.model.parameters.water_density * fp.ocean_area))
+gis_load /= -fp.model.integrate(gis_load) / (fp.model.parameters.water_density * fp.ocean_area)
+print(-fp.model.integrate(gis_load) / (fp.model.parameters.water_density * fp.ocean_area))
 
 eais_load = fp.east_antarctic_load()
-print(fp.mean_sea_level_change(direct_load=eais_load))
-eais_load /= fp.mean_sea_level_change(direct_load=eais_load)
-print(fp.mean_sea_level_change(direct_load=eais_load))
+print(-fp.model.integrate(eais_load) / (fp.model.parameters.water_density * fp.ocean_area))
+eais_load /= -fp.model.integrate(eais_load) / (fp.model.parameters.water_density * fp.ocean_area)
+print(-fp.model.integrate(eais_load) / (fp.model.parameters.water_density * fp.ocean_area))
 
 wais_load = fp.west_antarctic_load()
-print(fp.mean_sea_level_change(direct_load=wais_load))
-wais_load /= fp.mean_sea_level_change(direct_load=wais_load)
-print(fp.mean_sea_level_change(direct_load=wais_load))
-
+print(-fp.model.integrate(wais_load) / (fp.model.parameters.water_density * fp.ocean_area))
+wais_load /= -fp.model.integrate(wais_load) / (fp.model.parameters.water_density * fp.ocean_area)
+print(-fp.model.integrate(wais_load) / (fp.model.parameters.water_density * fp.ocean_area))
 
 # %%
 # for each contribution pre-make ssh SHGrid
@@ -58,14 +59,13 @@ for gis_contrib in gis_contribution:
             + wais_contrib * wais_load
         )
 
-        slc, dis, _, avc = fp(direct_load=total_load)
-        ssh = fp.sea_surface_height_change(slc, dis, avc)
+        slc, dis, _, avc = LinearSeaLevelEquation(fp).solve_sea_level_equation(total_load)
+        ssh = (slc + dis + centrifugal_potential_operator(fp.model)(avc) / fp.model.parameters.gravitational_acceleration)
         if (
             abs(
                 1
-                - fp.mean_sea_level_change(
-                    direct_load=total_load
-                )
+                - -fp.model.integrate(total_load
+                ) / (fp.model.parameters.water_density * fp.ocean_area)
             )
             > 1e-5
         ):

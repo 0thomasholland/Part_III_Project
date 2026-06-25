@@ -9,10 +9,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
-from scipy.stats import norm
 
 from project import colors
-
 
 def gaussian(x, mean, std_dev):
     return (
@@ -20,7 +18,6 @@ def gaussian(x, mean, std_dev):
         / (std_dev * np.sqrt(2 * np.pi))
         * np.exp(-0.5 * ((x - mean) / std_dev) ** 2)
     )
-
 
 # %% [markdown]
 # ## 1. Load Data
@@ -127,7 +124,6 @@ ax.set_title(
 plt.tight_layout()
 ax.legend()
 fig.savefig("z_score_comparison_contour_b.pdf", dpi=600)
-
 
 # %%
 # do the residuals plot but with z scores instead of raw errors

@@ -1,14 +1,12 @@
 # %%
+from pyslfp.linear_operators import (
+    FingerPrintOperator,
+)
+from pyslfp.state import EarthState
 import cartopy.crs as ccrs
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-from pyslfp import (
-    FingerPrint,
-    ice_thickness_change_to_load_operator,
-    plot,
-    sea_surface_height_operator,
-)
 
 mpl.rcParams["figure.dpi"] = 600
 mpl.rcParams["font.size"] = 24
@@ -17,15 +15,14 @@ mpl.rcParams["font.size"] = 24
 # Setup
 order = 2.0
 lmax = 256
-fp = FingerPrint(lmax=lmax)
-fp.set_state_from_ice_ng()
-scale = 0.05 * fp.mean_sea_floor_radius
+fp = EarthState.from_defaults(lmax=lmax)
+scale = 0.05 * fp.model.parameters.mean_sea_floor_radius
 
 # %%
 # Build the operators
 
 # A: load -> [slc, disp, gpc, avc]
-A = fp.as_sobolev_linear_operator(order, scale)
+A = FingerPrintOperator(fp, load_parameters=(order, scale), response_parameters=(order + 1, scale))
 
 # T: ice thickness change -> load
 T = ice_thickness_change_to_load_operator(fp, A.domain)
@@ -129,7 +126,6 @@ fig_ssh_kern.colorbar(
     label="mm / m ice",
 )
 plt.tight_layout()
-
 
 # %%
 plt.show()

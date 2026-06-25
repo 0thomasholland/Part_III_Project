@@ -5,7 +5,6 @@ from numpy.typing import NDArray
 
 # %%
 
-
 def depth_plot(
     formula,
 ):
@@ -69,21 +68,17 @@ def depth_plot(
     axes[3].invert_yaxis()
     return fig, axes
 
-
 # %%
 
 # test with linear density profile
 
-
 def linear_density_profile(depths: NDArray) -> NDArray:
     return 1000 + 0.3 * depths
-
 
 fig, axes = depth_plot(linear_density_profile)
 
 # %%
 # power-law curve
-
 
 def power_law_density_profile(depths: NDArray) -> NDArray:
     _ice_density = 917  # kg/m^3
@@ -93,11 +88,9 @@ def power_law_density_profile(depths: NDArray) -> NDArray:
         _ice_density - _snow_density
     ) * np.exp(-depths / _transition_depth)
 
-
 fig, axes = depth_plot(power_law_density_profile)
 
 # %%
-
 
 def herron_langway(depths: NDArray) -> NDArray:
     # Constants
@@ -137,6 +130,5 @@ def herron_langway(depths: NDArray) -> NDArray:
     rho[mask2] = (rho_i * np.exp(K2)) / (1 + np.exp(K2))
 
     return rho
-
 
 fig, axes = depth_plot(herron_langway)

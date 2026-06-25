@@ -1,13 +1,12 @@
 # %%
+from pyslfp.linear_operators import (
+    FingerPrintOperator,
+)
+from pyslfp.state import EarthState
 import numpy as np
 import pandas as pd
-from joblib import Parallel, delayed
 from pygeoinf import (
     GaussianMeasure,
-)
-from pyslfp import (
-    FingerPrint,
-    IceModel,
 )
 
 from pygeoinf_extras.stats import expectation, standard_dev
@@ -18,13 +17,11 @@ from pyslfp_extras.ice_thickness import (
 
 # %%
 
+fp = EarthState.from_defaults(lmax=256)
 
-fp = FingerPrint(lmax=256)
-fp.set_state_from_ice_ng(version=IceModel.ICE7G, date=0.0)
-
-fp_op = fp.as_sobolev_linear_operator(
-    2, fp.mean_sea_floor_radius * 0.1
-)
+fp_op = FingerPrintOperator(fp, load_parameters=(2, fp.model.parameters.mean_sea_floor_radius * 0.1
+), response_parameters=(2 + 1, fp.model.parameters.mean_sea_floor_radius * 0.1
+))
 
 altimetry_spacing = np.array(
     [20, 15, 10, 5, 2.5, 1, 0.5, 0.25]
@@ -35,7 +32,7 @@ altimetry_spacing = np.array(
 ice_change = IceSheetChange.global_ice(
     finger_print=fp,
     finger_print_operator=fp_op,
-    length_scale=0.2 * fp.mean_sea_floor_radius,
+    length_scale=0.2 * fp.model.parameters.mean_sea_floor_radius,
     pattern=IceSheetChange.UniformPattern(),
     ice_gmsl_std=0.001,
     gmsl_target_mean=0.01,
@@ -78,7 +75,6 @@ results: dict[str, tuple[float, float]] = {
 
 # %%
 
-
 for spacing in altimetry_spacing:
     print(f"Processing spacing: {spacing}")
     grid = GridPoints.ocean_altimetry(fp, spacing, 66.0)
@@ -101,7 +97,6 @@ for spacing in altimetry_spacing:
     print(
         f"Spacing: {spacing}, Expectation: {results[f'{spacing}'][0]}, Std: {results[f'{spacing}'][1]}"
     )
-
 
 # %%
 

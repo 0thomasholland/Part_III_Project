@@ -1,6 +1,10 @@
 # Auto-generated from notebook code cells.
 # Source: notebooks/04 - Ice and Firn.ipynb
 
+from pyslfp.linear_operators import (
+    FingerPrintOperator,
+)
+from pyslfp.state import EarthState
 from pathlib import Path
 
 import cartopy.crs as ccrs
@@ -8,9 +12,7 @@ import colorcet as cc
 import matplotlib.pyplot as plt
 import numpy as np
 from pyshtools import SHGrid
-from pyslfp import FingerPrint, IceModel
 
-from project import colors
 from project.projections import (
     EXTENT_ANTARCTICA,
     EXTENT_GREENLAND,
@@ -22,18 +24,14 @@ from pyslfp_extras.plotting import plot
 
 np.random.seed(42241)
 
-
 SCRIPT_DIR = Path(__file__).resolve().parent
 FIGURES_DIR = SCRIPT_DIR / "figures"
 FIGURES_DIR.mkdir(parents=True, exist_ok=True)
 
-
 def _noop(*_args, **_kwargs):
     return None
 
-
 plt.show = _noop
-
 
 def plot_shgrid_robinson_on_ax(
     shgrid: SHGrid,
@@ -71,7 +69,6 @@ def plot_shgrid_robinson_on_ax(
     ax.coastlines(linewidth=0.8)
     ax.set_global()
     return im
-
 
 def plot_shgrid_polar_on_ax(
     shgrid: SHGrid,
@@ -111,7 +108,6 @@ def plot_shgrid_polar_on_ax(
     ax.set_extent(extent, crs=ccrs.PlateCarree())
     return im
 
-
 def activator_richards(x, x_min, x_max):
     """Richards activation function for ice/firn melt probability.
 
@@ -133,21 +129,17 @@ def activator_richards(x, x_min, x_max):
     )
     return _x
 
-
 def setup_ice_models():
     lmax = 512
-    fp = FingerPrint(lmax=lmax)
-    fp.set_state_from_ice_ng(
-        version=IceModel.ICE7G, date=0.0
-    )
-    fp_op = fp.as_sobolev_linear_operator(
-        2, fp.mean_sea_floor_radius * 0.1
-    )
+    fp = EarthState.from_defaults(lmax=lmax)
+    fp_op = FingerPrintOperator(fp, load_parameters=(2, fp.model.parameters.mean_sea_floor_radius * 0.1
+    ), response_parameters=(2 + 1, fp.model.parameters.mean_sea_floor_radius * 0.1
+    ))
 
     ice_change_uniform = IceSheetChange.global_ice(
         finger_print=fp,
         finger_print_operator=fp_op,
-        length_scale=0.01 * fp.mean_sea_floor_radius,
+        length_scale=0.01 * fp.model.parameters.mean_sea_floor_radius,
         pattern=IceSheetChange.UniformPattern(),
         include_firn=False,
         ice_gmsl_std=0.02,
@@ -166,14 +158,14 @@ def setup_ice_models():
     ice_change_spatial = IceSheetChange.global_ice(
         finger_print=fp,
         finger_print_operator=fp_op,
-        length_scale=0.015 * fp.mean_sea_floor_radius,
-        firn_length_scale=0.002 * fp.mean_sea_floor_radius,
+        length_scale=0.015 * fp.model.parameters.mean_sea_floor_radius,
+        firn_length_scale=0.002 * fp.model.parameters.mean_sea_floor_radius,
         pattern=weighted_pattern,
         ice_gmsl_std=0.02,
         firn_gmsl_std=0.015,
         include_firn=True,
-        ice_density=fp.ice_density,
-        firn_density=0.3 * fp.ice_density,
+        ice_density=fp.model.parameters.ice_density,
+        firn_density=0.3 * fp.model.parameters.ice_density,
     )
 
     return (
@@ -182,7 +174,6 @@ def setup_ice_models():
         ice_change_uniform,
         ice_change_spatial,
     )
-
 
 def save_uniform_field_plot(uniform_sample):
     fig, ax, _ = plot(
@@ -197,7 +188,6 @@ def save_uniform_field_plot(uniform_sample):
         bbox_inches="tight",
     )
     plt.close(fig)
-
 
 def save_variability_side_by_side(weighted_pattern, fp):
     ice_std_field = weighted_pattern.spatial_weights(fp)
@@ -331,7 +321,6 @@ def save_variability_side_by_side(weighted_pattern, fp):
         bbox_inches="tight",
     )
     plt.close(fig)
-
 
 def save_variability_polar_grid(weighted_pattern, fp):
     ice_std_field = weighted_pattern.spatial_weights(fp)
@@ -493,7 +482,6 @@ def save_variability_polar_grid(weighted_pattern, fp):
     )
     plt.close(fig)
 
-
 def save_variable_thickness_load_grid(samples):
     thickness_max = max(
         np.abs(samples.firn_thickness).max(),
@@ -595,7 +583,6 @@ def save_variable_thickness_load_grid(samples):
         bbox_inches="tight",
     )
     plt.close(fig)
-
 
 def save_variable_thickness_load_polar_grid(samples):
     thickness_max = max(
@@ -752,7 +739,6 @@ def save_variable_thickness_load_polar_grid(samples):
     )
     plt.close(fig)
 
-
 def save_activator_function_plot(fp):
     """Save plot of ice and firn melt activation functions."""
     data = fp.ice_thickness.data.flatten()
@@ -791,7 +777,6 @@ def save_activator_function_plot(fp):
     )
     plt.close(fig)
 
-
 def main():
     (
         fp,
@@ -816,7 +801,6 @@ def main():
     save_activator_function_plot(fp)
     print("  saved activator function plot")
     print("All plots saved!")
-
 
 if __name__ == "__main__":
     main()

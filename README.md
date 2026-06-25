@@ -136,4 +136,4 @@ This work builds directly on:
 - [`pygeoinf`](https://github.com/da380/pygeoinf): Bayesian inverse problems on Hilbert spaces
 - [`pyslfp`](https://github.com/da380/pyslfp): sea-level fingerprint physics and operators
 
-Other core scientific dependencies are listed in `pyproject.toml` and include `numpy`, `matplotlib`, `pandas`, `xarray`, `netcdf4`, `seaborn`, `pygmt`, and related tooling.
+Other core scientific dependencies are listed in `pyproject.toml` and include `numpy`, `matplotlib`, `pandas`, `xarray`, `netcdf4`, `seaborn`, and related tooling.

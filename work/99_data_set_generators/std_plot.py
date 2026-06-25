@@ -1,24 +1,22 @@
 # %%
 from __future__ import annotations
 
+from pyslfp.state import EarthState
+
 import pathlib
 
 import numpy as np
 from pyshtools import SHGrid
-from pyslfp import FingerPrint, plot
 
 LMAX = 256
 
-fp = FingerPrint(lmax=LMAX)
-fp.set_state_from_ice_ng()
-
+fp = EarthState.from_defaults(lmax=LMAX)
 
 def _find_project_root(start: pathlib.Path) -> pathlib.Path:
     for candidate in (start, *start.parents):
         if (candidate / "src" / "pyslfp_extras").exists():
             return candidate
     return start
-
 
 try:
     _start_path = pathlib.Path(__file__).resolve()

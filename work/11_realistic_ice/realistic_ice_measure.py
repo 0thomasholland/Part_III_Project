@@ -1,36 +1,33 @@
 # %%
 
+from pyslfp.linear_operators import (
+    FingerPrintOperator,
+)
+from pyslfp.state import EarthState
 import colorcet as cc
 import numpy as np
-from matplotlib import pyplot as plt
-from pyslfp import FingerPrint, IceModel
 
-from pygeoinf_extras import expectation, standard_dev
-from pyslfp_extras.gmsl import (
-    gmsl_from_ice_thickness_operator,
-)
 from pyslfp_extras.ice_thickness import (
     IceSheetChange,
 )
 from pyslfp_extras.plotting import plot
 
-fp = FingerPrint(lmax=256)
-fp.set_state_from_ice_ng(version=IceModel.ICE7G, date=0.0)
-fp_op = fp.as_sobolev_linear_operator(
-    2, fp.mean_sea_floor_radius * 0.1
-)
+fp = EarthState.from_defaults(lmax=256)
+fp_op = FingerPrintOperator(fp, load_parameters=(2, fp.model.parameters.mean_sea_floor_radius * 0.1
+), response_parameters=(2 + 1, fp.model.parameters.mean_sea_floor_radius * 0.1
+))
 # %%
 
 ice_change_spatial = IceSheetChange.global_ice(
     finger_print=fp,
     finger_print_operator=fp_op,
-    length_scale=0.01 * fp.mean_sea_floor_radius,
+    length_scale=0.01 * fp.model.parameters.mean_sea_floor_radius,
     pattern=IceSheetChange.ThicknessWeightedPattern(),
     ice_gmsl_std=0.02,
     firn_gmsl_std=0.01,
     include_firn=True,
-    ice_density=fp.ice_density,
-    firn_density=fp.ice_density * 0.4,
+    ice_density=fp.model.parameters.ice_density,
+    firn_density=fp.model.parameters.ice_density * 0.4,
 )
 print("done generation")
 samples = ice_change_spatial.sample()
@@ -95,7 +92,6 @@ plot(
     tight_layout=True,
     colorbar_label="Total load change (kg/m²)",
 )[0].savefig("figs/total_load.pdf", dpi=600)
-
 
 # %%
 plot(

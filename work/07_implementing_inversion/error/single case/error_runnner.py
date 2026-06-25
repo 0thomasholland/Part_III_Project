@@ -1,9 +1,13 @@
 # %%
+from pyslfp.linear_operators import (
+    FingerPrintOperator,
+    l2_products_operator,
+)
+from pyslfp.state import EarthState
 import pickle
 import uuid
 from pathlib import Path
 
-import numpy as np
 from joblib import Parallel, delayed
 from pygeoinf import (
     CGMatrixSolver,
@@ -12,11 +16,6 @@ from pygeoinf import (
     LinearForwardProblem,
     LinearOperator,
 )
-from pyslfp import (
-    FingerPrint,
-    IceModel,
-    averaging_operator,
-)
 
 from pygeoinf_extras import expectation, standard_dev
 from pyslfp_extras.altimetry import GridPoints
@@ -24,12 +23,11 @@ from pyslfp_extras.ice_thickness import (
     IceSheetChange,
 )
 
-fp = FingerPrint(lmax=256)
-fp.set_state_from_ice_ng(version=IceModel.ICE7G, date=0.0)
+fp = EarthState.from_defaults(lmax=256)
 
-fp_op = fp.as_sobolev_linear_operator(
-    2, fp.mean_sea_floor_radius * 0.1
-)
+fp_op = FingerPrintOperator(fp, load_parameters=(2, fp.model.parameters.mean_sea_floor_radius * 0.1
+), response_parameters=(2 + 1, fp.model.parameters.mean_sea_floor_radius * 0.1
+))
 
 # %%
 
@@ -42,7 +40,7 @@ ice_gmsl_target = 0.01
 ice_change = IceSheetChange.global_ice(
     finger_print=fp,
     finger_print_operator=fp_op,
-    length_scale=0.1 * fp.mean_sea_floor_radius,
+    length_scale=0.1 * fp.model.parameters.mean_sea_floor_radius,
     pattern=IceSheetChange.ThicknessWeightedPattern(),
     ice_gmsl_std=ice_gmsl_target,
     point_degree_spacing=altimetry_degree_density,
@@ -67,7 +65,6 @@ grid_points = GridPoints.ocean_altimetry(
 
 number_grid_points = grid_points.coords
 
-
 data_space = (
     ice_thickness_to_ssh_point_estimations_op.codomain
 )
@@ -89,7 +86,6 @@ forward_problem = LinearForwardProblem(
 bayesian_inversion = LinearBayesianInversion(
     forward_problem, ice_thickness_measure
 )
-
 
 def inversion_func() -> str:
     output_dir = Path("inversion_results")
@@ -126,16 +122,16 @@ def inversion_func() -> str:
 
         # Set the weighting function for GMSL estimates  - Note that length scale factor to dimensionalise the result into mm
         GMSL_weighting_function = (
-            -fp.ice_density
+            -fp.model.parameters.ice_density
             * fp.one_minus_ocean_function
             * fp.ice_projection(value=0)
             * 1000
-            * fp.length_scale
-            / (fp.water_density * fp.ocean_area)
+            * fp.model.parameters.length_scale
+            / (fp.model.parameters.water_density * fp.ocean_area)
         )
 
         # Form the mapping to GSML.
-        B = averaging_operator(
+        B = l2_products_operator(
             model_space, [GMSL_weighting_function]
         )
 
@@ -183,7 +179,6 @@ def inversion_func() -> str:
 
     except Exception as e:
         return f"Error in worker: {str(e)}"
-
 
 # Total number of random samples you want to collect
 TOTAL_SAMPLES = 70

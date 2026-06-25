@@ -2,6 +2,10 @@
 # Source: notebooks/05 - Altimetry Sampling.ipynb
 
 # ---- Notebook code cell 1 ----
+from pyslfp.linear_operators import (
+    FingerPrintOperator,
+)
+from pyslfp.state import EarthState
 from pathlib import Path
 
 import cartopy.crs as ccrs
@@ -12,13 +16,10 @@ np.random.seed(120105)
 import seaborn as sns
 from scipy.stats import norm
 
-from pygeoinf import GaussianMeasure
-from pyslfp import FingerPrint, IceModel, averaging_operator
 
-from project import colors, error_plot
+from project import error_plot
 from pygeoinf_extras.operators import (
     point_averaging_area_weighted_operator,
-    point_averaging_operator,
 )
 from pygeoinf_extras.stats import expectation, standard_dev
 from pyslfp_extras.altimetry import GridPoints
@@ -30,7 +31,6 @@ FIGURES_DIR = SCRIPT_DIR / "figures"
 FIGURES_DIR.mkdir(parents=True, exist_ok=True)
 plt.show = lambda *args, **kwargs: None
 print = lambda *args, **kwargs: None
-
 
 def _save_all_figures(prefix):
     for index, figure_number in enumerate(
@@ -44,21 +44,19 @@ def _save_all_figures(prefix):
         )
     plt.close("all")
 
-
 # ---- Notebook code cell 2 ----
 lmax = 128
 ALTIMETRY_LATITUDE_RANGE = 66.0
 
-fp = FingerPrint(lmax=lmax)
-fp.set_state_from_ice_ng(version=IceModel.ICE7G, date=0.0)
-fp_op = fp.as_sobolev_linear_operator(
-    2, fp.mean_sea_floor_radius * 0.1
-)
+fp = EarthState.from_defaults(lmax=lmax)
+fp_op = FingerPrintOperator(fp, load_parameters=(2, fp.model.parameters.mean_sea_floor_radius * 0.1
+), response_parameters=(2 + 1, fp.model.parameters.mean_sea_floor_radius * 0.1
+))
 
 ice_change = IceSheetChange.global_ice(
     finger_print=fp,
     finger_print_operator=fp_op,
-    length_scale=0.2 * fp.mean_sea_floor_radius,
+    length_scale=0.2 * fp.model.parameters.mean_sea_floor_radius,
     pattern=IceSheetChange.UniformPattern(),
     ice_gmsl_std=0.001,
     gmsl_target_mean=0.01,
@@ -179,7 +177,7 @@ continuous_gmsl = load_measure.affine_mapping(
 )
 
 # Point-sampled GMSL (arithmetic mean of point evaluations)
-point_avg_op = point_averaging_operator(
+point_avg_op = point_l2_products_operator(
     point_ssh_op.codomain
 )
 point_gmsl = load_measure.affine_mapping(
@@ -220,7 +218,7 @@ for spacing in altimetry_spacings:
     )
     point_op = grid.point_evaluation_operator(ssh_space)
     gmsl_op = (
-        point_averaging_operator(point_op.codomain)
+        point_l2_products_operator(point_op.codomain)
         @ point_op
         @ ssh_operator
     )
@@ -344,7 +342,7 @@ load_to_point_ssh = (
 point_ssh_space = load_to_point_ssh.codomain
 
 # Unweighted (1/N) point mean
-avg_unweighted = point_averaging_operator(point_ssh_space)
+avg_unweighted = point_l2_products_operator(point_ssh_space)
 gmsl_op_unweighted = avg_unweighted @ load_to_point_ssh
 
 # Area-weighted cos(lat) point mean

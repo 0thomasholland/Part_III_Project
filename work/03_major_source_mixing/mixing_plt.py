@@ -1,6 +1,5 @@
 # %%
 import matplotlib.pyplot as plt
-import mpltern
 import numpy as np
 
 # %%
@@ -29,7 +28,6 @@ value = 100 * float(
         np.abs(np.min(errors)), np.abs(np.max(errors))
     )
 )
-
 
 for latitude in np.unique(latitudes):
     mask = latitudes == latitude

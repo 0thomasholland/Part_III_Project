@@ -5,14 +5,16 @@
 #
 
 # %%
+from pyslfp.linear_operators import (
+    FingerPrintOperator,
+)
+from pyslfp.state import EarthState
 import numpy as np
 from joblib import Parallel, delayed
 from pygeoinf import GaussianMeasure
-from pyslfp import FingerPrint, IceModel
 
 from project.operators import (
     ice_thickness_to_estimated_gmsl_operator,
-    ice_thickness_to_gmsl_estimation_error_operator,
 )
 from pygeoinf_extras import expectation, variance
 from pyslfp_extras.gmsl import (
@@ -33,14 +35,13 @@ altimetry_latitudes = np.linspace(10, 90, 100)
 gmsl_target_stds = np.array([1.0])
 gmsl_target_means = np.array([0.0])
 
-fp = FingerPrint(lmax=128)
-fp.set_state_from_ice_ng(version=IceModel.ICE7G, date=0.0)
+fp = EarthState.from_defaults(lmax=128)
 
-fp_op = fp.as_sobolev_linear_operator(
-    2, fp.mean_sea_floor_radius * 0.1
-)
+fp_op = FingerPrintOperator(fp, load_parameters=(2, fp.model.parameters.mean_sea_floor_radius * 0.1
+), response_parameters=(2 + 1, fp.model.parameters.mean_sea_floor_radius * 0.1
+))
 
-length_scale = 0.2 * fp.mean_sea_floor_radius
+length_scale = 0.2 * fp.model.parameters.mean_sea_floor_radius
 
 # %%
 # Create Gaussian measures for each major ice sheet source
@@ -124,7 +125,6 @@ true_gmsl_measures = {}
 
 # parallel version
 
-
 def compute_measures(
     source: str, latitude: float, mean: float, std: float
 ) -> tuple[
@@ -162,7 +162,6 @@ def compute_measures(
         _estimate_measure,
         _error_measure,
     )
-
 
 results = Parallel(n_jobs=-1, verbose=5)(
     delayed(compute_measures)(source, latitude, mean, std)
@@ -206,7 +205,6 @@ true_gmsl_stats = {}
 
 # parallel version
 
-
 def compute_stats(
     key: tuple[str, float, float, float],
     measure: GaussianMeasure,
@@ -216,7 +214,6 @@ def compute_stats(
     expectation_value = expectation(measure)
     std_value = np.sqrt(variance(measure))
     return key, (expectation_value, std_value)
-
 
 results = Parallel(n_jobs=-1, verbose=5)(
     delayed(compute_stats)(key, measure)

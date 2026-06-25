@@ -1,3 +1,7 @@
+from pyslfp.linear_operators import (
+    FingerPrintOperator,
+)
+from pyslfp.state import EarthState
 """Combined SSH figure: expectations and samples in a 2-2-1 grid layout.
 
 Produces two figures (6.5" × 7"), each with 5 panels replicating the layout
@@ -12,7 +16,6 @@ import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
 import numpy as np
 from pyshtools import SHGrid
-from pyslfp import FingerPrint, IceModel
 
 from project import (
     colors,  # noqa: F401 — sets default fonts/style
@@ -27,11 +30,9 @@ FIGURES_DIR.mkdir(parents=True, exist_ok=True)
 
 plt.show = lambda *args, **kwargs: None
 
-
 # ---------------------------------------------------------------------------
 # Helper: plot an SHGrid onto an existing Robinson-projection axes
 # ---------------------------------------------------------------------------
-
 
 def plot_shgrid_robinson_on_ax(
     shgrid: SHGrid,
@@ -70,11 +71,9 @@ def plot_shgrid_robinson_on_ax(
     ax.set_global()
     return im
 
-
 # ---------------------------------------------------------------------------
 # Figure construction
 # ---------------------------------------------------------------------------
-
 
 def make_ssh_grid_figure(panels, title: str) -> plt.Figure:
     """Create the 2-2-1 grid figure.
@@ -123,21 +122,19 @@ def make_ssh_grid_figure(panels, title: str) -> plt.Figure:
     # fig.suptitle(title, y=1.01, fontsize=10)
     return fig
 
-
 # ---------------------------------------------------------------------------
 # Setup
 # ---------------------------------------------------------------------------
 
-fp = FingerPrint(lmax=256)
-fp.set_state_from_ice_ng(version=IceModel.ICE7G, date=0.0)
-fp_op = fp.as_sobolev_linear_operator(
-    2, fp.mean_sea_floor_radius * 0.1
-)
+fp = EarthState.from_defaults(lmax=256)
+fp_op = FingerPrintOperator(fp, load_parameters=(2, fp.model.parameters.mean_sea_floor_radius * 0.1
+), response_parameters=(2 + 1, fp.model.parameters.mean_sea_floor_radius * 0.1
+))
 
 ice_change = IceSheetChange.global_ice(
     finger_print=fp,
     finger_print_operator=fp_op,
-    length_scale=0.2 * fp.mean_sea_floor_radius,
+    length_scale=0.2 * fp.model.parameters.mean_sea_floor_radius,
     pattern=IceSheetChange.UniformPattern(),
     ice_gmsl_std=0.001,
     gmsl_target_mean=0.01,
@@ -226,7 +223,6 @@ s_err = (
     * fp.ocean_projection()
 ) * 1000
 
-
 def _bounds(field):
     d = np.asarray(field.data)
     return {
@@ -234,7 +230,6 @@ def _bounds(field):
         "vmin": float(np.nanmin(d)),
         "vmax": float(np.nanmax(d)),
     }
-
 
 samp_panels = [
     (

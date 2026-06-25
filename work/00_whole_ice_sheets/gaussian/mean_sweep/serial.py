@@ -1,22 +1,21 @@
-import pickle
+from pyslfp.linear_operators import (
+    FingerPrintOperator,
+)
+from pyslfp.state import EarthState
 from time import perf_counter
 
-from joblib import Parallel, delayed
 from numpy import linspace
 from pandas import DataFrame
-from pyslfp import FingerPrint, IceModel
 
 from pygeoinf_extras import expectation, standard_dev
 from pyslfp_extras.ice_thickness import IceSheetChange
 
 t0 = perf_counter()
-fp = FingerPrint(lmax=256)
-fp.set_state_from_ice_ng(version=IceModel.ICE7G, date=0.0)
+fp = EarthState.from_defaults(lmax=256)
 
-fp_op = fp.as_sobolev_linear_operator(
-    2, fp.mean_sea_floor_radius * 0.1
-)
-
+fp_op = FingerPrintOperator(fp, load_parameters=(2, fp.model.parameters.mean_sea_floor_radius * 0.1
+), response_parameters=(2 + 1, fp.model.parameters.mean_sea_floor_radius * 0.1
+))
 
 means = linspace(
     -0.1, 0.1, 20
@@ -30,13 +29,12 @@ results = []
 
 t1 = perf_counter()
 
-
 def compute_posterior(mean, std):
     """Modified to return data instead of writing to a global dict"""
     ice_change = IceSheetChange.global_ice(
         finger_print=fp,
         finger_print_operator=fp_op,
-        length_scale=0.2 * fp.mean_sea_floor_radius,
+        length_scale=0.2 * fp.model.parameters.mean_sea_floor_radius,
         pattern=IceSheetChange.UniformPattern(),
         ice_gmsl_std=std,
         gmsl_target_mean=mean,
@@ -66,7 +64,6 @@ def compute_posterior(mean, std):
         "error_exp": float(expectation(error)),
         "error_std": float(standard_dev(error)),
     }
-
 
 t2 = perf_counter()
 

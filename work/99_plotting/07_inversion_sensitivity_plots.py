@@ -2,8 +2,12 @@
 # Source: notebooks/07 - Inversion Sensitivity.ipynb
 
 # ---- Notebook code cell 1 ----
+from pyslfp.linear_operators import (
+    FingerPrintOperator,
+    l2_products_operator,
+)
+from pyslfp.state import EarthState
 import cartopy.crs as ccrs
-import colorcet as cc
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -13,19 +17,11 @@ from pathlib import Path
 from scipy import stats
 from tqdm import tqdm
 from pygeoinf import (
-    CholeskySolver,
     CGMatrixSolver,
     GaussianMeasure,
     LinearBayesianInversion,
     LinearForwardProblem,
 )
-from pygeoinf.symmetric_space.sphere import SphereHelper
-from pyslfp import (
-    FingerPrint,
-    IceModel,
-    averaging_operator,
-)
-
 from project import colors
 from pyslfp_extras.ice_thickness import IceSheetChange
 from pyshtools import SHGrid
@@ -39,7 +35,6 @@ FIGURES_DIR.mkdir(parents=True, exist_ok=True)
 plt.show = lambda *args, **kwargs: None
 print = lambda *args, **kwargs: None
 
-
 def _save_all_figures(prefix):
     for index, figure_number in enumerate(
         plt.get_fignums(), start=1
@@ -52,20 +47,18 @@ def _save_all_figures(prefix):
         )
     plt.close("all")
 
-
 # ---- Notebook code cell 2 ----
 lmax = 128
 altimetry_degree_density = 5.0
 
 # --- Initialise fingerprint model ---
-fp = FingerPrint(lmax=lmax)
-fp.set_state_from_ice_ng(version=IceModel.ICE7G, date=0.0)
-fp_op = fp.as_sobolev_linear_operator(
-    2, fp.mean_sea_floor_radius * 0.1
-)
+fp = EarthState.from_defaults(lmax=lmax)
+fp_op = FingerPrintOperator(fp, load_parameters=(2, fp.model.parameters.mean_sea_floor_radius * 0.1
+), response_parameters=(2 + 1, fp.model.parameters.mean_sea_floor_radius * 0.1
+))
 
 # --- Truth prior: moderate length scale, small GMSL std ---
-truth_length_scale = 0.1 * fp.mean_sea_floor_radius
+truth_length_scale = 0.1 * fp.model.parameters.mean_sea_floor_radius
 truth_gmsl_std = 0.01
 
 truth_ice_change = IceSheetChange.global_ice(
@@ -92,14 +85,14 @@ ice_thickness_to_slc_op = (
 
 # GMSL property operator (mm)
 GMSL_weighting_function = (
-    -fp.ice_density
+    -fp.model.parameters.ice_density
     * fp.one_minus_ocean_function
     * fp.ice_projection(value=0)
     * 1000
-    * fp.length_scale
-    / (fp.water_density * fp.ocean_area)
+    * fp.model.parameters.length_scale
+    / (fp.model.parameters.water_density * fp.ocean_area)
 )
-B = averaging_operator(
+B = l2_products_operator(
     model_space, [GMSL_weighting_function]
 )
 
@@ -133,14 +126,13 @@ model_true, data = forward_problem.synthetic_model_and_data(
     truth_prior_measure
 )
 
-
 # --- True GMSL ---
 GMSL_true = B(model_true)[0]
 print(f"True GMSL contribution: {GMSL_true:.4f} mm")
 
 # ---- Notebook code cell 4 ----
 fig, ax, im = plot(
-    model_true * fp.length_scale * fp.ice_projection(),
+    model_true * fp.model.parameters.length_scale * fp.ice_projection(),
     coasts=True,
     cmap="seismic",
     symmetric=True,
@@ -153,7 +145,6 @@ fig.savefig(
     bbox_inches="tight",
 )
 plt.show()
-
 
 # ---- Notebook code cell 5 ----
 def run_inversion(ice_change: IceSheetChange):
@@ -188,7 +179,6 @@ def run_inversion(ice_change: IceSheetChange):
     pbar.close()
 
     return returnable
-
 
 # ---- Notebook code cell 6 ----
 def plot_shgrid_robinson_on_ax(
@@ -234,7 +224,6 @@ def plot_shgrid_robinson_on_ax(
     ax.set_global()
     return im
 
-
 def scalar_z_score(
     estimate: float, truth: float, std_dev: float
 ) -> float:
@@ -244,7 +233,6 @@ def scalar_z_score(
             "Standard deviation must be positive when computing a z-score."
         )
     return (estimate - truth) / std_dev
-
 
 def gaussian_measure_summary(
     measure: GaussianMeasure,
@@ -257,7 +245,6 @@ def gaussian_measure_summary(
     )
     z_score = scalar_z_score(mean, truth, std_dev)
     return z_score, mean, std_dev
-
 
 def centered_x_range_from_measures(
     measures: list[GaussianMeasure],
@@ -278,7 +265,6 @@ def centered_x_range_from_measures(
 
     half_width = max(half_width, 1e-6)
     return truth - half_width, truth + half_width
-
 
 def plot_gmsl_sensitivity(
     prior_measures,
@@ -435,7 +421,6 @@ def plot_gmsl_sensitivity(
             f"(mean = {post_mean:.2f} mm, std = {post_std:.2f} mm)"
         )
 
-
 # ---- Notebook code cell 7 ----
 # Baseline inversion with the same prior settings used to generate truth
 posterior_true, prior_true = run_inversion(truth_ice_change)
@@ -518,11 +503,11 @@ ax_pdf.legend(
 sns.despine(ax=ax_pdf)
 
 true_thickness = (
-    model_true * fp.length_scale * fp.ice_projection()
+    model_true * fp.model.parameters.length_scale * fp.ice_projection()
 )
 posterior_thickness = (
     posterior_true.expectation
-    * fp.length_scale
+    * fp.model.parameters.length_scale
     * fp.ice_projection()
 )
 
@@ -581,7 +566,7 @@ print(
 
 # ---- Notebook code cell 9 ----
 length_scales = (
-    np.array([0.05, 0.15, 0.4]) * fp.mean_sea_floor_radius
+    np.array([0.05, 0.15, 0.4]) * fp.model.parameters.mean_sea_floor_radius
 )
 
 prior_measures_ls = []
@@ -611,7 +596,7 @@ plot_gmsl_sensitivity(
     prior_measures_ls,
     posterior_measures_ls,
     param_values=[
-        f"{v / (0.1 * fp.mean_sea_floor_radius):.1f}x ({v / 1000:.2f} km)"
+        f"{v / (0.1 * fp.model.parameters.mean_sea_floor_radius):.1f}x ({v / 1000:.2f} km)"
         for v in length_scales
     ],
     param_label="Length scale",
@@ -629,7 +614,7 @@ posterior_measures_off = []
 
 for offset_mm in offsets_mm:
     print(f"\nGMSL target mean: {offset_mm} mm")
-    target_nd = offset_mm / (1000 * fp.length_scale)
+    target_nd = offset_mm / (1000 * fp.model.parameters.length_scale)
 
     ic = IceSheetChange.global_ice(
         finger_print=fp,

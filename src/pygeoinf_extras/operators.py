@@ -1,7 +1,6 @@
 import numpy as np
 from pygeoinf import (
     EuclideanSpace,
-    GaussianMeasure,
     LinearOperator,
     MatrixLinearOperator,
 )

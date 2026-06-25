@@ -1,7 +1,11 @@
 # %%
+from pyslfp import LinearSeaLevelEquation
+from pyslfp.linear_operators.physics import (
+    centrifugal_potential_operator,
+)
+from pyslfp.state import EarthState
 import numpy as np
 from numpy.typing import NDArray
-from pyslfp import FingerPrint, IceModel, plot
 
 from pyslfp_extras.gmsl import altimetry_gmsl, gmsl_error
 
@@ -11,9 +15,7 @@ alimetry_resolution = (
 
 latitudes = np.linspace(1, 90, alimetry_resolution)
 
-fp = FingerPrint(lmax=256)
-fp.set_state_from_ice_ng(version=IceModel.ICE7G, date=0.0)
-
+fp = EarthState.from_defaults(lmax=256)
 
 # %% load setting
 load = fp.direct_load_from_ice_thickness_change(
@@ -21,23 +23,21 @@ load = fp.direct_load_from_ice_thickness_change(
 )
 # normalise the load to 1mm gmsl change
 plot(load * fp.ice_projection())
-print(fp.mean_sea_level_change(direct_load=load))
+print(-fp.model.integrate(load) / (fp.model.parameters.water_density * fp.ocean_area))
 
-load /= fp.mean_sea_level_change(direct_load=load)
+load /= -fp.model.integrate(load) / (fp.model.parameters.water_density * fp.ocean_area)
 plot(load * fp.ice_projection())
-print(gmsl := fp.mean_sea_level_change(direct_load=load))
+print(gmsl := -fp.model.integrate(load) / (fp.model.parameters.water_density * fp.ocean_area))
 
 # %%
 
-slc, dis, _, avc = fp(direct_load=load)
-ssh = fp.sea_surface_height_change(slc, dis, avc)
+slc, dis, _, avc = LinearSeaLevelEquation(fp).solve_sea_level_equation(load)
+ssh = (slc + dis + centrifugal_potential_operator(fp.model)(avc) / fp.model.parameters.gravitational_acceleration)
 ssh_altimetry = ssh * fp.altimetry_projection(
     latitude_max=66, latitude_min=-66
 )
 
-
 plotting_value = max(np.abs(ssh).max(), np.abs(slc).max())
-
 
 fig1, ax1, im1 = plot(
     slc * fp.ocean_projection(),

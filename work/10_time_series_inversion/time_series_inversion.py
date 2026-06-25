@@ -1,8 +1,11 @@
 # %%
+from pyslfp.linear_operators import (
+    FingerPrintOperator,
+    l2_products_operator,
+)
+from pyslfp.state import EarthState
 from pathlib import Path
 
-import cartopy.crs as ccrs
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import xarray as xr
@@ -12,20 +15,9 @@ from pygeoinf import (
     LinearBayesianInversion,
     LinearForwardProblem,
     LinearOperator,
-    plot_1d_distributions,
-    plot_corner_distributions,
-)
-from pyslfp import (
-    FingerPrint,
-    IceModel,
-    averaging_operator,
-    plot,
 )
 from tqdm import tqdm
 
-from project import (
-    ice_thickness_to_slc_operator,
-)
 from project.operators import (
     ice_thickness_to_ssh_point_estimations_operator,
 )
@@ -41,18 +33,17 @@ YEAR_START = 1993
 YEAR_END = 2020
 ALTIMETRY_DEGREE_SPACING = 3.0
 
-fp = FingerPrint(lmax=128)
-fp.set_state_from_ice_ng(version=IceModel.ICE7G, date=0.0)
+fp = EarthState.from_defaults(lmax=128)
 
-fp_op = fp.as_sobolev_linear_operator(
-    2, fp.mean_sea_floor_radius * 0.1
-)
+fp_op = FingerPrintOperator(fp, load_parameters=(2, fp.model.parameters.mean_sea_floor_radius * 0.1
+), response_parameters=(2 + 1, fp.model.parameters.mean_sea_floor_radius * 0.1
+))
 
 # %%
 ice_change = IceSheetChange.global_ice(
     finger_print=fp,
     finger_print_operator=fp_op,
-    length_scale=0.1 * fp.mean_sea_floor_radius,
+    length_scale=0.1 * fp.model.parameters.mean_sea_floor_radius,
     pattern=IceSheetChange.ThicknessWeightedPattern(),
     ice_gmsl_std=0.015,  # 15 mm of uncertainty in GMSL change from ice melt over the year
     gmsl_target_mean=0.003,  # 3 mm of GMSL change from ice melt over the year
@@ -107,43 +98,42 @@ error_sampling_points = (
 #     ).point_evaluation_operator(error_field_measure.domain)
 # )
 
-
 # %%
 
 GIS_weighting_function = (
-    -fp.ice_density
+    -fp.model.parameters.ice_density
     * fp.one_minus_ocean_function
     * fp.greenland_projection(value=0)
     * 1000
-    * fp.length_scale
-    / (fp.water_density * fp.ocean_area)
+    * fp.model.parameters.length_scale
+    / (fp.model.parameters.water_density * fp.ocean_area)
 )
 WAIS_weighting_function = (
-    -fp.ice_density
+    -fp.model.parameters.ice_density
     * fp.one_minus_ocean_function
     * fp.west_antarctic_projection(value=0)
     * 1000
-    * fp.length_scale
-    / (fp.water_density * fp.ocean_area)
+    * fp.model.parameters.length_scale
+    / (fp.model.parameters.water_density * fp.ocean_area)
 )
 EAIS_weighting_function = (
-    -fp.ice_density
+    -fp.model.parameters.ice_density
     * fp.one_minus_ocean_function
     * fp.east_antarctic_projection(value=0)
     * 1000
-    * fp.length_scale
-    / (fp.water_density * fp.ocean_area)
+    * fp.model.parameters.length_scale
+    / (fp.model.parameters.water_density * fp.ocean_area)
 )
 GLOBAL_weighting_function = (
-    -fp.ice_density
+    -fp.model.parameters.ice_density
     * fp.one_minus_ocean_function
     * fp.ice_projection(value=0)
     * 1000
-    * fp.length_scale
-    / (fp.water_density * fp.ocean_area)
+    * fp.model.parameters.length_scale
+    / (fp.model.parameters.water_density * fp.ocean_area)
 )
 model_space = ice_thickness_measure.domain
-C = averaging_operator(
+C = l2_products_operator(
     model_space,
     [
         GIS_weighting_function,
@@ -152,19 +142,17 @@ C = averaging_operator(
     ],
 )
 
-D = averaging_operator(
+D = l2_products_operator(
     model_space,
     [
         GLOBAL_weighting_function,
     ],
 )
 
-
 def progress_callback(xk):
     residuals.append(np.linalg.norm(xk))
     pbar.set_postfix({"||x||": f"{residuals[-1]:.2e}"})
     pbar.update(1)
-
 
 # %%
 
@@ -316,7 +304,6 @@ for year in range(YEAR_START, YEAR_END + 1):
 # %%
 
 print(output_data)
-
 
 # %%
 

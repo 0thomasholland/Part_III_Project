@@ -2,32 +2,27 @@
 # Source: notebooks/06 - Simple Inversion.ipynb
 # %%
 # ---- Notebook code cell 1 ----
-import colorcet as cc
+from pyslfp.linear_operators import (
+    FingerPrintOperator,
+    l2_products_operator,
+)
+from pyslfp.state import EarthState
 import matplotlib.pyplot as plt
 import numpy as np
 
 np.random.seed(120106)
 from pathlib import Path
 
-import seaborn as sns
 from pygeoinf import (
     CGMatrixSolver,
     GaussianMeasure,
     LinearBayesianInversion,
     LinearForwardProblem,
 )
-from pyslfp import (
-    FingerPrint,
-    IceModel,
-    averaging_operator,
-)
 from tqdm import tqdm
 
 from project import colors
 from pygeoinf_extras import standard_dev
-from pygeoinf_extras.operators import (
-    point_averaging_operator,
-)
 from pyslfp_extras.ice_thickness import IceSheetChange
 from pyslfp_extras.plotting import plot
 
@@ -41,7 +36,6 @@ FIGURES_DIR.mkdir(parents=True, exist_ok=True)
 plt.show = lambda *args, **kwargs: None
 print = lambda *args, **kwargs: None
 
-
 def _save_all_figures(prefix):
     for index, figure_number in enumerate(
         plt.get_fignums(), start=1
@@ -54,21 +48,19 @@ def _save_all_figures(prefix):
         )
     plt.close("all")
 
-
 # ---- Notebook code cell 2 ----
 lmax = 128
 altimetry_degree_density = 5.0
 
-fp = FingerPrint(lmax=lmax)
-fp.set_state_from_ice_ng(version=IceModel.ICE7G, date=0.0)
-fp_op = fp.as_sobolev_linear_operator(
-    2, fp.mean_sea_floor_radius * 0.1
-)
+fp = EarthState.from_defaults(lmax=lmax)
+fp_op = FingerPrintOperator(fp, load_parameters=(2, fp.model.parameters.mean_sea_floor_radius * 0.1
+), response_parameters=(2 + 1, fp.model.parameters.mean_sea_floor_radius * 0.1
+))
 
 ice_change = IceSheetChange.global_ice(
     finger_print=fp,
     finger_print_operator=fp_op,
-    length_scale=0.1 * fp.mean_sea_floor_radius,
+    length_scale=0.1 * fp.model.parameters.mean_sea_floor_radius,
     pattern=IceSheetChange.ThicknessWeightedPattern(),
     ice_gmsl_std=0.01,
     point_degree_spacing=altimetry_degree_density,
@@ -125,12 +117,10 @@ bayesian_inversion = LinearBayesianInversion(
 residuals = []
 pbar = tqdm(desc="CG solve")
 
-
 def progress_callback(xk):
     residuals.append(np.linalg.norm(xk))
     pbar.set_postfix({"||x||": f"{residuals[-1]:.2e}"})
     pbar.update(1)
-
 
 model_posterior_measure = (
     bayesian_inversion.model_posterior_measure(
@@ -157,13 +147,13 @@ max_abs_ice_change = (
         )
     )
     * 1000
-    * fp.length_scale
+    * fp.model.parameters.length_scale
 )
 
 fig1, ax1, im1 = plot(
     1000
     * model_true
-    * fp.length_scale
+    * fp.model.parameters.length_scale
     * fp.ice_projection(),
     coasts=True,
     cmap="seismic",
@@ -181,7 +171,7 @@ fig1.savefig(
 fig2, ax2, im2 = plot(
     1000
     * model_posterior_expectation
-    * fp.length_scale
+    * fp.model.parameters.length_scale
     * fp.ice_projection(),
     coasts=True,
     cmap="seismic",
@@ -215,14 +205,12 @@ if isinstance(sea_level_true, list):
 if isinstance(sea_level_posterior, list):
     sea_level_posterior = sea_level_posterior[0]
 
-
 def as_array(grid):
     if hasattr(grid, "to_array"):
         return grid.to_array()
     if hasattr(grid, "data"):
         return grid.data
     return np.asarray(grid)
-
 
 max_abs_sl_change = (
     np.nanmax(
@@ -236,13 +224,13 @@ max_abs_sl_change = (
         )
     )
     * 1000
-    * fp.length_scale
+    * fp.model.parameters.length_scale
 )
 
 fig4, ax4, im4 = plot(
     1000
     * sea_level_true
-    * fp.length_scale
+    * fp.model.parameters.length_scale
     * fp.ocean_projection(),
     cmap="seismic",
     vmin=-max_abs_sl_change,
@@ -259,7 +247,7 @@ fig4.savefig(
 fig5, ax5, im5 = plot(
     1000
     * sea_level_posterior
-    * fp.length_scale
+    * fp.model.parameters.length_scale
     * fp.ocean_projection(),
     cmap="seismic",
     vmin=-max_abs_sl_change,
@@ -277,14 +265,14 @@ plt.show()
 
 # ---- Notebook code cell 7 ----
 GMSL_weighting_function = (
-    -fp.ice_density
+    -fp.model.parameters.ice_density
     * fp.one_minus_ocean_function
     * fp.ice_projection(value=0)
     * 1000
-    * fp.length_scale
-    / (fp.water_density * fp.ocean_area)
+    * fp.model.parameters.length_scale
+    / (fp.model.parameters.water_density * fp.ocean_area)
 )
-B = averaging_operator(
+B = l2_products_operator(
     model_space, [GMSL_weighting_function]
 )
 
@@ -305,7 +293,7 @@ ssh_estimation_alt = (
     * 1000
 )
 
-F = point_averaging_operator(data_space)
+F = point_l2_products_operator(data_space)
 averaged_error = data_error_measure.affine_mapping(
     operator=F
 )
@@ -337,14 +325,12 @@ xmax = max(
 x_post = np.linspace(xmin, xmax, 1000)
 # %%
 
-
 def gaussian(x, mean, std_dev):
     return (
         1
         / (std_dev * np.sqrt(2 * np.pi))
         * np.exp(-0.5 * ((x - mean) / std_dev) ** 2)
     )
-
 
 prior_pdf = gaussian(
     x_prior, prior_expectation, prior_std_dev
@@ -385,7 +371,6 @@ ax.plot(
     linewidth=3,
 )
 
-
 ax.set_xlim(xmin, xmax)
 
 ax.get_yaxis().set_visible(False)
@@ -419,7 +404,7 @@ from project.projections import (
 fig_ant_true, ax_ant_true, im_ant_true = plot(
     1000
     * model_true
-    * fp.length_scale
+    * fp.model.parameters.length_scale
     * fp.ice_projection(),
     projection=PROJ_ANTARCTICA,
     map_extent=EXTENT_ANTARCTICA,
@@ -443,7 +428,7 @@ fig_ant_true.savefig(
 fig_ant_post, ax_ant_post, im_ant_post = plot(
     1000
     * model_posterior_expectation
-    * fp.length_scale
+    * fp.model.parameters.length_scale
     * fp.ice_projection(),
     projection=PROJ_ANTARCTICA,
     map_extent=EXTENT_ANTARCTICA,
@@ -465,7 +450,7 @@ fig_ant_post.savefig(
 fig_grn_true, ax_grn_true, im_grn_true = plot(
     1000
     * model_true
-    * fp.length_scale
+    * fp.model.parameters.length_scale
     * fp.ice_projection(),
     projection=PROJ_GREENLAND,
     map_extent=EXTENT_GREENLAND,
@@ -489,7 +474,7 @@ fig_grn_true.savefig(
 fig_grn_post, ax_grn_post, im_grn_post = plot(
     1000
     * model_posterior_expectation
-    * fp.length_scale
+    * fp.model.parameters.length_scale
     * fp.ice_projection(),
     projection=PROJ_GREENLAND,
     map_extent=EXTENT_GREENLAND,

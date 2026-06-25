@@ -12,15 +12,15 @@ from pygeoinf import (
     LinearOperator,
 )
 from pyshtools import SHGrid
-from pyslfp import (
-    FingerPrint,
+from pyslfp.linear_operators import (
     averaging_operator,
     ocean_projection_operator,
     remove_ocean_average_operator,
     sea_level_change_to_load_operator,
     sea_surface_height_operator,
-    spatial_mutliplication_operator,
+    spatial_multiplication_operator,
 )
+from pyslfp.state import EarthState
 
 from pyslfp_extras.gmsl import (
     GMSLOperatorBase,
@@ -90,7 +90,7 @@ class OceanDynamics(GMSLOperatorBase):
 
         @abstractmethod
         def spatial_field(
-            self, finger_print: FingerPrint
+            self, finger_print: EarthState
         ) -> SHGrid:
             """Return a dimensionless SHGrid of spatial weights in [0,1].
 
@@ -103,7 +103,7 @@ class OceanDynamics(GMSLOperatorBase):
         """Rotationally invariant — uniform weight of 1 over the ocean."""
 
         def spatial_field(
-            self, finger_print: FingerPrint
+            self, finger_print: EarthState
         ) -> SHGrid:
             return finger_print.ocean_projection(value=0)
 
@@ -147,7 +147,7 @@ class OceanDynamics(GMSLOperatorBase):
             )
 
         def spatial_field(
-            self, finger_print: FingerPrint
+            self, finger_print: EarthState
         ) -> SHGrid:
             lats = finger_print.lats()
             lons = finger_print.lons()
@@ -264,7 +264,7 @@ class OceanDynamics(GMSLOperatorBase):
             self.filename = filename
 
         def spatial_field(
-            self, finger_print: FingerPrint
+            self, finger_print: EarthState
         ) -> SHGrid:
             if self.filename is not None:
                 data_path = resources.files(
@@ -320,7 +320,7 @@ class OceanDynamics(GMSLOperatorBase):
 
     def __init__(
         self,
-        finger_print: FingerPrint,
+        finger_print: EarthState,
         finger_print_operator: LinearOperator,
         std: float = 0.003,
         length_scale: Optional[float] = 5000,
@@ -363,9 +363,9 @@ class OceanDynamics(GMSLOperatorBase):
     @cached_property
     def _height_op(self) -> LinearOperator:
         """Base measure space → ocean-projected, spatially weighted, zero-average height."""
-        spatial_op = spatial_mutliplication_operator(
-            self._pattern.spatial_field(self._fp),
+        spatial_op = spatial_multiplication_operator(
             self._load_space,
+            self._pattern.spatial_field(self._fp),
         )
         ocean_proj_op = ocean_projection_operator(
             self._fp, self._load_space
@@ -379,7 +379,7 @@ class OceanDynamics(GMSLOperatorBase):
     def _height_to_load_op(self) -> LinearOperator:
         """Physical height change → equivalent mass load."""
         return sea_level_change_to_load_operator(
-            self._fp, self._load_space
+            self._fp, self._load_space, self._load_space
         )
 
     @cached_property
@@ -427,12 +427,14 @@ class OceanDynamics(GMSLOperatorBase):
         ocean_projection = self._fp.ocean_projection(
             value=0
         )
-        weighting = ocean_projection / self._fp.integrate(
+        weighting = ocean_projection / self._fp.model.integrate(
             ocean_projection
         )
         return (
             averaging_operator(
-                self._height_to_ssh_op.codomain, [weighting]
+                self._fp,
+                self._height_to_ssh_op.codomain,
+                [weighting],
             )
             @ self._height_to_ssh_op
             @ self._height_op
