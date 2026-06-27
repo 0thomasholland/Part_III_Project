@@ -101,6 +101,7 @@ def plot(
     fig: Figure
     if "ax" in kwargs and kwargs["ax"] is not None:
         ax = kwargs.pop("ax")
+        plot_options.pop("ax", None)
         fig = ax.figure
     else:
         fig, ax = create_map_figure(
