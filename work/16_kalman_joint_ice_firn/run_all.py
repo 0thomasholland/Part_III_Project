@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-import os
 import subprocess
 import sys
-from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
+
+from parallel_utils import run_jobs_in_threads
 
 
 ROOT = Path(__file__).resolve().parent
@@ -30,22 +30,17 @@ def _run_script(script_name: str) -> tuple[str, int, str]:
 
 
 def main() -> None:
-    max_workers = min(int(os.environ.get("WORK16_MAX_WORKERS", "2")), len(SCRIPTS))
     failures: list[tuple[str, int]] = []
 
-    with ProcessPoolExecutor(max_workers=max_workers) as executor:
-        futures = {
-            executor.submit(_run_script, script_name): script_name
-            for script_name in SCRIPTS
-        }
-        for future in as_completed(futures):
-            script_name, returncode, output = future.result()
-            print(f"\n=== {script_name} ===")
-            if output:
-                print(output)
-            print(f"exit_code={returncode}")
-            if returncode != 0:
-                failures.append((script_name, returncode))
+    for script_name, returncode, output in run_jobs_in_threads(
+        SCRIPTS, _run_script
+    ):
+        print(f"\n=== {script_name} ===")
+        if output:
+            print(output)
+        print(f"exit_code={returncode}")
+        if returncode != 0:
+            failures.append((script_name, returncode))
 
     if failures:
         raise SystemExit(

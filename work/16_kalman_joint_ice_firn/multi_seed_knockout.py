@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import os
-from concurrent.futures import ProcessPoolExecutor, as_completed
 from dataclasses import replace
 from pathlib import Path
 
@@ -10,6 +8,7 @@ import numpy as np
 import pandas as pd
 
 from common import ExperimentConfig, ensure_output_dir, run_variant
+from parallel_utils import run_cases_in_pool
 
 
 BASE_CONFIG = ExperimentConfig(
@@ -28,13 +27,9 @@ VARIANTS = [
 
 
 def _evaluate_case(
-    seed: int,
-    name: str,
-    include_ssh: bool,
-    include_ice: bool,
-    include_bores: bool,
-    include_grace: bool,
+    case: tuple[int, str, bool, bool, bool, bool],
 ) -> pd.DataFrame:
+    seed, name, include_ssh, include_ice, include_bores, include_grace = case
     config = replace(BASE_CONFIG, seed=seed)
     result = run_variant(
         config=config,
@@ -127,13 +122,7 @@ def main() -> None:
         for seed in SEEDS
         for name, include_ssh, include_ice, include_bores, include_grace in VARIANTS
     ]
-    max_workers = min(int(os.environ.get("WORK16_MAX_WORKERS", "2")), len(cases))
-    summaries = []
-
-    with ProcessPoolExecutor(max_workers=max_workers) as executor:
-        futures = [executor.submit(_evaluate_case, *case) for case in cases]
-        for future in as_completed(futures):
-            summaries.append(future.result())
+    summaries = run_cases_in_pool(cases, _evaluate_case)
 
     summary = pd.concat(summaries, ignore_index=True)
     summary.to_csv(

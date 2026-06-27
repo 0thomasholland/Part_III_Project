@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import os
-from concurrent.futures import ProcessPoolExecutor, as_completed
 from dataclasses import replace
 from pathlib import Path
 
@@ -10,6 +8,7 @@ import numpy as np
 import pandas as pd
 
 from common import ExperimentConfig, ensure_output_dir, run_variant
+from parallel_utils import run_cases_in_pool
 
 
 BASE_CONFIG = ExperimentConfig(
@@ -23,10 +22,9 @@ REVISIT_PROBABILITIES = [0.0, 0.25, 0.5, 0.75, 1.0]
 
 
 def _evaluate_case(
-    seed: int,
-    n_bores: int,
-    revisit_probability: float,
+    case: tuple[int, int, float],
 ) -> dict[str, float]:
+    seed, n_bores, revisit_probability = case
     config = replace(
         BASE_CONFIG,
         seed=seed,
@@ -117,16 +115,7 @@ def main() -> None:
         for n_bores in BORE_COUNTS
         for revisit_probability in REVISIT_PROBABILITIES
     ]
-    max_workers = min(int(os.environ.get("WORK16_MAX_WORKERS", "2")), len(cases))
-    rows = []
-
-    with ProcessPoolExecutor(max_workers=max_workers) as executor:
-        futures = [
-            executor.submit(_evaluate_case, seed, n_bores, revisit_probability)
-            for seed, n_bores, revisit_probability in cases
-        ]
-        for future in as_completed(futures):
-            rows.append(future.result())
+    rows = run_cases_in_pool(cases, _evaluate_case)
 
     frame = pd.DataFrame(rows)
     frame.to_csv(

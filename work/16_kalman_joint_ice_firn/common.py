@@ -86,6 +86,14 @@ class ObservationSet:
     bore_coords: list[tuple[float, float]]
 
 
+@dataclass(frozen=True)
+class ObservationComponent:
+    label: str
+    matrix: np.ndarray
+    noise_std: np.ndarray
+    bore_coords: list[tuple[float, float]] = field(default_factory=list)
+
+
 def _point_operator(space, coords):
     sig = inspect.signature(space.point_evaluation_operator)
     if "matrix_free" in sig.parameters:
@@ -357,6 +365,65 @@ def sample_truth(
     return states
 
 
+def _observation_components(
+    setup: TemporalSetup,
+    bore_coords: list[tuple[float, float]],
+    include_ssh: bool,
+    include_ice: bool,
+    include_bores: bool,
+    include_grace: bool,
+) -> list[ObservationComponent]:
+    components: list[ObservationComponent] = []
+    if include_ssh:
+        components.append(
+            ObservationComponent(
+                label="ssh",
+                matrix=setup.ssh_matrix,
+                noise_std=np.full(
+                    setup.ssh_matrix.shape[0],
+                    setup.config.ssh_noise_std,
+                ),
+            )
+        )
+    if include_ice:
+        components.append(
+            ObservationComponent(
+                label="ice",
+                matrix=setup.ice_matrix,
+                noise_std=np.full(
+                    setup.ice_matrix.shape[0],
+                    setup.config.ice_noise_std,
+                ),
+            )
+        )
+    if include_bores:
+        bore_matrix = build_bore_matrix(setup, bore_coords)
+        components.append(
+            ObservationComponent(
+                label="bore",
+                matrix=bore_matrix,
+                noise_std=np.full(
+                    bore_matrix.shape[0],
+                    setup.config.bore_noise_std,
+                ),
+                bore_coords=bore_coords,
+            )
+        )
+    if include_grace:
+        components.append(
+            ObservationComponent(
+                label="grace",
+                matrix=setup.grace_matrix,
+                noise_std=np.full(
+                    setup.grace_matrix.shape[0],
+                    setup.config.grace_noise_std_m
+                    / setup.fp.model.parameters.length_scale,
+                ),
+            )
+        )
+    return components
+
+
 def build_observations(
     setup: TemporalSetup,
     truth_states: list[np.ndarray],
@@ -369,61 +436,36 @@ def build_observations(
 ) -> list[ObservationSet]:
     observations: list[ObservationSet] = []
     for epoch, truth in enumerate(truth_states):
-        matrices: list[np.ndarray] = []
-        noises: list[np.ndarray] = []
-        labels: list[str] = []
+        components = _observation_components(
+            setup,
+            bore_schedule[epoch],
+            include_ssh,
+            include_ice,
+            include_bores,
+            include_grace,
+        )
+        if not components:
+            raise ValueError("At least one observation type must be enabled.")
 
-        if include_ssh:
-            matrices.append(setup.ssh_matrix)
-            noises.append(
-                np.full(
-                    setup.ssh_matrix.shape[0],
-                    setup.config.ssh_noise_std,
-                )
-            )
-            labels.append("ssh")
-        if include_ice:
-            matrices.append(setup.ice_matrix)
-            noises.append(
-                np.full(
-                    setup.ice_matrix.shape[0],
-                    setup.config.ice_noise_std,
-                )
-            )
-            labels.append("ice")
-        if include_bores:
-            bore_matrix = build_bore_matrix(setup, bore_schedule[epoch])
-            matrices.append(bore_matrix)
-            noises.append(
-                np.full(
-                    bore_matrix.shape[0],
-                    setup.config.bore_noise_std,
-                )
-            )
-            labels.append("bore")
-        if include_grace:
-            matrices.append(setup.grace_matrix)
-            noises.append(
-                np.full(
-                    setup.grace_matrix.shape[0],
-                    setup.config.grace_noise_std_m
-                    / setup.fp.model.parameters.length_scale,
-                )
-            )
-            labels.append("grace")
-
-        H = np.vstack(matrices)
-        noise_std = np.concatenate(noises)
+        H = np.vstack([component.matrix for component in components])
+        noise_std = np.concatenate(
+            [component.noise_std for component in components]
+        )
         y = H @ truth + rng.normal(scale=noise_std)
         observations.append(
             ObservationSet(
-                name="+".join(labels),
+                name="+".join(component.label for component in components),
                 H=H,
                 y=y,
                 noise_std=noise_std,
-                bore_coords=bore_schedule[epoch]
-                if include_bores
-                else [],
+                bore_coords=next(
+                    (
+                        component.bore_coords
+                        for component in components
+                        if component.bore_coords
+                    ),
+                    [],
+                ),
             )
         )
     return observations
@@ -447,6 +489,10 @@ def _ensemble_rank(ensemble: np.ndarray) -> int:
     return int(np.linalg.matrix_rank(gram, tol=1e-10))
 
 
+def _ensemble_trace(ensemble: np.ndarray) -> float:
+    return float(np.sum(_ensemble_std_vector(ensemble) ** 2))
+
+
 def filter_and_smooth(
     setup: TemporalSetup,
     observations: list[ObservationSet],
@@ -462,16 +508,22 @@ def filter_and_smooth(
     predicted_std_vectors = []
     filtered_ranks = []
     predicted_ranks = []
+    filtered_traces = []
+    predicted_traces = []
 
-    for obs in observations:
-        predicted = (
-            setup.config.state_ar1 * ensemble
-            + sample_process_ensemble(setup, rng)
-        )
+    for epoch, obs in enumerate(observations):
+        if epoch == 0:
+            predicted = ensemble.copy()
+        else:
+            predicted = (
+                setup.config.state_ar1 * ensemble
+                + sample_process_ensemble(setup, rng)
+            )
         predicted_means.append(_ensemble_mean(predicted))
         predicted_ensembles.append(predicted.copy())
         predicted_std_vectors.append(_ensemble_std_vector(predicted))
         predicted_ranks.append(_ensemble_rank(predicted))
+        predicted_traces.append(_ensemble_trace(predicted))
 
         anomalies = _ensemble_anomalies(predicted)
         observed_ensemble = obs.H @ predicted
@@ -499,10 +551,40 @@ def filter_and_smooth(
         filtered_ensembles.append(ensemble.copy())
         filtered_std_vectors.append(_ensemble_std_vector(ensemble))
         filtered_ranks.append(_ensemble_rank(ensemble))
+        filtered_traces.append(_ensemble_trace(ensemble))
 
-    smoothed_means = [mean.copy() for mean in filtered_means]
     smoothed_ensembles = [ens.copy() for ens in filtered_ensembles]
+    smoothed_means = [mean.copy() for mean in filtered_means]
     smoothed_std_vectors = [vec.copy() for vec in filtered_std_vectors]
+    smoothed_ranks = filtered_ranks.copy()
+    smoothed_traces = filtered_traces.copy()
+
+    for epoch in range(len(filtered_ensembles) - 2, -1, -1):
+        filtered_anomalies = _ensemble_anomalies(filtered_ensembles[epoch])
+        predicted_next = predicted_ensembles[epoch + 1]
+        predicted_next_anomalies = _ensemble_anomalies(predicted_next)
+        cross_covariance = (
+            filtered_anomalies
+            @ predicted_next_anomalies.T
+            / (filtered_ensembles[epoch].shape[1] - 1)
+        )
+        predicted_next_covariance = (
+            predicted_next_anomalies
+            @ predicted_next_anomalies.T
+            / (predicted_next.shape[1] - 1)
+        )
+        smoothing_gain = cross_covariance @ np.linalg.pinv(
+            predicted_next_covariance
+        )
+        smoothed_ensembles[epoch] = filtered_ensembles[epoch] + smoothing_gain @ (
+            smoothed_ensembles[epoch + 1] - predicted_next
+        )
+        smoothed_means[epoch] = _ensemble_mean(smoothed_ensembles[epoch])
+        smoothed_std_vectors[epoch] = _ensemble_std_vector(
+            smoothed_ensembles[epoch]
+        )
+        smoothed_ranks[epoch] = _ensemble_rank(smoothed_ensembles[epoch])
+        smoothed_traces[epoch] = _ensemble_trace(smoothed_ensembles[epoch])
 
     return {
         "predicted_means": predicted_means,
@@ -516,8 +598,10 @@ def filter_and_smooth(
         "smoothed_std_vectors": smoothed_std_vectors,
         "predicted_ranks": predicted_ranks,
         "filtered_ranks": filtered_ranks,
-        "predicted_variance": [1.0] * len(predicted_ranks),
-        "filtered_variance": [1.0] * len(filtered_ranks),
+        "smoothed_ranks": smoothed_ranks,
+        "predicted_traces": predicted_traces,
+        "filtered_traces": filtered_traces,
+        "smoothed_traces": smoothed_traces,
     }
 
 
@@ -545,6 +629,18 @@ def _grid_error_and_z(
 
 def _ensemble_scalar_std(values: np.ndarray) -> float:
     return float(np.std(values, ddof=1))
+
+
+def _safe_abs_z(error: float, std: float) -> float:
+    if std <= 0.0 or not np.isfinite(std):
+        return float("nan")
+    return abs(error / std)
+
+
+def _safe_z(error: float, std: float) -> float:
+    if std <= 0.0 or not np.isfinite(std):
+        return float("nan")
+    return error / std
 
 
 def summarise_solution(
@@ -640,22 +736,22 @@ def summarise_solution(
                 "smoothed_gmsl_mm": smoothed_gmsl_mm,
                 "filtered_gmsl_error_mm": filtered_gmsl_mm - true_gmsl_mm,
                 "smoothed_gmsl_error_mm": smoothed_gmsl_mm - true_gmsl_mm,
-                "filtered_gmsl_abs_z": abs(
-                    (filtered_gmsl_mm - true_gmsl_mm)
-                    / filtered_gmsl_std_mm
+                "filtered_gmsl_abs_z": _safe_abs_z(
+                    filtered_gmsl_mm - true_gmsl_mm,
+                    filtered_gmsl_std_mm,
                 ),
-                "smoothed_gmsl_abs_z": abs(
-                    (smoothed_gmsl_mm - true_gmsl_mm)
-                    / smoothed_gmsl_std_mm
+                "smoothed_gmsl_abs_z": _safe_abs_z(
+                    smoothed_gmsl_mm - true_gmsl_mm,
+                    smoothed_gmsl_std_mm,
                 ),
-                "filtered_gmsl_z": (
-                    filtered_gmsl_mm - true_gmsl_mm
-                )
-                / filtered_gmsl_std_mm,
-                "smoothed_gmsl_z": (
-                    smoothed_gmsl_mm - true_gmsl_mm
-                )
-                / smoothed_gmsl_std_mm,
+                "filtered_gmsl_z": _safe_z(
+                    filtered_gmsl_mm - true_gmsl_mm,
+                    filtered_gmsl_std_mm,
+                ),
+                "smoothed_gmsl_z": _safe_z(
+                    smoothed_gmsl_mm - true_gmsl_mm,
+                    smoothed_gmsl_std_mm,
+                ),
                 "filtered_gmsl_std_mm": filtered_gmsl_std_mm,
                 "smoothed_gmsl_std_mm": smoothed_gmsl_std_mm,
                 "filtered_ice_mean_abs_z": float(
@@ -711,6 +807,9 @@ def run_variant(
     bore_schedule: list[list[tuple[float, float]]] | None = None,
     setup: TemporalSetup | None = None,
 ) -> dict[str, object]:
+    if not any([include_ssh, include_ice, include_bores, include_grace]):
+        raise ValueError("At least one observation type must be enabled.")
+
     setup = build_setup(config) if setup is None else setup
     truth_rng = np.random.default_rng(config.seed)
     bore_rng = np.random.default_rng(config.seed + 1)
@@ -751,14 +850,31 @@ def run_variant(
         observations,
     )
     summary["variant"] = name
-    summary["mean_predicted_rank"] = float(
-        np.mean(solution["predicted_ranks"])
+    summary["predicted_rank"] = solution["predicted_ranks"]
+    summary["filtered_rank"] = solution["filtered_ranks"]
+    summary["smoothed_rank"] = solution["smoothed_ranks"]
+    summary["predicted_state_trace"] = solution["predicted_traces"]
+    summary["predicted_state_trace_prior_fraction"] = 1.0
+    summary["filtered_state_trace_prior_fraction"] = np.divide(
+        solution["filtered_traces"],
+        solution["predicted_traces"],
+        out=np.full(len(solution["filtered_traces"]), np.nan),
+        where=np.asarray(solution["predicted_traces"]) > 0.0,
     )
-    summary["mean_filtered_rank"] = float(
-        np.mean(solution["filtered_ranks"])
+    summary["smoothed_state_trace_prior_fraction"] = np.divide(
+        solution["smoothed_traces"],
+        solution["predicted_traces"],
+        out=np.full(len(solution["smoothed_traces"]), np.nan),
+        where=np.asarray(solution["predicted_traces"]) > 0.0,
     )
-    summary["mean_predicted_variance_fraction"] = 1.0
-    summary["mean_filtered_variance_fraction"] = 1.0
+    summary["mean_predicted_rank"] = summary["predicted_rank"]
+    summary["mean_filtered_rank"] = summary["filtered_rank"]
+    summary["mean_predicted_variance_fraction"] = (
+        summary["predicted_state_trace_prior_fraction"]
+    )
+    summary["mean_filtered_variance_fraction"] = (
+        summary["filtered_state_trace_prior_fraction"]
+    )
     return {
         "setup": setup,
         "truth_states": truth_states,
