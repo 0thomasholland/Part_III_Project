@@ -107,6 +107,9 @@ def plot_heatmap(
 
 
 def main() -> None:
+    print(
+        "Running bore_sensitivity.py: sweep bore count and revisit probability across seeds."
+    )
     ensure_output_dir(BASE_CONFIG.output_dir)
     cases = [
         (seed, n_bores, revisit_probability)
@@ -167,6 +170,7 @@ def main() -> None:
         title="GMSL |z| gain from bores",
         cbar_label="No-bores minus full |GMSL z|",
     )
+    print("Saved seedwise sweep table, aggregate table, and heatmaps.")
     print(aggregate.round(6))
     print("Saved outputs to", BASE_CONFIG.output_dir)
 

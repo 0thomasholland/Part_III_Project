@@ -115,6 +115,9 @@ def plot_seedwise_improvement(
 
 
 def main() -> None:
+    print(
+        "Running multi_seed_knockout.py: repeat knockout study across multiple random seeds."
+    )
     ensure_output_dir(BASE_CONFIG.output_dir)
     cases = [
         (seed, name, include_ssh, include_ice, include_bores, include_grace)
@@ -192,6 +195,7 @@ def main() -> None:
         BASE_CONFIG.output_dir / "multi_seed_variant_means.csv",
         index=False,
     )
+    print("Saved multi-seed summary tables and aggregate comparison plots.")
     print(aggregate.round(6))
     print("Saved outputs to", BASE_CONFIG.output_dir)
 

@@ -158,6 +158,9 @@ def plot_firn_snapshots(result: dict[str, object], output_path: Path) -> None:
 
 
 def main() -> None:
+    print(
+        "Running joint_kalman.py: full-observation baseline with filter and smoother outputs."
+    )
     ensure_output_dir(CONFIG.output_dir)
     result = run_variant(
         config=CONFIG,
@@ -210,6 +213,7 @@ def main() -> None:
         title="Joint posterior error and z-score distributions",
     )
 
+    print("Saved baseline summary and diagnostic plots.")
     print(summary.round(4))
     print(
         "Saved outputs to",

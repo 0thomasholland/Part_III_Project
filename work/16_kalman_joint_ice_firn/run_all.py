@@ -9,10 +9,22 @@ from parallel_utils import run_jobs_in_threads
 
 ROOT = Path(__file__).resolve().parent
 SCRIPTS = [
-    "joint_kalman.py",
-    "knockout_test.py",
-    "bore_sensitivity.py",
-    "multi_seed_knockout.py",
+    (
+        "joint_kalman.py",
+        "Full joint Kalman filter and smoother baseline.",
+    ),
+    (
+        "knockout_test.py",
+        "Single-seed sensor knockout comparison.",
+    ),
+    (
+        "bore_sensitivity.py",
+        "Bore count and revisit sensitivity sweep.",
+    ),
+    (
+        "multi_seed_knockout.py",
+        "Multi-seed knockout robustness sweep.",
+    ),
 ]
 
 
@@ -31,11 +43,18 @@ def _run_script(script_name: str) -> tuple[str, int, str]:
 
 def main() -> None:
     failures: list[tuple[str, int]] = []
+    descriptions = dict(SCRIPTS)
+
+    print("Running work16 experiment suite:")
+    for script_name, description in SCRIPTS:
+        print(f"- {script_name}: {description}")
 
     for script_name, returncode, output in run_jobs_in_threads(
-        SCRIPTS, _run_script
+        [script_name for script_name, _ in SCRIPTS],
+        _run_script,
     ):
         print(f"\n=== {script_name} ===")
+        print(descriptions[script_name])
         if output:
             print(output)
         print(f"exit_code={returncode}")
@@ -50,6 +69,8 @@ def main() -> None:
                 for script_name, returncode in failures
             )
         )
+
+    print("All work16 scripts completed successfully.")
 
 
 if __name__ == "__main__":

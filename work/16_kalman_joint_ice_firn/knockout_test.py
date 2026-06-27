@@ -37,6 +37,9 @@ VARIANTS = [
 
 
 def main() -> None:
+    print(
+        "Running knockout_test.py: compare full system against sensor-removal variants."
+    )
     ensure_output_dir(CONFIG.output_dir)
     setup = build_setup(CONFIG)
     rng = np.random.default_rng(CONFIG.seed)
@@ -171,6 +174,7 @@ def main() -> None:
             "mean_filtered_variance_fraction",
         ]
     ].mean()
+    print("Saved knockout summaries, plots, and posterior comparison diagnostics.")
     print(summary.round(4))
     print("\nVariant means:\n")
     print(pivot.round(4))
